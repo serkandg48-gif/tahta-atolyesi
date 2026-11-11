@@ -301,11 +301,91 @@ T.ciktilar = (function () {
     ],
   };
 
-  const DATA = { Matematik, "Hayat Bilgisi": HayatBilgisi };
+  /* Kaynak: MEB, Fen Bilimleri Dersi Öğretim Programı (3-8. Sınıflar), 2026,
+     mufredat.meb.gov.tr/Dosyalar/20268149031570-Fen Bilimleri (3-8) DÖP.pdf */
+  const FenBilimleri = {
+    3: [
+      { tema: "Bilimsel Keşif Yolculuğu", c: [
+        c("FB.3.1.1.", "Bilimsel bilgiye ulaşma yollarını sorgulayabilme", "Merak ettiği bilimsel bir konuyu tanımlar.", "İlgili konu hakkında sorular sorar.", "Sorularını cevaplamaya yönelik bilgi toplar."),
+        c("FB.3.1.2.", "Bilim insanlarının özelliklerini genelleyebilme", "Bilim insanları hakkında bilgi toplar.", "Bilim insanlarının ortak özelliklerini belirler.", "Bilim insanlarının ortak olmayan özelliklerini belirler."),
+      ] },
+      { tema: "Canlılar Dünyasına Yolculuk", c: [
+        c("FB.3.2.1.", "Canlıları; mikroskopla görülebilen canlılar, mantarlar, bitkiler ve hayvanlar olarak sınıflandırabilme", "Canlıların benzer ve farklı niteliklerini belirler.", "Canlıları niteliklerine göre ayırır.", "Canlıları gruplandırır."),
+        c("FB.3.2.2.", "Canlıların çevrelerini farklı yollarla algılamaları konusunda bilimsel çıkarım yapabilme", "Canlıların çevrelerini algılama biçimlerine ilişkin nitelikleri tanımlar.", "Duyu organlarının işlevleri ile ilgili veri toplayarak kaydeder.", "Canlıların çevrelerini farklı biçimlerde algılamalarına ilişkin verileri yorumlayarak değerlendirir."),
+        c("FB.3.2.3.", "Canlıların yaşam döngülerini açıklamada tümevarımsal akıl yürütebilme", "Canlıların yaşam döngüleri ile ilgili örüntüleri bulur.", "Canlıların yaşam döngüleri ile ilgili genelleme yapar."),
+      ] },
+      { tema: "Yer Bilimciler İş Başında", c: [
+        c("FB.3.3.1.", "Kayaçlar, madenler ve mineraller ile ilgili tümdengelimsel akıl yürütebilme", "Kayaçlar, madenler ve mineralleri belirler.", "Kayaçlar, madenler ve mineraller arasında ilişki kurar.", "Kayaçlar, madenler ve mineraller arasında genelden genele veya genelden özele çıkarım yapar."),
+        c("FB.3.3.2.", "Fosil oluşumu ile ilgili bilgileri sentezleyebilme", "Fosil oluşumunu gösteren sürecin bütün ve parçalarını belirler.", "Süreci oluşturan aşamalar arasında ilişki kurar.", "Fosillerin oluşum sürecini oluşturan aşamaları uygun sırayla bir bütün hâline getirir."),
+      ] },
+      { tema: "Maddeyi Tanıyalım, Karıştırıp Ayıralım", c: [
+        c("FB.3.4.1.", "Çevresindeki maddeleri hâllerine göre sınıflandırabilme", "Çevresindeki maddelerin niteliklerini tanımlar.", "Çevresindeki maddeleri niteliklerine göre ayırır.", "Çevresindeki maddeleri hâllerine göre gruplandırır."),
+        c("FB.3.4.2.", "Günlük yaşamda karşılaştığı karışımların ayrılmasında kullanılabilecek uygun yöntemleri kullanarak deney yapabilme", "Karışımların ayrılmasında kullanılabilecek yöntemlerle ilgili deney tasarlar.", "Deneyle ilgili ölçme ve veri analizi yapar."),
+        c("FB.3.4.3.", "Atıkların ayrıştırılmasına ilişkin problem çözebilme", "Atıkların ayrıştırılmasına ilişkin problemi yapılandırır.", "Atıkların ayrıştırılmasına ilişkin problemi özetler.", "Atıkların ayrıştırılmasına ilişkin çözüm önerilerini gözleme ya da veriye dayalı tahmin eder."),
+      ] },
+      { tema: "Hareketi Keşfediyorum", c: [
+        c("FB.3.5.1.", "Varlıkların hareket durumlarını gözleme dayalı tahmin edebilme", "Varlıkların hareket durumlarına ilişkin ön gözlem ve/veya deneyimlerini ilişkilendirir.", "Varlıkların hareket durumlarına ilişkin çıkarım yapar.", "Varlıkların hareket durumlarının sonuçlarına ilişkin yargıda bulunur."),
+        c("FB.3.5.2.", "Kuvvetin varlıklar üzerindeki etkilerini bilimsel gözleme dayalı tahmin edebilme", "Varlıkların hareketinin ve şekil değiştirmesinin nedenine ilişkin ön bilgi ve deneyimleriyle önerme oluşturur.", "Varlıkların hareketinin ve şekil değiştirmesinin nedenine ilişkin gözleme dayalı olan önermeleri karşılaştırır.", "Kuvvetin varlıkların hareketine ve şekil değiştirmesine etkilerine ilişkin tahminlerini temellendirmek için gözlem verilerinden sonuç çıkarır."),
+      ] },
+      { tema: "Yaşamımızı Kolaylaştıran Elektrik", c: [
+        c("FB.3.6.1.", "Bazı araç gerecin elektrikli olduğuna ilişkin bilimsel çıkarım yapabilme", "Farklı araç gerecin niteliklerini tanımlar.", "Elektrikli araç gereçle ilgili veri toplayarak kaydeder.", "Elektrikli araç gereçle ilgili verileri değerlendirir."),
+        c("FB.3.6.2.", "Elektrikli araç gerecin güvenli kullanımı ile ilgili eleştirel düşünebilme", "Elektrikli araç gerecin güvenli kullanımı ile ilgili verilen bir olay/konu/problem veya durumu sorgular.", "Elektrikli araç gerecin kullanımında güvenliğin sağlanabileceğine yönelik akıl yürütür.", "Akıl yürütmeyle ulaştığı çıkarımları yansıtır."),
+        c("FB.3.6.3.", "Elektriği tasarruflu kullanma konusunda bilimsel veriye dayalı tahmin edebilme", "Elektriği tasarruflu kullanma konusunda verilere ve/veya ön bilgilere dayalı önerme oluşturur.", "Elektriği tasarruflu kullanma üzerine nicel ölçüm verilerine dayalı önermelerini gerekçelendirir.", "Hesaplamalarına dayalı olarak tahmin eder."),
+      ] },
+      { tema: "Toprağı Tanıyorum, Tarımı Keşfediyorum", c: [
+        c("FB.3.7.1.", "Toprak oluşumunu ve yapısını bilimsel olarak gözlemleyebilme", "Toprağın oluşumuna ve yapısına ilişkin nitelikleri tanımlar.", "Toprağın yapısına ilişkin veri toplayarak kaydeder.", "Toprağın yapısına ilişkin topladığı verileri açıklar."),
+        c("FB.3.7.2.", "Bir bitkinin yetişmesi için gerekenleri genelleyebilme", "Çevresinde bulunan tarım ürünlerinin nasıl yetiştirildiği konusunda araştırma yaparak bilgi toplar.", "Bitki yetiştirmek için gerekli ortak özellikleri belirler.", "Farklı bitkilerin yetiştirilmesinde ortak olmayan özellikleri belirler."),
+      ] },
+      { tema: "Canlıların Yaşam Alanlarına Yolculuk", c: [
+        c("FB.3.8.1.", "Canlıların yaşam alanlarının özelliklerini belirlemeye yönelik kanıt kullanabilme", "Canlıların yaşam alanlarının özelliklerine ilişkin veri toplayarak kaydeder.", "Canlıların yaşam alanlarına ilişkin veri setleri oluşturur.", "Canlıların yaşam alanlarının özelliklerine ilişkin veriye dayalı açıklama yapar."),
+        c("FB.3.8.2.", "Yaşam alanındaki canlı çeşitliliğini operasyonel olarak tanımlayabilme", "Yaşam alanının özelliklerini tanımlar.", "Yaşam alanındaki canlı çeşitliliği ile ilgili ölçüm yapar.", "Canlı çeşitliliğinin tanımını yapar."),
+        c("FB.3.8.3.", "Yaşam alanlarının korunması için yapılacakları sorgulayabilme", "Merak ettiği konuyu tanımlar.", "İlgili konu hakkında sorular sorar.", "İlgili konu hakkında bilgi toplar.", "Toplanan bilgilerin doğruluğunu değerlendirir.", "Toplanan bilgiler üzerinde çıkarım yapar."),
+      ] },
+    ],
+    4: [
+      { tema: "Bilime Yolculuk", c: [
+        c("FB.4.1.1.", "Bilimin özellikleri ile ilgili deneyimlerini yansıtabilme", "Bilim ile ilgili bilgi ve deneyimini gözden geçirir.", "Bilimin özellikleri ile ilgili çıkarım yapar.", "Bilimin özellikleri ile ilgili ulaşılan çıkarımları değerlendirir."),
+        c("FB.4.1.2.", "Bilgi kaynağının güvenilirliğini sorgulayabilme", "Merak ettiği bilimsel bir konuyu tanımlar.", "İlgili konu hakkında sorular sorar.", "İlgili konu hakkında teknolojik araçlar ve diğer kaynakları kullanarak bilgi toplar.", "Toplanan bilgilerden hareketle bilginin doğruluğunu değerlendirir.", "Yaptığı değerlendirmeler sonucunda bilgi kaynaklarının güvenilirliği ile ilgili çıkarım yapar."),
+      ] },
+      { tema: "Sağlıklı Besleniyorum", c: [
+        c("FB.4.2.1.", "Besin içeriklerini ayırt etmek için deney yapabilme", "Besinlerdeki protein, karbohidrat, yağ ve su içeriğini ayırt etmek için deney tasarlar.", "Yaptığı deneyde ölçme ve veri analizi yapar."),
+        c("FB.4.2.2.", "Besinlerde vitamin ve/veya mineral bulunması durumunu genelleyebilme", "Besinlerdeki vitamin ve mineraller ile ilgili bilgi toplar.", "Besinlerdeki ortak olan özellikleri belirler.", "Besinlerdeki ortak olmayan özellikleri belirler.", "Örüntüler üzerinden besinlerde vitamin ve/veya minerallerin bulunduğu önermesinde bulunur."),
+        c("FB.4.2.3.", "Besinlerin işlevleri ile ilgili hipotez oluşturabilme", "Besinlerin işlevleri ile ilgili problemi tanımlar.", "Besinlerin işlevleri ve vücudumuzdaki görevleri arasındaki neden-sonuç ilişkilerini belirler.", "Besinlerin içerikleri ile ilgili verilen değişkenleri belirler.", "Besinlerin işlevleri ile ilgili değişkenleri kontrol eder.", "Besinlerin işlevleri ve sağlıklı yaşam arasındaki ilişkiye yönelik önerme sunar."),
+      ] },
+      { tema: "Dünyamızı Keşfedelim", c: [
+        c("FB.4.3.1.", "Dünya'nın şekli ile ilgili bilimsel gözleme dayalı tahmin yapabilme", "Dünya'nın şekli ile ilgili ön bilgi ve deneyimlerine dayalı önerme oluşturur.", "Dünya'nın şekli ile ilgili gözleme dayalı olan önermeleri karşılaştırır.", "Dünya'nın şekli ile ilgili tahminlerini temellendirmek için gözlem verilerinden sonuç çıkarır.", "Dünya'nın şekli ile ilgili veriye dayalı tahminde bulunur.", "Dünya'nın şekli ile ilgili verilere dayalı tahminlerin geçerliğini sorgular."),
+        c("FB.4.3.2.", "Dünya'nın yapısıyla ilgili bilimsel model oluşturabilme", "Dünya'nın yapısını açıklamak için model önerir.", "Dünya'nın yapısını açıklamak için yeni kanıtlarla modeli geliştirir."),
+        c("FB.4.3.3.", "Dünya'nın hareketlerini gözlemlerine dayanarak tahmin edebilme", "Dünya'nın hareketleri ile ilgili önceki gözlem ve/veya deneyimini ilişkilendirir.", "Dünya'nın hareketlerine ilişkin çıkarım yapar.", "Dünya'nın hareketlerinin sonuçlarına ilişkin yargıda bulunur."),
+      ] },
+      { tema: "Maddenin Değişimi", c: [
+        c("FB.4.4.1.", "Maddelerin hâl değişimine yönelik bilimsel çıkarım yapabilme", "Maddelerin hallerine yönelik nitelikleri tanımlar.", "Maddelerin hâl değişimine yönelik verileri kaydeder.", "Maddelerin hâl değişimine yönelik verileri yorumlayarak değerlendirir."),
+        c("FB.4.4.2.", "Maddelerin ısı etkisiyle değişimine yönelik deney yapabilme", "Maddelerin ısı etkisiyle değişimine yönelik deney tasarlar.", "Maddelerin ısı etkisiyle değişimine yönelik ölçme veri analizi yapar."),
+      ] },
+      { tema: "Mıknatısı Keşfediyorum", c: [
+        c("FB.4.5.1.", "Mıknatısın kutupları ve birbirleriyle etkileşimleri ile ilgili tümevarımsal akıl yürütebilme", "Mıknatıs çeşitlerinin kutupları ve birbiriyle etkileşimleri ile ilgili örüntü bulur.", "Mıknatısın kutupları ve birbiriyle etkileşimleri ile ilgili genelleme yapar."),
+        c("FB.4.5.2.", "Mıknatısın etki ettiği maddelere ilişkin bilimsel gözleme dayalı tahmin yapabilme", "Mıknatısın etki ettiği maddelere ilişkin ön bilgi ve deneyimlerine dayanarak önerme oluşturur.", "Mıknatısın etki ettiği maddelere ilişkin gözleme dayalı önermeleri karşılaştırır.", "Mıknatısın etki ettiği maddelere ilişkin tahminlerini temellendirmek için gözlem verilerinden sonuç çıkarır.", "Mıknatısın etki ettiği maddelerle ilgili gözlemlenmemiş duruma ilişkin tahminde bulunur.", "Tahminlerin geçerliğini sorgular."),
+        c("FB.4.5.3.", "Mıknatısın kullanım alanlarına yönelik bilimsel olarak sorgulayabilme", "Mıknatısın kullanım alanlarına yönelik bir soru veya problem tanımlar.", "Sorusunu/problemini cevaplamada kullanabileceği bir model geliştirir.", "Modelini oluşturmaya yönelik araştırma planlayarak gerçekleştirir.", "Oluşturduğu modele ilişkin verileri analiz ederek yorumlar.", "Oluşturduğu modelle ilgili sorunlara ilişkin kanıta dayalı açıklama yaparak çözüm üretir.", "Oluşturduğu modeli değerlendirerek paylaşır."),
+      ] },
+      { tema: "Elektrik ve Enerji Kaynakları", c: [
+        c("FB.4.6.1.", "Basit bir elektrik devresi kurmaya ilişkin bilimsel olarak sorgulayabilme", "Devre elemanlarını kullanarak basit bir elektrik devresi kurmaya ilişkin soru veya problemi tanımlar.", "Sorusunu/problemini cevaplamada kullanacağı basit bir elektrik devresi modeli geliştirir.", "Basit bir elektrik devresinde devre elemanlarına ve işlevlerine ilişkin araştırmayı planlayarak gerçekleştirir.", "Basit bir elektrik devresine ilişkin verileri analiz ederek yorumlar.", "Elektrik devresinin çalışıp çalışmamasına yönelik kanıta dayalı açıklama yaparak çözüm üretir.", "Çalışan basit bir elektrik devresi kurmaya ilişkin bilgiyi değerlendirerek paylaşır."),
+        c("FB.4.6.2.", "Elektrik üretiminde yenilenebilir ve yenilenemeyen enerji kaynaklarını kullanmaya ilişkin eleştirel düşünebilme", "Elektrik üretiminde yenilenebilir ve yenilenemeyen enerji kaynaklarını kullanmaya ilişkin bir durumu veya problemi sorgular.", "Elektrik üretiminde yenilenebilir ve yenilenemeyen enerji kaynaklarını kullanmaya ilişkin durum veya problemin canlılar ve çevre üzerine etkileri konusunda akıl yürütür.", "Enerji kaynaklarının sürdürülebilirliklerine ilişkin akıl yürütmeyle ulaştığı çıkarımları yansıtır."),
+      ] },
+      { tema: "Işığı Tanıyalım", c: [
+        c("FB.4.7.1.", "Görme olayının gerçekleşebilmesi için ışığın rolüne ilişkin deney yapabilme", "Görme olayının gerçekleşebilmesi için ışığın rolüne ilişkin deney tasarlar.", "Görme olayında ışığın rolüne ilişkin deneyde ölçme ve veri analizi yapar."),
+        c("FB.4.7.2.", "Doğal ve yapay ışık kaynaklarını karşılaştırabilme", "Çevresindeki ışık kaynaklarına ilişkin özellikleri belirler.", "Işık kaynaklarının benzerliklerini listeler.", "Işık kaynaklarının farklılıklarını listeler."),
+        c("FB.4.7.3.", "Işık kirliliğinin canlılara etkisine ilişkin problemleri çözebilme", "Işık kirliliğinin canlılara etkisine ilişkin problemi yapılandırır.", "Problemi özetler.", "Problemin çözümüne yönelik gözleme dayalı/mevcut bilgiye/veriye dayalı tahmin eder.", "Problemin çözümüne yönelik önermeler üzerinden akıl yürütür.", "Problemin çözümüne ilişkin yansıtmada/değerlendirmede bulunur."),
+      ] },
+      { tema: "Sürdürülebilir Yaşam Alanları", c: [
+        c("FB.4.8.1.", "Sürdürülebilir bir yaşam alanı kurmayı bilimsel olarak sorgulayabilme", "Sürdürülebilir bir yaşam alanı kurmaya ilişkin soru veya problem tanımlar.", "Sorusunu/problemini cevaplamada kullanabileceği bir sürdürülebilir yaşam alanı modeli geliştirir.", "Sürdürülebilir bir yaşam alanı kurmaya ilişkin araştırma planlayarak modelini gerçekleştirir.", "Yaşam alanının sürdürülebilirliğine ilişkin verileri analiz ederek yorumlar.", "Yaşam alanının sürdürülebilir olup olmadığına ilişkin kanıta dayalı açıklama yaparak çözüm üretir.", "Sürdürülebilir bir yaşam alanı kurmaya ilişkin bilgiyi değerlendirerek paylaşır."),
+      ] },
+    ],
+  };
+
+  const DATA = { Matematik, "Hayat Bilgisi": HayatBilgisi, "Fen Bilimleri": FenBilimleri };
   const HARF = "abcçdefgğhıijklmnoöprsştuüvyz";
   return {
-    kaynak: { Matematik: "MEB İlkokul Matematik Dersi Öğretim Programı (1-4), Türkiye Yüzyılı Maarif Modeli", "Hayat Bilgisi": "MEB Hayat Bilgisi Dersi Öğretim Programı (1, 2 ve 3. sınıflar), Türkiye Yüzyılı Maarif Modeli" },
-    birim: { "Hayat Bilgisi": "Öğrenme alanı" },
+    kaynak: { Matematik: "MEB İlkokul Matematik Dersi Öğretim Programı (1-4), Türkiye Yüzyılı Maarif Modeli", "Hayat Bilgisi": "MEB Hayat Bilgisi Dersi Öğretim Programı (1, 2 ve 3. sınıflar), Türkiye Yüzyılı Maarif Modeli", "Fen Bilimleri": "MEB Fen Bilimleri Dersi Öğretim Programı (3-8. sınıflar), Türkiye Yüzyılı Maarif Modeli" },
+    birim: { "Hayat Bilgisi": "Öğrenme alanı", "Fen Bilimleri": "Ünite" },
     temalar: (ders, sinif) => (DATA[ders] && DATA[ders][sinif]) || null,
     var: (ders, sinif) => Boolean(DATA[ders] && DATA[ders][sinif]),
     bul(kod) {

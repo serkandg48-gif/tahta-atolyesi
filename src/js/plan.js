@@ -50,19 +50,21 @@
     const secim = h("div.oc-box");
     const drawSecim = () => {
       const temalar = T.ciktilar.temalar(ders.value, +sinif.value);
-      secili = secili.filter((k) => temalar && temalar.some((t) => t.c.some((x) => x.kod === k)));
+      /* Seçim anahtarı "temaSırası|kod": Türkçede aynı kod her temada farklı bileşenlerle geçer. */
+      secili = secili.filter((k) => { const [ti, kod] = k.split("|"); return temalar && temalar[ti] && temalar[ti].c.some((x) => x.kod === kod); });
       if (!temalar) {
         secim.replaceChildren(h("p.hint", { style: { margin: 0 } }, ders.value + " " + sinif.value + ". sınıf öğrenme çıktıları henüz eklenmedi. Konuyu kendin yazabilirsin."));
         return;
       }
-      const temaSec = h("select.in", { "aria-label": "Tema" }, temalar.map((t, i) => h("option", { value: i }, (i + 1) + ". " + ((T.ciktilar.birim || {})[ders.value] || "Tema") + ": " + t.tema)));
+      const temaSec = h("select.in", { "aria-label": "Tema" }, temalar.map((t, i) => h("option", { value: i }, /^İlk Okuma/.test(t.tema) ? t.tema : (i + 1 - (temalar.some((y) => /^İlk Okuma/.test(y.tema)) ? 1 : 0)) + ". " + ((T.ciktilar.birim || {})[ders.value] || "Tema") + ": " + t.tema)));
       if (secim._tema != null && secim._tema < temalar.length) temaSec.value = secim._tema;
       const liste = h("div.oc-list");
       const drawListe = () => {
         secim._tema = +temaSec.value;
         liste.replaceChildren(...temalar[+temaSec.value].c.map((x) => {
-          const cb = h("input", { type: "checkbox", checked: secili.includes(x.kod), onchange: () => {
-            secili = cb.checked ? secili.concat(x.kod) : secili.filter((k) => k !== x.kod);
+          const key = temaSec.value + "|" + x.kod;
+          const cb = h("input", { type: "checkbox", checked: secili.includes(key), onchange: () => {
+            secili = cb.checked ? secili.concat(key) : secili.filter((k) => k !== key);
             sayac.textContent = secili.length ? secili.length + " çıktı seçildi" : "";
           } });
           return h("div.oc-item", h("label", cb, h("span.oc-kod", x.kod), h("span", x.metin)),
@@ -91,7 +93,8 @@
     if (current) renderPlan(out, current);
     async function generate() {
       if (!konu.value.trim() && !secili.length) { T.toast("Bir öğrenme çıktısı seç ya da konuyu yaz"); konu.focus(); return; }
-      const secCikti = secili.map((k) => T.ciktilar.bul(k)).filter(Boolean);
+      const temalarS = T.ciktilar.temalar(ders.value, +sinif.value) || [];
+      const secCikti = secili.map((k) => { const [ti, kod] = k.split("|"); const t = temalarS[ti]; const x = t && t.c.find((y) => y.kod === kod); return x && Object.assign({ tema: t.tema }, x); }).filter(Boolean);
       if (!T.ai.mode()) { current = JSON.parse(JSON.stringify(SAMPLE)); renderPlan(out, current); T.toast("Yapay zeka bağlı değil, örnek plan gösteriliyor"); return; }
       const live = h("pre", { style: { whiteSpace: "pre-wrap", fontSize: "13px", maxHeight: "200px", overflow: "auto", color: "var(--ink-soft)" } });
       out.replaceChildren(h("div.paper", { style: { padding: "20px" } }, h("div.ai-status", h("div.spinner"), "Plan hazırlanıyor. Bu 20-40 saniye sürebilir."), live));

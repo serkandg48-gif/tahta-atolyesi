@@ -392,7 +392,9 @@ T.ciktilar = (function () {
       for (const d of Object.values(DATA)) for (const s of Object.values(d)) for (const t of s) for (const x of t.c) if (x.kod === kod) return Object.assign({ tema: t.tema }, x);
       return null;
     },
-    /* Süreç bileşenlerini programdaki gibi a), b), c), ç) ile harfler. */
-    harfli: (b) => b.map((x, i) => HARF[i] + ") " + x),
+    /* Süreç bileşenlerini programdaki gibi a), b), c), ç) ile harfler. Harfi zaten yazılı olanlara dokunmaz (Türkçe). */
+    harfli: (b) => b.map((x, i) => (/^[a-zçğıöşü]\) /.test(x) ? x : HARF[i] + ") " + x)),
+    /* Başka bir dosyadan ders ekler. */
+    ekle(ders, veri, kaynak, birim) { DATA[ders] = veri; this.kaynak[ders] = kaynak; if (birim) this.birim[ders] = birim; },
   };
 })();

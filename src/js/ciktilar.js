@@ -381,11 +381,47 @@ T.ciktilar = (function () {
     ],
   };
 
-  const DATA = { Matematik, "Hayat Bilgisi": HayatBilgisi, "Fen Bilimleri": FenBilimleri };
+  /* Kaynak: MEB, Sosyal Bilgiler Dersi Öğretim Programı (4-7. Sınıflar), 2026,
+     tymm.meb.gov.tr/assets/pdf/sosyal-bilgiler-dersi_20260902_111029_619.pdf */
+  const SosyalBilgiler = {
+    4: [
+      { tema: "Birlikte Yaşamak", c: [
+        c("SB.4.1.1.", "Sosyal bilgiler dersinin hayatına sunacağı katkıları yorumlayabilme", "Örnek olaylardan hareketle sosyal bilgiler dersinin bireysel ve toplumsal katkılarını inceler.", "Sosyal bilgiler dersinin bireysel ve toplumsal katkılarını bağlamdan kopmadan dönüştürür.", "Sosyal bilgiler dersinin bireysel ve toplumsal katkılarını nesnel, doğru ve anlamı değiştirmeyecek şekilde yeniden ifade eder."),
+        c("SB.4.1.2.", "Bireysel özelliklere saygı duymayı hayatına yansıtabilme", "Bireysel özelliklere ilişkin deneyimlerini gözden geçirir.", "Bireysel özelliklere saygı duymanın önemine ilişkin çıkarım yapar.", "Bireysel özelliklere saygı duymanın önemine ilişkin ulaştığı çıkarımları değerlendirir."),
+        c("SB.4.1.3.", "Toplumsal birliği sürdürmeye yönelik fikir üretebilme", "Aile, sınıf ve okul ortamında toplumsal birliği sürdürmenin bir gereklilik olduğunu fark eder.", "Aile, sınıf ve okul ortamında toplumsal birliği sürdürmeye katkıda bulunan benzer örnekleri inceler.", "Aile, sınıf ve okul ortamında toplumsal birliği sürdürmeye yönelik fikir üretir."),
+      ] },
+      { tema: "Evimiz Dünya", c: [
+        c("SB.4.2.1.", "Konum ve yön bulmada haritaları okuyabilme", "Haritanın başlığından haritanın içeriğine ilişkin anlam çıkarır.", "Harita üzerindeki sembol ve renkleri ayırt eder.", "Harita kenar bilgilerini ve harita kenar bilgilerindeki sembolleri anlamlandırır.", "Yakın çevresindeki bir yerin konumunu belirlerken konum bilgisi, konum bulmaya yönelik sistemler ve araçlardan yararlanır.", "Haritadaki unsurlardan hareketle haritayı ve harita türünü çözümler."),
+        c("SB.4.2.2.", "Yakın çevresinden hareketle doğa ve insan ilişkisini çözümleyebilme", "Yakın çevresindeki doğal çevre unsurlarını belirler.", "Yakın çevresindeki doğal çevre unsurları ile insanlar arasındaki ilişkileri belirler."),
+        c("SB.4.2.3.", "Afetlerin etkilerini azaltma konusunda yapılabileceklere ilişkin oluşturduğu ürünü paylaşabilme", "Kendisine sunulan kaynaklara dayanarak geçmişten günümüze yakın çevresinde gerçekleşen afetlere yönelik çıkarım yapar.", "Yakın çevresinde gerçekleşebilecek afetlerin etkilerini azaltmak için yapılabilecekleri yansıtan bir ürün oluşturur.", "Yakın çevresinde gerçekleşebilecek afetlerin etkilerini azaltmak için yapılabileceklere ilişkin oluşturduğu ürünü paylaşır."),
+      ] },
+      { tema: "Ortak Mirasımız", c: [
+        c("SB.4.3.1.", "Geçmişten günümüze çocuk oyun ve oyuncaklarının değişimini karşılaştırabilme", "Geçmişten günümüze oyun ve oyuncakların özelliklerini kanıt, gözlem ve/veya deneyimlere dayalı olarak belirler.", "Oyun ve oyuncakların zaman içerisinde değişmeyen özelliklerini kanıt, gözlem ve/veya deneyime dayalı olarak listeler.", "Oyun ve oyuncakların zaman içerisinde değişen özelliklerini kanıt, gözlem ve/veya deneyime dayalı olarak listeler."),
+        c("SB.4.3.2.", "Aile tarihine ilişkin oluşturduğu ürünü paylaşabilme", "Aile tarihine ilişkin kanıtlara dayalı çıkarım yapar.", "Aile tarihine ilişkin kanıtlardaki bilgilerden hareketle görüşünü yansıtan bir ürün oluşturur.", "Aile tarihine ilişkin görüşlerine dayalı olarak oluşturduğu ürünü paylaşır."),
+        c("SB.4.3.3.", "Yakın çevresindeki ortak miras ögelerini tanımanın önemini yorumlayabilme", "Yakın çevresindeki ortak miras ögelerini inceler.", "Yakın çevresindeki ortak miras ögeleri ile ilgili edindiği bilgileri nesnel, doğru anlamı değiştirmeyecek bir şekilde yeniden ifade eder."),
+      ] },
+      { tema: "Yaşayan Demokrasimiz", c: [
+        c("SB.4.4.1.", "Millî Mücadele Dönemi'nde Mustafa Kemal Atatürk'ün ve Türk milletinin yaptığı fedakârlıkları yorumlayabilme", "Millî Mücadele Dönemi'nde Mustafa Kemal Atatürk'ün ve Türk milletinin yaptığı fedakârlıklara ilişkin kaynakları inceler.", "Millî Mücadele Dönemi'nde Mustafa Kemal Atatürk'ün ve Türk milletinin yaptığı fedakârlıklara ilişkin bilgileri bağlamdan kopmadan dönüştürür.", "Millî Mücadele Dönemi'nde Mustafa Kemal Atatürk'ün ve Türk milletinin yaptığı fedakârlıklara ilişkin edindiği bilgileri nesnel, doğru ve anlamı değiştirmeyecek şekilde yeniden yorumlar."),
+        c("SB.4.4.2.", "Cumhuriyetin getirdiği değişimlerin hayatımıza katkılarını yorumlayabilme", "Cumhuriyetin getirdiği değişimleri dönemi anlatan anılar, hikâyeler ve görsel içerikler aracılığıyla inceler.", "Cumhuriyetin getirdiği değişimlerden edindiği bilgileri bağlamdan kopmadan dönüştürür.", "Cumhuriyetin getirdiği değişimlerden edindiği bilgileri nesnel, doğru ve anlamı değiştirmeyecek şekilde yeniden ifade eder."),
+        c("SB.4.4.3.", "Okulda karar alma ve demokratik katılım süreçlerine ilişkin fikir üretebilme", "Okulda karar alma ve demokratik katılım süreçlerini fark eder.", "Okulda karar alma ve demokratik katılım süreçlerine ilişkin deneyimleri inceler.", "Okuldaki karar alma ve demokratik katılım süreçlerinin etkin bir şekilde yürütülmesine ilişkin fikir üretir."),
+      ] },
+      { tema: "Hayatımızdaki Ekonomi", c: [
+        c("SB.4.5.1.", "Doğal kaynakların tüketimi ile ilgili grafik yorumlayabilme", "Doğal kaynakların tüketimi ile ilgili verilen grafik üzerindeki simgelerin karşılık geldiği ifadeleri tanır.", "Doğal kaynakların tüketimi ile ilgili verilen grafiği çözümler.", "Çözümlediği grafiklerden elde ettiği verilere dayalı sonuç çıkarır.", "Çıkardığı sonuçları kullanarak kaynaklar ve tüketim ilişkisini karşılaştırır."),
+        c("SB.4.5.2.", "İstek ve ihtiyaçları arasındaki bilinçli seçimleri hayatına yansıtabilme", "İstek ve ihtiyaç kavramlarına ilişkin deneyimleri gözden geçirir.", "İstek ve ihtiyaçları arasında bilinçli seçim yapmaya yönelik çıkarımda bulunur.", "İstek ve ihtiyaçları arasında yaptığı seçimleri değerlendirir."),
+        c("SB.4.5.3.", "Bir ürünün üretim, dağıtım ve tüketim süreçlerini çözümleyebilme", "Bir ürünün geçirdiği yolculuğun süreçlerini belirler.", "Ürünlerin üretim, dağıtım ve tüketim süreçleri arasındaki ilişkileri belirler."),
+      ] },
+      { tema: "Teknoloji ve Sosyal Bilimler", c: [
+        c("SB.4.6.1.", "Çevrim içi ortamda uyulması gereken güvenlik kurallarını eylemlerine yansıtabilme", "Çevrim içi ortamdaki deneyimleri güvenlik kuralları çerçevesinde gözden geçirir.", "Çevrim içi ortamda uyulması gereken güvenlik kurallarına ilişkin çıkarım yapar.", "Çevrim içi ortamda uyulması gereken güvenlik kurallarına ilişkin çıkarımları değerlendirir."),
+        c("SB.4.6.2.", "Bilim insanlarının çocukluk hayatlarına ilişkin tarihsel bağlam oluşturabilme", "Bilim insanlarının çalışmalarını kanıtlara dayalı analiz eder.", "Bilim insanlarının çocukluk dönemi koşullarını fark eder.", "Bilim insanlarının çocukluk dönemi koşulları ile günümüz koşullarını karşılaştırır.", "Bilim insanlarının çocukluklarını dönemin koşulları içerisinde açıklar."),
+      ] },
+    ],
+  };
+
+  const DATA = { Matematik, "Hayat Bilgisi": HayatBilgisi, "Fen Bilimleri": FenBilimleri, "Sosyal Bilgiler": SosyalBilgiler };
   const HARF = "abcçdefgğhıijklmnoöprsştuüvyz";
   return {
-    kaynak: { Matematik: "MEB İlkokul Matematik Dersi Öğretim Programı (1-4), Türkiye Yüzyılı Maarif Modeli", "Hayat Bilgisi": "MEB Hayat Bilgisi Dersi Öğretim Programı (1, 2 ve 3. sınıflar), Türkiye Yüzyılı Maarif Modeli", "Fen Bilimleri": "MEB Fen Bilimleri Dersi Öğretim Programı (3-8. sınıflar), Türkiye Yüzyılı Maarif Modeli" },
-    birim: { "Hayat Bilgisi": "Öğrenme alanı", "Fen Bilimleri": "Ünite" },
+    kaynak: { Matematik: "MEB İlkokul Matematik Dersi Öğretim Programı (1-4), Türkiye Yüzyılı Maarif Modeli", "Hayat Bilgisi": "MEB Hayat Bilgisi Dersi Öğretim Programı (1, 2 ve 3. sınıflar), Türkiye Yüzyılı Maarif Modeli", "Fen Bilimleri": "MEB Fen Bilimleri Dersi Öğretim Programı (3-8. sınıflar), Türkiye Yüzyılı Maarif Modeli", "Sosyal Bilgiler": "MEB Sosyal Bilgiler Dersi Öğretim Programı (4-7. sınıflar), Türkiye Yüzyılı Maarif Modeli" },
+    birim: { "Hayat Bilgisi": "Öğrenme alanı", "Fen Bilimleri": "Ünite", "Sosyal Bilgiler": "Öğrenme alanı" },
     temalar: (ders, sinif) => (DATA[ders] && DATA[ders][sinif]) || null,
     var: (ders, sinif) => Boolean(DATA[ders] && DATA[ders][sinif]),
     bul(kod) {

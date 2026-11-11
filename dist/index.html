@@ -1315,7 +1315,7 @@ T.ciktilar = (function () {
         c("MAT.1.3.5.", "Biçimsel özelliklerine göre geometrik şekilleri sınıflandırabilme", "Geometrik şekillerin biçimsel özelliklerini belirler.", "Geometrik şekilleri biçimsel özelliklerine göre ayırır.", "Geometrik şekilleri tasnif eder.", "Geometrik şekilleri adlandırır."),
       ] },
       { tema: "Veriye Dayalı Araştırma", c: [
-        c("MAT.1.4.1.", "Kategorik veriye dayalı temel veri grubu ile çalışabilme ve veriye dayalı karar verebilme", ...veri("çetele, sıklık tablosu ve nesne grafiğini", "Kategorik veriye dayalı betimleme gerektirebilecek araştırma soruları oluşturur.")),
+        c("MAT.1.4.1.", "Kategorik veriye dayalı temel veri grubu ile çalışabilme ve veriye dayalı karar verebilme", ...veri("çetele, sıklık tablosu ve nesne grafiğini", "Kategorik veriye dayalı betimleme gerektirebilecek araştırma soruları oluşturur.").map((x, i) => i === 0 ? "Kategorik veriye dayalı istatiksel araştırma gerektiren günlük yaşam durumu belirler." : x)),
       ] },
     ],
     2: [
@@ -1456,10 +1456,127 @@ T.ciktilar = (function () {
     ],
   };
 
-  const DATA = { Matematik };
+
+  /* Kaynak: MEB, Hayat Bilgisi Dersi Öğretim Programı (1, 2 ve 3. Sınıflar), 2026,
+     mufredat.meb.gov.tr/Dosyalar/2026728143113646-Hayat BilgisiDÖP.pdf */
+  const YORUM = (k) => [`${k} ilişkin verilen örnekleri inceler.`, `${k} ilişkin verilen örnekleri bağlamdan kopmadan özgün örneklere dönüştürür.`, `${k} ilişkin oluşturduğu özgün örnekleri kendi cümleleri ile ifade eder.`];
+  const KAYNAK = (k) => [`${k} bilgi toplayacağı kaynakları belirler.`, `${k} belirlediği kaynaklardan bilgileri bulur.`, `${k} ulaştığı kaynakların uygunluğunu açıklar.`, `${k} kaynaklardan ulaştığı bilgileri kaydeder.`];
+  const HayatBilgisi = {
+    1: [
+      { tema: "Ben ve Okulum", c: [
+        c("HB.1.1.1.", "Öğretmeni ve arkadaşlarıyla tanışabilme"),
+        c("HB.1.1.2.", "Sınıf ve okul ortamını tanıyabilme"),
+        c("HB.1.1.3.", "Sınıf ve okul ortamında kurallara uygun davranabilme"),
+        c("HB.1.1.4.", "Bireysel özelliklerini açıklayabilme"),
+      ] },
+      { tema: "Sağlığım ve Güvenliğim", c: [
+        c("HB.1.2.1.", "Sağlıklı büyüme ve gelişme için yapılması gerekenleri belirleyebilme"),
+        c("HB.1.2.2.", "Kişisel alan sınırlarını koruyabilme"),
+        c("HB.1.2.3.", "Temel trafik kurallarına uygun davranabilme"),
+        c("HB.1.2.4.", "Acil durumlarda yapılması gerekenleri belirleyebilme"),
+      ] },
+      { tema: "Ailem ve Toplum", c: [
+        c("HB.1.3.1.", "Ailenin özelliklerini ifade edebilme"),
+        c("HB.1.3.2.", "Aile yaşamında nezaket ve görgü kurallarına uygun davranabilme"),
+        c("HB.1.3.3.", "Aile bireylerinin görev ve sorumluluklarını çözümleyebilme", "Aile içindeki görev ve sorumluluklarını belirler.", "Aile bireylerinin görev ve sorumlulukları ilişkilendirir."),
+      ] },
+      { tema: "Yaşadığım Yer ve Ülkem", c: [
+        c("HB.1.4.1.", "Yaşadığı yerin ve ülkemizin genel özelliklerini açıklayabilme"),
+        c("HB.1.4.2.", "Türk bayrağı ve İstiklâl Marşı'nın önemini ifade edebilme"),
+        c("HB.1.4.3.", "Mustafa Kemal Atatürk'ün hayatıyla ilgili bilgileri ifade edebilme"),
+        c("HB.1.4.4.", "Millî gün ve bayramlarda yaşadığı duyguları ifade edebilme"),
+        c("HB.1.4.5.", "Dinî gün ve bayramlarda yaşadığı duyguları ifade edebilme"),
+      ] },
+      { tema: "Doğa ve Çevre", c: [
+        c("HB.1.5.1.", "Yakın çevresinde bulunan doğadaki varlıkları gözlemleyebilme", "Doğadaki varlıkları gözlemleme amacını belirler.", "Doğadaki varlıklara ilişkin veri toplar.", "Doğadaki varlıklara ilişkin topladığı verileri sınıflandırarak kaydeder."),
+        c("HB.1.5.2.", "Modeller üzerinden gök cisimlerini karşılaştırabilme", "Modeller üzerinden gök cisimlerinin (Güneş, Dünya ve Ay) özelliklerini belirler.", "Modeller üzerinden gök cisimlerinin (Güneş, Dünya ve Ay) benzerliklerini listeler.", "Modeller üzerinden gök cisimlerinin (Güneş, Dünya ve Ay) farklılıklarını listeler."),
+        c("HB.1.5.3.", "Afet türlerini tanıyabilme"),
+        c("HB.1.5.4.", "Geri dönüştürülebilen atıkları sınıflandırabilme", "Geri dönüştürülebilen atıkları belirler.", "Geri dönüştürülebilen atıkları ayrıştırır.", "Geri dönüştürülebilen atıkları tasnif eder.", "Geri dönüştürülebilen atıkları etiketler."),
+      ] },
+      { tema: "Bilim, Teknoloji ve Sanat", c: [
+        c("HB.1.6.1.", "Bilimle ilgili merak ettiklerini sorabilme", "Bilim ile ilgili merak ettiği konuları belirler.", "Bilim ile ilgili merak ettiği konular hakkında sorular sorar."),
+        c("HB.1.6.2.", "Teknoloji ile ilgili merak ettiklerini sorabilme", "Teknoloji ile ilgili merak ettiği konuları belirler.", "Teknoloji ile merak ettiği konular hakkında sorular sorar."),
+        c("HB.1.6.3.", "Sanatla ilgili merak ettiklerini sorabilme", "Sanat ile ilgili merak ettiği konuları belirler.", "Sanat ile ilgili merak ettiği konular hakkında sorular sorar."),
+      ] },
+    ],
+    2: [
+      { tema: "Ben ve Okulum", c: [
+        c("HB.2.1.1.", "Planlı olmanın kişisel yaşama etkilerini fark edebilme"),
+        c("HB.2.1.2.", "Öğretmen ve arkadaşlarıyla etkili iletişim kurabilme"),
+        c("HB.2.1.3.", "Arkadaşlık ilişkilerini düzenleyebilme"),
+        c("HB.2.1.4.", "Sınıf içi karar alma süreçlerinde sosyal temas oluşturabilme", "Sınıf içi karar alma süreçlerinde grup iletişimini başlatır.", "Sınıf içi karar alma süreçlerinde grup etkileşimine katılır.", "Sınıf içi karar alma süreçlerinde grup iletişimine katkıda bulunur.", "Sınıf içi karar alma süreçlerinde grup iletişimini değerlendirir."),
+      ] },
+      { tema: "Sağlığım ve Güvenliğim", c: [
+        c("HB.2.2.1.", "Sağlıklı büyüme ve gelişme ile alışkanlıkları arasındaki ilişkiyi çözümleyebilme", "Sağlıklı büyüme ve gelişmeye yönelik alışkanlıkları belirler.", "Sağlıklı büyüme ve gelişme ile alışkanlıkları arasındaki ilişkiyi belirler."),
+        c("HB.2.2.2.", "Çevrim içi ortamlarda kişisel güvenliğini sağlayabilme"),
+        c("HB.2.2.3.", "Temel trafik işaret levhalarını tanıyabilme"),
+        c("HB.2.2.4.", "Acil bir durumda yetkililerle etkili iletişim kurabilme"),
+      ] },
+      { tema: "Ailem ve Toplum", c: [
+        c("HB.2.3.1.", "Ailenin önemini yorumlayabilme", ...YORUM("Ailenin önemine")),
+        c("HB.2.3.2.", "Toplumsal yaşamda nezaket ve görgü kurallarına uygun davranabilme"),
+        c("HB.2.3.3.", "Yakın çevresinde üzerine düşen görev ve sorumlulukları günlük yaşamına yansıtabilme", "Yakın çevresinde üzerine düşen görev ve sorumluluklarını gözden geçirir.", "Yakın çevresinde üzerine düşen görev ve sorumluluklarına ilişkin çıkarımda bulunur.", "Yakın çevresinde üzerine düşen görev ve sorumluluklarına ilişkin değerlendirme yapar."),
+      ] },
+      { tema: "Yaşadığım Yer ve Ülkem", c: [
+        c("HB.2.4.1.", "Yakın çevresinde bulunan tarihî mekân ve doğal güzellikleri belirleyebilme"),
+        c("HB.2.4.2.", "Yaşadığı yerin yönetim birimleri ile ilgili kaynaklardan bilgi toplayabilme", ...KAYNAK("Yaşadığı yerin yönetim birimleri ile ilgili").map((x, i) => i === 2 ? "Yaşadığı yerin yönetim birimleri ile ilgili kullanacağı kaynakların uygunluğunu açıklar." : x)),
+        c("HB.2.4.3.", "Mustafa Kemal Atatürk'ün öğrencilik hayatını ifade edebilme"),
+        c("HB.2.4.4.", "Millî gün ve bayramların önemini yorumlayabilme", ...YORUM("Millî gün ve bayramların önemine")),
+        c("HB.2.4.5.", "Dinî gün ve bayramların önemini yorumlayabilme", ...YORUM("Dinî gün ve bayramların önemine")),
+      ] },
+      { tema: "Doğa ve Çevre", c: [
+        c("HB.2.5.1.", "Hava olayları ve mevsimler arasındaki ilişkiyi çözümleyebilme", "Hava olayları ve mevsimlerin özelliklerini belirler.", "Hava olayları ve mevsimler arasındaki ilişkiyi belirler."),
+        c("HB.2.5.2.", "Doğadan yararlanarak yönünü belirleyebilme"),
+        c("HB.2.5.3.", "Afetlere karşı alınması gereken önlemlere ilişkin bilgi toplayabilme", "Afetlere karşı alınması gereken önlemlere ilişkin bilgi toplamak için kullanacağı araçları belirler.", "Belirlediği araçları kullanarak afetlere karşı alınması gereken önlemlere ilişkin bilgileri bulur.", "Afetlere karşı alınması gereken önlemlere ilişkin bulduğu bilgileri doğrular.", "Afetlere karşı alınması gereken önlemlere ilişkin bulduğu bilgileri kaydeder."),
+        c("HB.2.5.4.", "Doğal kaynakları tasarruflu kullanma davranışlarını günlük yaşamına yansıtabilme", "Doğal kaynakları kullanırken davranışlarını gözden geçirir.", "Doğal kaynakları tasarruflu kullanmaya yönelik çıkarımlarda bulunur.", "Doğal kaynakları tasarruflu kullanmaya yönelik ulaştığı çıkarımları değerlendirir."),
+      ] },
+      { tema: "Bilim, Teknoloji ve Sanat", c: [
+        c("HB.2.6.1.", "Bilim insanlarının bilime katkılarına yönelik kaynaklardan bilgi toplayabilme", ...KAYNAK("Bilim insanlarının bilime katkılarına ilişkin")),
+        c("HB.2.6.2.", "Teknolojik bir ürünün değişim ve sürekliliğine dair kanıta dayalı öngörüde bulunabilme", "Teknolojik bir ürünün zaman içindeki değişimini kanıtlara dayalı olarak ilişkilendirir.", "Teknolojik bir ürünün gelecekteki değişimine ilişkin çıkarım yapar."),
+        c("HB.2.6.3.", "Sanatın günlük yaşamdaki yerini belirleyebilme"),
+      ] },
+    ],
+    3: [
+      { tema: "Ben ve Okulum", c: [
+        c("HB.3.1.1.", "Güçlü ve gelişime açık olduğu alanlara karar verebilme", "Güçlü ve gelişime açık olduğu alanlara ilişkin karar vermeye yönelik amacını belirler.", "Güçlü ve gelişime açık olduğu alanlara ilişkin karar vermeye yönelik bilgi toplar.", "Güçlü ve gelişime açık olduğu alanlara ilişkin karar vermeye yönelik seçenekler oluşturur.", "Güçlü ve gelişime açık olduğu alanlara ilişkin karar vermeye yönelik seçenekler üzerinde mantıksal denetleme yapar.", "Güçlü ve gelişime açık olduğu alanlara ilişkin karar vermeye yönelik seçenekler arasından seçim yapar.", "Güçlü ve gelişime açık olduğu alanlara ilişkin verdiği karara yönelik yansıtma yapar."),
+        c("HB.3.1.2.", "Okuldaki hak ve sorumluluklarına uygun davranabilme"),
+        c("HB.3.1.3.", "Çocuk haklarını tanıtmak için fikirlerini eyleme dönüştürebilme", "Çocuk haklarını tanıtmak için plan yapar.", "Çocuk haklarını tanıtmak için yaptığı planı uygular.", "Çocuk haklarını tanıtmak için uyguladığı planı değerlendirir."),
+      ] },
+      { tema: "Sağlığım ve Güvenliğim", c: [
+        c("HB.3.2.1.", "Sağlığını korumaya yönelik davranışlarını düzenleyebilme"),
+        c("HB.3.2.2.", "Güvenliğini tehdit eden bir durumla karşılaştığında yapılması gerekenleri sorgulayabilme", "Güvenliğini tehdit eden durumları tanımlar.", "Güvenliğini tehdit eden bir durumla karşılaştığında yapılması gerekenler hakkında sorular sorar.", "Güvenliğini tehdit eden bir durumla karşılaştığında yapılması gerekenler hakkında bilgi toplar.", "Güvenliğini tehdit eden bir durumla karşılaştığında yapılması gerekenler hakkında topladığı bilgilerin doğruluğunu değerlendirir.", "Güvenliğini tehdit eden bir durumla karşılaştığında yapılması gerekenler hakkında çıkarım yapar."),
+        c("HB.3.2.3.", "Trafik kurallarına uymanın önemine ilişkin özgün ürünler sentezleyebilme", "Trafik kurallarına uymanın önemini belirler.", "Trafik kurallarına uyma ile güvenliği arasında ilişki kurar.", "Trafik kurallarına uymanın önemine ilişkin özgün bir ürün oluşturur."),
+      ] },
+      { tema: "Ailem ve Toplum", c: [
+        c("HB.3.3.1.", "Aile ve toplum arasındaki ilişkiyi çözümleyebilme", "Aile ve toplumun özelliklerini belirler.", "Aile ve toplum arasındaki ilişkiyi belirler."),
+        c("HB.3.3.2.", "Yardıma ihtiyacı olan bireylerin yaşamını kolaylaştırmak için fikirlerini eyleme dönüştürebilme", "Yardıma ihtiyacı olan bireylerin yaşamını kolaylaştırmak için plan yapar.", "Yardıma ihtiyacı olan bireylerin yaşamını kolaylaştırmak için yaptığı planı uygular.", "Yardıma ihtiyacı olan bireylerin yaşamını kolaylaştırmak için yaptığı planı değerlendirir."),
+        c("HB.3.3.3.", "Mesleklerin toplumsal yaşamdaki önemini yorumlayabilme", ...YORUM("Mesleklerin toplumsal yaşamdaki önemine")),
+      ] },
+      { tema: "Yaşadığım Yer ve Ülkem", c: [
+        c("HB.3.4.1.", "Yakın çevresindeki tarihî mekân ve doğal güzelliklerin korunmasının önemini fark edebilme"),
+        c("HB.3.4.2.", "Ülkemizin yönetim şekli ile ilgili kaynaklardan bilgi toplayabilme", ...KAYNAK("Ülkemizin yönetim şekli ile ilgili")),
+        c("HB.3.4.3.", "Mustafa Kemal Atatürk'ün kişilik özelliklerini çözümleyebilme", "Mustafa Kemal Atatürk'ün kişilik özelliklerini ve elde ettiği başarıları belirler.", "Mustafa Kemal Atatürk'ün kişilik özellikleri ile başarıları arasında ilişki kurar."),
+        c("HB.3.4.4.", "Millî birlik ve beraberliğimizin ülkemize katkılarını açıklayabilme"),
+      ] },
+      { tema: "Doğa ve Çevre", c: [
+        c("HB.3.5.1.", "Doğadaki varlıkların insan yaşamı için önemini yorumlayabilme", ...YORUM("Doğadaki varlıkların insan yaşamı için önemine")),
+        c("HB.3.5.2.", "Krokiyi kullanarak bulunduğu yerin konumunu algılayabilme", "Krokiyi kullanarak bulunduğu yerin konumunu belirler.", "Bulunduğu yerin konumsal görselleştirmesini yapar.", "Bulunduğu yerin konumsal özelliklerini özetler."),
+        c("HB.3.5.3.", "Afetlere yönelik yapılması gerekenleri sınıflandırabilme", "Afetlere yönelik yapılması gerekenlere ilişkin ölçütleri afet öncesi, afet anı ve afet sonrası olarak belirler.", "Afetlere yönelik yapılması gerekenleri afet öncesi, afet anı ve afet sonrası olarak ayrıştırır.", "Afetlere yönelik yapılması gerekenleri afet öncesi, afet anı ve afet sonrası olarak tasnif eder.", "Afetlere yönelik yapılması gerekenleri afet öncesi, afet anı ve afet sonrası olarak etiketler."),
+        c("HB.3.5.4.", "Çevresel sürdürülebilirliğe yönelik kaynaklardan bilgi toplayabilme", ...KAYNAK("Çevresel sürdürülebilirliğe yönelik")),
+      ] },
+      { tema: "Bilim, Teknoloji ve Sanat", c: [
+        c("HB.3.6.1.", "Bilimsel gelişmelerin günlük yaşama etkisini yorumlayabilme", ...YORUM("Bilimsel gelişmelerin günlük yaşama etkisine")),
+        c("HB.3.6.2.", "Teknolojik gelişmelerin günlük yaşama etkisini çözümleyebilme", "Teknolojik gelişmelerin günlük yaşama etkisini belirler.", "Teknolojik gelişmelerle günlük yaşam arasında ilişki kurar."),
+        c("HB.3.6.3.", "Sanatçıların sanata katkılarına yönelik kaynaklardan bilgi toplayabilme", ...KAYNAK("Sanatçıların sanata katkılarına yönelik")),
+      ] },
+    ],
+  };
+
+  const DATA = { Matematik, "Hayat Bilgisi": HayatBilgisi };
   const HARF = "abcçdefgğhıijklmnoöprsştuüvyz";
   return {
-    kaynak: { Matematik: "MEB İlkokul Matematik Dersi Öğretim Programı (1-4), Türkiye Yüzyılı Maarif Modeli" },
+    kaynak: { Matematik: "MEB İlkokul Matematik Dersi Öğretim Programı (1-4), Türkiye Yüzyılı Maarif Modeli", "Hayat Bilgisi": "MEB Hayat Bilgisi Dersi Öğretim Programı (1, 2 ve 3. sınıflar), Türkiye Yüzyılı Maarif Modeli" },
+    birim: { "Hayat Bilgisi": "Öğrenme alanı" },
     temalar: (ders, sinif) => (DATA[ders] && DATA[ders][sinif]) || null,
     var: (ders, sinif) => Boolean(DATA[ders] && DATA[ders][sinif]),
     bul(kod) {
@@ -5417,7 +5534,7 @@ JSON biçimi: {"title": "kısa başlık", "ctx": "durum metni", "qs": [{"q": "so
         secim.replaceChildren(h("p.hint", { style: { margin: 0 } }, ders.value + " " + sinif.value + ". sınıf öğrenme çıktıları henüz eklenmedi. Konuyu kendin yazabilirsin."));
         return;
       }
-      const temaSec = h("select.in", { "aria-label": "Tema" }, temalar.map((t, i) => h("option", { value: i }, (i + 1) + ". Tema: " + t.tema)));
+      const temaSec = h("select.in", { "aria-label": "Tema" }, temalar.map((t, i) => h("option", { value: i }, (i + 1) + ". " + ((T.ciktilar.birim || {})[ders.value] || "Tema") + ": " + t.tema)));
       if (secim._tema != null && secim._tema < temalar.length) temaSec.value = secim._tema;
       const liste = h("div.oc-list");
       const drawListe = () => {

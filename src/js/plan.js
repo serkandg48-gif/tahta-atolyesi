@@ -55,7 +55,7 @@
         secim.replaceChildren(h("p.hint", { style: { margin: 0 } }, ders.value + " " + sinif.value + ". sınıf öğrenme çıktıları henüz eklenmedi. Konuyu kendin yazabilirsin."));
         return;
       }
-      const temaSec = h("select.in", { "aria-label": "Tema" }, temalar.map((t, i) => h("option", { value: i }, (i + 1) + ". Tema: " + t.tema)));
+      const temaSec = h("select.in", { "aria-label": "Tema" }, temalar.map((t, i) => h("option", { value: i }, (i + 1) + ". " + ((T.ciktilar.birim || {})[ders.value] || "Tema") + ": " + t.tema)));
       if (secim._tema != null && secim._tema < temalar.length) temaSec.value = secim._tema;
       const liste = h("div.oc-list");
       const drawListe = () => {

@@ -51,7 +51,7 @@ def main():
     (ROOT / "dist").mkdir(exist_ok=True)
     (ROOT / "dist" / "index.html").write_text(out, encoding="utf-8")
     # Ayrı statik sayfalar (gizlilik politikası vb.) olduğu gibi kopyalanır.
-    for extra in ("gizlilik.html",):
+    for extra in ("gizlilik.html", "vitrin.html"):
         (ROOT / "dist" / extra).write_text((SRC / extra).read_text(encoding="utf-8"), encoding="utf-8")
     print(f"dist/index.html {len(out)//1024} KB")
 

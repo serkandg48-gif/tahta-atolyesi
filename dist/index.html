@@ -1000,9 +1000,15 @@ T.speak = async function (text, lang = "tr") {
     } catch (e) { /* cihaz sesine düş */ }
   }
   try {
+    /* Sesler geç yüklenir; Türkçe ses gelmeden okursak tarayıcı İngilizce sesle okur. */
+    let v = lang === "tr" ? (T._voice || (T._voice = T.pickVoice("tr"))) : T.pickVoice("en");
+    if (!v) {
+      await new Promise((res) => { let n = 0; const t = setInterval(() => { v = T.pickVoice(lang === "en" ? "en" : "tr"); if (v || ++n > 15) { clearInterval(t); res(); } }, 100); });
+      if (lang === "tr" && v) T._voice = v;
+    }
+    if (!v && lang === "tr" && !T._sesUyari) { T._sesUyari = true; T.toast("Bu cihazda Türkçe ses yok. Doğal Türkçe ses için Ayarlar'dan Google ile giriş yap."); }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang === "en" ? "en-US" : "tr-TR";
-    const v = lang === "tr" ? (T._voice || (T._voice = T.pickVoice("tr"))) : T.pickVoice("en");
     if (v) u.voice = v;
     u.rate = 0.92;
     speechSynthesis.cancel(); speechSynthesis.speak(u);

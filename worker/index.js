@@ -116,14 +116,17 @@ function wav(pcm, rate = 24000) {
 }
 async function ses(env, metin) {
   const model = env.TTS_MODEL || "gemini-2.5-flash-preview-tts";
-  const r = await fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+  /* Dil açıkça Türkçe verilir; "fare", "su", "pide" gibi kelimeler İngilizce okunmasın. */
+  const istek = (dilKodu) => fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: "Türkçe, sıcak ve net bir sesle, ilkokul öğretmeninin çocuklara okuması gibi, doğal hızda söyle: " + metin }] }],
-      generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: env.TTS_VOICE || "Kore" } } } },
+      contents: [{ parts: [{ text: "Aşağıdaki metin Türkçedir. İngilizce kelimeye benzese bile Türkçe harf sesleriyle, Türkiye Türkçesi telaffuzuyla oku. Sıcak ve net bir sesle, ilkokul öğretmeninin çocuklara okuması gibi, doğal hızda söyle. Metin: «" + metin + "»" }] }],
+      generationConfig: { responseModalities: ["AUDIO"], speechConfig: Object.assign({ voiceConfig: { prebuiltVoiceConfig: { voiceName: env.TTS_VOICE || "Kore" } } }, dilKodu ? { languageCode: "tr-TR" } : {}) },
     }),
   });
+  let r = await istek(true);
+  if (r.status === 400) r = await istek(false);
   if (r.status === 429) return { fail: "busy" };
   if (!r.ok) return { fail: "upstream" };
   const j = await r.json();
@@ -213,7 +216,7 @@ async function api(request, env, path) {
     let b; try { b = await request.json(); } catch { return err("bad_request", "İstek okunamadı.", 400); }
     const metin = String(b.metin || "").replace(/\s+/g, " ").trim().slice(0, SES_MAX);
     if (!metin) return err("bad_request", "Okunacak metin yok.", 400);
-    const anahtar = await sha((env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
+    const anahtar = await sha("v2|" + (env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
     const depo = env.SES.get(env.SES.idFromName("ses:" + anahtar.slice(0, 2)));
     const varolan = await depo.al(anahtar);
     const ses_h = { "content-type": "audio/wav", "cache-control": "public, max-age=31536000, immutable" };

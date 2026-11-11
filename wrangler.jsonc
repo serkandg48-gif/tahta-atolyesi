@@ -17,7 +17,7 @@
     "GEMINI_MODEL": "gemini-2.5-flash-lite"
   },
   "durable_objects": {
-    "bindings": [{ "name": "KOTA", "class_name": "Kota" }]
+    "bindings": [{ "name": "KOTA", "class_name": "Kota" }, { "name": "SES", "class_name": "SesDeposu" }]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Kota"] }]
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Kota"] }, { "tag": "v2", "new_sqlite_classes": ["SesDeposu"] }]
 }

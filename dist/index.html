@@ -731,15 +731,45 @@ T.download = async function (name, text, mime = "text/plain") {
 };
 
 /* ---------- Konuşma: önce Claude sesi, yoksa tarayıcı sesi ---------- */
+/* Sesli okuma.
+   1) Claude içinde: Claude sesi.  2) Sitede ve giriş yapılmışsa: sunucudaki doğal Türkçe ses (Gemini), bir kez üretilip saklanır.
+   3) Yedek: cihazın en iyi Türkçe sesi (Edge'de "Natural", Chrome'da "Google Türkçe" sesleri tercih edilir). */
+T._voice = null;
+T.pickVoice = function (lang = "tr") {
+  try {
+    const vs = speechSynthesis.getVoices().filter((v) => v.lang && v.lang.toLowerCase().startsWith(lang));
+    const puan = (v) => (/natural|neural/i.test(v.name) ? 6 : 0) + (/online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (/microsoft/i.test(v.name) ? 1 : 0) + (v.localService ? 0 : 1);
+    return vs.sort((a, b) => puan(b) - puan(a))[0] || null;
+  } catch (e) { return null; }
+};
+try { speechSynthesis.addEventListener("voiceschanged", () => { T._voice = T.pickVoice("tr"); }); } catch (e) {}
+T._sesOnbellek = new Map();
+T._calan = null;
 T.speak = async function (text, lang = "tr") {
+  text = String(text || "").trim(); if (!text) return;
   try {
     const tts = T.cap.tts;
     if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); return; }
-  } catch (e) { /* tarayıcıya düş */ }
+  } catch (e) { /* devam */ }
+  if (lang === "tr" && T.auth && T.auth.user() && text.length <= 120) {
+    try {
+      let url = T._sesOnbellek.get(text);
+      if (!url) {
+        const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + (JSON.parse(localStorage.getItem("tahta-atolyesi-oturum") || "{}").token || "") }, body: JSON.stringify({ metin: text }) });
+        if (!r.ok) throw 0;
+        url = URL.createObjectURL(await r.blob()); T._sesOnbellek.set(text, url);
+      }
+      if (T._calan) T._calan.pause();
+      try { speechSynthesis.cancel(); } catch (e) {}
+      T._calan = new Audio(url); await T._calan.play(); return;
+    } catch (e) { /* cihaz sesine düş */ }
+  }
   try {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang === "en" ? "en-US" : "tr-TR";
-    u.rate = 0.9;
+    const v = lang === "tr" ? (T._voice || (T._voice = T.pickVoice("tr"))) : T.pickVoice("en");
+    if (v) u.voice = v;
+    u.rate = 0.92;
     speechSynthesis.cancel(); speechSynthesis.speak(u);
   } catch (e) { T.toast("Bu cihazda sesli okuma yok"); }
 };

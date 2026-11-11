@@ -101,6 +101,40 @@ export class Kota extends DurableObject {
     if (k && k.gun === gun && k.sayi > 0) await this.ctx.storage.put("k", { gun, sayi: k.sayi - 1 });
   }
 }
+/* ---------- Doğal ses: Gemini TTS, üretilen ses kalıcı olarak saklanır ---------- */
+export class SesDeposu extends DurableObject {
+  async al(k) { return (await this.ctx.storage.get("s:" + k)) || null; }
+  async koy(k, v) { await this.ctx.storage.put("s:" + k, v); }
+}
+async function sha(t) { return b64u(await crypto.subtle.digest("SHA-256", enc.encode(t))); }
+function wav(pcm, rate = 24000) {
+  const h = new ArrayBuffer(44), v = new DataView(h), n = pcm.length;
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, "RIFF"); v.setUint32(4, 36 + n, true); w(8, "WAVE"); w(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, "data"); v.setUint32(40, n, true);
+  const out = new Uint8Array(44 + n); out.set(new Uint8Array(h), 0); out.set(pcm, 44); return out;
+}
+async function ses(env, metin) {
+  const model = env.TTS_MODEL || "gemini-2.5-flash-preview-tts";
+  const r = await fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: "Türkçe, sıcak ve net bir sesle, ilkokul öğretmeninin çocuklara okuması gibi, doğal hızda söyle: " + metin }] }],
+      generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: env.TTS_VOICE || "Kore" } } } },
+    }),
+  });
+  if (r.status === 429) return { fail: "busy" };
+  if (!r.ok) return { fail: "upstream" };
+  const j = await r.json();
+  const part = (((j.candidates || [])[0] || {}).content || { parts: [] }).parts.find((p) => p.inlineData || p.inline_data);
+  if (!part) return { fail: "empty" };
+  const d = part.inlineData || part.inline_data;
+  const rate = parseInt((/rate=(\d+)/.exec(d.mimeType || d.mime_type || "") || [])[1], 10) || 24000;
+  return { wav: wav(unb64u(d.data.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")), rate) };
+}
+const SES_MAX = 120;
+
 const kota = (env, email) => env.KOTA.get(env.KOTA.idFromName("ogretmen:" + email));
 const limitOf = (env) => Math.max(1, parseInt(env.DAILY_LIMIT, 10) || 10);
 /* Site geneli günlük tavan: ücretsiz kotayı korur, ödeme çıkmasını önler. */
@@ -173,6 +207,23 @@ async function api(request, env, path) {
       return json({ error: { code: "upstream", message: "Yapay zekâ yanıt vermedi. Biraz sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 502);
     }
     return json({ text: g.text, quota: q });
+  }
+
+  if (path === "/api/ses" && request.method === "POST") {
+    let b; try { b = await request.json(); } catch { return err("bad_request", "İstek okunamadı.", 400); }
+    const metin = String(b.metin || "").replace(/\s+/g, " ").trim().slice(0, SES_MAX);
+    if (!metin) return err("bad_request", "Okunacak metin yok.", 400);
+    const anahtar = await sha((env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
+    const depo = env.SES.get(env.SES.idFromName("ses:" + anahtar.slice(0, 2)));
+    const varolan = await depo.al(anahtar);
+    const ses_h = { "content-type": "audio/wav", "cache-control": "public, max-age=31536000, immutable" };
+    if (varolan) return new Response(unb64u(varolan), { headers: ses_h });
+    const gq = await genel(env).kullan(today() + ":ses", Math.max(1, parseInt(env.TTS_LIMIT, 10) || 300));
+    if (!gq.ok) return err("tts_limit", "Doğal ses bugünlük doldu, cihazın sesi kullanılıyor.", 429);
+    let g; try { g = await ses(env, metin); } catch { g = { fail: "network" }; }
+    if (g.fail) { await genel(env).iade(today() + ":ses"); return err("tts_" + g.fail, "Doğal ses şu an üretilemedi.", 503); }
+    if (g.wav.length < 120000) await depo.koy(anahtar, b64u(g.wav));
+    return new Response(g.wav, { headers: ses_h });
   }
 
   return err("not_found", "Böyle bir adres yok.", 404);

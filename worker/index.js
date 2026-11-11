@@ -5,7 +5,7 @@
    Cloudflare panelinde tanımlanması gerekenler (Settings > Variables and Secrets):
    GEMINI_API_KEY   (Secret)  Google AI Studio anahtarı. Öğretmenler bu anahtarı hiç görmez.
    GOOGLE_CLIENT_ID (wrangler.jsonc içinde, gizli değil) Google ile giriş için istemci kimliği.
-   İsteğe bağlı: DAILY_LIMIT (öğretmen başına günlük hak, varsayılan 20), GEMINI_MODEL, SESSION_SECRET. */
+   İsteğe bağlı: DAILY_LIMIT (öğretmen başına günlük hak, varsayılan 20), GLOBAL_LIMIT (site geneli günlük tavan, varsayılan 400), GEMINI_MODEL, SESSION_SECRET. */
 import { DurableObject } from "cloudflare:workers";
 
 const JSON_H = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
@@ -103,6 +103,9 @@ export class Kota extends DurableObject {
 }
 const kota = (env, email) => env.KOTA.get(env.KOTA.idFromName("ogretmen:" + email));
 const limitOf = (env) => Math.max(1, parseInt(env.DAILY_LIMIT, 10) || 20);
+/* Site geneli günlük tavan: ücretsiz kotayı korur, ödeme çıkmasını önler. */
+const genel = (env) => env.KOTA.get(env.KOTA.idFromName("genel"));
+const globalOf = (env) => Math.max(1, parseInt(env.GLOBAL_LIMIT, 10) || 400);
 
 /* ---------- Gemini ---------- */
 const MAX_IMG = 4, MAX_PROMPT = 24000;
@@ -153,13 +156,18 @@ async function api(request, env, path) {
     if (!prompt.trim()) return err("bad_request", "Boş istek gönderildi.", 400);
     const images = (Array.isArray(b.images) ? b.images : [])
       .filter((x) => x && /^image\/(jpeg|png|webp|heic|heif)$/.test(x.mime) && typeof x.data === "string" && x.data.length < 6e6);
-    const gun = today(), k = kota(env, user.email);
+    const gun = today(), k = kota(env, user.email), gk = genel(env);
     const q = await k.kullan(gun, limitOf(env));
     if (!q.ok) return json({ error: { code: "limit", message: `Bugünlük ${q.limit} yapay zekâ hakkının hepsini kullandın. Hakkın gece 00.00'da yenilenir.` }, quota: q }, 429);
+    const gq = await gk.kullan(gun, globalOf(env));
+    if (!gq.ok) {
+      await k.iade(gun);
+      return json({ error: { code: "global_limit", message: "Sitenin bugünlük ortak yapay zekâ hakkı doldu. Yarın yeniden açılacak, senin hakkından düşülmedi." }, quota: { used: q.used - 1, limit: q.limit, left: q.left + 1 } }, 429);
+    }
     let g;
     try { g = await gemini(env, prompt, images); } catch { g = { fail: "network" }; }
     if (g.fail) {
-      await k.iade(gun);
+      await k.iade(gun); await gk.iade(gun);
       const back = { used: q.used - 1, limit: q.limit, left: q.left + 1 };
       if (g.fail === "busy") return json({ error: { code: "busy", message: "Yapay zekâ şu an çok yoğun. Birkaç dakika sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 503);
       return json({ error: { code: "upstream", message: "Yapay zekâ yanıt vermedi. Biraz sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 502);

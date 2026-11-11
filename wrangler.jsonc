@@ -12,7 +12,9 @@
   // Gizli olmayan ayarlar. Gemini anahtarı burada DEĞİL, Cloudflare panelinde Secret olarak durur.
   "vars": {
     "GOOGLE_CLIENT_ID": "",
-    "DAILY_LIMIT": "20"
+    "DAILY_LIMIT": "20",
+    "GLOBAL_LIMIT": "400",
+    "GEMINI_MODEL": "gemini-2.5-flash-lite"
   },
   "durable_objects": {
     "bindings": [{ "name": "KOTA", "class_name": "Kota" }]

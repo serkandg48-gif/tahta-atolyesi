@@ -534,3 +534,14 @@ input[type="range"] { accent-color: var(--sky); width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Öğrenme çıktısı seçici */
+.oc-box { display: grid; gap: 10px; }
+.oc-list { display: grid; gap: 6px; max-height: 340px; overflow: auto; padding: 4px; border: 1px solid var(--line, #d9dde5); border-radius: 12px; background: var(--paper, #fff); }
+.oc-item { padding: 8px 10px; border-radius: 10px; }
+.oc-item:hover { background: rgba(0,0,0,.03); }
+.oc-item label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; line-height: 1.45; }
+.oc-item input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+.oc-kod { font-weight: 700; white-space: nowrap; }
+.oc-item details { margin: 4px 0 0 28px; font-size: 14px; color: var(--ink-soft, #555); }
+.oc-item details ul { margin: 4px 0 0; padding-left: 18px; }

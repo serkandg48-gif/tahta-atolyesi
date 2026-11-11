@@ -18,6 +18,7 @@ JS_ORDER = [
     "icons.js",
     "store.js",
     "ai.js",
+    "ciktilar.js",
     "pieces.js",
     "board.js",
     "widgets.js",

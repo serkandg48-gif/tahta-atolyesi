@@ -45,10 +45,44 @@
     const sure = h("select.in", { "aria-label": "Süre" }, ["40 dakika", "2 ders saati (80 dakika)", "30 dakika"].map((s) => h("option", s)));
     const not = h("textarea.in", { placeholder: "Sınıfın hakkında bir iki cümle (isteğe bağlı). Örnek: Kalabalık bir sınıf, iki öğrencim okumada geride, ellerinde düğme ve kâse var.", style: { minHeight: "80px" }, "aria-label": "Sınıf notu" });
     const out = h("div");
+    /* Öğrenme çıktısı seçici: ders ve sınıf için programdaki çıktılar kendiliğinden gelir. */
+    let secili = [];
+    const secim = h("div.oc-box");
+    const drawSecim = () => {
+      const temalar = T.ciktilar.temalar(ders.value, +sinif.value);
+      secili = secili.filter((k) => temalar && temalar.some((t) => t.c.some((x) => x.kod === k)));
+      if (!temalar) {
+        secim.replaceChildren(h("p.hint", { style: { margin: 0 } }, ders.value + " " + sinif.value + ". sınıf öğrenme çıktıları henüz eklenmedi. Konuyu kendin yazabilirsin."));
+        return;
+      }
+      const temaSec = h("select.in", { "aria-label": "Tema" }, temalar.map((t, i) => h("option", { value: i }, (i + 1) + ". Tema: " + t.tema)));
+      if (secim._tema != null && secim._tema < temalar.length) temaSec.value = secim._tema;
+      const liste = h("div.oc-list");
+      const drawListe = () => {
+        secim._tema = +temaSec.value;
+        liste.replaceChildren(...temalar[+temaSec.value].c.map((x) => {
+          const cb = h("input", { type: "checkbox", checked: secili.includes(x.kod), onchange: () => {
+            secili = cb.checked ? secili.concat(x.kod) : secili.filter((k) => k !== x.kod);
+            sayac.textContent = secili.length ? secili.length + " çıktı seçildi" : "";
+          } });
+          return h("div.oc-item", h("label", cb, h("span.oc-kod", x.kod), h("span", x.metin)),
+            x.b.length ? h("details", h("summary", "Süreç bileşenleri"), h("ul", T.ciktilar.harfli(x.b).map((y) => h("li", y)))) : null);
+        }));
+      };
+      temaSec.addEventListener("change", drawListe);
+      const sayac = h("span.hint", secili.length ? secili.length + " çıktı seçildi" : "");
+      drawListe();
+      secim.replaceChildren(h("div.row", { style: { alignItems: "end" } }, h("label.f", { style: { flex: "1" } }, h("span", "Öğrenme çıktıları (Maarif)"), temaSec), sayac), liste,
+        h("small.hint", "Kaynak: " + (T.ciktilar.kaynak[ders.value] || "MEB öğretim programı")));
+    };
+    ders.addEventListener("change", () => { secim._tema = null; drawSecim(); });
+    sinif.addEventListener("change", () => { secim._tema = null; drawSecim(); });
+    drawSecim();
     area.append(h("div.paper", { style: { padding: "20px", display: "grid", gap: "14px", marginBottom: "22px" } },
       T.ai.statusEl(),
       h("div.form-grid", h("label.f", h("span", "Ders"), ders), h("label.f", h("span", "Sınıf"), sinif), h("label.f", h("span", "Süre"), sure)),
-      h("label.f", h("span", "Konu / öğrenme çıktısı"), konu),
+      secim,
+      h("label.f", h("span", "Konu ya da odak (isteğe bağlı)"), konu),
       h("label.f", h("span", "Sınıfın"), not),
       h("div.row", h("button.btn.big.c-grape", { onclick: () => generate() }, T.icon("spark"), "Planı hazırla"),
         h("button.btn.c-chalk", { onclick: () => { current = JSON.parse(JSON.stringify(SAMPLE)); renderPlan(out, current); } }, T.icon("eye"), "Örnek planı göster"),
@@ -56,7 +90,8 @@
     if (!current && !shownSample) { shownSample = true; current = JSON.parse(JSON.stringify(SAMPLE)); }
     if (current) renderPlan(out, current);
     async function generate() {
-      if (!konu.value.trim()) { T.toast("Önce konuyu yaz"); konu.focus(); return; }
+      if (!konu.value.trim() && !secili.length) { T.toast("Bir öğrenme çıktısı seç ya da konuyu yaz"); konu.focus(); return; }
+      const secCikti = secili.map((k) => T.ciktilar.bul(k)).filter(Boolean);
       if (!T.ai.mode()) { current = JSON.parse(JSON.stringify(SAMPLE)); renderPlan(out, current); T.toast("Yapay zeka bağlı değil, örnek plan gösteriliyor"); return; }
       const live = h("pre", { style: { whiteSpace: "pre-wrap", fontSize: "13px", maxHeight: "200px", overflow: "auto", color: "var(--ink-soft)" } });
       out.replaceChildren(h("div.paper", { style: { padding: "20px" } }, h("div.ai-status", h("div.spinner"), "Plan hazırlanıyor. Bu 20-40 saniye sürebilir."), live));
@@ -67,7 +102,7 @@
 Ders: ${ders.value}
 Sınıf: ${sinif.value}. sınıf
 Süre: ${sure.value}
-Konu / öğrenme çıktısı: ${konu.value}
+${secCikti.length ? "Tema: " + secCikti[0].tema + "\nÖğrenme çıktıları (programdaki gibi, kodlarıyla):\n" + secCikti.map((x) => x.kod + " " + x.metin + (x.b.length ? "\n  Süreç bileşenleri: " + T.ciktilar.harfli(x.b).join(" ") : "")).join("\n") + "\n" : ""}Konu / odak: ${konu.value || "seçilen çıktılar"}
 Öğretmenin sınıf notu: ${not.value || "yok"}
 
 Pedagojik ilkeler:
@@ -76,7 +111,7 @@ Pedagojik ilkeler:
 - Akış her adımda öğretmenin ne yapacağını eksiksiz anlatan paragraflarla yazılsın, madde işareti kullanma. Bir adımın içinde konu değişirse yeni satıra geç.
 - Beklenmedik durumlarda (malzeme yetmezse, deney beklendiği gibi çıkmazsa, öğrenci yanlış yola saparsa) ne yapılacağını yaz.
 - Değerlendirmede "gözlem formu" deme. Öğrencinin hangi çalışmasının portfolyoya gireceğine kendisinin karar verdiğini, öğrencinin dönüşümlü düşünme defterine yazdığını belirt.
-- Öğrenme çıktısı kodu uydurma. Kod bilmiyorsan yalnızca çıktıyı cümle olarak yaz.
+- Öğrenme çıktısı kodu uydurma. Çıktılar verildiyse dersi o çıktılara ve süreç bileşenlerine göre kur; verilmediyse yalnızca çıktıyı cümle olarak yaz.
 - TDK yazım kurallarına uy, kısa ve net cümleler kur.
 
 Her adıma, derste tahtada açılacak uygun araçları aşağıdaki listeden id ile ekle (en fazla 2):
@@ -87,6 +122,7 @@ JSON biçimi:
  "akis": [{"dk": 5, "baslik": "Dikkat çekme", "metin": "paragraflar, satır sonu için \\n", "arac": ["timer"]}],
  "farklilastirma": {"destek": "...", "zenginlestirme": "..."}, "degerlendirme": "...", "sorun": "beklenmedik durumlarda ne yapılır"}
 Adım sürelerinin toplamı ders süresine eşit olsun.`, { onText: (t) => (live.textContent = t.slice(-1200)) });
+        if (secCikti.length) j.ciktilar = secCikti.map((x) => x.kod + " " + x.metin);
         current = j; renderPlan(out, j);
       } catch (e) {
         out.replaceChildren(h("div.paper", { style: { padding: "20px" } }, h("p", "Plan hazırlanamadı: " + (e.message || "bağlantı sorunu") + "."), h("button.btn.c-chalk", { onclick: generate }, T.icon("reset"), "Tekrar dene")));

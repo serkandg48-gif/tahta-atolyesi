@@ -26,3 +26,10 @@ python3 build.py
 - Firebase ile Google girişi ve bulut kayıt (`src/js/store.js` içindeki load/save).
 - Gemini anahtarını sunucu tarafına taşıma (Cloudflare Pages Functions).
 - Yazı tiplerini dosyaya gömme ve internetsiz çalışma (PWA).
+
+## Google ile giriş ve yapay zekâ
+
+Öğretmen Google ile giriş yapar; yapay zekâ istekleri `worker/index.js` üzerinden Gemini'ye gider.
+Gemini anahtarı yalnızca Cloudflare panelinde `GEMINI_API_KEY` adlı Secret olarak durur.
+`GOOGLE_CLIENT_ID` ve öğretmen başına günlük hak (`DAILY_LIMIT`) `wrangler.jsonc` içindedir.
+Yerelde denemek için `.dev.vars` dosyası kullanılır (GitHub'a gönderilmez).

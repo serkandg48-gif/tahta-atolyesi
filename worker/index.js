@@ -1,0 +1,182 @@
+/* Tahta Atölyesi sunucusu (Cloudflare Worker).
+   - /api/*  : Google ile giriş ve yapay zekâ köprüsü
+   - geri kalan her şey: dist/ klasöründeki site
+
+   Cloudflare panelinde tanımlanması gerekenler (Settings > Variables and Secrets):
+   GEMINI_API_KEY   (Secret)  Google AI Studio anahtarı. Öğretmenler bu anahtarı hiç görmez.
+   GOOGLE_CLIENT_ID (wrangler.jsonc içinde, gizli değil) Google ile giriş için istemci kimliği.
+   İsteğe bağlı: DAILY_LIMIT (öğretmen başına günlük hak, varsayılan 20), GEMINI_MODEL, SESSION_SECRET. */
+import { DurableObject } from "cloudflare:workers";
+
+const JSON_H = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
+const json = (obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: JSON_H });
+const err = (code, message, status) => json({ error: { code, message } }, status);
+
+/* Türkiye saatine göre bugünün tarihi: hak her gece 00.00'da yenilenir. */
+const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
+
+/* ---------- base64url ---------- */
+const enc = new TextEncoder();
+function b64u(bytes) {
+  let s = ""; const a = new Uint8Array(bytes);
+  for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function unb64u(str) {
+  const s = atob(str.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((str.length + 3) % 4));
+  const a = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+  return a;
+}
+const unb64uText = (s) => new TextDecoder().decode(unb64u(s));
+
+/* ---------- Google kimlik jetonunu doğrulama ---------- */
+let jwksCache = { at: 0, keys: [] };
+async function googleKeys(force) {
+  if (!force && Date.now() - jwksCache.at < 3600e3 && jwksCache.keys.length) return jwksCache.keys;
+  const r = await fetch("https://www.googleapis.com/oauth2/v3/certs");
+  if (!r.ok) throw new Error("jwks");
+  jwksCache = { at: Date.now(), keys: (await r.json()).keys || [] };
+  return jwksCache.keys;
+}
+export async function verifyGoogle(idToken, clientId) {
+  const parts = String(idToken || "").split(".");
+  if (parts.length !== 3) return null;
+  let head, body;
+  try { head = JSON.parse(unb64uText(parts[0])); body = JSON.parse(unb64uText(parts[1])); } catch { return null; }
+  if (head.alg !== "RS256") return null;
+  let jwk = (await googleKeys()).find((k) => k.kid === head.kid);
+  if (!jwk) jwk = (await googleKeys(true)).find((k) => k.kid === head.kid);
+  if (!jwk) return null;
+  const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+  const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, unb64u(parts[2]), enc.encode(parts[0] + "." + parts[1]));
+  if (!ok) return null;
+  const now = Date.now() / 1000;
+  if (body.aud !== clientId) return null;
+  if (body.iss !== "accounts.google.com" && body.iss !== "https://accounts.google.com") return null;
+  if (!(body.exp > now - 60)) return null;
+  if (!body.email || body.email_verified === false) return null;
+  return { email: String(body.email).toLowerCase(), name: body.name || "", picture: body.picture || "" };
+}
+
+/* ---------- Oturum jetonu (30 gün, HMAC imzalı) ---------- */
+async function hmacKey(env) {
+  const secret = env.SESSION_SECRET || ("oturum:" + (env.GEMINI_API_KEY || ""));
+  return crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+}
+export async function makeSession(env, user) {
+  const payload = b64u(enc.encode(JSON.stringify({ e: user.email, n: user.name, p: user.picture, x: Math.floor(Date.now() / 1000) + 30 * 86400 })));
+  const sig = await crypto.subtle.sign("HMAC", await hmacKey(env), enc.encode(payload));
+  return payload + "." + b64u(sig);
+}
+export async function readSession(env, request) {
+  const m = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "");
+  if (!m) return null;
+  const [payload, sig] = m[1].split(".");
+  if (!payload || !sig) return null;
+  let ok = false;
+  try { ok = await crypto.subtle.verify("HMAC", await hmacKey(env), unb64u(sig), enc.encode(payload)); } catch { return null; }
+  if (!ok) return null;
+  let d; try { d = JSON.parse(unb64uText(payload)); } catch { return null; }
+  if (!(d.x > Date.now() / 1000)) return null;
+  return { email: d.e, name: d.n, picture: d.p };
+}
+
+/* ---------- Günlük hak sayacı: her öğretmen için ayrı ---------- */
+export class Kota extends DurableObject {
+  async durum(gun, limit) {
+    const k = await this.ctx.storage.get("k") || { gun, sayi: 0 };
+    const used = k.gun === gun ? k.sayi : 0;
+    return { used, limit, left: Math.max(0, limit - used) };
+  }
+  async kullan(gun, limit) {
+    const k = await this.ctx.storage.get("k") || { gun, sayi: 0 };
+    const used = k.gun === gun ? k.sayi : 0;
+    if (used >= limit) return { ok: false, used, limit, left: 0 };
+    await this.ctx.storage.put("k", { gun, sayi: used + 1 });
+    return { ok: true, used: used + 1, limit, left: limit - used - 1 };
+  }
+  async iade(gun) {
+    const k = await this.ctx.storage.get("k");
+    if (k && k.gun === gun && k.sayi > 0) await this.ctx.storage.put("k", { gun, sayi: k.sayi - 1 });
+  }
+}
+const kota = (env, email) => env.KOTA.get(env.KOTA.idFromName("ogretmen:" + email));
+const limitOf = (env) => Math.max(1, parseInt(env.DAILY_LIMIT, 10) || 20);
+
+/* ---------- Gemini ---------- */
+const MAX_IMG = 4, MAX_PROMPT = 24000;
+async function gemini(env, prompt, images) {
+  const model = env.GEMINI_MODEL || "gemini-flash-latest";
+  const parts = [{ text: prompt }];
+  for (const im of images.slice(0, MAX_IMG)) parts.push({ inline_data: { mime_type: im.mime, data: im.data } });
+  const r = await fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+    body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } }),
+  });
+  if (r.status === 429) return { fail: "busy" };
+  if (!r.ok) return { fail: "upstream", status: r.status };
+  const j = await r.json();
+  const c = (j.candidates || [])[0];
+  const text = ((c && c.content && c.content.parts) || []).map((p) => p.text || "").join("");
+  if (!text) return { fail: "empty" };
+  return { text };
+}
+
+async function api(request, env, path) {
+  const clientId = env.GOOGLE_CLIENT_ID || "";
+  const ready = Boolean(clientId && env.GEMINI_API_KEY);
+
+  if (path === "/api/config" && request.method === "GET") return json({ clientId: ready ? clientId : "", ready });
+
+  if (path === "/api/login" && request.method === "POST") {
+    if (!ready) return err("not_configured", "Google ile giriş henüz kurulmadı.", 503);
+    let b; try { b = await request.json(); } catch { return err("bad_request", "İstek okunamadı.", 400); }
+    const user = await verifyGoogle(b.credential, clientId);
+    if (!user) return err("bad_login", "Google girişi doğrulanamadı. Bir kez daha dene.", 401);
+    const token = await makeSession(env, user);
+    const q = await kota(env, user.email).durum(today(), limitOf(env));
+    return json({ token, user, quota: q });
+  }
+
+  const user = await readSession(env, request);
+  if (!user) return err("signed_out", "Oturum kapandı. Google ile yeniden giriş yap.", 401);
+
+  if (path === "/api/me" && request.method === "GET") {
+    return json({ user, quota: await kota(env, user.email).durum(today(), limitOf(env)) });
+  }
+
+  if (path === "/api/ai" && request.method === "POST") {
+    let b; try { b = await request.json(); } catch { return err("bad_request", "İstek okunamadı.", 400); }
+    const prompt = String(b.prompt || "").slice(0, MAX_PROMPT);
+    if (!prompt.trim()) return err("bad_request", "Boş istek gönderildi.", 400);
+    const images = (Array.isArray(b.images) ? b.images : [])
+      .filter((x) => x && /^image\/(jpeg|png|webp|heic|heif)$/.test(x.mime) && typeof x.data === "string" && x.data.length < 6e6);
+    const gun = today(), k = kota(env, user.email);
+    const q = await k.kullan(gun, limitOf(env));
+    if (!q.ok) return json({ error: { code: "limit", message: `Bugünlük ${q.limit} yapay zekâ hakkının hepsini kullandın. Hakkın gece 00.00'da yenilenir.` }, quota: q }, 429);
+    let g;
+    try { g = await gemini(env, prompt, images); } catch { g = { fail: "network" }; }
+    if (g.fail) {
+      await k.iade(gun);
+      const back = { used: q.used - 1, limit: q.limit, left: q.left + 1 };
+      if (g.fail === "busy") return json({ error: { code: "busy", message: "Yapay zekâ şu an çok yoğun. Birkaç dakika sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 503);
+      return json({ error: { code: "upstream", message: "Yapay zekâ yanıt vermedi. Biraz sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 502);
+    }
+    return json({ text: g.text, quota: q });
+  }
+
+  return err("not_found", "Böyle bir adres yok.", 404);
+}
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname.startsWith("/api/")) {
+      try { return await api(request, env, url.pathname); }
+      catch (e) { return err("server", "Sunucuda bir sorun çıktı. Biraz sonra tekrar dene.", 500); }
+    }
+    return env.ASSETS.fetch(request);
+  },
+};

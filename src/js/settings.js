@@ -2,7 +2,7 @@
 (function () {
   const { h } = T;
   T.sections.ayarlar = {
-    title: "Ayarlar", icon: "settings", tone: "chalk", desc: "Kademe, takvim, yapay zeka, veriler",
+    title: "Ayarlar", icon: "settings", tone: "chalk", desc: "Hesap, kademe, takvim, veriler",
     render(view) {
       const s = T.store.get(), st = s.settings;
       const wrap = h("div.view-inner"); view.append(wrap);
@@ -20,10 +20,10 @@
             field("Adım", inp("teacher", "Örnek: Ayşe Öğretmen"), "Ana sayfadaki selamlamada kullanılır."),
             field("Okulum", inp("school", "Örnek: Cumhuriyet İlkokulu")),
             field("Görünüm", kademe, "Sınıfa göre seçilirse 1-4. sınıflarda renkli, 5-8. sınıflarda sade görünüm açılır.")),
-          h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Yapay zeka"),
+          h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Hesabım ve yapay zekâ"),
             T.ai.statusEl(),
-            field("Gemini API anahtarı", inp("geminiKey", "AIza...", "password"), "Kendi sitende kullanılır. Ücretsiz anahtarı Google AI Studio'dan (aistudio.google.com) alabilirsin. Anahtar yalnızca bu cihazda saklanır. Ücretsiz katmanda günlük sınır vardır."),
-            field("Model", inp("geminiModel", "gemini-flash-latest"), "Boş bırakırsan güncel hızlı model kullanılır.")),
+            (() => { const b = h("div.row"); const draw = () => b.replaceChildren(T.auth.user() ? h("button.btn.c-chalk", { onclick: () => T.auth.signOut() }, "Çıkış yap") : null); draw(); const off = T.auth.on(() => { if (!b.isConnected) return off(); draw(); }); return b; })(),
+            h("p.hint", { style: { margin: 0 } }, "Google ile giriş yaptığında yapay zekâ ile plan, soru ve etkinlik üretebilirsin. Her öğretmenin günlük bir hakkı var, gece yenilenir. Öğrenci adları yapay zekâya gönderilmez.")),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Okul takvimi"),
             h("p.hint", { style: { margin: 0 } }, "MEB 2026-2027 çalışma takvimi yüklü. Okulunun takvimi farklıysa düzelt. Okulun kaçıncı günü ve yıllık plan bu takvimle hesaplanır."),
             h("div.form-grid", field("İlk ders günü", cs), field("Son ders günü", ce)),

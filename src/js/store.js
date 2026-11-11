@@ -15,7 +15,7 @@ T.store = (function () {
     const c1 = mk("3-B", "ilkokul", 3), c2 = mk("6-A", "ortaokul", 6), c3 = mk("7-C", "ortaokul", 7);
     return {
       v: 1,
-      settings: { teacher: "", school: "", kademeMode: "auto", geminiKey: "", subject: "Matematik" },
+      settings: { teacher: "", school: "", kademeMode: "auto", subject: "Matematik" },
       classes: [c1, c2, c3],
       activeClassId: c1.id,
       attendance: {},   // classId -> date -> studentId -> durum
@@ -37,6 +37,7 @@ T.store = (function () {
     // eksik alanları tamamla
     const d = defaults();
     for (const k of Object.keys(d)) if (state[k] === undefined) state[k] = d[k];
+    if (state.settings) { delete state.settings.geminiKey; delete state.settings.geminiModel; }
     if (!state.sampleDone) seedSample();
     return state;
   }

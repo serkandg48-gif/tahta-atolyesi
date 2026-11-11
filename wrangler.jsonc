@@ -11,7 +11,7 @@
   },
   // Gizli olmayan ayarlar. Gemini anahtarı burada DEĞİL, Cloudflare panelinde Secret olarak durur.
   "vars": {
-    "GOOGLE_CLIENT_ID": "",
+    "GOOGLE_CLIENT_ID": "559335998298-1717utra0fliq2qnqobugtagar9okr5o.apps.googleusercontent.com",
     "DAILY_LIMIT": "10",
     "GLOBAL_LIMIT": "400",
     "GEMINI_MODEL": "gemini-2.5-flash-lite"

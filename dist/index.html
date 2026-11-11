@@ -5401,7 +5401,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Hesabım ve yapay zekâ"),
             T.ai.statusEl(),
             (() => { const b = h("div.row"); const draw = () => b.replaceChildren(T.auth.user() ? h("button.btn.c-chalk", { onclick: () => T.auth.signOut() }, "Çıkış yap") : null); draw(); const off = T.auth.on(() => { if (!b.isConnected) return off(); draw(); }); return b; })(),
-            h("p.hint", { style: { margin: 0 } }, "Google ile giriş yaptığında yapay zekâ ile plan, soru ve etkinlik üretebilirsin. Her öğretmenin günlük bir hakkı var, gece yenilenir. Öğrenci adları yapay zekâya gönderilmez.")),
+            h("p.hint", { style: { margin: 0 } }, "Google ile giriş yaptığında yapay zekâ ile plan, soru ve etkinlik üretebilirsin. Her öğretmenin günlük bir hakkı var, gece yenilenir. Öğrenci adları yapay zekâya gönderilmez. ", h("a", { href: "/gizlilik.html", target: "_blank", rel: "noopener" }, "Gizlilik politikası"))),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Okul takvimi"),
             h("p.hint", { style: { margin: 0 } }, "MEB 2026-2027 çalışma takvimi yüklü. Okulunun takvimi farklıysa düzelt. Okulun kaçıncı günü ve yıllık plan bu takvimle hesaplanır."),
             h("div.form-grid", field("İlk ders günü", cs), field("Son ders günü", ce)),

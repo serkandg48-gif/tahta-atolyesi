@@ -5,7 +5,7 @@
    Cloudflare panelinde tanımlanması gerekenler (Settings > Variables and Secrets):
    GEMINI_API_KEY   (Secret)  Google AI Studio anahtarı. Öğretmenler bu anahtarı hiç görmez.
    GOOGLE_CLIENT_ID (wrangler.jsonc içinde, gizli değil) Google ile giriş için istemci kimliği.
-   İsteğe bağlı: DAILY_LIMIT (öğretmen başına günlük hak, varsayılan 20), GLOBAL_LIMIT (site geneli günlük tavan, varsayılan 400), GEMINI_MODEL, SESSION_SECRET. */
+   İsteğe bağlı: DAILY_LIMIT (öğretmen başına günlük hak, varsayılan 10), GLOBAL_LIMIT (site geneli günlük tavan, varsayılan 400), GEMINI_MODEL, SESSION_SECRET. */
 import { DurableObject } from "cloudflare:workers";
 
 const JSON_H = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
@@ -102,7 +102,7 @@ export class Kota extends DurableObject {
   }
 }
 const kota = (env, email) => env.KOTA.get(env.KOTA.idFromName("ogretmen:" + email));
-const limitOf = (env) => Math.max(1, parseInt(env.DAILY_LIMIT, 10) || 20);
+const limitOf = (env) => Math.max(1, parseInt(env.DAILY_LIMIT, 10) || 10);
 /* Site geneli günlük tavan: ücretsiz kotayı korur, ödeme çıkmasını önler. */
 const genel = (env) => env.KOTA.get(env.KOTA.idFromName("genel"));
 const globalOf = (env) => Math.max(1, parseInt(env.GLOBAL_LIMIT, 10) || 400);

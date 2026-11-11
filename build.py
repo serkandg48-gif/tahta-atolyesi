@@ -29,6 +29,7 @@ JS_ORDER = [
     "math-sims.js",
     "math-middle.js",
     "math-games.js",
+    "math-vitrin.js",
     "math-talks.js",
     "subjects.js",
     "birinci.js",
@@ -41,7 +42,7 @@ JS_ORDER = [
 
 def main():
     html = (SRC / "index.html").read_text(encoding="utf-8")
-    css = (SRC / "styles.css").read_text(encoding="utf-8")
+    css = (SRC / "styles.css").read_text(encoding="utf-8") + "\n" + (SRC / "theme.css").read_text(encoding="utf-8")
     parts = []
     for name in JS_ORDER:
         p = SRC / "js" / name

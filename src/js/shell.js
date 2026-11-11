@@ -18,7 +18,7 @@
     const c = T.store.activeClass();
     const n = T.cal.dayNumber(), st = T.cal.status(), sp = T.cal.specialDay();
     const mark = T.svg("svg", { viewBox: "0 0 48 48", class: "brand-mark", "aria-hidden": "true" });
-    mark.innerHTML = '<rect x="3" y="7" width="42" height="30" rx="4" fill="#1f4b3a" stroke="#fff8ec" stroke-width="3"/><path d="M11 17h12M11 24h20" stroke="#fff8ec" stroke-width="3" stroke-linecap="round"/><path d="M33 41h10" stroke="#fff8ec" stroke-width="4" stroke-linecap="round"/><circle cx="36" cy="16" r="4" fill="#ffc233"/>';
+    mark.innerHTML = '<rect x="4" y="7" width="40" height="27" rx="4" fill="#1B2A4A"/><path d="M11 26l6-7 5 4 6-9 8 12" stroke="#E9A23B" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 41h12M24 34v7" stroke="#1B2A4A" stroke-width="3.2" stroke-linecap="round"/>';
     const clock = h("div.clock.num", { "aria-label": "Saat" });
     el.replaceChildren(
       h("button.brand", { onclick: () => T.go("ana"), "aria-label": "Ana sayfa" }, mark, h("span", "Tahta Atölyesi"), h("small", "prototip")),

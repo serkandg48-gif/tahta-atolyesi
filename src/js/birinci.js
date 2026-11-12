@@ -271,7 +271,8 @@
     } });
 
   /* ===================== KİTABIM: etkileşimli PDF ===================== */
-  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  const PDFJS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  const PDFJS = /^https?:$/.test(location.protocol) ? "/vendor/pdfjs/" : PDFJS_CDN;
   let pdfLib = null;
   function loadPdfJs() {
     if (pdfLib) return Promise.resolve(pdfLib);
@@ -284,6 +285,7 @@
     });
   }
   function setupWorker(lib) {
+    if (PDFJS !== PDFJS_CDN) { lib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; return lib; }
     try { const blob = new Blob([`importScripts("${PDFJS}pdf.worker.min.js");`], { type: "text/javascript" }); lib.GlobalWorkerOptions.workerPort = new Worker(URL.createObjectURL(blob)); }
     catch (e) { lib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; }
     return lib;
@@ -305,7 +307,7 @@
       const scroller = h("div", { style: { height: "calc(100vh - var(--top-h) - var(--dock-h) - 96px)", minHeight: "360px", overflow: "auto", borderRadius: "var(--r-lg)", background: "rgba(0,0,0,.18)", padding: "16px", position: "relative" } }, pageWrap);
       const pcv = h("canvas", { style: { display: "block" } });
       const tl = h("div.textLayer");
-      const acv = h("canvas", { style: { position: "absolute", inset: "0", touchAction: "none" } });
+      const acv = h("canvas", { style: { position: "absolute", inset: "0", touchAction: "none", zIndex: 3 } });
       const curtain = h("div", { style: { position: "absolute", left: 0, right: 0, top: 0, height: "0", background: "#2b3540", display: "none", zIndex: 5 } }, h("div", { style: { position: "absolute", left: "50%", bottom: "-22px", transform: "translateX(-50%)", width: "120px", height: "44px", borderRadius: "0 0 14px 14px", background: "#2b3540", color: "#fff", display: "grid", placeItems: "center", cursor: "ns-resize", fontWeight: 700 }, "data-handle": "1" }, "Perde"));
       const spotEl = h("div", { style: { position: "absolute", inset: 0, pointerEvents: "none", display: "none", zIndex: 4 } });
       pageWrap.append(pcv, tl, acv, curtain, spotEl);
@@ -314,17 +316,19 @@
       scroller.append(chip);
 
       /* Yan araç çubuğu */
-      const TOOLS = [["el", "hand", "Dokun ve dinle"], ["kalem", "pen", "Kalem"], ["vurgu", "edit", "Fosforlu kalem"], ["silgi", "trash", "Silgi"], ["cizgi", "line", "Çizgi"], ["kutu", "area", "Kutu"], ["daire", "coinflip", "Daire"], ["ok", "next", "Ok"], ["yazi", "text", "Yazı"], ["damga", "star", "Yıldız"], ["onay", "check", "Onay işareti"], ["spot", "sun", "Spot ışığı"]];
+      const TOOLS = [["el", "hand", "Dokun ve dinle", "Dinle"], ["kalem", "pen", "Kalem", "Kalem"], ["vurgu", "highlighter", "Fosforlu kalem", "Fosforlu"], ["silgi", "eraser", "Silgi", "Silgi"], ["cizgi", "line", "Çizgi", "Çizgi"], ["kutu", "square", "Kutu", "Kutu"], ["daire", "circle", "Daire", "Daire"], ["ok", "arrow", "Ok", "Ok"], ["yazi", "textT", "Yazı", "Yazı"], ["damga", "star", "Yıldız", "Yıldız"], ["onay", "check", "Onay işareti", "Onay"], ["spot", "sun", "Spot ışığı", "Spot"]];
+      const lab = (t) => h("span", { style: { fontSize: "11px", fontWeight: 600, lineHeight: 1 } }, t);
+      const tb = { width: "52px", minHeight: "54px", flexDirection: "column", gap: "3px", padding: "4px 2px" };
       const side = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 52px)", gap: "6px", alignContent: "start", overflowY: "auto", maxHeight: "calc(100vh - var(--top-h) - var(--dock-h) - 96px)" } });
       function paintSide() {
         side.replaceChildren(
-          ...TOOLS.map(([k, ic, l]) => h("button.btn.icon" + (st.tool === k ? ".c-sun" : ".c-chalk"), { title: l, "aria-label": l, "aria-pressed": String(st.tool === k), style: { width: "52px", minHeight: "48px" }, onclick: () => { st.tool = k; spotEl.style.display = k === "spot" ? "block" : "none"; if (k === "spot") paintSpot(); paintSide(); acv.style.pointerEvents = k === "el" ? "none" : "auto"; } }, T.icon(ic))),
+          ...TOOLS.map(([k, ic, l, kisa]) => h("button.btn.icon" + (st.tool === k ? ".c-sun" : ".c-chalk"), { title: l, "aria-label": l, "aria-pressed": String(st.tool === k), style: tb, onclick: () => { st.tool = k; spotEl.style.display = k === "spot" ? "block" : "none"; if (k === "spot") paintSpot(); paintSide(); acv.style.pointerEvents = k === "el" ? "none" : "auto"; } }, T.icon(ic), lab(kisa))),
           h("div", { style: { gridColumn: "1 / -1", height: "2px" } }),
           ...["#e2473b", "#2e9bd6", "#3fae5a", "#ffc233", "#8a5cd0", "#2a2a2a"].map((c) => h("button", { "aria-label": "Renk", onclick: () => { st.color = c; paintSide(); }, style: { width: "52px", height: "30px", borderRadius: "10px", border: st.color === c ? "4px solid #fff" : "2px solid rgba(255,255,255,.3)", background: c } })),
-          h("button.btn.icon.c-chalk", { title: "Kalınlık", "aria-label": "Kalınlık", style: { width: "52px" }, onclick: () => { st.width = st.width === 5 ? 10 : st.width === 10 ? 3 : 5; paintSide(); } }, h("span", { style: { width: st.width * 2 + "px", height: st.width * 2 + "px", borderRadius: "50%", background: "var(--ink)" } })),
-          h("button.btn.icon" + (st.curtain ? ".c-sun" : ".c-chalk"), { title: "Perde", "aria-label": "Perde", style: { width: "52px" }, onclick: () => { st.curtain = st.curtain ? 0 : 0.5; paintCurtain(); paintSide(); } }, T.icon("eyeoff")),
-          h("button.btn.icon.c-chalk", { title: "Geri al", "aria-label": "Geri al", style: { width: "52px" }, onclick: () => { const ops = curOps(); ops.pop(); commit(); } }, T.icon("back")),
-          h("button.btn.icon.c-tomato", { title: "Sayfadaki çizimleri sil", "aria-label": "Sayfadaki çizimleri sil", style: { width: "52px" }, onclick: () => { st.ann[key()] = []; commit(); } }, T.icon("reset")));
+          h("button.btn.icon.c-chalk", { title: "Kalınlık", "aria-label": "Kalınlık", style: tb, onclick: () => { st.width = st.width === 5 ? 10 : st.width === 10 ? 3 : 5; paintSide(); } }, h("span", { style: { width: st.width * 2 + "px", height: st.width * 2 + "px", borderRadius: "50%", background: "var(--ink)" } }), lab("Kalınlık")),
+          h("button.btn.icon" + (st.curtain ? ".c-sun" : ".c-chalk"), { title: "Perde", "aria-label": "Perde", style: tb, onclick: () => { st.curtain = st.curtain ? 0 : 0.5; paintCurtain(); paintSide(); } }, T.icon("eyeoff"), lab("Perde")),
+          h("button.btn.icon.c-chalk", { title: "Geri al", "aria-label": "Geri al", style: tb, onclick: () => { const ops = curOps(); ops.pop(); commit(); } }, T.icon("undo" in T.ICONS ? "undo" : "back"), lab("Geri al")),
+          h("button.btn.icon.c-tomato", { title: "Sayfadaki çizimleri sil", "aria-label": "Sayfadaki çizimleri sil", style: tb, onclick: () => { st.ann[key()] = []; commit(); } }, T.icon("reset"), lab("Temizle")));
       }
       const key = () => (st.blank ? "b" : "") + st.page;
       const curOps = () => (st.ann[key()] = st.ann[key()] || []);

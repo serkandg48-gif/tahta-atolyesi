@@ -93,6 +93,13 @@ T.ICONS = {
   user: '<circle class="f" cx="24" cy="17" r="8"/><circle cx="24" cy="17" r="8"/><path d="M8 42c1-9 8-14 16-14s15 5 16 14"/>',
   minus: '<path d="M10 24h28"/>',
   edit: '<path d="M30 8l10 10-20 20H10V28zM26 12l10 10"/>',
+  highlighter: '<path class="f" d="M14 40h20v-4H14z"/><path d="M30 6l8 8-14 14h-8v-8zM16 20l12 12M12 41h24"/>',
+  eraser: '<path class="f" d="M8 30 26 12l14 14-12 12H16z"/><path d="M8 30 26 12l14 14-12 12H16zM17 21l14 14M16 38h26"/>',
+  arrow: '<path d="M9 39 37 11M20 11h17v17"/>',
+  circle: '<circle class="f" cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="16"/>',
+  square: '<rect class="f" x="8" y="10" width="32" height="28" rx="2"/><rect x="8" y="10" width="32" height="28" rx="2"/>',
+  textT: '<path d="M10 12h28M24 12v26M18 38h12"/>',
+  undo: '<path d="M16 12 8 20l8 8M8 20h20a11 11 0 0 1 0 22h-6"/>',
   bolt: '<path class="f" d="M27 4 9 27h13l-3 17 20-25H26z"/><path d="M27 4 9 27h13l-3 17 20-25H26z"/>',
 };
 T.icon = function (name, cls = "") {

@@ -56,6 +56,10 @@ def main():
     # Ayrı statik sayfalar (gizlilik politikası vb.) olduğu gibi kopyalanır.
     for extra in ("gizlilik.html", "vitrin.html"):
         (ROOT / "dist" / extra).write_text((SRC / extra).read_text(encoding="utf-8"), encoding="utf-8")
+    # Üçüncü taraf kütüphaneler (pdf.js) kendi sitemizden sunulur; okul ağları CDN'leri engelleyebiliyor.
+    import shutil
+    if (SRC / "vendor").exists():
+        shutil.copytree(SRC / "vendor", ROOT / "dist" / "vendor", dirs_exist_ok=True)
     print(f"dist/index.html {len(out)//1024} KB")
 
 

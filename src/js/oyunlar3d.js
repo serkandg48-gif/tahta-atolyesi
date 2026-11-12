@@ -199,6 +199,92 @@
               if (ad === "Limon") m.scale.set(1, 0.85, 0.85); m.position.set(x, 0.75 + k * 0.62, 0); m.userData.dus = 2 + k * 0.25; m.userData.y0 = m.position.y; m.position.y += m.userData.dus; c.golge(m); grup.add(m); } }); },
         adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
 
+  /* ---------- Ahşap harf karoları (ifade oyunları) ---------- */
+  PARCA.karolar = (c, grup, metin, y = 1.2, renk = ["#F3D9A4", "#D9B16A", "#2A1A08"]) => { const { THREE } = c, kar = [...String(metin)], n = kar.length, gen = Math.min(1.25, 13 / Math.max(1, n));
+    kar.forEach((ch, i) => { if (ch === " ") return; const m = new THREE.Mesh(new THREE.BoxGeometry(gen * 0.92, gen * 1.1, 0.35), [0, 0, 0, 0, 1, 0].map((k2) => k2 ? new THREE.MeshStandardMaterial({ map: c.sayiDoku(ch, renk[0], renk[1], ch === "[" || ch === "]" ? "#C0392B" : renk[2]), roughness: 0.55 }) : new THREE.MeshStandardMaterial({ color: 0xc9a066, roughness: 0.6, map: c.tahta() })));
+      m.position.set((i - (n - 1) / 2) * gen, y, 0); m.rotation.x = -0.12; c.golge(m); m.userData.dus = 2.5 + i * 0.12; m.userData.y0 = y; m.position.y += m.userData.dus; grup.add(m); }); };
+  const sarmala = (id, ek) => T.oyun3B(id, Object.assign({ ortam: "masa", kamera: { poz: [0, 4.2, 11], bak: [0, 1.4, 0], fov: 40 },
+    tur(L, c) { const r = T.games[id].round(L), ifade = r.visual ? r.visual.textContent.replace(/\s+/g, " ").trim() : (ek.ifade ? ek.ifade(r) : "");
+      return { soru: r.prompt || ek.soru || "Sonuç kaç?", cevap: r.answer, secenekler: r.options.map(String), aciklama: r.explain || "", goster(c, grup) { PARCA.karolar(c, grup, ifade, ek.y || 1.4, ek.renk); }, adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } }, ek));
+  sarmala("deniz-canavari", { ortam: "deniz", soru: "Deniz canavarı soruyor: sonuç kaç?", renk: ["#E8F7FF", "#9ED4F0", "#0B3E66"], kamera: { poz: [0, 3.6, 10], bak: [0, 2, 0], fov: 42 }, y: 2.2 });
+  sarmala("islem-sirasi", { soru: "İşlem sırasına dikkat! Sonuç kaç?" });
+  sarmala("carpan", { soru: "Eksik çarpan kaç?" });
+  sarmala("kalanli", { soru: "Bölüm ve kalan nedir?" });
+  sarmala("sifre", {});
+  sarmala("asal-yaris", { ifade: (r) => (/katıdır/.test(r.prompt) ? (r.prompt.match(/\d+/) || [""])[0] + "'nın katı?" : "Asal mı?") });
+
+  /* ---------- Ayıyı besle: ahşap geometrik şekiller ---------- */
+  const SEKIL = { "Kare": 4, "Dikdörtgen": -4, "Üçgen": 3, "Daire": 0, "Beşgen": 5, "Altıgen": 6 };
+  sarmalaSekil();
+  function sarmalaSekil() { T.oyun3B("ayiyi-besle", { ortam: "masa", kamera: { poz: [0, 7, 9], bak: [0, 0.5, 0.3], fov: 40 },
+    tur(L, c) { const r = T.games["ayiyi-besle"].round(L);
+      return { soru: r.prompt, cevap: r.answer, secenekler: r.options, aciklama: r.explain,
+        goster(c, grup) { const { THREE } = c, RN = [0x2e9bd6, 0xf2b51b, 0x6cc04a, 0xf27ba9];
+          r.options.forEach((ad, i) => { const k = SEKIL[ad], sh = new THREE.Shape();
+            if (k === 0) sh.absarc(0, 0, 1, 0, Math.PI * 2); else if (k === 4) { sh.moveTo(-0.95, -0.95); sh.lineTo(0.95, -0.95); sh.lineTo(0.95, 0.95); sh.lineTo(-0.95, 0.95); } else if (k === -4) { sh.moveTo(-1.3, -0.7); sh.lineTo(1.3, -0.7); sh.lineTo(1.3, 0.7); sh.lineTo(-1.3, 0.7); } else for (let j = 0; j < k; j++) { const a = Math.PI / 2 + (j / k) * Math.PI * 2 + (k === 4 ? Math.PI / 4 : 0), rr = k === 4 ? 1.25 : 1.1; j ? sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : sh.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+            const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.3, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 3, curveSegments: 48 }), new THREE.MeshPhysicalMaterial({ color: RN[i], roughness: 0.35, clearcoat: 0.6 }));
+            m.rotation.x = -Math.PI / 2; m.position.set((i - 1.5) * 3, 0.05, 0); c.golge(m); m.userData.dus = 2 + i * 0.2; m.userData.y0 = 0.05; m.position.y += m.userData.dus; grup.add(m);
+            const et = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.55), new THREE.MeshBasicMaterial({ map: c.doku(512, 128, (x, w, h) => { x.fillStyle = "#FFF8EC"; x.fillRect(0, 0, w, h); x.font = "800 70px Nunito, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillStyle = "#2A1A08"; x.fillText(ad, w / 2, h / 2); }) })); et.rotation.x = -Math.PI / 2.6; et.position.set((i - 1.5) * 3, 0.06, 1.7); grup.add(et); }); },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } }); }
+
+  /* ---------- Adil paylaşım: kurabiyeler ve tabaklar ---------- */
+  const kurabiye = (c) => { const { THREE } = c, m = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.34, 0.12, 32), new THREE.MeshStandardMaterial({ roughness: 0.85, map: c.doku(128, 128, (x, w, h) => { x.fillStyle = "#D99A4E"; x.fillRect(0, 0, w, h); for (let i = 0; i < 10; i++) { x.fillStyle = "#4A2A12"; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 6 + Math.random() * 4, 0, Math.PI * 2); x.fill(); } }) })); m.castShadow = true; return m; };
+  T.oyun3B("adil-paylasim", { ortam: "masa", kamera: { poz: [0, 8, 8], bak: [0, 0.3, 0.5], fov: 42 },
+    tur(L, c) { const k = R(2, L ? 6 : 4), each = R(1, L === 2 ? 9 : 5), tot = k * each;
+      return { soru: tot + " kurabiye " + k + " tabağa eşit paylaşılırsa her tabakta kaç kurabiye olur?", cevap: each, secenekler: yakin(each, 4, 2, 1), aciklama: tot + " ÷ " + k + " = " + each,
+        goster(c, grup) { const { THREE } = c; grup.userData.tabak = [];
+          for (let i = 0; i < k; i++) { const x = (i - (k - 1) / 2) * 2.4, t = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 0.8, 0.12, 48), new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.2, clearcoat: 1 })); t.position.set(x, 0.06, 1.5); c.golge(t); grup.add(t); grup.userData.tabak.push(x); }
+          grup.userData.kur = []; for (let i = 0; i < tot; i++) { const m = kurabiye(c); m.position.set(-2.5 + (i % 8) * 0.7, 0.07 + Math.floor(i / 8) * 0.13, -1.6 + Math.floor(i / 8) * 0.15); m.rotation.y = Math.random(); m.userData.dus = 2 + i * 0.03; m.userData.y0 = m.position.y; m.position.y += m.userData.dus; grup.add(m); grup.userData.kur.push(m); } },
+        dogru(c, grup) { grup.userData.dagit = 0; grup.userData.kur.forEach((m, i) => { const t = i % k, j = Math.floor(i / k); m.userData.hedef = [grup.userData.tabak[t] + ((j % 3) - 1) * 0.5, 0.2 + Math.floor(j / 3) * 0.13, 1.5 + (Math.floor(j / 3) % 2 ? 0.25 : -0.15)]; m.userData.gecik = i * 0.05; }); },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); if (grup.userData.dagit == null) return; grup.userData.dagit += dt; grup.userData.kur.forEach((m) => { const h2 = m.userData.hedef; if (!h2 || grup.userData.dagit < m.userData.gecik) return; m.position.x += (h2[0] - m.position.x) * Math.min(1, dt * 6); m.position.z += (h2[2] - m.position.z) * Math.min(1, dt * 6); m.position.y += (h2[1] - m.position.y) * Math.min(1, dt * 6); }); } }; } });
+
+  /* ---------- Kesir avcısı: pasta ya da çikolata ---------- */
+  T.oyun3B("kesri-boya", { ortam: "masa", kamera: { poz: [0, 7, 7], bak: [0, 0.5, 0], fov: 40 },
+    tur(L, c) { const n = P(L === 0 ? [2, 3, 4] : [3, 4, 5, 6, 8]), k = R(1, n - 1), pasta = Math.random() < 0.5; let soru, cevap, sec;
+      if (L === 2) { const m = P([2, 3]); cevap = k * m + "/" + n * m; soru = "Renkli kısım " + k + "/" + n + ". Hangisi buna denktir?"; sec = T.shuffle([cevap, (k + 1) + "/" + (n * m), k * m + "/" + n, (k * m + 1) + "/" + (n * m)].filter((v, i, a) => a.indexOf(v) === i)); }
+      else { cevap = k + "/" + n; soru = (pasta ? "Pastanın" : "Çikolatanın") + " ne kadarı çilekli?"; sec = T.shuffle([...new Set([cevap, (n - k) + "/" + n, k + "/" + (n + 1), Math.min(k + 1, n) + "/" + n])]); }
+      return { soru, cevap, secenekler: sec, aciklama: n + " eşit parçanın " + k + " tanesi renkli: " + k + "/" + n + ".",
+        goster(c, grup) { const { THREE } = c, krem = new THREE.MeshStandardMaterial({ color: 0xf6e7c8, roughness: 0.7 }), cilek = new THREE.MeshPhysicalMaterial({ color: 0xe0455b, roughness: 0.35, clearcoat: 0.6 }), kek = new THREE.MeshStandardMaterial({ color: 0xc8925a, roughness: 0.85 }), cik = new THREE.MeshStandardMaterial({ color: 0x5a3220, roughness: 0.4 });
+          if (pasta) { const ayr = 0.05; for (let i = 0; i < n; i++) { const a0 = (i / n) * Math.PI * 2, a1 = ((i + 1) / n) * Math.PI * 2, gg = new THREE.Group();
+              const dilim = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.8, 48, 1, false, a0, a1 - a0), [kek, i < k ? cilek : krem, kek]); dilim.position.y = 0.4; gg.add(dilim);
+              const ort = (a0 + a1) / 2; gg.position.set(Math.sin(ort) * ayr * 4, 0.02, Math.cos(ort) * ayr * 4); c.golge(gg); grup.add(gg); } }
+          else { for (let i = 0; i < n; i++) { const w = 5.6 / n, m = new THREE.Mesh(new THREE.BoxGeometry(w - 0.08, 0.35, 2.4), i < k ? cilek : cik); m.position.set(-2.8 + w / 2 + i * w, 0.18, 0); c.golge(m); grup.add(m); } } } }; } });
+
+  /* ---------- Yuvarlama tepesi: top tepeden en yakın ona yuvarlanır ---------- */
+  T.oyun3B("yuvarlama", { ortam: "cayir", kamera: { poz: [0, 4, 13], bak: [0, 2, 0], fov: 40 },
+    tur(L, c) { const to = L === 0 ? 10 : L === 1 ? P([10, 100]) : 100, n = to === 10 ? R(11, 99) : R(101, 999), lo = Math.floor(n / to) * to, hi = lo + to, ans = n - lo >= to / 2 ? hi : lo;
+      const X = (v) => -6 + ((v - lo) / to) * 12, Y = (x) => 3.2 * Math.cos((x / 6) * (Math.PI / 2)) ** 2 + 0.3;
+      return { soru: n + " sayısını en yakın " + (to === 10 ? "onluğa" : "yüzlüğe") + " yuvarla.", cevap: ans, secenekler: T.shuffle([...new Set([lo, hi, lo + to / 2, ans === hi ? lo - to > 0 ? lo - to : hi + to : hi + to])]).slice(0, 4), aciklama: n + ", " + (ans === hi ? hi : lo) + " sayısına daha yakın" + (n - lo === to / 2 ? " (tam ortadaysa yukarı yuvarlarız)." : "."),
+        goster(c, grup) { const { THREE } = c, pts = []; for (let i = 0; i <= 60; i++) { const x = -6.6 + (i / 60) * 13.2; pts.push(new THREE.Vector3(x, Y(Math.max(-6, Math.min(6, x))), 0)); }
+          const tepe = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 120, 0.35, 12), new THREE.MeshStandardMaterial({ color: 0x8a6a45, roughness: 0.8 })); c.golge(tepe); grup.add(tepe);
+          for (let v = lo; v <= hi; v += to / 10) { const x = X(v), maj = v === lo || v === hi || v === lo + to / 2; const ct = new THREE.Mesh(new THREE.BoxGeometry(0.06, maj ? 0.7 : 0.35, 0.06), new THREE.MeshStandardMaterial({ color: 0x2a2a2a })); ct.position.set(x, Y(x) + 0.5, 0.36); grup.add(ct);
+            if (maj) { const et = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.6), new THREE.MeshBasicMaterial({ map: c.doku(256, 96, (x2, w, h) => { x2.fillStyle = "#FFF8EC"; x2.fillRect(0, 0, w, h); x2.font = "800 64px Nunito, sans-serif"; x2.textAlign = "center"; x2.textBaseline = "middle"; x2.fillStyle = "#1B2A4A"; x2.fillText(String(v), w / 2, h / 2); }) })); et.position.set(x, v === lo + to / 2 ? Y(x) + 1.3 : 0.6, 0.6); grup.add(et); } }
+          const top = new THREE.Mesh(new THREE.SphereGeometry(0.45, 40, 28), new THREE.MeshPhysicalMaterial({ color: 0xe0452b, roughness: 0.25, clearcoat: 1 })); c.golge(top); grup.add(top); grup.userData.top = top; grup.userData.x = X(n);
+          const et2 = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.55), new THREE.MeshBasicMaterial({ map: c.sayiDoku(String(n), "#FFF6B0", "#FFD84A", "#3A2A00"), transparent: true })); grup.add(et2); grup.userData.et = et2; },
+        dogru(c, grup) { grup.userData.hedef = X(ans); },
+        adim(c, grup, dt) { const u = grup.userData; if (!u.top) return; if (u.hedef != null) { const fark = u.hedef - u.x; u.x += Math.sign(fark) * Math.min(Math.abs(fark), dt * 5); u.top.rotation.z -= Math.sign(fark) * dt * 10; } const y = Y(Math.max(-6, Math.min(6, u.x))) + 0.8; u.top.position.set(u.x, y, 0); u.et.position.set(u.x, y + 0.9, 0); } }; } });
+
+  /* ---------- Alan ve çevre avı: kareli kâğıt üstünde karolar ---------- */
+  T.oyun3B("alan-avi", { ortam: "masa", kamera: { poz: [0, 9, 6.5], bak: [0, 0, 0.2], fov: 42 },
+    tur(L, c) { const w = R(2, L ? 9 : 6), hh = R(2, L ? 7 : 5), per = Math.random() < 0.5, ans = per ? 2 * (w + hh) : w * hh;
+      return { soru: per ? "Dikdörtgenin çevresi kaç birim?" : "Dikdörtgenin alanı kaç birim kare?", cevap: ans, secenekler: T.shuffle([...new Set([ans, per ? w * hh : 2 * (w + hh), w + hh, ans + 2])]), aciklama: per ? "2 × (" + w + " + " + hh + ") = " + ans : w + " × " + hh + " = " + ans,
+        goster(c, grup) { const { THREE } = c, U = 0.62;
+          const kagit = new THREE.Mesh(new THREE.PlaneGeometry(10 * U + 1, 8 * U + 1), new THREE.MeshStandardMaterial({ roughness: 0.9, map: c.doku(1024, 820, (x, W2, H2) => { x.fillStyle = "#FDFCF8"; x.fillRect(0, 0, W2, H2); x.strokeStyle = "rgba(60,120,200,.35)"; x.lineWidth = 2; const s2 = W2 / (10 + 1 / U); for (let i = 0; i < W2 / s2 + 1; i++) { x.beginPath(); x.moveTo(i * s2 + s2 * 0.8, 0); x.lineTo(i * s2 + s2 * 0.8, H2); x.stroke(); } for (let j = 0; j < H2 / s2 + 1; j++) { x.beginPath(); x.moveTo(0, j * s2 + s2 * 0.8); x.lineTo(W2, j * s2 + s2 * 0.8); x.stroke(); } }) }));
+          kagit.rotation.x = -Math.PI / 2; kagit.position.y = 0.01; kagit.receiveShadow = true; grup.add(kagit);
+          const mat = new THREE.MeshPhysicalMaterial({ color: per ? 0xffd9cf : 0xf27b5b, roughness: 0.4, clearcoat: 0.5 });
+          for (let i = 0; i < w; i++) for (let j = 0; j < hh; j++) { if (per && i > 0 && j > 0 && i < w - 1 && j < hh - 1) continue; const k2 = new THREE.Mesh(new THREE.BoxGeometry(U * 0.94, 0.14, U * 0.94), mat); k2.position.set((i - (w - 1) / 2) * U, 0.08, (j - (hh - 1) / 2) * U); c.golge(k2); k2.userData.dus = 1.5 + (i + j) * 0.05; k2.userData.y0 = 0.08; k2.position.y += k2.userData.dus; grup.add(k2); }
+          if (per) { const pts = [[-w / 2, -hh / 2], [w / 2, -hh / 2], [w / 2, hh / 2], [-w / 2, hh / 2], [-w / 2, -hh / 2]].map(([a, b]) => new THREE.Vector3(a * U, 0.2, b * U)); const ip = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0), 80, 0.04, 8), new THREE.MeshStandardMaterial({ color: 0x1f4f8a })); grup.add(ip); } },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
+
+  /* ---------- Küp kulesi: birim küplerden prizma ---------- */
+  T.oyun3B("hacim", { ortam: "masa", kamera: { poz: [5, 7, 9], bak: [0, 1, 0], fov: 40 },
+    tur(L, c) { const l = R(2, L ? 5 : 4), w = R(1, L ? 4 : 2), hh = R(1, L ? 4 : 3), ans = l * w * hh;
+      return { soru: "Prizma kaç birim küpten oluşuyor?", cevap: ans, secenekler: T.shuffle([...new Set([ans, l * w + hh, ans + l, 2 * (l * w + w * hh + l * hh)])]).slice(0, 4), aciklama: l + " × " + w + " × " + hh + " = " + ans,
+        goster(c, grup) { const { THREE } = c, U = 0.9, RN = [0x7fc6f2, 0x5fb0e8];
+          for (let z = 0; z < hh; z++) for (let y = 0; y < w; y++) for (let x = 0; x < l; x++) { const geo = new THREE.BoxGeometry(U * 0.98, U * 0.98, U * 0.98), m = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ color: RN[(x + y + z) % 2], roughness: 0.3, clearcoat: 0.6 })); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x1f5a85 })));
+            m.position.set((x - (l - 1) / 2) * U, U / 2 + z * U, (y - (w - 1) / 2) * U); c.golge(m); m.userData.dus = 2 + (z * l * w + y * l + x) * 0.05; m.userData.y0 = m.position.y; m.position.y += m.userData.dus; grup.add(m); } },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
+
   /* ---------- Tırtıl sayıyor: yaprak üstünde tüylü tırtıl, her boğumda bir sayı ---------- */
   T.oyun3B("tirtil", {
     ortam: "cayir", simge: "🍃", seviyeler: ["Birer ileri", "İleri ve geri", "Ritmik sayma"],

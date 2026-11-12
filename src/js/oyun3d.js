@@ -28,6 +28,19 @@
       for (let i = 0; i < 12; i++) { const g = new THREE.Group(), s = 0.8 + Math.random() * 0.8; const gv = new THREE.Mesh(new THREE.CylinderGeometry(0.15 * s, 0.22 * s, 1.6 * s, 8), govdeM); gv.position.y = 0.8 * s; g.add(gv); [[0, 2.2, 0, 1.1], [-0.5, 1.8, 0.2, 0.8], [0.5, 1.9, -0.1, 0.85]].forEach(([x, y, z, r]) => { const y2 = new THREE.Mesh(new THREE.IcosahedronGeometry(r * s, 1), yaprakM); y2.position.set(x * s, y * s, z * s); y2.castShadow = true; g.add(y2); }); g.position.set(-22 + i * 4 + Math.random() * 2, 0, -14 - Math.random() * 6); gv.castShadow = true; sahne.add(g); }
     },
   };
+  ORTAM.deniz = (c) => {
+    const { THREE, sahne } = c;
+    sahne.background = doku(THREE, 16, 512, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#5CC6E8"); g.addColorStop(0.5, "#1B7FB3"); g.addColorStop(1, "#0B3E66"); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+    sahne.fog = new THREE.FogExp2(0x1b6f9e, 0.035);
+    const kum = doku(THREE, 512, 512, (x, w, h) => { x.fillStyle = "#D9C089"; x.fillRect(0, 0, w, h); for (let i = 0; i < 8000; i++) { x.fillStyle = Math.random() < 0.5 ? "rgba(255,240,200,.3)" : "rgba(120,90,40,.25)"; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); } }); kum.wrapS = kum.wrapT = THREE.RepeatWrapping; kum.repeat.set(10, 10);
+    const zemin = new THREE.Mesh(new THREE.PlaneGeometry(120, 120, 60, 60), new THREE.MeshStandardMaterial({ map: kum, roughness: 1 })); const zp = zemin.geometry.attributes.position; for (let i = 0; i < zp.count; i++) zp.setZ(i, Math.sin(zp.getX(i) * 0.4) * 0.15 + Math.cos(zp.getY(i) * 0.3) * 0.15); zemin.geometry.computeVertexNormals(); zemin.rotation.x = -Math.PI / 2; zemin.receiveShadow = true; sahne.add(zemin);
+    const yosunM = new THREE.MeshStandardMaterial({ color: 0x2f8f5b, roughness: 0.8 }); c._yosun = [];
+    for (let i = 0; i < 26; i++) { const y = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.12, 2 + Math.random() * 3, 6, 8), yosunM); y.position.set(-16 + Math.random() * 32, 1.4, -4 - Math.random() * 10); sahne.add(y); c._yosun.push(y); }
+    const merM = [0xff7a6b, 0xffa35c, 0xf06292].map((col) => new THREE.MeshStandardMaterial({ color: col, roughness: 0.7 }));
+    for (let i = 0; i < 10; i++) { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5 + Math.random() * 0.6, 1), merM[i % 3]); m.position.set(-14 + Math.random() * 28, 0.3, -2 - Math.random() * 8); m.scale.y = 1.4; sahne.add(m); }
+    c._kabarcik = []; const kb = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.9, roughness: 0.05, transparent: true, opacity: 0.5 });
+    for (let i = 0; i < 40; i++) { const b = new THREE.Mesh(new THREE.SphereGeometry(0.05 + Math.random() * 0.12, 12, 8), kb); b.position.set(-12 + Math.random() * 24, Math.random() * 10, -1 - Math.random() * 8); sahne.add(b); c._kabarcik.push(b); }
+  };
   /* sayılı yüzey dokusu */
   const sayiDoku = (THREE, metin, a = "#FFFFFF", b = "#E9EEF5", yazi = "#1B2A4A", yuvarlak = false) => doku(THREE, 256, 256, (x, w, h) => {
     if (yuvarlak) { const g = x.createRadialGradient(w * 0.4, h * 0.35, 6, w / 2, h / 2, w / 2); g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.beginPath(); x.arc(w / 2, h / 2, w / 2 - 2, 0, Math.PI * 2); x.fill(); }
@@ -91,6 +104,7 @@
           const dt = Math.min(0.05, (z - son) / 1000); son = z; c.zaman += dt;
           if (say++ % 20 === 0) { const b = kap.getBoundingClientRect(); if (b.width) { r.setSize(b.width, b.height, false); kamera.aspect = b.width / b.height; kamera.updateProjectionMatrix(); } }
           for (let kalan = dt; kalan > 1e-6; kalan -= 1 / 60) { const h = Math.min(1 / 60, kalan); def.adim && def.adim(c, grup, R, h, durum); R && R.adim && R.adim(c, grup, h, durum); }
+          (c._kabarcik || []).forEach((b) => { b.position.y += dt * 0.8; if (b.position.y > 11) b.position.y = 0; }); (c._yosun || []).forEach((y, i) => (y.rotation.z = Math.sin(c.zaman * 1.1 + i) * 0.12));
           r.render(sahne, kamera); requestAnimationFrame(dongu);
         };
         yeni(); requestAnimationFrame((z) => { son = z; dongu(z); });

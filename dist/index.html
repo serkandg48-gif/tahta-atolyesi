@@ -1494,6 +1494,193 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
   .kp-izgara > div { overflow: visible; min-height: max-content; }
   .kp-gun-seridi { order: -2; }
 }
+/* Aracın sağında MEB kitabı */
+.arac-govde.kitapli { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 42%); gap: 16px; align-items: start; }
+.view-inner.genis { max-width: none; }
+.kitap-yan { position: sticky; top: 8px; display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgba(20,30,50,.08); }
+.ky-ust { display: flex; align-items: center; gap: 8px; font-size: 17px; }
+.ky-ust .grow { flex: 1; }
+.ky-cerceve { width: 100%; height: calc(100vh - 290px); min-height: 360px; border: 1px solid var(--line); border-radius: 12px; background: #F4F6FA; }
+.ky-not { margin: 0; font-size: 13px; }
+@media (max-width: 1000px) { .arac-govde.kitapli { grid-template-columns: 1fr; } .kitap-yan { position: static; } }
+.ders-sekme { margin-bottom: 14px; }
+.ks-diger summary { cursor: pointer; font-weight: 700; margin: 8px 0 12px; }
+.sn-havuz, .sn-grup { border: 2px dashed var(--line); border-radius: 16px; padding: 12px; background: rgba(255,255,255,.7); min-height: 90px; }
+.sn-havuz { margin: 10px 0; } .sn-havuz small { font-weight: 700; color: var(--ink-soft); }
+.sn-gruplar { display: grid; gap: 12px; margin-bottom: 12px; }
+.sn-grup { min-height: 220px; cursor: pointer; }
+.sn-ad { width: 100%; border: 0; background: transparent; font: 800 22px var(--display); color: var(--navy); margin-bottom: 8px; }
+.sn-icerik { display: flex; flex-wrap: wrap; gap: 8px; }
+.sn-kart { padding: 10px 16px; border-radius: 12px; border: 2px solid #E9C23B; background: #FFF7D6; font: 700 20px var(--body); cursor: pointer; }
+.sn-kart.on { background: #1B2A4A; color: #fff; border-color: #1B2A4A; transform: translateY(-2px); }
+.gz-grafik { display: flex; align-items: flex-end; gap: 10px; height: 240px; padding: 12px; margin: 14px 0; border-radius: 16px; background: #F4F8EE; overflow-x: auto; }
+.gz-sut { flex: 0 0 46px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
+.gz-sut i { width: 100%; background: #6DAF5A; border-radius: 8px 8px 2px 2px; }
+.gz-sut b { font-size: 14px; } .gz-sut small { font-size: 12px; color: var(--ink-soft); }
+.gz-liste { display: grid; gap: 6px; }
+
+/* =================== Düşünme rutinleri: A4 şablonlar =================== */
+.rt-cipler { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.rt-cipler button { border: 1px solid var(--line); background: #fff; border-radius: 99px; padding: 7px 14px; font: 600 14px var(--body); cursor: pointer; color: var(--ink); }
+.rt-cipler button.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+.rt-liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.rt-kart { display: flex; gap: 14px; align-items: center; text-align: left; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; cursor: pointer; font: inherit; color: var(--ink); }
+.rt-kart:hover { border-color: var(--navy); }
+.rt-kart > div:last-child { display: grid; gap: 3px; min-width: 0; }
+.rt-kart b { font-size: 17px; }
+.rt-kart small { color: var(--ink-soft); font-size: 13px; line-height: 1.3; }
+.rt-yontag { font-size: 12px; font-weight: 700; color: var(--navy); }
+.rt-mini { flex: none; display: grid; gap: 3px; padding: 5px; background: #F4F6FA; border: 1px solid var(--line); border-radius: 4px; grid-template-columns: 1fr 1fr; }
+.rt-mini.yatay { width: 62px; height: 44px; } .rt-mini.dikey { width: 44px; height: 62px; grid-template-columns: 1fr; }
+.rt-mini i { border-radius: 2px; opacity: .8; min-height: 4px; }
+
+.rt-duzen { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 18px; align-items: start; }
+@media (max-width: 1000px) { .rt-duzen { grid-template-columns: 1fr; } }
+.rt-sayfa-kap { display: grid; justify-items: center; }
+.rt-yon-kap { display: grid; gap: 12px; position: sticky; top: 8px; }
+.rt-yon { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+.rt-yon h4 { margin: 0 0 10px; font-size: 18px; }
+.rt-yon ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: a; }
+.rt-yon li { counter-increment: a; display: grid; gap: 2px; padding-left: 40px; position: relative; }
+.rt-yon li::before { content: counter(a); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--c); color: #fff; display: grid; place-items: center; font-weight: 800; }
+.rt-yon li b { font-size: 17px; } .rt-yon li span { font-size: 15px; line-height: 1.4; }
+.rt-yon.ogretmen p { margin: 0 0 10px; font-size: 15px; line-height: 1.5; }
+.rt-not { margin: 0 0 10px; font-weight: 700; }
+.rt-yon.buyuk h4 { font-size: 26px; } .rt-yon.buyuk li { padding-left: 52px; } .rt-yon.buyuk li::before { width: 38px; height: 38px; font-size: 20px; }
+.rt-yon.buyuk li b { font-size: 24px; } .rt-yon.buyuk li span { font-size: 20px; }
+
+.rt-sayfa { container-type: inline-size; background: #fff; color: #1B2A4A; box-shadow: 0 6px 24px rgba(20,30,50,.12); border: 1px solid #DDE3EE; display: flex; flex-direction: column; padding: 2.6cqw; gap: 1.6cqw; box-sizing: border-box; font-family: var(--body); }
+.rt-sayfa.yatay { width: min(100%, 1100px); aspect-ratio: 297 / 210; }
+.rt-sayfa.dikey { width: min(100%, 720px); aspect-ratio: 210 / 297; }
+.rt-ust { display: flex; justify-content: space-between; align-items: flex-end; gap: 2cqw; border-bottom: .3cqw solid #1B2A4A; padding-bottom: 1cqw; }
+.rt-ust h3 { margin: 0; font: 800 3.4cqw/1.1 var(--display); }
+.rt-sayfa.dikey .rt-ust h3 { font-size: 4.6cqw; }
+.rt-ust small { font-size: 1.4cqw; color: #5B6B88; }
+.rt-sayfa.dikey .rt-ust small { font-size: 2cqw; }
+.rt-kim { display: grid; grid-template-columns: auto 14cqw auto 22cqw; align-items: end; gap: .6cqw; font-size: 1.5cqw; font-weight: 700; }
+.rt-sayfa.dikey .rt-kim { font-size: 2.1cqw; grid-template-columns: auto 18cqw auto 24cqw; }
+.rt-kim .rt-yazi { border-bottom: .15cqw solid #8A96AE; height: 2.6cqw; }
+.rt-govde { flex: 1; min-height: 0; display: grid; }
+.rt-govde > * { min-height: 0; }
+.rt-alt { font-size: 1.1cqw; color: #8A96AE; text-align: right; }
+.rt-sayfa.dikey .rt-alt { font-size: 1.5cqw; }
+
+.rt-kutu { --c: #2E6FB0; display: flex; flex-direction: column; border: .25cqw solid var(--c); border-radius: 1.4cqw; padding: 1cqw 1.2cqw; min-height: 0; background: color-mix(in srgb, var(--c) 5%, #fff); }
+.rt-kb { display: flex; align-items: center; gap: .8cqw; color: var(--c); }
+.rt-kb b { font: 800 2.1cqw/1.15 var(--display); }
+.rt-sayfa.dikey .rt-kb b { font-size: 2.9cqw; }
+.rt-no { flex: none; width: 2.6cqw; height: 2.6cqw; border-radius: 50%; background: var(--c); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 1.5cqw; }
+.rt-sayfa.dikey .rt-no { width: 3.6cqw; height: 3.6cqw; font-size: 2cqw; }
+.rt-soru { display: block; font-size: 1.35cqw; line-height: 1.3; color: #44526E; margin: .4cqw 0 .6cqw; }
+.rt-sayfa.dikey .rt-soru { font-size: 1.9cqw; }
+.rt-yazi { flex: 1; width: 100%; min-height: 0; resize: none; border: 0; background: transparent; font: 600 1.8cqw/1.35 var(--body); color: #1B2A4A; outline: none; padding: 0; }
+.rt-sayfa.dikey .rt-yazi { font-size: 2.4cqw; }
+.rt-yazi:focus { background: rgba(255, 236, 160, .25); border-radius: .6cqw; }
+.rt-yazi.cizgili { background-image: repeating-linear-gradient(transparent 0 calc(2.4cqw - 1px), #D5DCE8 calc(2.4cqw - 1px) 2.4cqw); line-height: 2.4cqw; }
+.rt-yazi.tek { flex: none; height: 2.4cqw; overflow: hidden; white-space: nowrap; }
+.rt-yazi.orta { text-align: center; }
+.rt-kutu.ince { flex: none; min-height: 12cqw; }
+.rt-sayfa.dikey .rt-kutu.ince { min-height: 16cqw; }
+.rt-kutu.kucuk .rt-kb b { font-size: 1.6cqw; }
+
+.rt-kolon, .rt-izgara, .rt-tablo, .rt-zincir { display: grid; gap: 1.2cqw; height: 100%; min-height: 0; }
+.rt-izgara { grid-auto-rows: 1fr; }
+.rt-satir { display: flex; flex-direction: column; gap: 1.2cqw; height: 100%; min-height: 0; }
+.rt-satir > .rt-kutu { flex: 1; }
+.rt-satir > .rt-kutu.buyuk { flex: 2.2; }
+.rt-satir > .rt-kutu.ince, .rt-satir > small { flex: none; }
+.rt-iki { flex: 1; display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.2cqw; min-height: 0; }
+.rt-ok { align-self: center; font: 800 4cqw var(--display); color: #8A96AE; }
+.rt-tablo { grid-auto-rows: minmax(0, 1fr); grid-template-rows: auto; gap: 0; border: .2cqw solid #1B2A4A; border-radius: 1cqw; overflow: hidden; }
+.rt-th { padding: 1cqw; font: 800 1.7cqw/1.2 var(--display); background: color-mix(in srgb, var(--c, #1B2A4A) 14%, #fff); color: var(--c, #1B2A4A); border-right: .12cqw solid #C9D1DF; border-bottom: .2cqw solid #1B2A4A; }
+.rt-th.yan { border-bottom: .12cqw solid #C9D1DF; background: #F4F6FA; color: #1B2A4A; }
+.rt-td { border-right: .12cqw solid #C9D1DF; border-bottom: .12cqw solid #C9D1DF; padding: .6cqw; display: flex; }
+.rt-merkez { display: grid; grid-template-columns: 1fr 1.1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 1.2cqw; height: 100%; min-height: 0; }
+.rt-cekirdek { display: flex; flex-direction: column; justify-content: center; align-items: center; border: .35cqw solid #1B2A4A; border-radius: 2cqw; padding: 1cqw; background: #FFF8E1; min-height: 0; }
+.rt-cekirdek small { font: 800 1.6cqw var(--display); }
+.rt-merkez.yuvarlak .rt-cekirdek { border-radius: 50%; aspect-ratio: 1; justify-self: center; height: 100%; }
+.rt-pusula { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 1.2cqw; height: 100%; min-height: 0; }
+.rt-gul { position: relative; border-radius: 50%; border: .35cqw solid #1B2A4A; aspect-ratio: 1; height: 100%; justify-self: center; display: flex; align-items: center; justify-content: center; padding: 18%; background: radial-gradient(circle, #FFF8E1 55%, #fff 56%); }
+.rt-gul span { position: absolute; font: 800 2.4cqw var(--display); }
+.rt-gul .k { top: 2%; left: 50%; transform: translateX(-50%); } .rt-gul .g { bottom: 2%; left: 50%; transform: translateX(-50%); }
+.rt-gul .d { right: 4%; top: 50%; transform: translateY(-50%); } .rt-gul .b { left: 4%; top: 50%; transform: translateY(-50%); }
+.rt-halkalar { display: flex; flex-direction: column; gap: 1.2cqw; height: 100%; min-height: 0; }
+.rt-halkalar > .rt-halka { flex: 1; }
+.rt-halka { --c: #2E6FB0; display: flex; flex-direction: column; border: .3cqw solid var(--c); border-radius: 3.5cqw; padding: 1cqw 1.6cqw 1.6cqw; background: color-mix(in srgb, var(--c) 6%, #fff); min-height: 0; }
+.rt-halka > .rt-yazi { flex: 0 0 4.4cqw; }
+.rt-halka > .rt-halka { flex: 1; margin-top: .6cqw; }
+.rt-halka.ic > .rt-yazi { flex: 1; }
+.rt-kopru { display: flex; flex-direction: column; gap: 1cqw; height: 100%; min-height: 0; }
+.rt-kopru > .rt-kolon { flex: 1; }
+.rt-yan { display: flex; flex-direction: column; gap: 1cqw; min-height: 0; }
+.rt-yan h4 { margin: 0; font: 800 2cqw var(--display); text-align: center; }
+.rt-yan > .rt-kutu { flex: 1; }
+.rt-kopru-cizgi { height: 2.4cqw; border: .35cqw solid #8A6A3B; border-bottom: 0; border-radius: 50% 50% 0 0 / 100% 100% 0 0; margin: 0 8%; }
+.rt-elmas { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr auto; gap: 1.2cqw; height: 100%; min-height: 0; }
+.rt-tas { position: relative; display: flex; align-items: center; justify-content: center; padding: 18%; }
+.rt-tas > div { position: absolute; inset: 8%; border: .35cqw solid #1B2A4A; transform: rotate(45deg); background: #FFF8E1; border-radius: 1cqw; }
+.rt-tas > .rt-yazi { position: relative; z-index: 1; }
+.rt-isik { display: grid; grid-template-columns: auto 1fr; gap: 1.6cqw; height: 100%; min-height: 0; }
+.rt-lamba { display: flex; flex-direction: column; gap: 1.2cqw; padding: 1.4cqw; background: #2A3447; border-radius: 3cqw; justify-content: space-around; }
+.rt-lamba i { width: 7cqw; height: 7cqw; border-radius: 50%; }
+.rt-daire-sar { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 1.2cqw; height: 100%; min-height: 0; }
+.rt-sayfa.dikey .rt-daire-sar { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+.rt-kenar { display: flex; flex-direction: column; gap: 1.2cqw; } .rt-kenar > .rt-kutu { flex: 1; }
+.rt-daire { position: relative; border: .4cqw solid #2E6FB0; border-radius: 50%; aspect-ratio: 1; max-height: 100%; justify-self: center; align-self: center; display: flex; flex-direction: column; align-items: center; padding: 12% 14%; gap: 1cqw; width: 100%; box-sizing: border-box; }
+.rt-cekirdek.kucuk { width: 55%; flex: 1; border-radius: 50%; }
+.rt-gazete { display: flex; flex-direction: column; gap: 1.2cqw; height: 100%; }
+.rt-gz-ust { display: flex; justify-content: space-between; align-items: baseline; border-bottom: .5cqw double #1B2A4A; padding-bottom: .6cqw; font-family: Georgia, serif; }
+.rt-gz-ust b { font-size: 4.4cqw; letter-spacing: .05em; } .rt-gz-ust span { font-size: 1.8cqw; }
+.rt-kutu.manset { flex: 0 0 22cqw; --c: #1B2A4A; background: #fff; }
+.rt-yazi.manset-yazi { font: 800 5cqw/1.1 Georgia, serif; }
+.rt-gazete > .rt-kolon { flex: 1; }
+.rt-cizgi-roman .rt-kutu.pano { border-radius: .4cqw; border-width: .45cqw; background: #fff; }
+.rt-zincir { display: flex; gap: 1cqw; flex: 1; min-height: 0; } .rt-zincir > .rt-kutu { flex: 1; }
+.rt-on { margin: 0; padding-left: 3cqw; display: grid; gap: .4cqw; font-size: 1.6cqw; flex: 1; grid-auto-rows: 1fr; }
+.rt-on li { border-bottom: .12cqw solid #D5DCE8; } .rt-on .rt-yazi { height: 100%; }
+.rt-sayfa.dikey .rt-on { font-size: 2.2cqw; }
+.rt-eksen { position: relative; flex: 1; border: .25cqw dashed #8A96AE; border-radius: 1.4cqw; display: flex; flex-direction: column; padding: 1.4cqw 1.4cqw 5cqw; min-height: 0; }
+.rt-eksen .rt-yazi.serbest { flex: 1; }
+.rt-cizgi-ok { position: absolute; left: 4%; right: 4%; bottom: 3cqw; height: .4cqw; background: #1B2A4A; }
+.rt-cizgi-ok::after { content: ""; position: absolute; right: -1cqw; top: -1cqw; border: 1.2cqw solid transparent; border-left-color: #1B2A4A; border-right: 0; }
+.rt-eksen-et { position: absolute; left: 3%; right: 3%; bottom: .4cqw; display: flex; justify-content: space-between; font: 800 1.7cqw var(--display); }
+.rt-eksen.iki { padding-left: 6cqw; }
+.rt-eksen.iki::before { content: ""; position: absolute; left: 3.6cqw; top: 1cqw; bottom: 3cqw; width: .4cqw; background: #1B2A4A; }
+.ey-ust, .ey-alt { position: absolute; left: .4cqw; font: 800 1.4cqw var(--display); writing-mode: vertical-rl; transform: rotate(180deg); }
+.ey-ust { top: 1cqw; } .ey-alt { bottom: 5cqw; }
+.rt-zaman { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2cqw; flex: 1; min-height: 0; padding-bottom: 3cqw; }
+.rt-zaman-ok { position: absolute; left: 2%; right: 2%; bottom: .8cqw; height: .5cqw; background: linear-gradient(90deg, #8A6A3B, #2E6FB0, #2E8B57); border-radius: 9px; }
+.rt-halat { flex: 1; display: flex; flex-direction: column; gap: 1cqw; min-height: 0; }
+.rt-halat > .rt-kolon { flex: 1; }
+.rt-ip { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1cqw; font: 800 2cqw var(--display); }
+.rt-ip i { height: 1.2cqw; border-radius: 9px; background: repeating-linear-gradient(45deg, #B5895A 0 1cqw, #8A6A3B 1cqw 2cqw); }
+
+/* Yansıt */
+.rt-yansit { position: fixed; inset: 0; z-index: 150; background: #EEF1F6; display: flex; flex-direction: column; padding: 14px; gap: 12px; }
+.rt-yansit-ust { display: flex; align-items: center; gap: 10px; font-size: 22px; } .rt-yansit-ust .grow { flex: 1; }
+.rt-yansit-govde { flex: 1; min-height: 0; display: flex; gap: 14px; }
+.rt-yansit-sayfa { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.rt-yansit-sayfa .rt-sayfa.yatay { width: auto; height: 100%; max-width: 100%; }
+.rt-yansit-sayfa .rt-sayfa.dikey { width: auto; height: 100%; max-width: 100%; }
+.rt-yansit-yon { flex: 0 0 min(30vw, 420px); overflow: auto; }
+
+/* Yazdırma */
+#rt-baski { display: none; }
+@media print {
+  html.rt-yazdiriliyor body > *:not(#rt-baski) { display: none !important; }
+  html.rt-yazdiriliyor #rt-baski { display: block !important; }
+  html.rt-yazdiriliyor, html.rt-yazdiriliyor body { background: #fff !important; }
+  #rt-baski .rt-sayfa { box-shadow: none; border: 0; width: 100% !important; max-width: none; height: 100vh; aspect-ratio: auto; padding: 0; }
+  #rt-baski .rt-kutu, #rt-baski .rt-halka, #rt-baski .rt-th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+.rt-satir > .rt-eksen { flex: 2.4; }
+.rt-daire { width: auto; height: 100%; max-width: 100%; min-height: 0; }
+.rt-sayfa.dikey .rt-daire-sar { grid-template-rows: auto minmax(0, 1fr) auto; }
+.rt-sayfa.dikey .rt-kenar { flex-direction: row; } .rt-sayfa.dikey .rt-kenar > .rt-kutu { min-height: 10cqw; }
+.rt-pusula, .rt-elmas, .rt-merkez { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rt-pusula { grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.rt-merkez { grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.rt-gul, .rt-merkez.yuvarlak .rt-cekirdek { height: auto; width: 100%; max-height: 100%; max-width: 100%; align-self: center; }
 
 </style>
 </head>
@@ -1508,7 +1695,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="cba1602a92";
+window.SURUM="7b1b66bd29";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -4892,12 +5079,23 @@ T.yuzen = TahtaYap("ana");
       host._bar = bar; wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
       wrap.append(bar, host); view.append(wrap); t.render(host); return;
     }
+    const kitapVar = T.kitapDersi && T.kitapDersi(t.back);
+    const kitapAcik = () => { try { return localStorage.getItem("ta-kitap-acik") === "1"; } catch (e) { return false; } };
+    const govde = h("div.arac-govde", host);
+    const kitapDugme = kitapVar ? h("button.btn.sm.c-chalk", { "aria-pressed": "false", onclick: () => kitapYap(!govde.classList.contains("kitapli")) }, T.icon("book"), "MEB kitabı") : null;
+    const kitapYap = (ac) => {
+      try { localStorage.setItem("ta-kitap-acik", ac ? "1" : "0"); } catch (e) {}
+      const eski = govde.querySelector(".kitap-yan"); if (eski) eski.remove();
+      govde.classList.toggle("kitapli", ac); wrap.classList.toggle("genis", ac); if (kitapDugme) kitapDugme.setAttribute("aria-pressed", String(ac));
+      if (ac) govde.append(T.kitapPaneli(t.back, () => kitapYap(false)));
+    };
     wrap.append(h("div.stage-bar",
       h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")),
-      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"),
-      h("button.btn.sm.c-chalk", { onclick: () => T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }) }, T.icon("board"), "Ders ekranına kısayol")), host);
+      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"), kitapDugme,
+      h("button.btn.sm.c-chalk", { onclick: () => T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }) }, T.icon("board"), "Ders ekranına kısayol")), govde);
     view.append(wrap);
     t.render(host);
+    if (kitapVar && kitapAcik()) kitapYap(true);
   };
   /* Ders ekranında aracı açan küçük kısayol */
   T.widgets.toollink = {
@@ -8780,6 +8978,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
 
   /* =================== 5. YAPIŞKAN NOT PANOLARI =================== */
   const NOT_RENK = ["#FFF2A8", "#FFD3E1", "#CDEBFF", "#D8F5C8", "#FFE0B8", "#E6DAFF"];
+  T.notPanosu = (host, def) => notPanosu(host, def);
   function notPanosu(host, def) {
     const k = def.anahtar;
     const box = h("div"); host.append(box);
@@ -9005,6 +9204,415 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     init: () => ({}),
     render(body) { body.append(h("div.w3a", [["Son durak: Öğretmen", "#C2453A"], ["3. Arkadaş: fısıldayarak sordun mu?", "#3C8DD8"], ["2. Etraf: panoya, tahtaya, kitaba baktın mı?", "#E0B020"], ["1. Beyin: kendine sordun mu? Yönergeyi okudun mu?", "#D16BA5"]].map(([t, c], i) => h("div", { style: { background: c, width: 70 + i * 10 + "%" } }, t)))); },
   };
+})();
+
+/* ---- kesif.js ---- */
+/* Bölüm düzeni: Türkçe tek bölüm (ilk okuma yazma sekmesiyle), Hayat ve Fen tek bölüm (her ünitede kullanılan sorgulama araçlarıyla),
+   SDÖ araçları Maarif sosyal duygusal öğrenme becerilerine göre, sınıf kültürü araçları ayrı. */
+(function () {
+  const { h } = T;
+  const cid = () => T.store.activeClass().id;
+  const fit = (t, g) => (t.grades ? g >= t.grades[0] && g <= t.grades[1] : true);
+  const kartlar = (ids, ton) => h("div.tool-grid", { style: { marginBottom: "18px" } }, ids.filter(([, t]) => t).map(([r, t]) => T.aracKart(r, t, ton)));
+  const grupBas = (b, alt) => h("div.section-title", h("h2", b), alt ? h("span.hint", alt) : null);
+  const yerel = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+
+  /* ---------- Türkçe: tek bölüm, en başta İlk okuma yazma sekmesi ---------- */
+  const turkceAsil = T.sections.turkce.render;
+  const turkceSekme = () => yerel("ta-turkce-sek:" + cid()) || (T.store.grade() <= 1 ? "ilk" : "turkce");
+  T.sections.turkce.render = function (view, sub) {
+    if (sub && T.tools[sub]) return T.toolPage(view, sub);
+    const sek = turkceSekme();
+    (sek === "ilk" ? T.sections.birinci.render : turkceAsil).call(this, view, sub);
+    const inner = view.querySelector(".view-inner"); if (!inner) return;
+    inner.prepend(h("div.seg.ders-sekme", { role: "tablist", "aria-label": "Türkçe bölümleri" },
+      [["ilk", "İlk okuma yazma"], ["turkce", "Okuma, anlama, yazma"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(k === sek), onclick: () => { yerel("ta-turkce-sek:" + cid(), k); T.route(); } }, l))));
+    const bas = inner.querySelector(".page-head h1"); if (bas) bas.textContent = "Türkçe";
+  };
+  T.sections.birinci.title = "Türkçe";
+
+  /* ---------- Hayat ve Fen: her ünitede kullanılan sorgulama araçları ---------- */
+  const tool = (id, def) => (T.tools[id] = Object.assign({ back: "kesif", grades: [1, 4], grup: "Her ünitede kullan" }, def));
+  const konuSatiri = (k, yer) => { const s = T.store.get(); const v = ((s.pano || {})[cid()] || {})["konu:" + k] || "";
+    return h("input.in.ks-konu", { value: v, placeholder: yer, "aria-label": "Konu ya da soru", onchange: (e) => T.store.update((st) => { st.pano = st.pano || {}; const c = (st.pano[cid()] = st.pano[cid()] || {}); c["konu:" + k] = e.target.value; }) }); };
+
+  tool("gor-dusun-merak", {
+    title: "Gör, düşün, merak et", icon: "eye", tone: "sky", short: "Bir görsele ya da nesneye bakıp sorgulamayı başlatır",
+    render(host) {
+      T.notPanosu(host, { anahtar: "gdm", ust: () => h("div", { style: { display: "grid", gap: "8px", marginBottom: "10px" } }, konuSatiri("gdm", "Ne inceliyoruz? Örneğin: bir yaprak, bir fotoğraf, bir harita"), h("p.sb-line", "Önce sadece gördüğümüzü söyleyelim, sonra yorum yapalım.")),
+        kolonlar: [["Ne görüyorum?", "Sadece gözüne görüneni söyle.", "#2E7BB4"], ["Ne düşünüyorum?", "Bu neden böyle olabilir?", "#6DAF5A"], ["Neyi merak ediyorum?", "Hangi soruların var?", "#E9A23B"]],
+        not: "Düşünme rutini. Görseli Ders modunda Görsel aracıyla tahtaya koyabilirsin." });
+    },
+  });
+  tool("bil-merak-ogren", {
+    title: "Biliyorum, merak ediyorum, öğrendim", icon: "brain", tone: "grape", short: "Ünite başında ve sonunda doldurulan merak panosu",
+    render(host) {
+      T.notPanosu(host, { anahtar: "bmo", ust: () => h("div", { style: { marginBottom: "10px" } }, konuSatiri("bmo", "Ünite ya da konu: örneğin Mevsimler")),
+        kolonlar: [["Biliyorum", "Bu konu hakkında ne biliyoruz?", "#1B2A4A"], ["Merak ediyorum", "Neyi öğrenmek istiyoruz?", "#E07B3C"], ["Öğrendim", "Ünite sonunda: neyi öğrendik?", "#2E8B57"]],
+        not: "İlk iki sütunu ünite başında, üçüncüsünü ünite sonunda doldurun. Merak sorularını işaretleyip yanıtlananları konuşun." });
+    },
+  });
+  tool("tahmin-gozle-acikla", {
+    title: "Tahmin et, gözle, açıkla", icon: "fen", tone: "leaf", grades: [2, 4], short: "Deneyden önce tahmin, sonra gözlem ve açıklama",
+    render(host) {
+      T.notPanosu(host, { anahtar: "tga", ust: () => h("div", { style: { display: "grid", gap: "8px", marginBottom: "10px" } }, konuSatiri("tga", "Deney sorusu: örneğin Buz suda batar mı?"), h("p.sb-line", "Tahminler değişmez, deneyden sonra karşılaştırırız.")),
+        kolonlar: [["Tahminim", "Ne olacak? Neden böyle düşünüyorum?", "#5B7DB1"], ["Gözlemim", "Ne oldu? Gördüklerimi yazıyorum.", "#E9A23B"], ["Açıklamam", "Tahminim tuttu mu? Neden?", "#2E8B57"]],
+        not: "Deney tutmazsa bu da veridir: neyin farklı olduğunu Açıklama sütununa yazın." });
+    },
+  });
+
+  tool("siniflandir", {
+    title: "Sınıflandırma panosu", icon: "filter", tone: "sun", short: "Kartları öğretmenin belirlediği gruplara ayırın",
+    render(host) {
+      const k = "sinif:" + cid();
+      const oku = () => { const s = T.store.get(); return ((s.pano || {})[cid()] || {}).siniflandir || { gruplar: ["Canlı", "Cansız"], kartlar: ["kedi", "taş", "ağaç", "kalem", "kuş", "su"].map((t) => ({ t, g: null })) }; };
+      const yaz = (fn) => T.store.update((st) => { st.pano = st.pano || {}; const c = (st.pano[cid()] = st.pano[cid()] || {}); const v = c.siniflandir || oku(); fn(v); c.siniflandir = v; });
+      let secili = null; const box = h("div"); host.append(box);
+      const ciz = () => {
+        const v = oku();
+        const kart = (x, i) => h("button.sn-kart" + (secili === i ? ".on" : ""), { onclick: () => { secili = secili === i ? null : i; ciz(); } }, x.t);
+        const grupKutu = (g, gi) => h("div.sn-grup", { onclick: (e) => { if (secili == null || e.target.closest(".sn-kart")) return; yaz((x) => (x.kartlar[secili].g = gi)); secili = null; T.sound && T.sound.pop && T.sound.pop(); ciz(); } },
+          h("input.sn-ad", { value: g, "aria-label": "Grup adı", onclick: (e) => e.stopPropagation(), onchange: (e) => yaz((x) => (x.gruplar[gi] = e.target.value)) }),
+          h("div.sn-icerik", v.kartlar.map((x, i) => [x, i]).filter(([x]) => x.g === gi).map(([x, i]) => kart(x, i))));
+        const yeni = h("input.in", { placeholder: "Yeni kart yaz, Enter", onkeydown: (e) => { if (e.key === "Enter" && e.target.value.trim()) { const t = e.target.value.trim(); yaz((x) => x.kartlar.push({ t, g: null })); ciz(); setTimeout(() => box.querySelector(".sn-ekle input").focus(), 20); } } });
+        box.replaceChildren(
+          h("p.sb-line", secili == null ? "Bir karta dokun, sonra ait olduğu gruba dokun." : "Şimdi gruba dokun. Vazgeçmek için karta tekrar dokun."),
+          h("div.sn-havuz", { onclick: (e) => { if (secili == null || e.target.closest(".sn-kart")) return; yaz((x) => (x.kartlar[secili].g = null)); secili = null; ciz(); } }, h("small", "Yerleşmeyen kartlar"), h("div.sn-icerik", v.kartlar.map((x, i) => [x, i]).filter(([x]) => x.g == null).map(([x, i]) => kart(x, i)))),
+          h("div.sn-gruplar", { style: { gridTemplateColumns: "repeat(" + v.gruplar.length + ", 1fr)" } }, v.gruplar.map(grupKutu)),
+          h("div.row.sn-ekle", { style: { gap: "8px", flexWrap: "wrap" } }, yeni,
+            h("button.btn.sm.c-chalk", { onclick: () => { if (v.gruplar.length >= 4) return T.toast("En fazla dört grup"); yaz((x) => x.gruplar.push("Yeni grup")); ciz(); } }, T.icon("plus"), "Grup ekle"),
+            v.gruplar.length > 2 ? h("button.btn.sm.c-chalk", { onclick: () => { yaz((x) => { const n = x.gruplar.length - 1; x.gruplar.pop(); x.kartlar.forEach((c) => { if (c.g === n) c.g = null; }); }); ciz(); } }, "Son grubu sil") : null,
+            h("button.btn.sm.c-chalk", { onclick: () => { yaz((x) => x.kartlar.forEach((c) => (c.g = null))); ciz(); } }, T.icon("reset"), "Kartları geri topla"),
+            h("button.btn.sm.c-tomato", { onclick: async () => { if (await T.confirm("Bütün kartlar silinsin mi?")) { yaz((x) => (x.kartlar = [])); ciz(); } } }, T.icon("trash"), "Kartları sil")));
+      };
+      ciz();
+    },
+  });
+
+  tool("gozlem-gunlugu", {
+    title: "Gözlem günlüğü", icon: "calendar", tone: "leaf", short: "Bitki boyu, sıcaklık, hava: her gün bir ölçüm, grafik kendiliğinden",
+    render(host) {
+      const oku = () => { const s = T.store.get(); return ((s.pano || {})[cid()] || {}).gozlem || { ad: "Fasulyemizin boyu", birim: "cm", olcum: [] }; };
+      const yaz = (fn) => T.store.update((st) => { st.pano = st.pano || {}; const c = (st.pano[cid()] = st.pano[cid()] || {}); const v = c.gozlem || oku(); fn(v); c.gozlem = v; });
+      const box = h("div"); host.append(box);
+      const ciz = () => {
+        const v = oku(), l = v.olcum.slice().sort((a, b) => a.t.localeCompare(b.t)), mx = Math.max(1, ...l.map((x) => +x.d || 0));
+        const deger = h("input.in", { type: "number", step: "any", placeholder: "Bugünkü ölçüm", style: { width: "170px", fontSize: "20px" } });
+        const not = h("input.in", { placeholder: "Kısa not (isteğe bağlı)", style: { flex: 1 } });
+        const ekle = () => { const d = parseFloat(String(deger.value).replace(",", ".")); if (!Number.isFinite(d)) return T.toast("Önce bir sayı yaz"); yaz((x) => { x.olcum = x.olcum.filter((o) => o.t !== T.isoDate()); x.olcum.push({ t: T.isoDate(), d, n: not.value.trim() }); }); ciz(); };
+        box.replaceChildren(
+          h("div.row", { style: { gap: "8px", flexWrap: "wrap", marginBottom: "10px" } },
+            h("input.in", { value: v.ad, "aria-label": "Neyi gözlüyoruz?", style: { flex: 2, minWidth: "220px", fontWeight: 800, fontSize: "20px" }, onchange: (e) => yaz((x) => (x.ad = e.target.value)) }),
+            h("input.in", { value: v.birim, "aria-label": "Birim", style: { width: "110px" }, onchange: (e) => { yaz((x) => (x.birim = e.target.value)); ciz(); } })),
+          h("div.row", { style: { gap: "8px", flexWrap: "wrap" } }, deger, h("span", v.birim), not, h("button.btn.c-leaf", { onclick: ekle }, T.icon("plus"), "Bugünü kaydet")),
+          l.length ? h("div.gz-grafik", l.map((x) => h("div.gz-sut", { title: x.n || "" }, h("b", String(x.d).replace(".", ",")), h("i", { style: { height: Math.max(4, (x.d / mx) * 100) + "%" } }), h("small", x.t.slice(8, 10) + "." + x.t.slice(5, 7))))) : h("p.hint", "Henüz ölçüm yok. Her gün aynı saatte ölçüp kaydedin, sütunlar burada büyür."),
+          l.length ? h("div.gz-liste", l.slice().reverse().map((x) => h("div.row", { style: { gap: "10px" } }, h("b", x.t.split("-").reverse().join(".")), h("span", String(x.d).replace(".", ",") + " " + v.birim), h("span.hint", { style: { flex: 1 } }, x.n || ""),
+            h("button.btn.sm.icon.c-chalk", { "aria-label": "Ölçümü sil", onclick: () => { yaz((o) => (o.olcum = o.olcum.filter((y) => y.t !== x.t))); ciz(); } }, T.icon("trash"))))) : null);
+      };
+      ciz();
+    },
+  });
+
+  T.sections.kesif = {
+    title: "Hayat ve Fen", icon: "fen", tone: "leaf", desc: "Sorgulama araçları, Hayat Bilgisi ve Fen etkinlikleri",
+    render(view, sub) {
+      if (sub && T.tools[sub]) return T.toolPage(view, sub);
+      const g = T.store.grade(), wrap = h("div.view-inner"); view.append(wrap);
+      const ad = T.kesifAdi(g);
+      wrap.append(h("div.page-head", h("h1", ad), h("div.sub", "Önce her ünitede işe yarayan sorgulama araçları, sonra sınıf düzeyine uygun Hayat Bilgisi ve Fen etkinlikleri. Kendi konunu aracın içine yazarsın.")));
+      const al = (back) => Object.entries(T.tools).filter(([, t]) => t.back === back).map(([k, t]) => [back + "-" + k, t]);
+      const ortak = al("kesif"); wrap.append(grupBas("Her ünitede kullan", "Konudan bağımsız, her ünitede açılır"), kartlar(ortak, "leaf"));
+      const hb = al("sosyal").filter(([, t]) => fit(t, g)), fen = al("fen").filter(([, t]) => fit(t, g));
+      if (hb.length) wrap.append(grupBas(g <= 3 ? "Hayat Bilgisi" : "Sosyal Bilgiler"), kartlar(hb, "sky"));
+      if (fen.length) wrap.append(grupBas("Fen Bilimleri"), kartlar(fen, "leaf"));
+      const diger = al("sosyal").concat(al("fen")).filter(([, t]) => !fit(t, g));
+      if (diger.length) wrap.append(h("details.ks-diger", h("summary", "Başka sınıflar için " + diger.length + " etkinlik"), kartlar(diger, "chalk")));
+      wrap.append(h("p.hint", { style: { marginTop: "8px" } }, "MEB'in ders kitapları ve farklılaştırma etkinlikleri için: ", h("a", { href: "https://tymm.meb.gov.tr/ders-kitaplari", target: "_blank", rel: "noopener" }, "tymm.meb.gov.tr")));
+    },
+  };
+  T.kesifAdi = (g = T.store.grade()) => (g <= 2 ? "Hayat Bilgisi" : g === 3 ? "Hayat ve Fen" : "Fen ve Sosyal");
+
+  /* ---------- SDÖ: Maarif sosyal duygusal öğrenme becerilerine göre ---------- */
+  const SDB = [
+    ["Kendini tanıma", "SDB1.1", ["duygumetre", "bolgeler", "duygu-kartlari", "beynim"]],
+    ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "dusunce-istasyonu", "sogusun"]],
+    ["Kendine uyarlama ve yansıtma", "SDB1.3", ["gul-diken", "gelecek-teleskobu", "favori-hatalar", "ogrenme-cukuru"]],
+    ["İletişim ve sosyal farkındalık", "SDB2.1, SDB2.3", ["iltifat", "seninle-mi"]],
+    ["Sorumlu karar verme", "SDB3.3", ["sorun-boyutu", "catisma"]],
+  ];
+  const KULTUR = [
+    ["Öğrenmeyi görünür kılma", ["anlama-duzeyi", "uc-adim", "takildim", "bump-it-up"]],
+    ["Sınıf düzeni", ["bitirdim", "yz-duzeyi"]],
+    ["Yansıtma panoları", ["calma-listesi", "bookflix"]],
+  ];
+  T.sections.duygu.title = "SDÖ araçlarımız";
+  T.sections.duygu.render = function (view, sub) {
+    if (sub && T.tools[sub]) return T.toolPage(view, sub);
+    const wrap = h("div.view-inner"); view.append(wrap);
+    wrap.append(h("div.page-head", h("h1", "SDÖ araçlarımız"), h("div.sub", "Sosyal duygusal öğrenme araçları, Maarif Modeli'ndeki sosyal duygusal öğrenme becerilerine göre gruplandı. Öğrencilerin seçimleri yalnızca bu cihazda kalır.")));
+    SDB.forEach(([ad, kod, ids]) => wrap.append(grupBas(ad, kod), kartlar(ids.map((id) => ["duygu-" + id, T.tools[id]]), "pink")));
+    wrap.append(h("p.hint", "Sınıf düzeni araçları (Bump It Up, Etkinliğim bitti, YZ düzeyi) artık ", h("a", { href: "#kultur", onclick: (e) => { e.preventDefault(); T.go("kultur"); } }, "Sınıf düzenimiz"), " bölümünde."));
+  };
+  T.sections.kultur = {
+    title: "Sınıf düzenimiz", icon: "trophy", tone: "sun", desc: "Bump It Up, Etkinliğim bitti, YZ düzeyi, anlama düzeyi",
+    render(view, sub) {
+      if (sub && T.tools[sub]) return T.toolPage(view, sub);
+      const wrap = h("div.view-inner"); view.append(wrap);
+      wrap.append(h("div.page-head", h("h1", "Sınıf düzenimiz"), h("div.sub", "Öğrenmeyi görünür kılan, sınıfın birlikte kural ve düzen kurduğu panolar.")));
+      KULTUR.forEach(([ad, ids]) => wrap.append(grupBas(ad), kartlar(ids.map((id) => ["kultur-" + id, T.tools[id]]), "sun")));
+    },
+  };
+
+  /* ---------- MEB kitabı: aracın sağında açılır ---------- */
+  const MK = "https://tymm.meb.gov.tr/kitap/";
+  T.MEB_KITAP = [
+    [1, "turkce", 31, "İlk Okuma Yazma Kitabı (1. kitap)"], [1, "turkce", 32, "İlk Okuma Yazma Kitabı (2. kitap)"], [1, "turkce", 29, "Türkçe 1 (1. kitap)"], [1, "turkce", 30, "Türkçe 1 (2. kitap)"],
+    [1, "matematik", 23, "Matematik 1 (1. kitap)"], [1, "matematik", 24, "Matematik 1 (2. kitap)"], [1, "matematik", 85, "Matematik 1 farklılaştırma etkinlikleri"],
+    [1, "hayat", 21, "Hayat Bilgisi 1 (1. kitap)"], [1, "hayat", 22, "Hayat Bilgisi 1 (2. kitap)"],
+    [2, "turkce", 58, "Türkçe 2 (1. kitap)"], [2, "turkce", 59, "Türkçe 2 (2. kitap)"],
+    [2, "matematik", 52, "Matematik 2 (1. kitap)"], [2, "matematik", 53, "Matematik 2 (2. kitap)"], [2, "matematik", 86, "Matematik 2 farklılaştırma etkinlikleri"],
+    [2, "hayat", 50, "Hayat Bilgisi 2 (1. kitap)"], [2, "hayat", 51, "Hayat Bilgisi 2 (2. kitap)"],
+    [2, "ingilizce", 151, "İngilizce 2 ders kitabı"], [2, "ingilizce", 152, "İngilizce 2 çalışma kitabı"],
+    [3, "turkce", 286, "Türkçe 3 (2. kitap)"], [3, "turkce", 347, "Okuyorum Anlıyorum 3"],
+    [3, "matematik", 278, "Matematik 3 (1. kitap)"], [3, "matematik", 279, "Matematik 3 (2. kitap)"],
+    [3, "hayat", 275, "Hayat Bilgisi 3 (1. kitap)"], [3, "hayat", 276, "Hayat Bilgisi 3 (2. kitap)"], [3, "hayat", 363, "Hayat Bilgisi 3 farklılaştırma etkinlikleri"],
+    [3, "fen", 270, "Fen Bilimleri 3 (1. kitap)"], [3, "fen", 271, "Fen Bilimleri 3 (2. kitap)"], [3, "fen", 361, "Fen Bilimleri 3 farklılaştırma etkinlikleri"],
+    [0, "turkce", 141, "Okumaya Başlıyorum 1"], [0, "turkce", 142, "Okumaya Başlıyorum 2"], [0, "turkce", 143, "Okumaya Başlıyorum 3"], [0, "turkce", 144, "Okumaya Başlıyorum 4"],
+  ];
+  const KITAP_DERS = { turkce: ["turkce"], birinci: ["turkce"], matematik: ["matematik"], kesif: ["hayat", "fen"], sosyal: ["hayat"], fen: ["fen", "hayat"], ingilizce: ["ingilizce"] };
+  T.kitapDersi = (back) => KITAP_DERS[back || "matematik"];
+  T.kitapPaneli = function (back, kapat) {
+    const dersler = T.kitapDersi(back) || [], g = T.store.grade();
+    const hepsi = T.MEB_KITAP.filter((k) => dersler.includes(k[1]));
+    const uygun = hepsi.filter((k) => k[0] === g || k[0] === 0); const liste = uygun.length ? uygun : hepsi;
+    const anahtar = "ta-kitap:" + cid() + ":" + dersler[0];
+    let sec = +yerel(anahtar) || (liste[0] || [])[2];
+    const cer = h("iframe.ky-cerceve", { title: "MEB kitabı", loading: "lazy", referrerpolicy: "no-referrer" });
+    const yeniSekme = h("a.btn.sm.c-chalk", { target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç");
+    const yukle = () => { const u = MK + sec + "/x"; if (cer.getAttribute("src") !== u) cer.setAttribute("src", u); yeniSekme.href = u; };
+    const secici = h("select.in", { "aria-label": "Kitap seç", onchange: (e) => { sec = +e.target.value; yerel(anahtar, String(sec)); yukle(); } },
+      liste.map((k) => h("option", { value: k[2], selected: k[2] === sec ? true : null }, k[3])));
+    const panel = h("aside.kitap-yan", { "aria-label": "MEB kitabı" },
+      h("div.ky-ust", T.icon("book"), h("b", "MEB kitabı"), h("div.grow"), h("button.btn.sm.icon.c-chalk", { "aria-label": "Kitabı kapat", title: "Kitabı kapat", onclick: kapat }, T.icon("close"))),
+      liste.length ? secici : h("p.hint", "Bu sınıf için listede kitap yok."),
+      h("div.row", { style: { gap: "8px", flexWrap: "wrap" } }, yeniSekme, h("a.btn.sm.c-chalk", { href: "https://tymm.meb.gov.tr/ders-kitaplari", target: "_blank", rel: "noopener" }, "Tüm MEB kitapları")),
+      liste.length ? cer : null,
+      h("p.hint.ky-not", "Kitap MEB'in kendi sitesinden açılır. Sayfa açılmazsa Yeni sekmede aç'a dokun."));
+    if (liste.length) yukle();
+    return panel;
+  };
+
+  T.YARDIM = T.YARDIM || {};
+  Object.assign(T.YARDIM, {
+    kesif: ["Hayat ve Fen", "Her ünitede kullanılan sorgulama araçları ve sınıf düzeyine uygun etkinlikler.", ["Gör, düşün, merak et ile bir görselden sorgulamayı başlat.", "Sınıflandırma panosunda grupları ve kartları sen yazarsın.", "Gözlem günlüğü her gün bir ölçüm kaydeder, grafiği kendisi çizer."]],
+    duygu: ["SDÖ araçlarımız", "Duyguyu tanıma, sakinleşme, yansıtma ve çatışma çözme araçları. Maarif SDÖ becerilerine göre gruplu.", ["Duygumetreyi sabah ya da teneffüs dönüşü aç.", "Sorun ne büyüklükte? aracı şikâyetleri sınıflandırmaya yardım eder.", "Öğrencilerin seçimleri yalnızca bu cihazda kalır."]],
+    kultur: ["Sınıf düzenimiz", "Bump It Up duvarı, Etkinliğim bitti menüsü, YZ düzeyi ve anlama düzeyi panoları.", ["Bump It Up duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
+  });
+})();
+
+/* ---- rutin-veri.js ---- */
+/* Project Zero düşünme rutinleri: öğretmenin Türkçe PDF'lerinden çocuk ve öğretmen yönergeleri. Otomatik üretildi (rutin/veri.jsonl). */
+T.RUTIN_KAT = ["Temel Düşünme Rutinleri", "Fikirlerin Daha Derinlemesine İncelenmesi", "Perspektif Alma", "Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma", "Fikirleri Tanıtma ve Keşfetme", "Fikirleri Sentezleme ve Düzenleme", "Sanat, Resim ve Nesneleri Keşfetmek", "Olasılıklar ve Benzetmeler Üretmek", "Nesnelerin ve Sistemlerin Araştırılması", "Uluslararası Düşünme"];
+T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu konuya kimler farklı açıdan bakar? Hepsini çemberin çevresine yaz."],["Ben ... gözüyle düşünüyorum","Bir bakış açısı seç. O kişi ya da şey olsaydın konuyu nasıl görürdün?"],["Sanırım ...","O bakış açısından konuyu anlat. Onun yerine geç, onun gibi konuş."],["Bu açıdan bir sorum var","Seçtiğin bakış açısından bir soru sor."]],"amac":"Birden çok bakış açısını görmeyi ve aynı şeye farklı insanların farklı bağlarla baktığını anlamayı sağlar.","ne":"Karmaşık konular, ikilemler, sanat eserleri; öğrenciler bir konuyu yalnızca iki taraflı gördüğünde.","id":"bakis-acilari-cemberi","ad":"Bakış Açıları Çemberi","kat":["Temel Düşünme Rutinleri","Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"kolon","yon":"yatay","adim":[["İddia","Bu konu hakkında ne söyleyebilirim? Bir açıklama ya da yorum yaz."],["Destek","Bunu neden söylüyorum? Gördüğüm, bildiğim, hissettiğim kanıtlar neler?"],["Soru","İddiamla ilgili hâlâ neyi merak ediyorum? Açıklanmayan ne kaldı?"]],"amac":"İddia kurmayı ve onu kanıtla desteklemeyi öğretir; akıl yürütmenin süren bir süreç olduğunu gösterir.","ne":"Bir metin, deney sonucu, haber ya da sanat eseri üzerine konuşurken. Önce tüm sınıfla örnekleyin.","id":"iddia-destek-soru","ad":"İddia, Destek, Soru","kat":["Temel Düşünme Rutinleri","Fikirlerin Daha Derinlemesine İncelenmesi"]},{"tip":"pusula","yon":"dikey","adim":[["D: Heyecanlandıran","Bu fikirde seni heyecanlandıran ne? Artısı ne?"],["B: Endişelendiren","Bu fikirde seni endişelendiren ne? Eksisi ne?"],["K: Bilmem gereken","Karar vermek için başka neyi bilmem gerekiyor?"],["G: Görüşüm","Şimdi ne düşünüyorum? Nasıl ilerleyelim?"]],"amac":"Bir fikir ya da öneriyi karar vermeden önce her yönüyle incelemeyi sağlar.","ne":"Sınıf düzeni değişikliği, bir karakterin kararı, okul kuralı gibi bir öneri tartışılırken. Heyecan verici yönden başlamak kolaylaştırır.","id":"pusula","ad":"Pusula","kat":["Temel Düşünme Rutinleri","Fikirleri Tanıtma ve Keşfetme","Perspektif Alma"]},{"tip":"kolon","yon":"yatay","adim":[["Bağlan","Bu yeni bilgi, zaten bildiğim neyle bağlantılı?"],["Genişlet","Hangi yeni fikir düşüncemi büyüttü ya da başka yöne götürdü?"],["Meydan oku","Kafamı karıştıran, hâlâ zor gelen ne var?"]],"amac":"Yeni fikirleri bilinenlerle ilişkilendirmeyi ve öğrendiklerinin düşünceyi nasıl genişlettiğini fark etmeyi sağlar.","ne":"Okuma, video ya da yeni bilgi sunulan dersin sonunda; ünite kapanışında.","id":"baglan-genislet-meydan-oku","ad":"Bağlan, Genişlet, Meydan Oku","kat":["Temel Düşünme Rutinleri"]},{"tip":"oncesonra","yon":"yatay","adim":[["Eskiden düşünürdüm ki...","Bu konuya başlamadan önce ne düşünüyordum?"],["Şimdi düşünüyorum ki...","Öğrendiklerimden sonra şimdi ne düşünüyorum?"]],"amac":"Düşüncenin nasıl ve neden değiştiğini fark ettirir, yeni öğrenmeyi pekiştirir.","ne":"Okuma, film, gezi, tartışma ya da ünite sonunda; ilk düşüncelerin değişmiş olabileceği her an.","id":"eskiden-dusunurdum-simdi-dusunuyorum","ad":"Eskiden Düşünürdüm Şimdi Düşünüyorum","kat":["Temel Düşünme Rutinleri","Fikirleri Sentezleme ve Düzenleme","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"kolon","yon":"yatay","adim":[["Ne görüyorum?","Sadece gözüne görüneni söyle."],["Ne düşünüyorum?","Bu neden böyle olabilir? Neyi görünce bunu düşündün?"],["Neyi merak ediyorum?","Aklında hangi sorular kaldı?"]],"amac":"Dikkatli gözlem ve düşünceli yorum yapmayı teşvik eder, merak uyandırır ve sorgulamaya zemin hazırlar.","ne":"Ünite başında bir görsel, nesne, grafik ya da videoyla. Önce sessizce bireysel düşünme zamanı verin.","id":"gor-dusun-merak-et","ad":"Gör, Düşün, Merak Et","kat":["Temel Düşünme Rutinleri","Fikirleri Tanıtma ve Keşfetme","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"satir","yon":"dikey","adim":[["Düşün","Soruyu kendi başına sessizce düşün. İstersen yaz ya da çiz."],["Eşleş","Yanındaki arkadaşınla düşüncelerinizi sırayla anlatın, dikkatle dinleyin."],["Paylaş","Arkadaşının düşüncesini sınıfa anlat."]],"amac":"Akıl yürütmeyi ve açıklamayı, başkalarını dinleyerek birden çok bakış açısını anlamayı destekler.","ne":"Deneyden önce, problem çözerken, bir metin okuduktan sonra. Eşini anlatacağını önceden söylemek dinlemeyi artırır.","id":"dusun-esles-paylas","ad":"Düşün, Eşleş, Paylaş","kat":["Temel Düşünme Rutinleri","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"kolon","yon":"yatay","adim":[["Düşün","Bu konu hakkında ne bildiğimi düşünüyorum?"],["Sorgula","Hangi sorularım var? Neyi merak ediyorum?"],["Keşfet","Sorularımın cevabını nasıl bulabilirim?"]],"amac":"Ön bilgiyi harekete geçirir, merak uyandırır ve daha derin sorgulamaya hazırlar; mevcut anlayışı görmeyi sağlar.","ne":"Yeni konu ya da ünite başında. Yanlış kavramları da listeleyin, ünite içinde geri dönün.","id":"dusun-sorgula-kesfet","ad":"Düşün, Sorgula, Keşfet","kat":["Temel Düşünme Rutinleri","Fikirleri Tanıtma ve Keşfetme","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"satir","yon":"dikey","adim":[["Neler oluyor?","Burada ne oluyor sence?"],["Bunu söylemene ne neden oldu?","Neyi görünce bunu düşündün? Kanıtını göster."]],"amac":"Gözlemi, açıklama kurmayı ve kanıta dayalı akıl yürütmeyi geliştirir.","ne":"Görsel, sanat eseri, deney gözlemi, şiir. Tartışma akarken öğrenci yorum yaptığında soruyu ekleyin.","id":"bunu-soylemenize-neden-olan-nedir","ad":"Bunu Söylemenize Neden Olan Nedir?","kat":["Temel Düşünme Rutinleri","Fikirlerin Daha Derinlemesine İncelenmesi","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"kopru","yon":"yatay","adim":[["Öğrenmeden önce: 3 kelime","Konu deyince aklına gelen 3 kelime ya da fikir"],["Öğrenmeden önce: 2 soru","Konuyla ilgili 2 sorun"],["Öğrenmeden önce: 1 benzetme","Bu konu neye benziyor?"],["Öğrendikten sonra: 3 kelime","Şimdi aklına gelen 3 kelime ya da fikir"],["Öğrendikten sonra: 2 soru","Şimdi sorduğun 2 soru"],["Öğrendikten sonra: 1 benzetme","Şimdi bu konu neye benziyor?"],["Köprü","İlk düşüncelerin yenileriyle nasıl bağlantılı, ne değişti?"]],"amac":"Bir öğrenme deneyiminden önce ve sonra düşüncenin nasıl değiştiğini görmeyi sağlar.","ne":"Öğrencilerin az da olsa bildiği bir konuda. Önce bölümü hızlı yazılır; ilk düşüncelerin doğru ya da yanlış olmadığını söyleyin.","id":"3-2-1-kopru","ad":"3-2-1 Köprü","kat":["Fikirleri Tanıtma ve Keşfetme","Olasılıklar ve Benzetmeler Üretmek"]},{"tip":"merkez","yon":"yatay","adim":[["Fikirlerim","Bu soruyu düşününce aklıma hangi fikirler geliyor?"],["Bağlantılar","Arkadaşlarımın yazdıklarıyla hangi bağlantıları kurabilirim?"],["Sorularım","Hepsini okuyunca hangi sorular ortaya çıkıyor?"]],"amac":"Sessiz yazılı konuşmayla birlikte anlam kurmayı sağlar; konuşmaya çekinen öğrencilere de söz verir.","ne":"Ortaya soruyu yazın, kâğıtları masalara koyun. Gruplar 5 dakikada bir kâğıt değiştirir, en sonda ortak temaları konuşun. Konuşmak yok, yalnızca yazmak var.","id":"tebesir-konusmasi","ad":"Tebeşir Konuşması","kat":["Fikirleri Tanıtma ve Keşfetme"]},{"tip":"liste","yon":"dikey","adim":[["Soru üret","Konu hakkında en az 12 soru yaz. Şu başlangıçları dene: Neden...? Ya ... olsaydı? Amacı ne...? ... olsaydı ne değişirdi?"],["Seç","En ilginç soruları işaretle, tartışmak için birini seç."],["Düşün","Bu konuda daha önce aklına gelmeyen hangi yeni fikirlerin oldu?"]],"amac":"Düşünmeyi ve araştırmayı başlatan soru üretme pratiği sağlar; konunun derinliğini ve çok yönlülüğünü gösterir.","ne":"Yeni konu girişinde, ünite ortasında merakı tazelemek için, ünite sonunda daha karmaşık sorular sormak için.","id":"yaratici-soru-baslangici","ad":"Yaratıcı Soru Başlangıcı","kat":["Fikirleri Tanıtma ve Keşfetme","Fikirlerin Daha Derinlemesine İncelenmesi","Olasılıklar ve Benzetmeler Üretmek"]},{"tip":"izgara","yon":"yatay","adim":[["Daha iyi çalışsın","Bunu nasıl daha iyi çalışır hâle getirebiliriz?"],["Daha kolay kullanılsın","Bunu nasıl daha kolay ve hızlı kullanılır yaparız?"],["Herkes için daha iyi olsun","Nasıl daha adil, daha güvenli, paylaşması daha kolay olur?"],["Daha güzel olsun","Bunu nasıl daha güzel yapabiliriz?"]],"amac":"Bir nesne ya da sistemi yeniden tasarlamak için farklı ve odaklı düşünmeyi, fırsat görmeyi teşvik eder.","ne":"Sınıftaki ya da okuldaki bir nesne ya da düzen üzerinde. Küçük yaşta 'daha etik' yerine 'herkes için daha iyi' deyin; çizim ve canlandırma kabul edin.","id":"soyle-bir-dusun","ad":"Şöyle Bir Düşün","kat":["Fikirleri Tanıtma ve Keşfetme","Nesnelerin ve Sistemlerin Araştırılması"]},{"tip":"satir","yon":"dikey","adim":[["Bak","Esere yakından bak. Neler fark ediyorsun? Çok sayıda gözlem yap."],["Bir mercek seç ve paylaş","Dünyaya hangi gözle bakıyorsun (ailedeki rolün, yaşın, yaşadığın yer)? O gözle eseri anlat."],["Sor","Arkadaşının bakışını anlamak için soru sor: ... ile ne demek istediğini anlatır mısın?"],["Yansıt","Esere yeniden bak. Yeni neler fark ettin? Hangi konular aklına geldi?"]],"amac":"Bir esere farklı kimlik ve geçmiş merceklerinden bilinçli bakmayı, diyalog yoluyla başkasının bakışını anlamayı sağlar.","ne":"Birlikte yaşamla ilgili bir tema taşıyan sanat eseri ya da görselle; 10-20 dakika, eşli ya da küçük grup.","id":"diyalog-icin-mercekler","ad":"Diyalog İçin Mercekler","kat":["Fikirleri Tanıtma ve Keşfetme","Perspektif Alma","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"tablo","yon":"yatay","sutun":["Adlandır","Açıkla","Eylem"],"adim":[["Adlandır","Hatırladığın tüm parçaları say. İşaret edip adını söyleyebileceğin şeyler."],["Açıkla","Her birine bir sıfat ekle. Nasıl görünüyor?"],["Eylem","Her biri ne yapıyor? Bütüne nasıl katkı veriyor?"]],"amac":"Yakından bakmayı, betimleyici dili ve çalışma belleğini geliştirir.","ne":"Görseli 1-2 dakika sessizce izletin, sonra kaldırın; öğrenciler hatırladıklarını sayar. Her fiil bir kez kullanılır kuralı yaratıcılığı artırır.","id":"adlandirma-aciklama-eylem","ad":"Adlandırma, Açıklama, Eylem","kat":["Fikirleri Tanıtma ve Keşfetme"]},{"tip":"baglanti","yon":"yatay","adim":[["İlgi alanlarım","Hobilerimden ya da sevdiğim şeylerden bazıları"],["Okul konularım","Derslerimden ya da okulda öğrendiğim konulardan bazıları"],["Bağlantı","Bir ilgi alanınla bir konu arasına çizgi çek, çizginin üstüne bağlantıyı yaz."],["Keşfetmek için","Bu bağlantıyı daha çok araştırmak için neler yapabilirim?"]],"amac":"Okul dışındaki ilgi alanlarını okuldaki konulara bağlamayı ve bağlantı kurma alışkanlığı kazanmayı sağlar.","ne":"İlk bağlantılar yüzeysel görünse de olur; 'neler yapabilirim' adımında derinleşir. Bağlantı türü önerin: biçim, yapı, hikâye, kültür.","id":"disaridan-iceri","ad":"Dışarıdan İçeri","kat":["Fikirleri Tanıtma ve Keşfetme","Fikirlerin Daha Derinlemesine İncelenmesi"]},{"tip":"kolon","yon":"yatay","adim":[["Parçalar","Bunun parçaları neler? Çiz ya da listele."],["Bakış açıları","Kimler buna farklı açıdan bakar? Kullanan, yapan, etkilenen kim?"],["Ben","Benim bununla bağım ne? Onu nasıl görüyorum, neden?"]],"amac":"Ayrıntıya yakından bakmayı, farklı kullanıcı ve paydaşları düşünmeyi ve kendi bağlantısını fark etmeyi sağlar.","ne":"Çok parçalı nesneler ve sistemler (ulaşım, okul yemekhanesi). Her adıma ayrı zaman verin; mümkünse nesneyi söküp çizdirin.","id":"parcalar-perspektifler-ben","ad":"Parçalar, Perspektifler, Ben","kat":["Fikirleri Tanıtma ve Keşfetme","Nesnelerin ve Sistemlerin Araştırılması"]},{"tip":"kolon","yon":"yatay","adim":[["Parçalar","Bütün parçaları neler?"],["Amaçlar","Ne işe yarıyor? Her parça ne işe yarıyor?"],["Karmaşıklıklar","Parçalar birlikte nasıl çalışıyor? Bir parça eksik olsaydı ne olurdu?"]],"amac":"Yavaşlayıp ayrıntılı gözlem yapmayı, nesnenin ya da sistemin görünen yüzünün ötesine bakmayı ve merak etmeyi sağlar.","ne":"Sınıfta dokunulabilen bir nesneyle başlayın. Küçük yaşta 'karmaşıklık' yerine 'bulmaca' deyin, tek bir ortak çizelge yapın.","id":"parcalar-amaclar-karmasikliklar","ad":"Parçalar, Amaçlar, Karmaşıklıklar","kat":["Fikirleri Tanıtma ve Keşfetme","Nesnelerin ve Sistemlerin Araştırılması","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"meyve","yon":"dikey","adim":[["Kabuk: yüzeyi tanı","Ne görüyoruz? Ne biliyoruz?"],["Kabuğun altı: gizemleri ara","Bizi şaşırtan, merak ettiğimiz ne?"],["Meyve: anlamı kur","Bağlantılar kuralım, açıklayalım, farklı açılardan bakalım."],["Çekirdek: özü yakala","Bu konunun en önemli fikri ne?"]],"amac":"Karmaşık bir konuyu günler ya da haftalar boyunca anlamayı planlamak ve izlemek için bir haritadır.","ne":"Ünite boyunca duvarda kalsın. Kabuktan başlayın, sırayla değil ihtiyaca göre ilerleyin; öğrenciler yapışkan notlarla ekleme yapsın.","id":"meyveyi-soy","ad":"Meyveyi Soy","kat":["Fikirleri Tanıtma ve Keşfetme","Fikirlerin Daha Derinlemesine İncelenmesi"]},{"tip":"izgara","yon":"yatay","adim":[["Gör","Ne görüyorsun? Yorum yapmadan sadece anlat."],["Düşün","Burada neler oluyor? Bu ne anlama geliyor olabilir?"],["Ben","Bu eser bana kendi hayatımdan neyi hatırlatıyor?"],["Biz","Bu, insanların hangi ortak hikâyesine bağlanıyor?"]],"amac":"Bir eserden yola çıkarak kişisel bağlar kurmayı ve bunları daha büyük insan deneyimine bağlamayı sağlar.","ne":"Sanat eseri ya da görselle. Ben adımında güvenli ortam önemli; önce siz örnek verin, büyük grupta ikili ya da üçlü çalışın.","id":"gor-dusun-ben-biz","ad":"Gör, Düşün, Ben, Biz","kat":["Fikirleri Tanıtma ve Keşfetme","Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"satir","yon":"dikey","adim":[["İçeri adım at","Bu kişi ne hissediyor, neye inanıyor, ne biliyor olabilir?"],["Dışarı adım at","Onu daha iyi anlamak için neyi öğrenmem gerekiyor?"],["Geri adım at","Kendi bakışım hakkında ne fark ettim? Başkasının yerine geçmek neden zor?"]],"amac":"Başkasının bakış açısını sorumlulukla almayı ve bunun kendimizi de anlamak olduğunu fark etmeyi besler.","ne":"Bir hikâye karakteri, tarihî olay, haber ya da ekosistemdeki bir canlı için. İlk izlenimlerin yanılabileceğini normalleştirin.","id":"iceri-adim-at-disari-adim-at-geri-adim-at","ad":"İçeri Adım At, Dışarı Adım At, Geri Adım At","kat":["Fikirleri Tanıtma ve Keşfetme","Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Uluslararası Düşünme"]},{"tip":"tablo","yon":"yatay","sutun":["Fark ettim ki","Neden böyle?","Açıklamalar","Neden böyle düşünüyorum?"],"adim":[["Fark ettim ki...","Bu nesnede ilginç bir şey fark et."],["Neden böyle?","Neden böyle olduğunu sor."],["Açıklamalar","Arkadaşların olası açıklamalar önerir."],["Gerekçe","Bunu düşünmene ne neden oldu?"]],"amac":"Bir şeyin neden öyle olduğunu anlamaya, neden-sonuç ve amaç açıklaması kurmaya yöneltir.","ne":"Masadaki bir nesne, şiir, olay. Cevabı kitaptan değil birlikte kurun; önce öğretmen soru sormayı örneklesin.","id":"aciklama-oyunu","ad":"Açıklama Oyunu","kat":["Fikirleri Tanıtma ve Keşfetme","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"gunluk","yon":"dikey","adim":[["Bu hafta fark ettiklerim","Okul dışında bu konuyla ilgili gördüğüm, duyduğum şeyleri her gün kaydediyorum."],["Bağlantı","Bu fikirler okulda öğrendiklerimle nasıl bağlantılı?"],["Hayatımda","Öğrendiklerimi hayatımın başka yerlerinde nasıl kullanabilirim?"]],"amac":"Okulda öğrenilenle okul dışı dünya arasındaki bağlantılara duyarlılığı artırır, içsel motivasyonu besler.","ne":"Bir hafta boyunca evde ve yolda tutulur. Hafta sonunda paylaşın; Eskiden düşünürdüm, şimdi düşünüyorum ile kapatın.","id":"hafta-boyunca-yuruyus","ad":"Hafta Boyunca Yürüyüş","kat":["Fikirleri Tanıtma ve Keşfetme"]},{"tip":"merkez","yon":"yatay","adim":[["Parçalar ve etkileşimler","Hangi parçalar birbirini etkiliyor?"],["Zaman içinde değişim","Zamanla nasıl değişti, nasıl değişebilir?"],["Bakış açıları","Kimler buna farklı bakar?"],["Gerçek ve kanıt","Neyin doğru olduğunu nasıl biliyoruz?"],["Gizemler","Hâlâ bilmediğimiz ne var?"]],"amac":"Bir konunun hangi yönlerden karmaşık olduğunu kavram haritasıyla düzenlemeye ve düşünme derinliğini görmeye yardım eder.","ne":"Konuyu ortaya yazın, öğrenciler her karmaşıklık türünü değerlendirir. Her tür her konuya uymaz, uymayanı atlayın. Kategoriler PDF'teki diyagramdan uyarlanmıştır, kontrol edin.","id":"karmasik-olabilecek-seyler","ad":"Karmaşık Olabilecek Şeyler","kat":["Fikirleri Tanıtma ve Keşfetme","Nesnelerin ve Sistemlerin Araştırılması","Perspektif Alma"]},{"tip":"izgara","yon":"yatay","adim":[["Güzellik","Bu resimde ya da hikâyede güzelliği bulabilir misin?"],["Gerçek","Bunda gerçeği bulabilir misin?"],["Güzellik gerçeği nasıl gösterir?","Güzellik gerçeği ortaya çıkarmaya nasıl yardım eder?"],["Güzellik gerçeği nasıl saklar?","Güzellik gerçeği nasıl gizleyebilir?"]],"amac":"Haber, resim ve hikâyelerin bir konuyu nasıl temsil ettiğini eleştirel olarak incelemeyi sağlar.","ne":"Fotoğraf, haber, resimli kitap. Fotoğrafların her zaman gerçeği gösterdiği yanılgısına dikkat edin; son iki soruda sözcükleri yer değiştirebilirsiniz.","id":"guzellik-ve-gercek","ad":"Güzellik ve Gerçek","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Uluslararası Düşünme"]},{"tip":"hedef","yon":"dikey","adim":[["Ana amaç","Bu şey ne için yapılmış?"],["Parçalar ve amaçları","Parçaları neler, her biri ne işe yarıyor? Çok akıllıca olanı yıldızla."],["Hedef kitle","Bu kimin için yapılmış?"]],"amac":"Sıradan şeylerin arkasındaki yaratıcı düşünceyi fark ettirir; amaç ve hedef kitle üzerinden anlamayı derinleştirir.","ne":"Kalem, kapı kolu, oyuncak ya da teneffüs gibi bir düzen. Hedef tahtasını çizin, öğrenciler yapışkan notla doldursun, yıldızlıları sonunda konuşun.","id":"yaratici-av","ad":"Yaratıcı Av","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Nesnelerin ve Sistemlerin Araştırılması","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"liste","yon":"dikey","adim":[["Soru listesi","Bu nesne ya da konu hakkında aklına gelen soruları yaz."],["Dönüştür","Bazı soruları hayal gücüne çevir: Eğer ... olsaydı nasıl olurdu? Ne değişirdi?"],["Hayal ederek keşfet","Bir soruyu seç. Hikâye yaz, resim çiz, canlandır ya da hayali röportaj yap."],["Düşün","Bu konuda hangi yeni fikirlerin oldu?"]],"amac":"İlginç sorular kurmayı ve onları hayal gücüyle keşfetmeyi sağlar.","ne":"Konu başında, ortasında ve sonunda. Önce 'iyi soru nedir' diye konuşun, ilk seferde tüm sınıfla yapın.","id":"yaratici-sorular","ad":"Yaratıcı Sorular","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Olasılıklar ve Benzetmeler Üretmek","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"izgara","yon":"yatay","adim":[["Mesaj","Burada sana ne anlatılmak isteniyor?"],["Kim, neden?","Bu mesajı kim vermeye karar verdi? Neden?"],["Başka yorum","Bu başka nasıl anlaşılabilir?"],["Bence doğru olan","Bunda neyin doğru olduğuna inanıyorum? Neden böyle düşünüyorum?"]],"amac":"Bilginin olduğu gibi kabul edilmemesi gerektiğini, kanıt aramayı ve farklı yorumları görmeyi öğretir.","ne":"Haber, reklam, tarihî olay ya da görsel. Görseli parça parça gösterip sonunda bütününü açmak etkilidir.","id":"gercekler-mi-kurgu-mu","ad":"Gerçekler mi Kurgu mu?","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"eksen","yon":"yatay","eksen":["Kesin yanlış","Belirsiz","Kesin doğru","Az önemli","Çok önemli"],"adim":[["Fikirleri yerleştir","Bu fikir doğru mu, yanlış mı, yoksa arada bir yerde mi? Çizgiye yerleştir."],["Neden belirsiz?","Bu fikri belirsiz ya da kesin yapan ne?"],["Ne kadar önemli?","Bunu önemli yapan ne? Yukarı ya da aşağı taşı."]],"amac":"Daha fazla düşünmeyi hak eden 'sıcak noktaları', yani belirsiz ve önemli fikirleri fark etmeyi öğretir.","ne":"Öğrencilerin biraz bildiği somut durumlarla (teneffüs kavgası, haberdeki olay). Yanlış bilgiyi hemen düzeltmeyin, kolaylaştırıcı kalın.","id":"sicak-noktalar","ad":"Sıcak Noktalar","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"izgara","yon":"yatay","adim":[["Hikâye","Anlatılan hikâye, gizli hikâye, mesaj ne?"],["Güzellik","Çekici, ustaca ya da alışılmadık olan ne?"],["Yapı","Hangi teknik, biçim ve yöntem kullanılmış?"],["Duygu ve hareket","Nerede sürpriz, gerilim, duygu var?"],["Bağlantılar","Başka eserlere, tarihe, bana ya da sanatçının hayatına bağlantısı ne?"]],"amac":"Yaratıcı bir esere farklı katmanlardan analitik bakmayı sağlar.","ne":"Önce esere yakından baktırın, sonra katman seçtirin. İlk seferde katmanları tek tek tüm sınıfla tanıtın; iki eseri karşılaştırmak için de kullanılabilir.","id":"katmanlar","ad":"Katmanlar","kat":["Fikirlerin Daha Derinlemesine İncelenmesi"]},{"tip":"elmas","yon":"dikey","adim":[["Sol: birinci kazanç","Bu tarafı seçersek ne kazanırız? Buraya o yönde seçenekler."],["Sağ: ikinci kazanç","Öbür tarafı seçersek ne kazanırız? Buraya o yönde seçenekler."],["Alt: orta yol","İkisinin arasında uzlaşan seçenekler"],["Üst: akıllı çözüm","İkisinin de iyisini alan yaratıcı çözüm var mı?"],["Ne öğrendik?","Bu seçenekleri bulmak durumu anlamamıza nasıl yardım etti?"]],"amac":"Karar vermeyi zorlaştıran gerilimleri görmeyi ve zıtlıkları birleştiren yaratıcı seçenekler aramayı sağlar.","ne":"Sınıf kararı, hikâyedeki bir ikilem. Sol ve sağ köşeler seçenek değil, zıt yöne çeken kazançlardır; son seçim zorunlu değil.","id":"secenekler-elmasi","ad":"Seçenekler Elması","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Olasılıklar ve Benzetmeler Üretmek"]},{"tip":"patlama","yon":"yatay","adim":[["Açık seçenekler","Hemen akla gelen seçenekler neler?"],["Gizli seçenekler","Başka hangi yollar olabilir? Fikirleri birleştir, başka birinin yerine geç, çılgın fikirler de olur."],["Ne öğrendik?","Seçenekleri bulmak durumu anlamamıza nasıl yardım etti?"]],"amac":"Karar durumlarında gözden kaçan gizli seçenekleri bulmayı ve yaratıcı düşünmeyi teşvik eder.","ne":"Sınıf ya da kişisel karar, hikâye, haber. Patlama diyagramında ışınlara yapışkan not eklenir; hızlı oylamayla bitirebilirsiniz.","id":"secenekler-patlamasi","ad":"Seçenekler Patlaması","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Olasılıklar ve Benzetmeler Üretmek"]},{"tip":"kolon","yon":"yatay","adim":[["Parçalar","Sistemin parçaları neler?"],["İnsanlar","Bu sisteme kimler bağlı?"],["Etkileşimler","İnsanlar birbirleriyle ve parçalarla nasıl etkileşiyor?"],["Değişirse","Bir parça değişirse kimler ve neler etkilenir?"]],"amac":"Bir sisteme yakından bakmayı, kimlerin katıldığını görmeyi ve değişikliklerin sonuçlarını düşünmeyi destekler.","ne":"Yemekhane sırası, servis, geri dönüşüm gibi çocuğun yaşadığı bir sistemle. Sistemin sınırını önceden belirleyin.","id":"parcalar-insanlar-etkilesimler","ad":"Parçalar, İnsanlar, Etkileşimler","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Nesnelerin ve Sistemlerin Araştırılması"]},{"tip":"halka","yon":"dikey","adim":[["Toplumumda","Bu konu bizim mahallemizde, şehrimizde nasıl yaşanıyor?"],["Ülkemde başka bir yerde","Ülkemizde başka bir şehir ya da kasabada nasıl?"],["Doğuda ya da batıda bir ülkede","İnsanların farklı düşünebileceği bir ülkede nasıl?"],["Kuzeyde ya da güneyde bir ülkede","Başka bir ülkede nasıl görülüyor?"],["Neden?","Benzerlikleri ve farklılıkları ne açıklayabilir?"]],"amac":"Bir konunun yakındaki ve uzaktaki toplulukları nasıl etkilediğini karşılaştırarak çok yönlü bakış kazandırır.","ne":"Beslenme, su, bayramlar gibi farklı yaşanan konularla. Genelleme ve klişelere hemen 'Bunu söylemene ne neden oldu?' ile yanıt verin.","id":"mesafeye-gore-yansitma","ad":"Mesafeye Göre Yansıtma","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma"]},{"tip":"zaman","yon":"yatay","adim":[["Şimdi ne biliyorum?","Bu konu hakkında ne düşünüyorum, ne biliyorum?"],["Geçmişe git","10 yıl, 100 yıl, 1000 yıl önce bu konu nasıldı?"],["Geleceğe git","10 yıl, 100 yıl, 1000 yıl sonra nasıl olacak? Neden böyle düşünüyorum?"],["Şimdi nasıl görüyorum?","Düşüncem nasıl değişti?"]],"amac":"Bir konuya kendi yaşam süresinden çok daha geniş bir zaman ölçeğinden bakmayı sağlar.","ne":"Okul, oyun, ulaşım, iletişim gibi konular. Küçüklerde 'dedemin çocukluğu, ben, torunum' gibi yakın dilimler seçin; her adımı ayrı renkle yazdırın.","id":"zaman-icinde-yansitma","ad":"Zaman İçinde Yansıtma","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma"]},{"tip":"isik","yon":"dikey","adim":[["Kırmızı ışık","Burada dur! Çok emin konuşuyor ama kanıt yok, abartıyor, kızgın, kendi çıkarını düşünüyor."],["Sarı ışık","Dikkat! Biraz şüpheli: herkes diyor ki, bence, belki."],["Neler öğrendik?","Bir şeyin doğru olmayabileceğini hangi işaretlerden anlarız?"]],"amac":"Doğruluğu şüpheli olabilecek anların işaretlerini fark etmeyi ve dikkat edilmesi gereken alanları görmeyi öğretir.","ne":"Reklam, söylenti, haber, bir hikâyedeki iddia. İşaret listesini birlikte büyütün; derin inceleme için başka bir rutine geçin.","id":"kirmizi-isik-sari-isik","ad":"Kırmızı Işık, Sarı Işık","kat":["Fikirlerin Daha Derinlemesine İncelenmesi"]},{"tip":"izgara","yon":"yatay","sutun":["Açık","Kontrol etmem gerekiyor"],"satirlar":["Gerçekler ve olaylar","Düşünceler ve duygular"],"adim":[["Gerçekler ve olaylar","Ne oldu? Kanıtı ne?"],["Düşünceler ve duygular","Kişiler ne düşünüyor, ne hissediyor? Kanıtı ne?"],["Benim yargım","Bunlara bakarak bu durum hakkında en iyi kararım ne?"]],"amac":"Gerçeği, düşünceyi ve yargıyı ayırt etmeyi; fikir ve duyguları düzenlemeyi sağlar.","ne":"Bir hikâye, haber ya da sınıfta yaşanan bir anlaşmazlık; konu araştırılırken ortada. Öğrenciler gazete muhabiri olduklarını hayal eder.","id":"muhabirin-not-defteri","ad":"Muhabirin Not Defteri","kat":["Fikirlerin Daha Derinlemesine İncelenmesi"]},{"tip":"kolon","yon":"yatay","adim":[["Ne algılayabilir?","Bu kişi ya da şey neyi görür, duyar, fark eder?"],["Ne bilir, neye inanır?","Bu kişi ya da şey neyi bilir ya da neye inanır?"],["Neyi önemser?","Bu kişi ya da şey için ne önemli?"]],"amac":"Bir karakterin ya da nesnenin yerine geçerek farklı bakış açılarını keşfetmeyi ve konuyu canlandırmayı sağlar.","ne":"Resim, hikâye, tarihî olay, hatta bir kesrin paydası. Öğrenciler o bakıştan konuşur ya da yazar; sınıf kim olduğunu tahmin edebilir.","id":"iceri-adim-at","ad":"İçeri Adım At","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"satir","yon":"dikey","adim":[["Tavır al","İkilemi oku. Senin görüşün ne? Nedenini not al."],["Dinle","Arkadaşlarının görüşlerini dinle, kendi görüşünü paylaş."],["Yeniden bak","Aklına gelmeyen ne duydun? Görüşün değişti mi, ne değişti?"],["Ötesine bak","Bu durum sana başka hangi durumları hatırlatıyor?"]],"amac":"Net doğru ya da yanlışın olmadığı ikilemlerde kendi görüşünü kurmayı, başkalarını dinlemeyi ve yeniden düşünmeyi destekler.","ne":"Dijital yaşam, sınıf kuralı, paylaşma ikilemleri. Önce sınıf kurallarını hatırlatın: anlamak için dinle, 'ben' diye konuş.","id":"bir-tavir-al","ad":"Bir Tavır Al","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"kolon","yon":"yatay","adim":[["Düşün","Bu kişi bu sistemde ne yapıyor? Bunu nereden biliyorum?"],["Hisset","Bu kişi ben olsaydım nasıl hissederdim? Neden?"],["Önemse","Bu kişi ben olsaydım neyi önemserdim?"]],"amac":"Bir sistemdeki farklı kişilerin konumlarına göre farklı düşündüğünü, hissettiğini ve önemsediğini anlamayı sağlar.","ne":"Okul servisi, kantin, kütüphane gibi çocuğun yaşadığı bir sistem ya da bir hikâye. Canlandırma ile yapın, aynı kişiyi iki farklı biçimde oynatın.","id":"dusun-hisset-onemse","ad":"Düşün, Hisset, Önemse","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Nesnelerin ve Sistemlerin Araştırılması"]},{"tip":"halat","yon":"yatay","uclar":["Doğru","Yanlış"],"adim":[["Soru","Tartıştığımız iddia: Bu doğru mu?"],["Doğru tarafına çekenler","Doğru olduğunu gösteren kanıtlar"],["Yanlış tarafına çekenler","Yanlış olduğunu gösteren kanıtlar"],["Ya ... olsaydı?","Daha fazla bilgi isteyen sorular halatın üstüne"],["Şimdi ne düşünüyoruz?","Karar verebilir miyiz? Cevap gri bir alanda mı?"]],"amac":"Bir doğruluk sorusunda farklı kanıtların çekişini tartarak dikkatli akıl yürütmeyi ve siyah-beyaz görünen konuların karmaşıklığını görmeyi sağlar.","ne":"Her iki tarafta kanıt olan bir iddia ile. Tahtaya ip çizin ya da duvara ip bantlayın, kanıtları yapışkan notla ekleyin.","id":"gercek-icin-halat-cekme","ad":"Gerçek İçin Halat Çekme","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"halat","yon":"yatay","uclar":["Bir taraf","Öbür taraf"],"adim":[["İkilem","Hangi zor durumu konuşuyoruz? İki ucu yazalım."],["Bu tarafa çekenler","Bu tarafı desteklemek için nedenler"],["Öbür tarafa çekenler","Öbür tarafı desteklemek için nedenler"],["Ya ... olsaydı?","Kararı değiştirebilecek sorular"],["Şimdi ne düşünüyorum?","Fikrim değişti mi?"]],"amac":"Bir adalet ikileminin iki tarafını çeken güçleri anlamayı ve dikkatli akıl yürütmeyi sağlar.","ne":"Oyun başladıktan sonra oyuna arkadaş almak gibi sınıftan ikilemler. Önce herkes tarafını seçer, sonra iki taraf için de neden üretir.","id":"halat-cekme","ad":"Halat Çekme","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"izgara","yon":"yatay","adim":[["Hikâye","Burada anlatılan hikâye ne?"],["İnsan hikâyesi","Bu işin içindeki insanların hikâyesi ne?"],["Dünya hikâyesi","Bu, dünyadaki hangi büyük hikâyenin parçası?"],["Yeni hikâye","Burada yeni olan ne?"],["Anlatılmayan hikâye","Burada ne anlatılmamış, kim görünmüyor?"]],"amac":"Görsel ve metinlerdeki anlam katmanlarını, insan hikâyesini ve anlatılmayanı keşfetmeyi sağlar.","ne":"Haber fotoğrafı, belgesel kesiti, tarihî görsel. Hedefinize göre soruların bir kısmını seçebilir, sırasını değiştirebilirsiniz.","id":"hikayeleri-aciga-cikarma","ad":"Hikayeleri Açığa Çıkarma","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Uluslararası Düşünme"]},{"tip":"satir","yon":"dikey","adim":[["Fark et","Esere yakından bak. Neler fark ediyorsun?"],["Değerler","Bu eser bizi hangi değerler üzerine düşündürüyor (adalet, saygı, gelenek, güvenlik)?"],["Kimlikler","Bu eser kimden bahsediyor, kime sesleniyor? Dışarıda kalan biri var mı?"],["Eylemler","Bu eser bizi ne yapmaya çağırıyor?"],["Yeniden bak","Esere tekrar bak. Ekleyecek yeni fikrin var mı?"]],"amac":"Sanat eserlerinin toplumsal yönlerini değer, kimlik ve eylem üzerinden keşfetmeyi sağlar.","ne":"Kolayca fark edilen bir yurttaşlık teması taşıyan eserle. Her başlığın anahtar sorusu önemli, derinleştirme sorularından birkaçını seçin.","id":"degerler-kimlikler-eylemler","ad":"Değerler, Kimlikler, Eylemler","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Sanat, Resim ve Nesneleri Keşfetmek","Uluslararası Düşünme"]},{"tip":"zaman","yon":"yatay","adim":[["İncele","Bu şey bugünkü hâline nasıl geldi? Değişmesine kim ya da ne neden oldu?"],["Tahmin et","Gelecekte nasıl değişebilir?"],["Hayal et ve yarat","Bu değişimin zorluğunu fırsata çevirseydik ne yaratabilirdik?"]],"amac":"Değişimin nasıl olduğunu inceleyip geleceği tahmin etmeyi ve olasılıkları hayal edip yaratma cesaretini besler.","ne":"Okul, oyuncak, ulaşım gibi değişen şeylerle. 'Tahmin' sözcüğü güvenli risk almayı kolaylaştırır; atık malzemeyle tasarım yaptırabilirsiniz.","id":"ne-olabilir","ad":"Ne Olabilir","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Perspektif Alma"]},{"tip":"izgara","yon":"yatay","adim":[["Keşfet","Ben kimim? Bugünkü ben nasıl oluştu?"],["Bağlan","Kimlerle ve nelerle bağlıyım? (aile, arkadaşlar, takım)"],["Tanımla","Biri beni tanımak isteseydi beni ne anlatırdı?"],["Ait ol","Nereye ait hissediyorum? Birden çok yere ait olabilir miyim?"]],"amac":"Kimliğin çok yönlülüğünü keşfetmeyi, yargıyı ertelemeyi ve insanlar arasındaki benzerlikleri görmeyi teşvik eder.","ne":"Kimlik hassas olabilir; sınıfınıza uymayan adımı çıkarın. Farklılıklar kadar beklenmedik benzerlikleri de aratın.","id":"ben-kimim","ad":"Ben Kimim?","kat":["Fikirlerin Daha Derinlemesine İncelenmesi","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"satir","yon":"dikey","adim":[["Bul","Gözünü yakalayan bir nesne ya da sahne bul. Ne olduğunu bir cümleyle söyle."],["Yakala","En az 5-10 dakika yavaşça çiz ya da farklı açılardan fotoğrafla. Güzel olması gerekmez."],["Açıkla","Ne kadar karmaşık olduğunu yaz ya da arkadaşına anlat."],["Merak et","Bu nesne hakkında hangi yeni sorularım var?"]],"amac":"Çizim ya da fotoğrafla yavaşlayıp yakından bakarak gündelik şeylerdeki karmaşıklığı görmeyi sağlar.","ne":"Bahçede bir yaprak, sınıfta bir makas. Çizimin tekniğini değil gözlemi övün; 4-6 karelik hızlı taslak ızgarası işe yarar.","id":"yavas-karmasiklik-yakalama","ad":"Yavaş Karmaşıklık Yakalama","kat":["Nesnelerin ve Sistemlerin Araştırılması","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"daire","yon":"dikey","adim":[["Nefes al","Rahat otur. Üç kez derin nefes al."],["Fark et","Şu an aklında ve kalbinde ne var? Dairenin içine yaz ya da çiz."],["Kenara koy","Öğrenmek için şimdilik neyi kenara koyabilirsin? Onları sayfanın kenarına taşı."],["Merkezde tut","Öğrenirken neyi yanında tutmak istersin? Onları ortaya getir."]],"amac":"Kendini anlamayı, kendini yönlendirmeyi ve sakin, şefkatli bir dikkatle öğrenmeye geçmeyi destekler.","ne":"Güne başlarken ya da teneffüs dönüşü. Önce birlikte esneyin, sakin ve acelesiz bir sesle yönetin; isteyen paylaşsın.","id":"ogrenme-icin-alan-yaratma","ad":"Öğrenme İçin Alan Yaratma","kat":["Perspektif Alma","Fikirleri Sentezleme ve Düzenleme"]},{"tip":"izgara","yon":"yatay","adim":[["Belirle","Bu durumda kimler var? Hangi zorlukla karşılaşıyorlar?"],["Hisset","Her biri ne hissediyor olabilir? Neden zor?"],["Hayal et","Ne yapılabilir? Çok fikir üret, herkesi en iyi hissettireni daire içine al."],["Söyle","Seçtiğin fikirde kişiler ne söyleyebilir? Gerçekten böyle söyler miydin?"]],"amac":"Bakış açısı almayı, empatiyle sorun çözmeyi ve nazik iletişim dilini destekler.","ne":"Arkadaşlık, paylaşma, dijital mesajlaşma ikilemleriyle; 15 dakikada yapılabilir, sık tekrarlayın.","id":"duygular-ve-secenekler","ad":"Duygular ve Seçenekler","kat":["Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Olasılıklar ve Benzetmeler Üretmek"]},{"tip":"paket","yon":"dikey","adim":[["Hedefim (hazine)","Ulaşmak istediğim hedef ne? Paketin içindeki hazine o."],["Düşün","Öğrendiğim bu konunun hedefimle bağlantısı ne? İlk katmanı aç."],["Tanımla","Hangi bağlantı benim için önemli, neden? Bir katman daha."],["Keşfet","Bu bağlantıları anlamak için neler yapabilirim? Bir katman daha."],["Harekete geç","Hazineme ulaşmak için ne yapacağım?"]],"amac":"Okulda ve dışında öğrenilenlerin hedeflere nasıl bağlandığını görerek içsel motivasyonu besler.","ne":"Kısa vadeli, spor ya da sosyal hedeflerle. Paket açma oyununu bilmeyenlere kısaca anlatın.","id":"paketi-uzat","ad":"Paketi Uzat","kat":["Perspektif Alma"]},{"tip":"satir","yon":"dikey","adim":[["İlk izlenim","İlk bakışta ne düşündün?"],["Bakış açıları","Başka kimler bunu nasıl görür? Ne söylerlerdi?"],["Aynı ve farklı","Benzerlikler neler, farklılıklar neler? Hem aynı hem farklı nasıl olabilir?"]],"amac":"Benzerlik ve farklılıkların yüzeyinin ötesine geçmeyi, ikili karşıtlıkları sorgulamayı sağlar.","ne":"Farklı ülkelerin okulları, aynı okunan farklı yazılan sözcükler gibi. Fikrini değiştirmenin değerli olduğunu siz örnekleyin.","id":"ayni-ve-farkli","ad":"Aynı ve Farklı","kat":["Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"izgara","yon":"yatay","adim":[["Aynı","Bu kişiyle hangi açılardan benzer olabiliriz?"],["Farklı","Hangi açılardan farklı olabiliriz?"],["Bağlan","İnsan olarak hangi açılardan bağlıyız?"],["Etkileşim","Şansım olsaydı ona ne sormak, söylemek ya da yapmak isterdim?"]],"amac":"Empatiyle bakış açısı almayı ve farklılıklar arasında köprü kurmayı besler.","ne":"Bir hikâye karakteri, mektup arkadaşı, başka bir ülkeden bir çocuğun fotoğrafı ile.","id":"ayni-farkli-baglan-etkilesim","ad":"Aynı Farklı Bağlan Etkileşim","kat":["Perspektif Alma","Uluslararası Düşünme"]},{"tip":"izgara","yon":"yatay","adim":[["Duygular","Bu kişi bu durumda neler hissediyor olabilir? Birden çok duygu düşün."],["Güç","Bu kişinin güçlü yanları, zenginlikleri neler?"],["Bağlantılar","İnsan olarak hangi yollarla bağlantı kurabiliriz?"],["İnsan onuru","Onu onurlandıran hangi sözcükleri seçerdim?"],["Düşün","Bu deneyimde düşüncemde, duygumda ne değişti? Hangi sorularım var?"]],"amac":"Başka bir insanı bütünüyle, gücü ve onuruyla görmeyi, damgalamanın karşısında durmayı besler.","ne":"Genellikle görünmez kalan biriyle ilgili hikâye, görsel ya da video. Zor bir konuysa umut ve eylem olanaklarını da konuşun.","id":"gormeye-calis","ad":"Görmeye Çalış","kat":["Perspektif Alma","Uluslararası Düşünme"]},{"tip":"satir","yon":"dikey","adim":[["Dur","İddia ne? Bildiğim ve emin olmadığım şeyler neler?"],["Bak","Nereye bakabilirim? Hangi kaynaklar bana bilgi verir?"],["Dinle","Kaynaklar ne diyor? Kaynak taraflı olabilir mi?"]],"amac":"Bir iddiayı netleştirip kaynakları açık fikirle ve eleştirel biçimde araştırmayı öğretir.","ne":"Bir söylenti, reklam ya da 'duydum ki' cümlesiyle. Kaynakları ve olası taraflarını duvarda bir çizelgede biriktirin.","id":"dur-bak-dinle","ad":"Dur, Bak, Dinle","kat":["Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"izgara","yon":"yatay","adim":[["Anlatılan hikâye","Burada bize hangi hikâye anlatılıyor?"],["Anlatılmayan hikâye","Ne dışarıda bırakılmış? Hangi açı eksik?"],["Benim hikâyem","Bence anlatılması gereken hikâye ne?"]],"amac":"Olay ve insanların nasıl anlatıldığını, neyin dışarıda kaldığını görmeyi ve kendi duruşunu kurmayı sağlar.","ne":"Haber, tarih metni, okuma kitabı. Soruları bu sırayla sorun; 'onun hikâyesi, bizim hikâyemiz' ile çoğaltabilirsiniz.","id":"hikayeler","ad":"Hikayeler","kat":["Perspektif Alma"]},{"tip":"halka","yon":"dikey","adim":[["Benim için","Bu konu benim için neden önemli olabilir?"],["Çevrem için","Ailem, arkadaşlarım, şehrim için neden önemli olabilir?"],["Dünya için","Dünya için neden önemli olabilir?"]],"amac":"Bir konunun kişisel, yerel ve küresel önemini fark etme eğilimini besler.","ne":"Ünite başında konu tanıtıldıktan sonra. Odak sorusunu net kurun; her adımı ayrı yapın, uzak bir konuda dünyadan başlayıp içe gelin.","id":"3-neden","ad":"3 Neden","kat":["Perspektif Alma","Uluslararası Düşünme"]},{"tip":"cember","yon":"yatay","adim":[["İddia","Bu iddiayı kim, hangi durumda söyledi? Ne önemliydi?"],["Bakış açıları","Bu iddiaya kimler farklı açıdan bakar? Listele."],["Canlandır","Bir bakış açısı seç: Benim bakış açım... Bence bu doğru/yanlış/belirsiz çünkü... Fikrimi değiştirecek şey..."],["Geri çekil","Çemberin dışına çık. Şimdi ne düşünüyorum, hangi sorularım var?"]],"amac":"Bir iddianın farklı bakış açılarından nasıl göründüğünü hayal ederek bağlamın inanılanı nasıl etkilediğini görmeyi sağlar.","ne":"İddia netleştikten sonra. Öğrenciler çember olur, sırayla canlandırır; bakışları tahtadaki çembere yazın.","id":"kim-icin-dogru","ad":"Kim İçin Doğru?","kat":["Perspektif Alma","Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Olasılıklar ve Benzetmeler Üretmek","Uluslararası Düşünme"]},{"tip":"tablo","yon":"yatay","sutun":["İdeale uyuyor mu?","Ölçütlere uyuyor mu?","Duruma uyuyor mu?","Bana uyuyor mu?"],"satir_adi":"Seçenek","adim":[["İdeale uydur","En güzel durum nasıl olurdu? Her seçenek buna ne kadar uyuyor?"],["Ölçütlere uydur","Bizim için önemli olanlar neler? Her seçenek bunlara ne kadar uyuyor?"],["Duruma uydur","Zamanımız, malzememiz ne kadar? Her seçenek buna uyuyor mu?"],["Kendine uydur","Kendini bu seçeneği yaparken hayal et. Hangisi sana uygun geliyor?"]],"amac":"Seçenekleri farklı ölçülere göre yaratıcı ve dikkatli biçimde değerlendirmeyi sağlar.","ne":"Sınıf gezisi yeri, proje konusu, oyun seçimi gibi kararlar. Seçenekleri satırlara yazın, her sütuna yıldız ya da gülen yüz koydurun.","id":"uygun-mu","ad":"Uygun mu?","kat":["Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"oncesonra","yon":"yatay","bas":["Burada, şimdi","Orada, o zaman"],"adim":[["Burada, şimdi","Bugün insanlar bu konuda ne düşünüyor, neye değer veriyor?"],["Orada, o zaman","Eskiden insanlar bu konuda ne düşünüyordu?"],["Karşılaştır","Neden değişti? Eskiden insanlar neden böyle düşünmüyordu?"],["Daha fazlası","O zamanki insanların düşüncesini nasıl daha iyi öğrenebiliriz?"]],"amac":"Geçmişteki bakış açılarını düşünmeyi ve düşüncenin zamanla nasıl değiştiğini, bugünkü yargılarımızın bağlamdan etkilendiğini görmeyi sağlar.","ne":"Çocuk hakları, kadınların okuması, çocuk işçiliği gibi zamanla değişen konular. Zaman yolcusu canlandırmasıyla tüm sınıfla yapın.","id":"burada-simdi-orada-o-zaman","ad":"Burada Şimdi / Orada O Zaman","kat":["Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma"]},{"tip":"izgara","yon":"yatay","adim":[["Gör","Ne görüyorsun?"],["Hisset","Buna bakarken içinde hangi duygular uyanıyor?"],["Düşün","Bu sana ne düşündürüyor?"],["Merak et","Bunun hakkında neyi merak ediyorsun?"]],"amac":"Dikkatli gözleme duyguyu da ekler; düşünceli yorumu, merakı ve sorgulamayı başlatır.","ne":"Sanat eseri, fotoğraf, müzik. Önce bireysel düşünme zamanı verin; yorumları 'neden' ile destekletin.","id":"gor-hisset-dusun-merak-et","ad":"Gör Hisset Düşün Merak Et","kat":["Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Uluslararası Düşünme"]},{"tip":"tablo","yon":"yatay","sutun":["Farklı düşünüyoruz","Aynı düşünüyoruz"],"satir_adi":"","satirlar":["Gerçekler","Değerler","Çıkarlar","Ne yapalım?"],"adim":[["Gerçekler","Hangi gerçeklerde ayrılıyoruz, hangilerinde birleşiyoruz?"],["Değerler","Hangi değerlerde ayrılıyoruz, birleşiyoruz?"],["Çıkarlar","Kimin neyi kazanıp kaybettiği konusunda neler farklı, neler ortak?"],["Ne yapalım?","Ne yapılması gerektiği konusunda nerede ayrılıyor, nerede birleşiyoruz?"]],"amac":"Büyük tartışmaların kaynaklarını görmeyi ve uzlaşılan noktaları fark etmeyi sağlar.","ne":"Sınıf ya da okul tartışması, teneffüs kuralı. Uzlaşı şart değil; ortak noktalar ilerlemenin başlangıcıdır.","id":"cikmaz-noktalar","ad":"Çıkmaz Noktalar","kat":["Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Uluslararası Düşünme"]},{"tip":"izgara","yon":"yatay","adim":[["Bağlantılar","Metin ile hayatım ya da öğrendiklerim arasında hangi bağlantıları kuruyorum?"],["Meydan okuma","Metindeki hangi fikre itiraz etmek istiyorum?"],["Kavramlar","Metindeki hangi önemli fikirleri aklımda tutmalıyım?"],["Değişiklikler","Metin bizde hangi değişiklikleri öneriyor?"]],"amac":"Metin temelli bir tartışmayı bağlantı, soru, ana fikir ve uygulama üzerinden yapılandırır.","ne":"Okuma metninden sonra küçük gruplarda. Herkes önce her C için metinden bir yeri işaretler, sonra sırayla okuyup açıklar. 2-3 C de yeter.","id":"4-c","ad":"4 C","kat":["Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma","Fikirleri Sentezleme ve Düzenleme"]},{"tip":"satir","yon":"dikey","adim":[["Ne biliyorum?","Bu eserde ne görüyorum ya da bu konu hakkında ne biliyorum?"],["Bir kategori seç","Çalgılar, bitkiler, oyuncaklar, şehirler, vücudun parçaları ya da kendi kategorin"],["Benzet","Bu konu bir tür ____ olsaydı ne olurdu?"],["Üç benzerlik","Hangi üç yönden birbirlerine benziyorlar?"]],"amac":"Benzetme ve metafor yoluyla yeni bir konuyu bilinen şeylere bağlamayı, yaratıcı düşünmeyi teşvik eder.","ne":"Öğretmen önceden çok çeşitli kategori listesi hazırlar. 'Kalp bir pompa gibidir çünkü...' gibi bir örnekle başlayın.","id":"yaratici-karsilastirmalar","ad":"Yaratıcı Karşılaştırmalar","kat":["Olasılıklar ve Benzetmeler Üretmek","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"satir","yon":"dikey","adim":[["Kontrol et","Teknoloji alışkanlıklarımı listele. Her birinin yanına bana nasıl hissettirdiğini gösteren bir yüz çiz."],["Seç","Değiştirmek istediğim bir alışkanlığı seç. Neden önemli?"],["Meydan oku","Bir hafta boyunca ne zaman, neyi farklı yapacağım? Onun yerine ne yapacağım?"],["Destekle","Yeni alışkanlığımı kolaylaştırmak için neler yapabilirim?"],["Takip et","Her gün: Bugün nasıl gitti? Ne zorlaştırdı, ne kolaylaştırdı?"]],"amac":"Dijital alışkanlıkları fark edip değerlendirmeyi ve iyi oluşu destekleyen küçük değişiklikler yapmayı sağlar.","ne":"Ekran süresi, tablet, oyun konuşulurken. Çok küçük bir hedefle başlamak başarıyı getirir; 'yapmayacağım' yerine 'onun yerine yapacağım' dedirtin.","id":"dijital-aliskanliklar-kontrolu","ad":"Dijital Alışkanlıklar Kontrolü","kat":["Olasılıklar ve Benzetmeler Üretmek"]},{"tip":"satir","yon":"dikey","adim":[["Hatırla","Bakmadan, öğrendiğin önemli fikirleri 2-3 dakikada listele."],["+1 ekle","Kâğıdını sağdakine ver. Önündeki listeye bir şey ekle: bir ayrıntı, eksik bir fikir ya da bir bağlantı. İki kez tekrarla."],["Gözden geçir","Kâğıdın sana dönünce eklenenleri oku, beğendiğin fikirleri ekle."]],"amac":"Önemli fikirleri belirlemeyi ve hemen hatırlamayla akılda tutmayı, grubun gücüyle notları zenginleştirmeyi sağlar.","ne":"Okuma, video ya da ders sonunda 10-15 dakika. Ders sırasında not almak yerine dinlemelerini isteyin.","id":"arti-1-rutin","ad":"Artı 1 Rutin","kat":["Fikirleri Sentezleme ve Düzenleme"]},{"tip":"halka","yon":"dikey","adim":[["Yakın çevremde","Arkadaşlarım, ailem, tanıdığım insanlar için ne yapabilirim?"],["Toplumumda","Okulumda, mahallemde ne yapabilirim?"],["Dünyada","Yakın çevremin ötesinde ne yapabilirim?"]],"amac":"Kişisel, yerel ve küresel alanlarda harekete geçme isteğini ve gücünü geliştirir; büyük sorunlar karşısında çaresizliği azaltır.","ne":"Atık, su, arkadaşlık gibi önemsenen bir konu konuşulduktan sonra. İç içe üç daire çizin; sonunda uygulanabilir bir eylem seçin.","id":"eylem-cemberleri","ad":"Eylem Çemberleri","kat":["Fikirleri Sentezleme ve Düzenleme","Uluslararası Düşünme"]},{"tip":"kolon","yon":"yatay","adim":[["Renk","Önemli bir fikri en iyi hangi renk anlatır? Neden?"],["Sembol","Başka bir fikri en iyi hangi basit sembol anlatır?"],["Görsel","Başka bir fikri en iyi hangi resim anlatır? Çiz."]],"amac":"Okunan, izlenen ya da dinlenen bir şeyin özünü sözcük kullanmadan renk, sembol ve görselle yakalamayı sağlar.","ne":"Okuma ya da izleme sonrasında. Önce önemli fikirleri tahtaya yazın, her biri için birlikte örnek verin; paylaşırken 'neden' sorun.","id":"renk-sembol-gorsel","ad":"Renk, Sembol, Görsel","kat":["Fikirleri Sentezleme ve Düzenleme"]},{"tip":"merkez","yon":"yatay","adim":[["Oluştur","Konu deyince aklına gelen fikirleri yaz."],["Sırala","En önemli fikirleri ortaya, daha uzak olanları kenara yerleştir."],["Bağla","Ortak yanı olan fikirleri çizgiyle birleştir, çizginin üstüne bağlantıyı yaz."],["Ayrıntılandır","Fikirlerden birini yeni fikirlerle büyüt."]],"amac":"Ön bilgiyi harekete geçirip fikirleri kavram haritasında düzenlemeyi ve bağlantı kurmayı sağlar.","ne":"Ünite öncesi ön değerlendirme ya da ünite içinde ara değerlendirme. Her eklemede farklı renk kalem kullanılırsa gelişim görünür.","id":"olustur-sirala-bagla-ayrintililastir","ad":"Oluştur-Sırala-Bağla-Ayrıntılılaştır","kat":["Fikirleri Sentezleme ve Düzenleme"]},{"tip":"gazete","yon":"dikey","adim":[["Manşet","Bu konunun en önemli yanını anlatan bir gazete başlığı yaz."],["Dünkü başlığım","Dün yazsaydım başlığım ne olurdu? Ne değişti?"]],"amac":"Bir konunun özünü ya da ana fikrini kısa ve çarpıcı biçimde yakalamayı sağlar.","ne":"Ders ya da tartışma sonunda. En iyi başlık yarışması değildir; arkadaşlarla paylaşıp farklı bakışları duymak için. Başlıkları saklayıp sonra karşılaştırın.","id":"basliklar","ad":"Başlıklar","kat":["Fikirleri Sentezleme ve Düzenleme","Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"satir","yon":"dikey","adim":[["Söylemek istediğim","Söylemek istediğim şu: ..."],["Başka nasıl söylerim? Neden?","Bunu başka nasıl söyleyebilirim? Kime, nerede söylüyorum? Neden böyle?"],["Bir kez daha","Bunu bir kez daha başka biçimde söyle. Ses tonum, yüz ifadem ne olur?"]],"amac":"Amaç, dinleyici ve duruma göre iletişim seçimleri yapmayı, farklı insanlarla iletişim kurmayı geliştirir.","ne":"Bir mesaj, afiş, sunum ya da arkadaşa söylenecek zor bir söz. 'Neden' yanıtlarını eşle paylaşmak şart.","id":"baska-nasil-ve-neden","ad":"Başka Nasıl ve Neden","kat":["Fikirleri Sentezleme ve Düzenleme","Uluslararası Düşünme"]},{"tip":"kolon","yon":"yatay","adim":[["Şaşırtan örüntü","Bu konuda sık görülen hangi örüntüler var? Seni en çok şaşırtanı seç."],["Başka nerede?","Aynı örüntü çok farklı hangi durumlarda da görülür?"],["Karşılaştır","İkisi nasıl benzer, nasıl farklı? Hangisi en önemli?"]],"amac":"Bir konudan şaşırtıcı örüntüler çıkarıp çok farklı durumlarda aramayı, taşınabilir bilgi kurmayı sağlar.","ne":"Besin zinciri, iyi karakter-kötü karakter, buluşlar gibi. Zorlanırlarsa 'seni ne şaşırttı?' diye sorun; zayıf benzetmeler de öğreticidir.","id":"tasinabilir-surpriz","ad":"Taşınabilir Sürpriz","kat":["Fikirleri Sentezleme ve Düzenleme"]},{"tip":"izgara","yon":"yatay","secmeli":true,"adim":[["En önemli nokta","Bugün öğrendiğin en önemli şey ne?"],["Zor gelen","Anlamakta zorlandığın, kafanı karıştıran ne?"],["Tartışmak istediğim soru","En çok hangi soruyu konuşmak istersin?"],["İlginç bulduğum","İlginç bulduğun bir şey ne?"]],"amac":"Bir öğrenme bölümünün özünü yakalamayı ve ortaya çıkan soruları görmeyi sağlar; çıkış bileti olarak öğretmene geri bildirim verir.","ne":"Ders, video ya da okuma sonunda. Çocuk dört kutudan yalnızca birini seçer; 3-5 dakika. Kartları toplayıp ertesi derse onlarla başlayın.","id":"not-al","ad":"Not Al","kat":["Fikirleri Sentezleme ve Düzenleme"]},{"tip":"kolon","yon":"yatay","adim":[["Sözcük","Dikkatini çeken ya da seni etkileyen sözcük"],["İfade","Seni etkileyen ya da düşündüren söz öbeği"],["Cümle","Metnin özünü yakaladığını düşündüğün cümle"],["Grupça konuşun","Hangi temalar çıkıyor? Ne tahmin edebiliriz? Metnin hangi yanı seçilmedi?"]],"amac":"Metnin özünü yakalamaya ve seçimlerin nedenlerini konuşarak anlam kurmaya yapı sağlar.","ne":"Okuma metninden sonra 4-6 kişilik gruplarda. Sırayla önce sözcükler, sonra ifadeler, sonra cümleler paylaşılır; neden seçildiği açıklanır.","id":"kelime-ifade-cumle","ad":"Kelime-İfade-Cümle","kat":["Fikirleri Sentezleme ve Düzenleme"]},{"tip":"hikaye","yon":"yatay","secmeli":true,"adim":[["Başlangıçsa","Bu resim bir hikâyenin başıysa sonra ne olur?"],["Ortasıysa","Bu resim hikâyenin ortasıysa önce ne oldu? Birazdan ne olacak?"],["Sonuysa","Bu resim hikâyenin sonuysa hikâye neydi?"]],"amac":"Hikâye anlatmanın gücüyle gözlemi, hayal gücünü ve bağlantı, örüntü ve anlam aramayı destekler.","ne":"Tablo, fotoğraf, resimli kitap sayfası. Yazma etkinliğinden önce çok iyi çalışır; önce Bakmak: On Kere İki ile sözcük biriktirin.","id":"baslangic-orta-son","ad":"Başlangıç, Orta, Son","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"kolon","yon":"yatay","adim":[["Renkler","Hangi renkleri görüyorsun?"],["Şekiller","Hangi şekilleri görüyorsun?"],["Çizgiler","Hangi çizgileri görüyorsun?"]],"amac":"Bir eserin ya da nesnenin biçimlerine dikkat çekerek ayrıntılı gözlemi destekler, betimleyici dil kazandırır.","ne":"Sanat eseri, yaprak, bina fotoğrafı. Yazmadan önce iyi bir ısınmadır; listeleri sonra yeniden açıp ilk seferde görülmeyenleri ekletin.","id":"renkler-sekiller-cizgiler","ad":"Renkler, Şekiller, Çizgiler","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"zincir","yon":"yatay","adim":[["1. kişi","Resmin bir bölümünü seç ve gördüğünü anlat."],["2. kişi","Aynı bölüme bir ayrıntı daha ekle."],["3. kişi","Daha da fazla ayrıntı ekle."],["4. kişi","Bir ayrıntı daha. Sonra yeni bir bölüm seçin."],["Şimdi yorum","Sadece gördüklerimizi söyledik. Şimdi ne düşünüyoruz?"]],"amac":"Ayrıntılara dikkatle bakmayı, zengin betimleme yapmayı ve gözlemle yorumu ayırmayı öğretir.","ne":"Resim, heykel, mikroskop görüntüsü, bitki. Elle ya da kâğıttan bir vizör yaptırıp küçük bölümlere odaklatın. Yorum en sona kalır.","id":"ayrintilandirma-oyunu","ad":"Ayrıntılandırma Oyunu","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"onx2","yon":"dikey","duyu":"dinle","adim":[["Dinle","Müziği sessizce dinle. Kulakların gezinsin."],["10 sözcük","Duyduğun her şey hakkında 10 sözcük ya da ifade yaz."],["Yeniden dinle","Bir kez daha dinle ve 10 sözcük daha ekle."]],"amac":"Yavaşlayıp müziği dikkatle dinlemeyi ve ilk izlenimin ötesine geçmeyi sağlar.","ne":"Kısa bir müzik parçasıyla. On fazla gelirse 3-5 ile başlayın; isteyen gözlerini kapatsın, ikinci dinlemede çizebilir.","id":"dinleme-on-kere-iki","ad":"Dinleme: On Kere İki","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"onx2","yon":"dikey","duyu":"bak","adim":[["Bak","Resme en az 30 saniye sessizce bak, gözlerin gezinsin."],["10 sözcük","Resmin herhangi bir yanı hakkında 10 sözcük ya da ifade yaz."],["Yeniden bak","Bir kez daha bak ve 10 sözcük daha ekle."]],"amac":"Yavaşlayıp ilk izlenimin ve göze batanın ötesinde dikkatli, ayrıntılı gözlem yapmayı sağlar.","ne":"Resim, fotoğraf, nesne. Yazma öncesi betimleyici sözcük biriktirir. On fazlaysa 3-5 ile başlayın; ikinci bakışta renk, şekil, çizgi aratın.","id":"bakmak-on-kere-iki","ad":"Bakmak - On Kere İki","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"izgara","yon":"yatay","adim":[["Gör","Esere dikkatle bak. Neler fark ediyorsun?"],["Düşün","Bu eser birlikte yaşamakla ilgili hangi fikir ve sorulara bağlanıyor?"],["Yap","Bir fikri seç ve bir şey yaparak ya da çizerek keşfet. 5 dakika, 1-3 malzeme."],["Tartış","Yaptığını ve keşfettiğin fikri anlat."]],"amac":"Üreterek düşünmeyi, sözcüklerle anlatması zor fikirleri yaparak keşfetmeyi sağlar.","ne":"Toplumsal bir yorum davet eden eserle. Atık malzeme, ip, folyo yeter; ürün değil süreç önemli, paylaşmak zorunlu değil.","id":"gor-dusun-yap-tartis","ad":"Gör Düşün Yap Tartış","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"izgara","yon":"yatay","adim":[["Gör","Dikkatle bak. Neleri fark ediyorsun?"],["Merak et","Aklına hangi sorular takılıyor?"],["Okula bağla","Bu, okulda öğrendiğin hangi derslerle bağlantılı olabilir?"],["Kendime bağla","Bu, kendi ilgi alanlarım ya da hobilerimle nasıl bağlantılı?"]],"amac":"Yakından bakmanın anlayışı genişlettiğini ve bilinçli aranırsa her yerde bağlantı bulunabileceğini fark ettirir.","ne":"Konu başında bir cetvel, harita, yaprak ya da kitap kapağıyla. Bir dakika sessizce baktırın, 'Başka ne görüyorsun?' diye sorun.","id":"gor-merak-et-baglan-x2","ad":"Gör, Merak Et, Bağlan x2","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"eksen","yon":"yatay","eksen":["Basit","","Karmaşık"],"adim":[["Bildiklerim","Bu konu hakkında bildiğin gözlem, bilgi ve fikirleri kartlara yaz."],["Yerleştir","Her kartı basitten karmaşığa çizgide bir yere koy."],["Açıkla","Neden oraya koydun?"],["Düşün","Bu konuda hangi yeni bakışların ve soruların oldu?"]],"amac":"Konunun farklı yönlerini ve karmaşıklığını düşünerek çok boyutlu bir zihinsel model kurmayı sağlar; asıl değer gerekçededir.","ne":"Konu bir süre işlendikten sonra. Bir kart birden çok yere konabilir; doğru yer değil, akıl yürütme önemli.","id":"karmasiklik-olcegi","ad":"Karmaşıklık Ölçeği","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]},{"tip":"izgara","yon":"yatay","gorsel":true,"adim":[["Görsel 1","Bu konu bu görsele nasıl benziyor? Nasıl benzemiyor?"],["Görsel 2","Bu konu bu görsele nasıl benziyor? Nasıl benzemiyor?"],["Görsel 3","Bu konu bu görsele nasıl benziyor? Nasıl benzemiyor?"],["Görsel 4","Bu konu bu görsele nasıl benziyor? Nasıl benzemiyor?"]],"amac":"Konu ile görseller arasında benzerlik ve farklılık kurarak benzetmeyle düşünmeyi destekler.","ne":"Kutulara dört farklı görsel koyun (köprü, ağaç, düğüm, yol gibi). Önce görsellere sessizce baktırın; çocuklar kendi görsellerini de önerebilir.","id":"gorsellerle-dusunme","ad":"Görsellerle Düşünme","kat":["Sanat, Resim ve Nesneleri Keşfetmek"]}];
+
+/* ---- rutin.js ---- */
+/* Ölçme ve değerlendirme: Düşünme rutinleri.
+   Her rutin A4 (dikey ya da yatay) bir şablon olarak çizilir; tahtada yansıtılır, üzerine yazılır, A4 yazdırılır.
+   Çocuk yönergesi adımlardan, öğretmen yönergesi amaç ve kullanım notundan oluşur. Yazılanlar sınıfa göre bu cihazda kalır. */
+(function () {
+  const { h } = T;
+  const KAT_SIRA = ["Temel Düşünme Rutinleri", "Fikirleri Tanıtma ve Keşfetme", "Fikirlerin Daha Derinlemesine İncelenmesi", "Nesnelerin ve Sistemlerin Araştırılması", "Perspektif Alma",
+    "Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma", "Olasılıklar ve Benzetmeler Üretmek", "Fikirleri Sentezleme ve Düzenleme", "Sanat, Resim ve Nesneleri Keşfetmek", "Uluslararası Düşünme"];
+  const KAT_KISA = { "Temel Düşünme Rutinleri": "Temel", "Fikirleri Tanıtma ve Keşfetme": "Tanıtma ve keşfetme", "Fikirlerin Daha Derinlemesine İncelenmesi": "Derinlemesine inceleme", "Nesnelerin ve Sistemlerin Araştırılması": "Nesneler ve sistemler",
+    "Perspektif Alma": "Bakış açısı alma", "Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma": "Tartışma ve ikilemler", "Olasılıklar ve Benzetmeler Üretmek": "Olasılık ve benzetme",
+    "Fikirleri Sentezleme ve Düzenleme": "Sentezleme ve düzenleme", "Sanat, Resim ve Nesneleri Keşfetmek": "Sanat ve nesneler", "Uluslararası Düşünme": "Küresel düşünme" };
+  const RENK = ["#2E6FB0", "#D98A1F", "#2E8B57", "#B8456A", "#6B55B5", "#1F8A8A", "#C2453A", "#7A6A2E"];
+  const cid = () => T.store.activeClass().id;
+  const rutin = (id) => T.RUTINLER.find((r) => r.id === id);
+
+  /* ---------- Kayıt: sınıfa göre yazılanlar ve öğretmenin yönerge düzenlemeleri ---------- */
+  const kayit = (rid) => (((T.store.get().rutin || {})[cid()] || {})[rid]) || {};
+  const yaz = (rid, fn) => T.store.update((s) => { s.rutin = s.rutin || {}; const c = (s.rutin[cid()] = s.rutin[cid()] || {}); c[rid] = c[rid] || {}; fn(c[rid]); });
+  const adimlar = (r) => { const o = kayit(r.id).ozel || {}; return r.adim.map(([b, q], i) => [(o[i] || [])[0] || b, (o[i] || [])[1] || q]); };
+
+  /* ---------- Şablon parçaları ---------- */
+  function sablon(r, ctx) {
+    const A = adimlar(r), K = kayit(r.id), v = K.v || {};
+    const alan = (k, ph, cls = "") => {
+      const t = h("textarea.rt-yazi" + cls, { "aria-label": ph || "Yaz", placeholder: ctx.bos ? "" : "", spellcheck: "false" });
+      t.value = v[k] || "";
+      t.addEventListener("input", () => yaz(r.id, (x) => { x.v = x.v || {}; x.v[k] = t.value; }));
+      return t;
+    };
+    const kutu = (i, extra = {}) => {
+      const [b, q] = A[i] || ["", ""];
+      return h("div.rt-kutu" + (extra.cls || ""), { style: Object.assign({ "--c": RENK[i % RENK.length] }, extra.style || {}) },
+        h("div.rt-kb", h("span.rt-no", i + 1), h("b", b)), extra.soruYok ? null : h("small.rt-soru", q), alan("a" + i, b, extra.alanCls || ""));
+    };
+    const bos = (k, baslik, c = "#5B6B88", extra = {}) => h("div.rt-kutu" + (extra.cls || ""), { style: Object.assign({ "--c": c }, extra.style || {}) }, baslik ? h("div.rt-kb", h("b", baslik)) : null, alan(k, baslik || "Yaz"));
+    const n = A.length, tip = r.tip;
+    let govde;
+    if (tip === "kolon") govde = h("div.rt-kolon", { style: { gridTemplateColumns: "repeat(" + n + ", 1fr)" } }, A.map((_, i) => kutu(i)));
+    else if (tip === "satir" || tip === "liste" || tip === "gunluk") govde = h("div.rt-satir", A.map((_, i) => kutu(i, tip === "liste" && i === 0 ? { cls: ".buyuk", alanCls: ".cizgili" } : tip === "gunluk" && i === 0 ? { cls: ".buyuk", alanCls: ".cizgili" } : {})));
+    else if (tip === "izgara") {
+      const kol = n <= 4 ? 2 : 3;
+      govde = h("div.rt-izgara", { style: { gridTemplateColumns: "repeat(" + kol + ", 1fr)" } }, A.map((_, i) => kutu(i, n === 5 && i >= 3 ? { style: { gridColumn: i === 3 ? "1 / 2" : "2 / 4" } } : n === 3 && i === 2 ? { style: { gridColumn: "1 / -1" } } : {})));
+    } else if (tip === "tablo") {
+      const sut = r.sutun || A.map((x) => x[0]), sat = r.satirlar || ["", "", "", "", ""];
+      govde = h("div.rt-tablo", { style: { gridTemplateColumns: (r.satirlar ? "minmax(90px, .7fr) " : r.satir_adi ? "minmax(90px, .7fr) " : "") + "repeat(" + sut.length + ", 1fr)" } },
+        r.satirlar || r.satir_adi ? h("div.rt-th", r.satir_adi || "") : null, sut.map((s, i) => h("div.rt-th", { style: { "--c": RENK[i % RENK.length] } }, s)),
+        sat.map((sa, j) => [r.satirlar || r.satir_adi ? (r.satirlar ? h("div.rt-th.yan", sa) : h("div.rt-td", alan("s" + j, "Seçenek"))) : null].concat(sut.map((_, i) => h("div.rt-td", alan("t" + j + "_" + i, sut[i]))))).flat());
+    } else if (tip === "merkez" || tip === "cember" || tip === "patlama") {
+      const cevre = tip === "patlama" ? A.slice(0, 2) : A;
+      const yer = ["1 / 2 / 2 / 3", "2 / 3 / 3 / 4", "3 / 2 / 4 / 3", "2 / 1 / 3 / 2", "1 / 1 / 2 / 2", "1 / 3 / 2 / 4", "3 / 1 / 4 / 2", "3 / 3 / 4 / 4"];
+      const kutular = tip === "patlama" ? [0, 1, 2, 3, 4, 5, 6, 7].map((j) => bos("p" + j, j < 3 ? "Açık seçenek" : "Gizli seçenek", j < 3 ? RENK[0] : RENK[1], { style: { gridArea: yer[j] }, cls: ".kucuk" })) : cevre.map((_, i) => kutu(i, { style: { gridArea: yer[i] } }));
+      govde = h("div", { style: { display: "grid", gap: "1.2cqw", height: "100%", gridTemplateRows: tip === "patlama" ? "1fr auto" : "1fr" } },
+        h("div.rt-merkez" + (tip === "cember" ? ".yuvarlak" : ""), kutular, h("div.rt-cekirdek", { style: { gridArea: "2 / 2 / 3 / 3" } }, h("small", "Konu"), alan("konu", "Konu", ".orta"))),
+        tip === "patlama" ? kutu(2, { cls: ".ince" }) : null);
+    } else if (tip === "pusula") {
+      govde = h("div.rt-pusula", kutu(2, { style: { gridArea: "1 / 2" } }), kutu(1, { style: { gridArea: "2 / 1" } }), h("div.rt-gul", { style: { gridArea: "2 / 2" } }, h("span.k", "K"), h("span.d", "D"), h("span.g", "G"), h("span.b", "B"), alan("konu", "Fikir ya da öneri", ".orta")), kutu(0, { style: { gridArea: "2 / 3" } }), kutu(3, { style: { gridArea: "3 / 2" } }));
+    } else if (tip === "halka" || tip === "meyve" || tip === "hedef" || tip === "paket") {
+      let ic = null; const sira = tip === "halka" || tip === "meyve" ? A.map((_, i) => i).filter((i) => !(tip === "halka" && i === n - 1 && /Neden|Ne öğren/.test(A[i][0]))) : A.map((_, i) => i);
+      const son = tip === "halka" && sira.length < n ? n - 1 : null;
+      const katman = tip === "hedef" ? sira.slice().reverse() : tip === "paket" ? sira.slice(1) : sira.slice().reverse();
+      katman.forEach((i, j) => { ic = h("div.rt-halka" + (j === 0 ? ".ic" : ""), { style: { "--c": RENK[i % RENK.length] } }, h("div.rt-kb", h("span.rt-no", i + 1), h("b", A[i][0])), h("small.rt-soru", A[i][1]), alan("a" + i, A[i][0]), ic); });
+      if (tip === "paket") ic = h("div.rt-halka", { style: { "--c": RENK[0] } }, h("div.rt-kb", h("span.rt-no", 1), h("b", A[0][0])), alan("a0", A[0][0]), ic);
+      govde = h("div.rt-halkalar", ic, son != null ? kutu(son, { cls: ".ince" }) : null);
+    } else if (tip === "oncesonra") {
+      const bas = r.bas || [A[0][0], A[1][0]];
+      govde = h("div.rt-satir", h("div.rt-iki", kutu(0), h("div.rt-ok", "→"), kutu(1)), A.slice(2).map((_, j) => kutu(j + 2, { cls: ".ince" })));
+      void bas;
+    } else if (tip === "kopru") {
+      govde = h("div.rt-kopru", h("div.rt-kolon", { style: { gridTemplateColumns: "1fr 1fr" } },
+        h("div.rt-yan", h("h4", "Öğrenmeden önce"), [0, 1, 2].map((i) => kutu(i))), h("div.rt-yan", h("h4", "Öğrendikten sonra"), [3, 4, 5].map((i) => kutu(i)))),
+        h("div.rt-kopru-cizgi"), kutu(6, { cls: ".ince" }));
+    } else if (tip === "baglanti") {
+      govde = h("div.rt-satir", h("div.rt-iki", kutu(0, { alanCls: ".cizgili" }), h("div.rt-ok", "⇄"), kutu(1, { alanCls: ".cizgili" })), h("div.rt-kolon", { style: { gridTemplateColumns: "1fr 1fr" } }, kutu(2), kutu(3)));
+    } else if (tip === "elmas") {
+      govde = h("div.rt-elmas", kutu(3, { style: { gridArea: "1 / 2" } }), kutu(0, { style: { gridArea: "2 / 1" } }), h("div.rt-tas", { style: { gridArea: "2 / 2" } }, h("div"), alan("konu", "Karar", ".orta")), kutu(1, { style: { gridArea: "2 / 3" } }), kutu(2, { style: { gridArea: "3 / 2" } }), kutu(4, { style: { gridArea: "4 / 1 / 5 / 4" }, cls: ".ince" }));
+    } else if (tip === "isik") {
+      govde = h("div.rt-isik", h("div.rt-lamba", h("i", { style: { background: "#D9473B" } }), h("i", { style: { background: "#F0B429" } }), h("i", { style: { background: "#3FA35B" } })), h("div.rt-satir", A.map((_, i) => kutu(i))));
+    } else if (tip === "daire") {
+      govde = h("div.rt-daire-sar", h("div.rt-kenar", kutu(2)), h("div.rt-daire", h("div.rt-kb", h("b", "Aklımda ve kalbimde")), alan("d", "Aklımda ve kalbimde", ".orta"), h("div.rt-cekirdek.kucuk", h("small", "Merkezde tutuyorum"), alan("m", "Merkezde tut", ".orta"))), h("div.rt-kenar", kutu(0, { cls: ".ince" }), kutu(1, { cls: ".ince" }), kutu(3, { cls: ".ince" })));
+    } else if (tip === "gazete") {
+      govde = h("div.rt-gazete", h("div.rt-gz-ust", h("b", "SINIFIMIZIN GAZETESİ"), h("span", T.fmtDate ? T.fmtDate(new Date()) : new Date().toLocaleDateString("tr-TR"))), kutu(0, { cls: ".manset", alanCls: ".manset-yazi" }), h("div.rt-kolon", { style: { gridTemplateColumns: "1.4fr 1fr" } }, bos("haber", "Haberin ayrıntısı", "#333"), kutu(1)));
+    } else if (tip === "hikaye") {
+      govde = h("div.rt-kolon.rt-cizgi-roman", { style: { gridTemplateColumns: "repeat(3, 1fr)" } }, A.map((_, i) => kutu(i, { cls: ".pano" })));
+    } else if (tip === "zincir") {
+      govde = h("div.rt-satir", h("div.rt-zincir", A.slice(0, n - 1).map((_, i) => [i ? h("div.rt-ok", "→") : null, kutu(i)]).flat()), kutu(n - 1, { cls: ".ince" }));
+    } else if (tip === "onx2") {
+      const liste = (k, bas) => h("div.rt-kutu", { style: { "--c": RENK[k === "x" ? 0 : 2] } }, h("div.rt-kb", h("b", bas)), h("ol.rt-on", Array.from({ length: 10 }, (_, j) => h("li", alan(k + j, bas + " " + (j + 1), ".tek")))));
+      govde = h("div.rt-satir", h("small.rt-soru", A[0][1]), h("div.rt-kolon", { style: { gridTemplateColumns: "1fr 1fr" } }, liste("x", "1. " + (r.duyu === "dinle" ? "dinleyiş" : "bakış")), liste("y", "2. " + (r.duyu === "dinle" ? "dinleyiş" : "bakış"))));
+    } else if (tip === "eksen") {
+      const e = r.eksen || ["", "", ""]; const iki = e.length > 3;
+      govde = h("div.rt-satir", h("div.rt-eksen" + (iki ? ".iki" : ""), iki ? h("span.ey-ust", e[4]) : null, iki ? h("span.ey-alt", e[3]) : null, alan("eksen", "Kartları yerleştir", ".serbest"), h("div.rt-cizgi-ok"), h("div.rt-eksen-et", e.slice(0, 3).map((x) => h("span", x)))), h("div.rt-kolon", { style: { gridTemplateColumns: "repeat(" + (n - 1) + ", 1fr)" } }, A.slice(1).map((_, i) => kutu(i + 1, { cls: ".ince" }))));
+    } else if (tip === "zaman") {
+      const z = r.id.includes("yansitma") ? ["Geçmiş", "Şimdi", "Gelecek"] : null;
+      govde = h("div.rt-satir", h("div.rt-zaman", A.slice(0, Math.min(3, n)).map((_, i) => kutu(i)), h("div.rt-zaman-ok")), A.slice(3).map((_, j) => kutu(j + 3, { cls: ".ince" })));
+      void z;
+    } else if (tip === "halat") {
+      const u = r.uclar || ["", ""];
+      govde = h("div.rt-satir", kutu(0, { cls: ".ince" }), kutu(3, { cls: ".ince" }), h("div.rt-halat", h("div.rt-kolon", { style: { gridTemplateColumns: "1fr 1fr" } }, kutu(1), kutu(2)), h("div.rt-ip", h("b", u[0]), h("i"), h("b", u[1]))), kutu(4, { cls: ".ince" }));
+    } else govde = h("div.rt-satir", A.map((_, i) => kutu(i)));
+
+    return h("div.rt-sayfa." + (r.yon === "dikey" ? "dikey" : "yatay"), { "data-rutin": r.id },
+      h("div.rt-ust", h("div", h("h3", r.ad), h("small", (r.kat || []).map((k) => KAT_KISA[k] || k).join(", "))), h("div.rt-kim", h("span", "Ad:"), alan("ad", "Ad", ".tek"), h("span", "Konu:"), alan("konuust", "Konu", ".tek"))),
+      h("div.rt-govde", govde),
+      h("div.rt-alt", "Project Zero (Harvard) düşünme rutininden uyarlanmıştır. Tahta Atölyesi"));
+  }
+
+  /* ---------- Yönergeler ---------- */
+  const cocukYonerge = (r, buyuk) => h("div.rt-yon.cocuk" + (buyuk ? ".buyuk" : ""), h("h4", "Ne yapacağız?"),
+    r.secmeli ? h("p.rt-not", "Kutulardan birini seç ve yalnızca onu doldur.") : null,
+    h("ol", adimlar(r).map(([b, q], i) => h("li", { style: { "--c": RENK[i % RENK.length] } }, h("b", b), h("span", q)))));
+  const ogretmenYonerge = (r) => h("div.rt-yon.ogretmen", h("h4", "Öğretmene"), h("p", h("b", "Amaç: "), r.amac), h("p", h("b", "Ne zaman, nasıl: "), r.ne),
+    h("p.hint", "Şablon " + (r.yon === "dikey" ? "A4 dikey" : "A4 yatay") + " basılır. Tahtada kutulara dokunup yazabilirsiniz; yazılanlar bu sınıf için saklanır."));
+
+  /* ---------- Yazdır ---------- */
+  function yazdir(r, bos) {
+    const kap = h("div#rt-baski");
+    const sayfa = sablon(r, { bos });
+    if (bos) sayfa.querySelectorAll("textarea").forEach((t) => { t.value = ""; t.removeAttribute("placeholder"); });
+    kap.append(sayfa);
+    const st = h("style#rt-baski-stil", "@page { size: A4 " + (r.yon === "dikey" ? "portrait" : "landscape") + "; margin: 8mm; }");
+    document.head.append(st); document.body.append(kap);
+    document.documentElement.classList.add("rt-yazdiriliyor");
+    const bitir = () => { document.documentElement.classList.remove("rt-yazdiriliyor"); kap.remove(); st.remove(); window.removeEventListener("afterprint", bitir); };
+    window.addEventListener("afterprint", bitir);
+    setTimeout(() => { try { window.print(); } catch (e) {} setTimeout(bitir, 1500); }, 60);
+  }
+
+  /* ---------- Yansıt: tam ekran şablon ve çocuk yönergesi ---------- */
+  function yansit(r) {
+    const kapat = () => { try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {} el.remove(); document.removeEventListener("keydown", tus); T.route(); };
+    const tus = (e) => { if (e.key === "Escape") kapat(); };
+    let yonAcik = true;
+    const yonKutu = h("aside.rt-yansit-yon", cocukYonerge(r, true));
+    const el = h("div.rt-yansit", h("div.rt-yansit-ust", h("b", r.ad), h("div.grow"),
+      h("button.btn.c-chalk", { onclick: () => { yonAcik = !yonAcik; yonKutu.hidden = !yonAcik; } }, T.icon("text"), "Yönerge"),
+      h("button.btn.c-chalk", { onclick: async () => { if (await T.confirm("Bu şablondaki yazılar silinsin mi?")) { yaz(r.id, (x) => (x.v = {})); el.querySelectorAll(".rt-sayfa textarea").forEach((t) => (t.value = "")); } } }, T.icon("reset"), "Temizle"),
+      h("button.btn.c-tomato", { onclick: kapat }, T.icon("close"), "Kapat")),
+      h("div.rt-yansit-govde", h("div.rt-yansit-sayfa", sablon(r, {})), yonKutu));
+    document.body.append(el); document.addEventListener("keydown", tus);
+    try { el.requestFullscreen && el.requestFullscreen().catch(() => {}); } catch (e) {}
+  }
+
+  /* ---------- Yönergeyi düzenle (öğretmen kendi sözcükleriyle yazar) ---------- */
+  function duzenle(r) {
+    const A = adimlar(r);
+    const alanlar = A.map(([b, q], i) => [h("input.in", { value: b, "aria-label": (i + 1) + ". adım başlığı" }), h("textarea.in", { "aria-label": (i + 1) + ". adım sorusu", style: { minHeight: "64px" } }, q)]);
+    T.modal({ title: "Yönergeyi düzenle: " + r.ad, wide: true, body: h("div", { style: { display: "grid", gap: "12px" } },
+      h("p.hint", "Başlıkları ve çocuk sorularını sınıfının diline göre değiştir. Değişiklik yalnızca bu sınıfta görünür."),
+      alanlar.map(([a, b], i) => h("div.paper", { style: { padding: "10px 12px", display: "grid", gap: "6px", borderLeft: "6px solid " + RENK[i % RENK.length] } }, h("b", (i + 1) + ". adım"), a, b))),
+      actions: [{ label: "Özgün yönergeye dön", onClick: () => { yaz(r.id, (x) => delete x.ozel); T.route(); } }, { label: "Kaydet", tone: "c-leaf", onClick: () => { yaz(r.id, (x) => { x.ozel = {}; alanlar.forEach(([a, b], i) => { if (a.value.trim() !== r.adim[i][0] || b.value.trim() !== r.adim[i][1]) x.ozel[i] = [a.value.trim(), b.value.trim()]; }); }); T.route(); } }] });
+  }
+
+  /* ---------- Rutin sayfası ---------- */
+  function rutinSayfasi(view, r) {
+    const wrap = h("div.view-inner.genis"); view.append(wrap);
+    const sekme = { v: "cocuk" };
+    const yon = h("div.rt-yon-kap");
+    const yonCiz = () => yon.replaceChildren(h("div.seg", [["cocuk", "Çocuklar için"], ["ogretmen", "Öğretmene"]].map(([k, l]) => h("button", { "aria-pressed": String(sekme.v === k), onclick: () => { sekme.v = k; yonCiz(); } }, l))), sekme.v === "cocuk" ? cocukYonerge(r) : ogretmenYonerge(r));
+    yonCiz();
+    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("olcme") }, T.icon("back")), h("h2", r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
+      h("button.btn.c-sky", { onclick: () => yansit(r) }, T.icon("board"), "Yansıt"),
+      h("button.btn.c-chalk", { onclick: () => yazdir(r, true) }, T.icon("plan"), "Boş yazdır"),
+      h("button.btn.c-chalk", { onclick: () => yazdir(r, false) }, T.icon("plan"), "Yazılarla yazdır"),
+      h("button.btn.c-chalk", { onclick: () => duzenle(r) }, T.icon("edit"), "Yönergeyi düzenle")),
+      h("div.rt-duzen", h("div.rt-sayfa-kap", sablon(r, {})), yon));
+  }
+
+  /* ---------- Bölüm: Ölçme ve değerlendirme ---------- */
+  let filtre = null, ara = "";
+  T.sections.olcme = {
+    title: "Ölçme ve değerlendirme", icon: "check", tone: "grape", desc: "Düşünme rutinleri: yansıt, üzerine yaz, A4 yazdır",
+    render(view, sub) {
+      if (sub && sub.startsWith("r-")) { const r = rutin(sub.slice(2)); if (r) return rutinSayfasi(view, r); }
+      const wrap = h("div.view-inner"); view.append(wrap);
+      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Düşünmeyi görünür kılan rutinler, öğrencinin nasıl düşündüğünü görmenin en kolay yolu. Bir rutine dokun: tahtada yansıt, birlikte yaz ya da A4 bas.")),
+        h("div.seg.ders-sekme", { role: "tablist" }, h("button", { "aria-pressed": "true" }, "Düşünme rutinleri")));
+      const aramaKutu = h("input.in", { placeholder: "Rutin ara, örneğin gör, bakış açısı, köprü", value: ara, "aria-label": "Rutin ara", style: { maxWidth: "420px" } });
+      const cipler = h("div.rt-cipler");
+      const liste = h("div.rt-liste");
+      const ciz = () => {
+        cipler.replaceChildren(h("button" + (!filtre ? ".on" : ""), { onclick: () => { filtre = null; ciz(); } }, "Hepsi (" + T.RUTINLER.length + ")"),
+          KAT_SIRA.filter((k) => T.RUTINLER.some((r) => r.kat.includes(k))).map((k) => h("button" + (filtre === k ? ".on" : ""), { onclick: () => { filtre = k; ciz(); } }, KAT_KISA[k] || k)));
+        const q = ara.trim().toLocaleLowerCase("tr");
+        const l = T.RUTINLER.filter((r) => (!filtre || r.kat.includes(filtre)) && (!q || (r.ad + " " + r.adim.map((a) => a[0]).join(" ")).toLocaleLowerCase("tr").includes(q)));
+        liste.replaceChildren(...l.map((r) => h("button.rt-kart", { onclick: () => T.go("olcme-r-" + r.id) },
+          h("div.rt-mini." + (r.yon === "dikey" ? "dikey" : "yatay"), r.adim.slice(0, 6).map((_, i) => h("i", { style: { background: RENK[i % RENK.length] } }))),
+          h("div", h("b", r.ad), h("small", r.adim.map((a) => a[0]).slice(0, 4).join(" · ")), h("span.rt-yontag", r.yon === "dikey" ? "A4 dikey" : "A4 yatay")))));
+        if (!l.length) liste.append(h("p.hint", "Bu adla bir rutin bulunamadı."));
+      };
+      aramaKutu.addEventListener("input", () => { ara = aramaKutu.value; ciz(); });
+      wrap.append(h("div.row", { style: { gap: "10px", flexWrap: "wrap", margin: "6px 0 10px" } }, aramaKutu), cipler, liste,
+        h("p.hint", { style: { marginTop: "14px" } }, "Rutinler Harvard Project Zero'nun düşünme rutinlerinden, öğretmenin Türkçe kaynaklarına dayanarak uyarlanmıştır."));
+      ciz();
+    },
+  };
+  T.rutinYazdir = (id, bos) => yazdir(rutin(id), bos);
+  T.YARDIM = T.YARDIM || {};
+  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Düşünme rutinleri: her biri A4 şablon olarak çizili, tahtada yansıtılır, birlikte yazılır, basılır.", ["Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
 })();
 
 /* ---- zeka.js ---- */
@@ -9780,7 +10388,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
 /* Yardım: her sayfada "?" düğmesi ve ilk açılışta üç adımlı karşılama. Dil öğretmenin dili. */
 (function () {
   const { h } = T;
-  T.YARDIM = {
+  T.YARDIM = Object.assign({
     sabah: ["Sabah rutini", "Güne başlarken sırayla aç: günaydın, takvim, özel gün, günün sayısı, günün akışı.", ["Sıradaki adıma geçmek için üstteki numaralara dokun.", "Günün sayısında \"Kendi sayım\" ile sayıyı elle değiştirebilirsin.", "Günün akışına ders programını bir kez yaz, ana sayfa her gün onu gösterir."]],
     sinif: ["Sınıfım", "Yoklama, davranış puanı, oturma planı ve görevliler burada.", ["Öğrenci adlarını Sınıf listesi sekmesinden yaz ya da yapıştır.", "Adlar yalnızca bu cihazda kalır, yapay zekâya gönderilmez.", "Görevlileri ana sayfadaki Görevliler satırından da düzenleyebilirsin."]],
     turkce: ["Türkçe", "Okuma, anlama, yazma ve söz varlığı için sınıfta açılan etkinlikler.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne o etkinliği ana sayfadaki kısayollara ekler.", "Metin uyarlayıcı bir konudan sınıfına uygun okuma metni hazırlar."]],
@@ -9794,7 +10402,8 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     plan: ["Plan", "Günlük ve yıllık plan, Maarif öğrenme çıktılarıyla.", ["Dersi, sınıfı ve çıktıyı seç; plan hazırlanır.", "Kaydettiğin planı tek dokunuşla ders ekranına dönüştürebilirsin.", "Yapay zekâ için Ayarlar'dan Google ile giriş yapman yeterli, ücret yok."]],
     ayarlar: ["Ayarlar", "Okul takvimi, sınıflar, ses ve giriş.", ["Okul takvimini bir kez gir, \"okulun kaçıncı günü\" buradan hesaplanır."]],
     ekran: ["Ders ekranı", "Tamamen boş bir tahta. Plandan kurulan dersler de burada açılır.", ["Alttaki Araç ekle düğmesiyle zamanlayıcı, isim çekme, yönerge gibi araçlar koy.", "Araçları sürükleyip büyütebilirsin."]],
-  };
+  }, T.YARDIM || {});
+  delete T.YARDIM.birinci;
   T.yardimAc = function (id) {
     const y = T.YARDIM[id]; if (!y) return;
     T.modal({ title: y[0], body: h("div", { style: { display: "grid", gap: "10px" } }, h("p", { style: { fontSize: "18px", margin: 0 } }, y[1]), h("ul.yardim-liste", y[2].map((x) => h("li", x)))), actions: [{ label: "Anladım", tone: "c-leaf" }] });
@@ -9862,22 +10471,17 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   T.dersAdi = (g = T.store.grade()) => ({ sosyal: g <= 3 ? "Hayat Bilgisi" : "Sosyal Bilgiler" });
   T.menu = function (g = T.store.grade()) {
     const D = {
-      turkce1: ["birinci", "Türkçe", "İlk okuma yazma: Kitabım, sesler, harf yazma, hece ve kelime oyunları.", "letters", "tomato"],
       turkce: ["turkce", "Türkçe", "Okuma hızı, metin uyarlama, anlama ve yazım araçları.", "turkce", "tomato"],
       matematik: ["matematik", "Matematik", "Sayı hissi, oyunlar, manipülatifler, simülasyonlar.", "math", "sun"],
-      hayat: ["sosyal", "Hayat Bilgisi", "Günlük rutin, duygular, trafik, mevsimler, aile ve çevre.", "sosyal", "sky"],
-      sosyal: ["sosyal", "Sosyal Bilgiler", "Zaman şeridi, harita, aile ağacı, çevremiz.", "sosyal", "sky"],
-      fen: ["fen", "Fen Bilimleri", "Maddenin halleri, besin zinciri, vücudumuz, ışık ve kuvvet.", "fen", "leaf"],
+      kesif: ["kesif", T.kesifAdi(g), "Gör-düşün-merak et, sınıflandırma, gözlem günlüğü ve sınıfına uygun etkinlikler.", "fen", "leaf"],
       ingilizce: ["ingilizce", "İngilizce", "Resimli kartlar, dinle ve seç.", "ingilizce", "grape"],
       zeka: ["zeka", "Düşünme soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink"],
-      duygu: ["duygu", "Sosyal duygusal öğrenme", "Duygumetre, çatışma çözme, sakinleşme, sorunun büyüklüğü.", "heart", "pink"],
+      duygu: ["duygu", "SDÖ araçlarımız", "Duygumetre, sakinleşme, yansıtma, çatışma çözme.", "heart", "pink"],
+      olcme: ["olcme", "Ölçme ve değerlendirme", "Düşünme rutinleri: yansıt, birlikte yaz, A4 yazdır.", "check", "grape"],
+      kultur: ["kultur", "Sınıf düzenimiz", "Bump It Up, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };
-    const ids = g <= 1 ? ["turkce1", "matematik", "hayat"]
-      : g === 2 ? ["turkce", "matematik", "hayat", "ingilizce"]
-      : g === 3 ? ["turkce", "matematik", "hayat", "fen", "ingilizce"]
-      : g === 4 ? ["turkce", "matematik", "fen", "sosyal", "ingilizce"]
-      : ["turkce", "matematik", "fen", "sosyal", "ingilizce"];
-    return ids.concat("duygu", "zeka").map((k) => D[k]);
+    const ids = g <= 1 ? ["turkce", "matematik", "kesif"] : ["turkce", "matematik", "kesif", "ingilizce"];
+    return ids.concat("olcme", "duygu", "kultur", "zeka").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
   const ARACLAR = [["bg", "Arka plan", "bg"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["bitirdim", "Etkinliğim bitti"], ["hepsi", "Tüm araçlar", "plus"]];
@@ -9896,7 +10500,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     el.classList.toggle("kucuk", kucuk);
     if (kucuk) { el.replaceChildren(h("button.dock-ac", { "aria-label": "Menüyü aç", title: "Menüyü aç", onclick: () => { dockYaz("ta-dock-kucuk", "0"); dock(cur); } }, T.icon("grid"))); return; }
     const atolye = [["ana", "Ana sayfa", "home"], ["sabah", "Sabah rutini", "sun"], ["sinif", "Sınıfım", "class"], "|"]
-      .concat(T.menu().map((m) => [m[0], { zeka: "Düşünme", duygu: "Duygular", sosyal: m[1].startsWith("Hayat") ? "Hayat Bilgisi" : "Sosyal" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+      .concat(T.menu().map((m) => [m[0], { zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
     const serit = h("div.dock-serit", mod === "arac"
       ? ARACLAR.filter(([k]) => k === "bg" || k === "hepsi" || T.widgets[k]).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
       : atolye.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) : h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon3d(d[2]), h("span", d[1]))));

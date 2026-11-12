@@ -43,22 +43,17 @@
   T.dersAdi = (g = T.store.grade()) => ({ sosyal: g <= 3 ? "Hayat Bilgisi" : "Sosyal Bilgiler" });
   T.menu = function (g = T.store.grade()) {
     const D = {
-      turkce1: ["birinci", "Türkçe", "İlk okuma yazma: Kitabım, sesler, harf yazma, hece ve kelime oyunları.", "letters", "tomato"],
       turkce: ["turkce", "Türkçe", "Okuma hızı, metin uyarlama, anlama ve yazım araçları.", "turkce", "tomato"],
       matematik: ["matematik", "Matematik", "Sayı hissi, oyunlar, manipülatifler, simülasyonlar.", "math", "sun"],
-      hayat: ["sosyal", "Hayat Bilgisi", "Günlük rutin, duygular, trafik, mevsimler, aile ve çevre.", "sosyal", "sky"],
-      sosyal: ["sosyal", "Sosyal Bilgiler", "Zaman şeridi, harita, aile ağacı, çevremiz.", "sosyal", "sky"],
-      fen: ["fen", "Fen Bilimleri", "Maddenin halleri, besin zinciri, vücudumuz, ışık ve kuvvet.", "fen", "leaf"],
+      kesif: ["kesif", T.kesifAdi(g), "Gör-düşün-merak et, sınıflandırma, gözlem günlüğü ve sınıfına uygun etkinlikler.", "fen", "leaf"],
       ingilizce: ["ingilizce", "İngilizce", "Resimli kartlar, dinle ve seç.", "ingilizce", "grape"],
       zeka: ["zeka", "Düşünme soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink"],
-      duygu: ["duygu", "Sosyal duygusal öğrenme", "Duygumetre, çatışma çözme, sakinleşme, sorunun büyüklüğü.", "heart", "pink"],
+      duygu: ["duygu", "SDÖ araçlarımız", "Duygumetre, sakinleşme, yansıtma, çatışma çözme.", "heart", "pink"],
+      olcme: ["olcme", "Ölçme ve değerlendirme", "Düşünme rutinleri: yansıt, birlikte yaz, A4 yazdır.", "check", "grape"],
+      kultur: ["kultur", "Sınıf düzenimiz", "Bump It Up, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };
-    const ids = g <= 1 ? ["turkce1", "matematik", "hayat"]
-      : g === 2 ? ["turkce", "matematik", "hayat", "ingilizce"]
-      : g === 3 ? ["turkce", "matematik", "hayat", "fen", "ingilizce"]
-      : g === 4 ? ["turkce", "matematik", "fen", "sosyal", "ingilizce"]
-      : ["turkce", "matematik", "fen", "sosyal", "ingilizce"];
-    return ids.concat("duygu", "zeka").map((k) => D[k]);
+    const ids = g <= 1 ? ["turkce", "matematik", "kesif"] : ["turkce", "matematik", "kesif", "ingilizce"];
+    return ids.concat("olcme", "duygu", "kultur", "zeka").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
   const ARACLAR = [["bg", "Arka plan", "bg"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["bitirdim", "Etkinliğim bitti"], ["hepsi", "Tüm araçlar", "plus"]];
@@ -77,7 +72,7 @@
     el.classList.toggle("kucuk", kucuk);
     if (kucuk) { el.replaceChildren(h("button.dock-ac", { "aria-label": "Menüyü aç", title: "Menüyü aç", onclick: () => { dockYaz("ta-dock-kucuk", "0"); dock(cur); } }, T.icon("grid"))); return; }
     const atolye = [["ana", "Ana sayfa", "home"], ["sabah", "Sabah rutini", "sun"], ["sinif", "Sınıfım", "class"], "|"]
-      .concat(T.menu().map((m) => [m[0], { zeka: "Düşünme", duygu: "Duygular", sosyal: m[1].startsWith("Hayat") ? "Hayat Bilgisi" : "Sosyal" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+      .concat(T.menu().map((m) => [m[0], { zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
     const serit = h("div.dock-serit", mod === "arac"
       ? ARACLAR.filter(([k]) => k === "bg" || k === "hepsi" || T.widgets[k]).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
       : atolye.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) : h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon3d(d[2]), h("span", d[1]))));

@@ -1,7 +1,7 @@
 /* Yardım: her sayfada "?" düğmesi ve ilk açılışta üç adımlı karşılama. Dil öğretmenin dili. */
 (function () {
   const { h } = T;
-  T.YARDIM = {
+  T.YARDIM = Object.assign({
     sabah: ["Sabah rutini", "Güne başlarken sırayla aç: günaydın, takvim, özel gün, günün sayısı, günün akışı.", ["Sıradaki adıma geçmek için üstteki numaralara dokun.", "Günün sayısında \"Kendi sayım\" ile sayıyı elle değiştirebilirsin.", "Günün akışına ders programını bir kez yaz, ana sayfa her gün onu gösterir."]],
     sinif: ["Sınıfım", "Yoklama, davranış puanı, oturma planı ve görevliler burada.", ["Öğrenci adlarını Sınıf listesi sekmesinden yaz ya da yapıştır.", "Adlar yalnızca bu cihazda kalır, yapay zekâya gönderilmez.", "Görevlileri ana sayfadaki Görevliler satırından da düzenleyebilirsin."]],
     turkce: ["Türkçe", "Okuma, anlama, yazma ve söz varlığı için sınıfta açılan etkinlikler.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne o etkinliği ana sayfadaki kısayollara ekler.", "Metin uyarlayıcı bir konudan sınıfına uygun okuma metni hazırlar."]],
@@ -15,7 +15,8 @@
     plan: ["Plan", "Günlük ve yıllık plan, Maarif öğrenme çıktılarıyla.", ["Dersi, sınıfı ve çıktıyı seç; plan hazırlanır.", "Kaydettiğin planı tek dokunuşla ders ekranına dönüştürebilirsin.", "Yapay zekâ için Ayarlar'dan Google ile giriş yapman yeterli, ücret yok."]],
     ayarlar: ["Ayarlar", "Okul takvimi, sınıflar, ses ve giriş.", ["Okul takvimini bir kez gir, \"okulun kaçıncı günü\" buradan hesaplanır."]],
     ekran: ["Ders ekranı", "Tamamen boş bir tahta. Plandan kurulan dersler de burada açılır.", ["Alttaki Araç ekle düğmesiyle zamanlayıcı, isim çekme, yönerge gibi araçlar koy.", "Araçları sürükleyip büyütebilirsin."]],
-  };
+  }, T.YARDIM || {});
+  delete T.YARDIM.birinci;
   T.yardimAc = function (id) {
     const y = T.YARDIM[id]; if (!y) return;
     T.modal({ title: y[0], body: h("div", { style: { display: "grid", gap: "10px" } }, h("p", { style: { fontSize: "18px", margin: 0 } }, y[1]), h("ul.yardim-liste", y[2].map((x) => h("li", x)))), actions: [{ label: "Anladım", tone: "c-leaf" }] });

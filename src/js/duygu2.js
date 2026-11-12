@@ -334,6 +334,7 @@
 
   /* =================== 5. YAPIŞKAN NOT PANOLARI =================== */
   const NOT_RENK = ["#FFF2A8", "#FFD3E1", "#CDEBFF", "#D8F5C8", "#FFE0B8", "#E6DAFF"];
+  T.notPanosu = (host, def) => notPanosu(host, def);
   function notPanosu(host, def) {
     const k = def.anahtar;
     const box = h("div"); host.append(box);

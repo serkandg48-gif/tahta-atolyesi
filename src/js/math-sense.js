@@ -10,12 +10,23 @@
       host._bar = bar; wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
       wrap.append(bar, host); view.append(wrap); t.render(host); return;
     }
+    const kitapVar = T.kitapDersi && T.kitapDersi(t.back);
+    const kitapAcik = () => { try { return localStorage.getItem("ta-kitap-acik") === "1"; } catch (e) { return false; } };
+    const govde = h("div.arac-govde", host);
+    const kitapDugme = kitapVar ? h("button.btn.sm.c-chalk", { "aria-pressed": "false", onclick: () => kitapYap(!govde.classList.contains("kitapli")) }, T.icon("book"), "MEB kitabı") : null;
+    const kitapYap = (ac) => {
+      try { localStorage.setItem("ta-kitap-acik", ac ? "1" : "0"); } catch (e) {}
+      const eski = govde.querySelector(".kitap-yan"); if (eski) eski.remove();
+      govde.classList.toggle("kitapli", ac); wrap.classList.toggle("genis", ac); if (kitapDugme) kitapDugme.setAttribute("aria-pressed", String(ac));
+      if (ac) govde.append(T.kitapPaneli(t.back, () => kitapYap(false)));
+    };
     wrap.append(h("div.stage-bar",
       h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")),
-      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"),
-      h("button.btn.sm.c-chalk", { onclick: () => T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }) }, T.icon("board"), "Ders ekranına kısayol")), host);
+      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"), kitapDugme,
+      h("button.btn.sm.c-chalk", { onclick: () => T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }) }, T.icon("board"), "Ders ekranına kısayol")), govde);
     view.append(wrap);
     t.render(host);
+    if (kitapVar && kitapAcik()) kitapYap(true);
   };
   /* Ders ekranında aracı açan küçük kısayol */
   T.widgets.toollink = {

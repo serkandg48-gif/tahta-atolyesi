@@ -1,0 +1,558 @@
+/* Sınıf kültürü araçları (öğretmenin @egitimtech paylaşımlarından kurgulandı).
+   Motorlar: düzey panosu, evet-hayır akışı, ayırma oyunu, yapışkan not panosu. Hepsi sınıfa göre bu cihazda saklanır. */
+(function () {
+  const { h } = T; const S = T.svg;
+  const tool = (id, def) => (T.tools[id] = Object.assign({ back: "duygu", grades: [1, 4] }, def));
+  const cid = () => T.store.activeClass().id;
+  const present = () => { const s = T.store.get(), c = T.store.activeClass(); const day = (s.attendance[c.id] || {})[T.isoDate()] || {}; return c.students.filter((x) => day[x.id] !== "yok"); };
+  const veri = (k) => { const s = T.store.get(); s.pano = s.pano || {}; s.pano[cid()] = s.pano[cid()] || {}; return s.pano[cid()][k]; };
+  const yaz = (k, fn) => T.store.update((s) => { s.pano = s.pano || {}; const c = (s.pano[cid()] = s.pano[cid()] || {}); c[k] = fn(c[k]); });
+  const seg = (opts, cur, on) => h("div.seg", opts.map(([v, l]) => h("button", { "aria-pressed": String(v === cur), onclick: () => on(v) }, l)));
+
+  /* ---------- Küçük çizimler ---------- */
+  const el = (n, c) => { // n parmaklı el
+    const s = S("svg", { viewBox: "0 0 60 70", width: 58, height: 66, "aria-hidden": "true" });
+    let g = `<rect x="10" y="34" width="40" height="30" rx="12" fill="${c}"/>`;
+    const xs = [12, 21, 30, 39]; const up = n >= 5 ? 4 : n;
+    xs.forEach((x, i) => { const on = i < up; g += `<rect x="${x}" y="${on ? 6 : 26}" width="8" height="${on ? 34 : 14}" rx="4" fill="${c}"/>`; });
+    g += n >= 5 ? `<rect x="44" y="30" width="8" height="22" rx="4" fill="${c}" transform="rotate(35 48 41)"/>` : `<rect x="40" y="40" width="14" height="8" rx="4" fill="${c}"/>`;
+    s.innerHTML = `<g stroke="rgba(27,42,74,.55)" stroke-width="1.6">${g}</g>`; return s;
+  };
+  const hava = (k) => { const s = S("svg", { viewBox: "0 0 80 60", width: 80, height: 60, "aria-hidden": "true" });
+    const bulut = (x, y, c) => `<path d="M${x} ${y}a10 10 0 0 1 10-10a14 14 0 0 1 26 3a9 9 0 0 1 1 17H${x + 2}a9 9 0 0 1-2-10z" fill="${c}"/>`;
+    s.innerHTML = { gunes: '<circle cx="28" cy="24" r="11" fill="#E9A23B"/>' + bulut(30, 40, "#D3D9E4"), bulut: bulut(14, 30, "#AEB8CB") + bulut(26, 42, "#D3D9E4"), firtina: bulut(14, 28, "#6F8FB0") + '<path d="M40 38l-6 11h7l-5 10" stroke="#E9A23B" stroke-width="4" fill="none" stroke-linejoin="round"/><path d="M22 42l-3 7M30 42l-3 7" stroke="#3B7DD8" stroke-width="3.5" stroke-linecap="round"/>' }[k]; return s; };
+  const kart = (c, sim) => { const s = S("svg", { viewBox: "0 0 50 50", width: 52, height: 52, "aria-hidden": "true" }); s.innerHTML = `<rect x="6" y="6" width="38" height="38" rx="6" fill="${c}"/><text x="25" y="33" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">${sim}</text>`; return s; };
+
+  /* =================== 1. DÜZEY PANOSU =================== */
+  function duzeyPanosu(host, def) {
+    const k = def.anahtar; let mod = "goster", ogr = null, set = 0;
+    const box = h("div"); host.append(box);
+    function ciz() {
+      const sets = def.setler || [def];
+      const d = sets[set];
+      const kayit = veri(k) || {}; const bugun = (kayit.oy || {})[T.isoDate() + ":" + set] || {};
+      const isaret = (kayit.isaret || {})[set];
+      const sayac = {}; Object.values(bugun).forEach((v) => (sayac[v] = (sayac[v] || 0) + 1));
+      const ps = present();
+      const ust = h("div.row", { style: { marginBottom: "14px" } },
+        sets.length > 1 ? seg(sets.map((x, i) => [i, x.ad]), set, (v) => { set = v; ciz(); }) : null,
+        def.oy !== false ? seg([["goster", def.gosterAd || "Bugünkü düzey"], ["oy", "Sınıf yoklaması"]], mod, (v) => { mod = v; ogr = null; ciz(); }) : null,
+        mod === "oy" ? h("button.btn.sm.c-chalk", { onclick: () => { yaz(k, (o) => { o = o || {}; o.oy = o.oy || {}; delete o.oy[T.isoDate() + ":" + set]; return o; }); ciz(); } }, T.icon("reset"), "Sıfırla") : null);
+      const isimler = mod === "oy" ? h("div.dy-names", ps.map((st) => h("button" + (ogr === st.id ? ".on" : "") + (bugun[st.id] != null ? ".done" : ""), { onclick: () => { ogr = st.id; ciz(); } }, T.avatar(st.name, 30), st.name))) : null;
+      const liste = h("div.dz-list" + (d.yatay ? ".yatay" : ""), d.duzeyler.map((z, i) => {
+        const [ad, acik, renk, ikon] = z;
+        const kimler = Object.entries(bugun).filter(([, v]) => v === i).map(([sid]) => ps.find((x) => x.id === sid) || T.store.activeClass().students.find((x) => x.id === sid)).filter(Boolean);
+        return h("button.dz-item" + (isaret === i && mod === "goster" ? ".on" : ""), { style: { "--c": renk }, onclick: () => {
+          if (mod === "oy") { if (!ogr) { T.toast("Önce bir arkadaşın adına dokun"); return; } const o2 = ogr; yaz(k, (o) => { o = o || {}; o.oy = o.oy || {}; const kk = T.isoDate() + ":" + set; o.oy[kk] = o.oy[kk] || {}; o.oy[kk][o2] = i; return o; }); T.sound.pop(); const sira = ps.findIndex((x) => x.id === ogr); const nx = ps.slice(sira + 1).find((x) => bugun[x.id] == null && x.id !== o2); ogr = nx ? nx.id : null; ciz(); }
+          else { yaz(k, (o) => { o = o || {}; o.isaret = o.isaret || {}; o.isaret[set] = o.isaret[set] === i ? null : i; return o; }); T.speak(ad); ciz(); }
+        } },
+          h("div.dz-ikon", ikon ? ikon() : h("b", i)), h("div.dz-txt", h("b", ad), acik ? h("span", acik) : null),
+          mod === "oy" ? h("div.dz-kim", sayac[i] ? h("b", sayac[i]) : null, kimler.slice(0, 8).map((x) => T.avatar(x.name, 26))) : isaret === i ? h("div.dz-ok", T.icon("back"), def.okAd || "Bugünkü düzey") : null);
+      }));
+      const alt = d.alt ? d.alt(isaret) : null;
+      box.replaceChildren(ust, def.ust ? def.ust() : null, mod === "oy" && !ogr ? h("p.dy-tip", "Önce adına dokun, sonra kendi düzeyini seç.") : null, isimler, liste, alt);
+    }
+    ciz();
+  }
+
+  tool("anlama-duzeyi", {
+    title: "Ne kadar anladım?", icon: "hands", tone: "sun", short: "Beş parmak ya da renkli kartla anlama düzeyi",
+    render(host) {
+      duzeyPanosu(host, { anahtar: "anlama", gosterAd: "Tahtada göster", okAd: "Şu an buradayız", setler: [
+        { ad: "Beş parmak", duzeyler: [
+          ["Anlamadım.", "Bir kere daha dinlemeye ihtiyacım var.", "#D16BA5", () => el(1, "#E7A9CB")],
+          ["Anlamadığım yerler var.", "Yardıma ihtiyacım var.", "#E39A4C", () => el(2, "#F1C08E")],
+          ["Sanırım anladım.", "Deneyeceğim.", "#E9C23B", () => el(3, "#F4DE8C")],
+          ["Anladım.", "Gösterebilirim.", "#8DBE4A", () => el(4, "#C7E09A")],
+          ["Çok iyi anladım.", "Ben öğretebilirim.", "#3C8DD8", () => el(5, "#9CC6F0")]] },
+        { ad: "Renkli kartlar", duzeyler: [
+          ["Yeşil kart", "Cevabı biliyorum.", "#2E8B57", () => kart("#2E8B57", "✓")],
+          ["Sarı kart", "Bir fikrim var ama emin değilim.", "#E9A23B", () => kart("#E9A23B", "?")],
+          ["Kırmızı kart", "Anlamadım, yardıma ihtiyacım var.", "#C2453A", () => kart("#C2453A", "!")]] }] });
+      host.append(h("p.hint", "Konuşmaya çekinen çocuklar da sessizce düzeyini gösterebilir. Sınıf yoklamasında herkes kendi adına dokunup seçer; sonuç yalnızca bu cihazda kalır."));
+    },
+  });
+
+  tool("yz-duzeyi", {
+    title: "Yapay zekâ kullanım düzeyi", icon: "spark", tone: "grape", grades: [3, 8], short: "Bu görevde yapay zekâ ne kadar kullanılabilir?",
+    render(host) {
+      duzeyPanosu(host, { anahtar: "yz", oy: false, okAd: "Bugünkü düzey",
+        ust: () => h("p.sb-line", "Her ödev ve araştırma görevinden önce hangi yapay zekâ kullanım düzeyinin geçerli olduğu açıkça belirtilir. Emin olmadığında çalışmaya başlamadan önce öğretmenine danış."),
+        duzeyler: [
+          ["Düzey 0: Yapay zekâ yok", "Bu görevde hiçbir yapay zekâ aracından yararlanılmaz. Bütün çalışma kendi aklınla ve izin verilen kaynaklarla yürür.", "#5B7DB1"],
+          ["Düzey 1: Yardım ve anlama", "Kavramları anlamak, zor terimleri sadeleştirmek, tanım almak ya da netleştirici sorular sormak için yapay zekâdan yardım alabilirsin.", "#E9C23B"],
+          ["Düzey 2: Geri bildirim ve düzenleme", "Kendi ürettiğin metin ve fikirlerin taslaklarını gözden geçirmek, dil ve akış geri bildirimi almak için yapay zekâyı kullanabilirsin.", "#6DAF5A"],
+          ["Düzey 3: Üretim ve tasarım ortağı", "Proje ya da tasarım görevinde yapay zekâ ile birlikte üretebilirsin. Nasıl ve hangi amaçla kullandığını ayrıntılı yazman gerekir.", "#E07B3C"]] });
+    },
+  });
+
+  const BOLGE = [
+    ["Mavi bölge", "Yorgun, üzgün. Düşük enerji.", "#3C7DD8", ["Su molası", "Esneme", "Sarılma", "Kısa yürüyüş", "Temiz hava"]],
+    ["Yeşil bölge", "Mutlu, sakin, odaklanmış. Öğrenmeye hazırım.", "#2E8B57", ["Hazır duruş", "Yardım et", "Olumlu iç ses", "Gülümse"]],
+    ["Sarı bölge", "Heyecanlı, kaygılı, korkmuş. Enerji yükseliyor.", "#E0B020", ["Zıpla ya da koş", "Stres topu", "Derin nefes", "Gürültü kesici kulaklık"]],
+    ["Kırmızı bölge", "Öfkeli, kontrolden çıkmak üzereyim. Enerji patlaması.", "#C2453A", ["Sakinleşme köşesine git", "Ona kadar say", "Derin nefes", "Bir yetişkinden yardım iste"]],
+  ];
+  tool("bolgeler", {
+    title: "Düzenleme bölgeleri", icon: "heart", tone: "leaf", short: "Hangi bölgedeyim? Duygusal alet çantam",
+    render(host) {
+      duzeyPanosu(host, { anahtar: "bolge", gosterAd: "Bölgeyi göster", okAd: "Buradayım",
+        duzeyler: BOLGE.map(([a, b, c]) => [a, b, c, () => { const s = S("svg", { viewBox: "0 0 40 40", width: 44, height: 44 }); s.innerHTML = `<circle cx="20" cy="20" r="17" fill="${c}"/>`; return s; }]),
+        alt: (i) => h("div.sb-card", { style: { marginTop: "14px" } }, h("h3", "Duygusal alet çantam"), h("div.bz-tools", (i == null ? BOLGE : [BOLGE[i]]).map(([a, , c, araclar]) => h("div.bz-col", { style: { "--c": c } }, h("b", a), h("ul", araclar.map((x) => h("li", x))))))) });
+      host.append(h("p.hint", "Bölgeler iyi ya da kötü değildir; hepimiz gün içinde bölgeler arasında geziniriz. Amaç, hangi bölgede olduğunu fark etmek ve alet çantasından bir araç seçmek."));
+    },
+  });
+
+  /* =================== 2. EVET-HAYIR AKIŞI =================== */
+  function akis(host, def) {
+    let i = 0, sonuc = null, gecmis = [];
+    const box = h("div"); host.append(box);
+    function ciz() {
+      const adimlar = def.adimlar;
+      const yan = h("div.ak-steps", adimlar.map((a, j) => h("div.ak-step" + (j < i ? ".done" : j === i && !sonuc ? ".on" : ""), { style: { "--c": a.renk || "var(--navy)" } }, h("span.n", a.no || j + 1), h("div", h("b", a.baslik), h("small", a.soru)))),
+        def.son ? h("div.ak-step" + (sonuc === "son" ? ".on" : ""), { style: { "--c": def.son.renk || "var(--navy)" } }, h("span.n", T.icon("check")), h("div", h("b", def.son.baslik), h("small", def.son.metin))) : null);
+      let merkez;
+      if (sonuc === "son") merkez = h("div.ak-card.son", def.son.ikon ? def.son.ikon() : null, h("h3", def.son.baslik), h("p", def.son.metin), h("button.btn", { onclick: () => { i = 0; sonuc = null; ciz(); } }, T.icon("reset"), "Baştan"));
+      else if (sonuc) merkez = h("div.ak-card.hayir", h("h3", sonuc.baslik || "Önce bunu yap"), h("p", sonuc.metin), h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { sonuc = null; ciz(); } }, T.icon("back"), "Yaptım, soruya dön"), def.hayirBaslat ? h("button.btn.c-chalk", { onclick: () => { i = 0; sonuc = null; ciz(); } }, "Baştan") : null), def.kova ? def.kova() : null);
+      else {
+        const a = adimlar[i];
+        merkez = h("div.ak-card", { style: { "--c": a.renk || "var(--navy)" } }, h("small.ak-lbl", a.baslik), h("h3", a.soru), a.not ? h("p.hint", a.not) : null,
+          h("div.row", { style: { justifyContent: "center", gap: "14px" } },
+            h("button.btn.big.ak-evet", { onclick: () => { T.sound.ok(); if (i + 1 < adimlar.length) i++; else sonuc = "son"; ciz(); } }, T.icon("check"), a.evet || "Evet"),
+            h("button.btn.big.ak-hayir", { onclick: () => { sonuc = a.hayir; if (def.onHayir) def.onHayir(a); ciz(); } }, T.icon("close"), a.hayirAd || "Hayır")),
+          h("button.btn.sm.c-chalk", { onclick: () => T.speak(a.soru) }, T.icon("speaker"), "Dinle"));
+      }
+      box.replaceChildren(def.ust ? def.ust() : null, h("div.ak-wrap", yan, merkez));
+    }
+    ciz();
+  }
+
+  tool("uc-adim", {
+    title: "Öğretmene sormadan önce 3 adım", icon: "teacher", tone: "sky", short: "Beyin, etraf, arkadaş, sonra öğretmen",
+    render(host) {
+      akis(host, { ust: () => h("p.sb-line", "Amacımız: Seni bağımsızlaştırmak!"), adimlar: [
+        { baslik: "Adım 1: Beyin", soru: "Kendine sordun mu? Yönergeyi okudun mu?", renk: "#D16BA5", hayir: { metin: "Yönergeyi bir kez daha oku ve kendine sor: Benden ne isteniyor?" } },
+        { baslik: "Adım 2: Etraf", soru: "Panoya, tahtaya, kitaba baktın mı?", renk: "#E0B020", hayir: { metin: "Panoya, tahtaya ve kitabına bak. İpucu çoğu zaman oradadır." } },
+        { baslik: "Adım 3: Arkadaş", soru: "Yanındaki arkadaşına fısıldayarak sordun mu?", renk: "#3C8DD8", hayir: { metin: "Yanındaki arkadaşına fısıldayarak sor." } }],
+        son: { baslik: "Son durak: Öğretmen", metin: "Bunların hepsi evet ise bana gel!", renk: "#C2453A" } });
+    },
+  });
+  tool("takildim", {
+    title: "Takıldım, ne yapmalıyım?", icon: "help", tone: "sun", short: "Görevi anlamadığında adım adım yol",
+    render(host) {
+      akis(host, { ust: () => h("p.sb-line", "Başlangıç: \"Görevi anlamadım ya da ilerleyemiyorum.\""), adimlar: [
+        { baslik: "Adım 1", soru: "Yönergeyi ya da soruyu içinden bir kez daha fısıldayarak okudun mu?", renk: "#2E8B57", hayir: { metin: "Yönergeye dön ve anahtar kelimelerin altını çiz." } },
+        { baslik: "Adım 2", soru: "Masandaki ya da çevrendeki iki farklı arkadaşının nasıl başladığına baktın mı?", renk: "#E0B020", hayir: { metin: "Sessizce gözlem yap." } },
+        { baslik: "Adım 3", soru: "Panodaki örnek çalışma modelini inceledin mi?", renk: "#7A5BC7", hayir: { metin: "Modeli incele ve kendi çalışmanla karşılaştır." } }],
+        son: { baslik: "Sarı yardım kartı", metin: "Masana sarı yardım kartını koy ve öğretmen gelene kadar yapabildiğin diğer adıma geç.", renk: "#E9A23B", ikon: () => kart("#E9A23B", "?") } });
+    },
+  });
+  tool("zihin-suzgeci", {
+    title: "Zihin süzgeci", icon: "filter", tone: "sky", short: "Süzmeden söyleme: doğru mu, sırası mı, nazik mi?",
+    render(host) {
+      const kova = [];
+      const inp = h("input.in", { placeholder: "Söylemek istediğin cümle (isteğe bağlı)", style: { fontSize: "20px" } });
+      akis(host, {
+        ust: () => h("div.row", { style: { marginBottom: "10px" } }, inp),
+        adimlar: [
+          { baslik: "1. süzgeç", soru: "Bu doğru mu?", renk: "#3C6FB5", hayir: { baslik: "Zihin kovasına", metin: "Doğru değilse bu sözcükler zihin kovasında bekler. Yeniden düşün." } },
+          { baslik: "2. süzgeç", soru: "Şu an sırası mı? Acil mi?", not: "Söz kesiyor mu? Konu dışı mı? Acil değilse bekle.", renk: "#E0B020", hayir: { baslik: "Zihin kovasına", metin: "Sırası değilse ya da acil değilse bekle. Sözcüklerin zihin kovasında seni bekliyor." } },
+          { baslik: "3. süzgeç", soru: "Nezaket kurallarına uygun mu?", not: "Birini üzer mi?", renk: "#D16BA5", hayir: { baslik: "Zihin kovasına", metin: "Nazik değilse daha nazik bir söyleyiş bul. Ne söylersen arkadaşın üzülmez?" } }],
+        son: { baslik: "Sözcükler temizlendi!", metin: "Şimdi konuşabilirsin.", renk: "#2E8B57" },
+        onHayir: () => { if (inp.value.trim()) { kova.push(inp.value.trim()); inp.value = ""; } },
+        kova: () => kova.length ? h("div.zs-kova", h("b", "Zihin kovası: düşünce bekleme alanı"), kova.map((x) => h("div.dy-bubble", x))) : null,
+      });
+    },
+  });
+
+  /* Düşünce istasyonu: hangi trene biniyorsun? */
+  const DURUM_TREN = ["Arkadaşın oyunda seni yendi.", "Öğretmen sana bir soru sordu ama cevabı bilmiyorsun.", "Sıra beklerken biri önüne geçti.", "Ödevin çok zor geldi.", "Arkadaşın resmine yanlışlıkla boya döktü.", "Teneffüs bitti ama oyununuz yarım kaldı.", "Biri sana kötü bir isim taktı.", "Grup çalışmasında fikrin seçilmedi."];
+  tool("dusunce-istasyonu", {
+    title: "Düşünce istasyonu", icon: "train", tone: "sky", short: "Zihin garı: her trene binme!",
+    render(host) {
+      let durum = T.pick(DURUM_TREN), secim = null;
+      const box = h("div"); host.append(box);
+      const tren = (renk, vagonlar, yon, on) => h("button.dt-tren" + (on ? ".on" : ""), { style: { "--c": renk }, onclick: () => { secim = yon; yon === "dogru" ? T.sound.ok() : T.sound.no(); ciz(); } },
+        h("div.dt-lok", T.icon("train")), vagonlar.map((v) => h("div.dt-vagon", v)), h("div.dt-yon", yon === "dogru" ? "Doğru yön: başarı" : "Hatalı yön: uyarı alma"));
+      function ciz() {
+        box.replaceChildren(
+          h("div.dy-card", { style: { maxWidth: "1100px" } },
+            h("small.ak-lbl", "Zihin garı: her trene binme!"), h("div.dy-durum", durum),
+            h("div.dt-hat", tren("#3A3F4B", ["Acele et", "Laf at", "Düşünmeden yap"], "hatali", secim === "hatali"), tren("#C2453A", ["Bekle", "Planla", "Uygula"], "dogru", secim === "dogru")),
+            secim ? h("p.sb-line", secim === "dogru" ? "Bekle, planla, uygula treni seni hedefe götürür. Peki planın ne?" : "Bu tren seni uyarı almaya götürür. Hangi istasyonda inip doğru trene geçebilirsin?") : h("p.sb-line", "Öğretmen sorusu: Şu an bindiğin tren seni nereye götürüyor?"),
+            h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(durum) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { durum = T.pick(DURUM_TREN.filter((x) => x !== durum)); secim = null; ciz(); } }, T.icon("next"), "Yeni durum"))));
+      }
+      ciz();
+    },
+  });
+
+  /* Gelecek teleskobu: 10 dakika sonra ne olur? */
+  const TELESKOP = [
+    ["Teneffüste top oynarken arkadaşım topu bana vermedi.", "Topu elinden çekip alırsam", "Kavga çıkar, ikimiz de oyundan oluruz.", "Sıranın bende olduğunu söylersem", "Oyun devam eder, sıram gelince oynarım."],
+    ["Ders sırasında aklıma çok komik bir şey geldi.", "Hemen yüksek sesle söylersem", "Ders bölünür, arkadaşlarım konuyu kaçırır.", "Teneffüse kadar aklımda tutarsam", "Teneffüste anlatırım, birlikte güleriz."],
+    ["Ödevim çok zor geldi.", "Defterimi kapatıp bırakırsam", "Ödev yarım kalır, yarın daha da zorlanırım.", "Takıldım adımlarını uygularsam", "Bir yerden başlarım, yardım isterim, bitiririm."],
+    ["Arkadaşım resmime yanlışlıkla su döktü.", "Ona bağırırsam", "Arkadaşım üzülür, resmim yine ıslak kalır.", "Derin nefes alıp ne yapabileceğimizi sorarsam", "Birlikte kurularız, belki yeni bir resim yaparız."],
+  ];
+  tool("gelecek-teleskobu", {
+    title: "Gelecek teleskobu", icon: "telescope", tone: "grape", short: "Bunu yaparsam 10 dakika sonra ne olur?",
+    render(host) {
+      let i = 0, acik = {};
+      const box = h("div"); host.append(box);
+      function ciz() {
+        const [d, a1, s1, a2, s2] = TELESKOP[i % TELESKOP.length];
+        const yol = (k, a, s, kotu) => h("button.gt-yol" + (kotu ? ".kotu" : ".iyi") + (acik[k] ? ".open" : ""), { onclick: () => { acik[k] = true; T.speak(s); ciz(); } }, h("small", "Bunu yaparsam"), h("b", a), acik[k] ? h("div.gt-sonuc", h("small", "10 dakika sonra"), s) : h("span.hint", "Teleskoptan bak"));
+        box.replaceChildren(h("div.dy-card", { style: { maxWidth: "1100px" } }, h("small.ak-lbl", "Gelecek teleskobu: 10 dakika sonrası"), h("div.dy-durum", d),
+          h("div.gt-yollar", yol("a", a1, s1, true), yol("b", a2, s2, false)),
+          h("p.sb-line", "Bunu yaparsam 10 dakika sonra ne olur? Davranışımdan sonra ne olur?"),
+          h("button.btn", { onclick: () => { i++; acik = {}; ciz(); } }, T.icon("next"), "Yeni durum")));
+      }
+      ciz();
+    },
+  });
+
+  /* Beynim: el modeli ve pedallar */
+  tool("beynim", {
+    title: "Beynimi tanıyorum", icon: "brain", tone: "pink", short: "Beynin el modeli, duygu ve mantık pedalları",
+    render(host) {
+      let mod = "el", kapak = false;
+      const box = h("div"); host.append(box);
+      function elSvg(acik) {
+        const s = S("svg", { viewBox: "0 0 220 260", width: 220, height: 260 });
+        s.innerHTML = acik
+          ? '<rect x="70" y="150" width="80" height="100" rx="20" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/><g fill="#F0C9A0" stroke="#B9875A" stroke-width="3"><rect x="62" y="40" width="22" height="120" rx="11"/><rect x="88" y="22" width="22" height="135" rx="11"/><rect x="114" y="26" width="22" height="130" rx="11"/><rect x="140" y="44" width="22" height="115" rx="11"/></g><circle cx="110" cy="175" r="28" fill="#E25B4B" opacity=".75"/><rect x="96" y="150" width="20" height="44" rx="10" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/>'
+          : '<rect x="70" y="150" width="80" height="100" rx="20" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/><path d="M58 150q0-60 52-62q52 2 52 62z" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/><path d="M70 120h80M70 135h80" stroke="#B9875A" stroke-width="2"/><rect x="86" y="120" width="18" height="40" rx="9" fill="#E6B38A" stroke="#B9875A" stroke-width="2"/>';
+        return s;
+      }
+      function ciz() {
+        let ic;
+        if (mod === "el") ic = h("div.bn-grid",
+          h("div.sb-card.bn-el", elSvg(kapak), h("button.btn.big", { onclick: () => { kapak = !kapak; ciz(); } }, kapak ? "Kapağı kapat" : "Kapağı kaldır")),
+          h("div.sb-card", kapak
+            ? [h("h3", "Kapak kalktı: mantık devre dışı"), h("p.sb-line", "Dört parmak kalktı. Ön beyin, yani düşünen beyin, devreden çıktı. Başparmak açıkta: alarm merkezi direksiyonda. Sadece panik hâlindeki duygu konuşuyor."), h("p.sb-line", h("b", "Altın kural: "), "Kapak kalkmışken açıklama yapma. Önce kapağın kapanmasına yardım et, dersi sonra ver.")]
+            : [h("h3", "Her şey yolunda: kapalı el"), h("p.sb-line", "Dört parmak ön beyindir: mantıklı, düşünen beyin. İçteki başparmak duygusal beyindir, alarm merkezi. Bilek beyin sapına giden yoldur."), h("p.sb-line", "Mantıklı beyin duyguyu kucaklar. Çocuk sakindir, öğrenmeye açıktır.")],
+            h("div.bn-tetik", h("b", "Kapak neden kalkar?"), h("ul", h("li", "Fiziksel: açlık, yorgunluk"), h("li", "Aile ve ev içi: gerginlik, tartışma, güvensizlik"), h("li", "Duygusal: utanma, dışlanma, hayal kırıklığı"), h("li", "Çevresel: gürültü, belirsizlik")))));
+        else ic = h("div.bn-grid",
+          h("div.sb-card.bn-pedal", h("div.bn-p.fren", h("b", "Fren"), "Düşünce, dur"), h("div.bn-p.gaz", h("b", "Gaz"), "Duygular pedalı")),
+          h("div.sb-card", h("h3", "Beynimizin pedalları: duygu ve mantık"), h("p.sb-line", "Beyin arabamızın bir gaz pedalı var: duygularımız. Bir de fren pedalı: düşünce. Sınıf kurallarının virajına gelirken ikisini birlikte kullanırız."), h("div.dy-bubble", "Şu an çok hızlı gidiyorsun ve virajı alamayabilirsin. Lütfen biraz ön beyin frenine bas."), h("p.hint", "Nasihat yerine bu dili kullanmak, çocuğa dışarıdan kontrol yerine kendi frenini fark etmeyi öğretir.")));
+        box.replaceChildren(seg([["el", "Beynin el modeli"], ["pedal", "Pedallar"]], mod, (v) => { mod = v; ciz(); }), h("div", { style: { marginTop: "14px" } }, ic));
+      }
+      ciz();
+    },
+  });
+
+  /* =================== 3. AYIRMA OYUNLARI =================== */
+  function ayir(host, def) {
+    let sira = T.shuffle(def.durumlar.slice()), i = 0, secim = null;
+    const box = h("div"); host.append(box);
+    function ciz() {
+      const [t, dogru] = sira[i % sira.length];
+      const kutu = (k) => { const b = def.kutular.find((x) => x[0] === k); return b; };
+      box.replaceChildren(
+        def.ust ? def.ust() : null,
+        h("div.dy-card", { style: { maxWidth: "1100px" } },
+          h("div.dy-durum", t),
+          h("div.ay-kutular", def.kutular.map(([k, ad, renk, ikon, aciklama]) => h("button.ay-kutu" + (secim ? (k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": renk }, onclick: () => { if (secim) return; secim = k; k === dogru ? T.sound.ok() : T.sound.no(); ciz(); } }, ikon ? ikon() : null, h("b", ad), aciklama ? h("span", aciklama) : null))),
+          secim ? h("div.ay-sonuc", { style: { "--c": kutu(dogru)[2] } }, def.sonuc(kutu(dogru))) : null,
+          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(t) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; secim = null; ciz(); } }, T.icon("next"), "Sıradaki durum"))));
+    }
+    ciz();
+  }
+
+  /* Problem kalibrasyonu (eski "Sorunum ne büyüklükte?" aracının yerine) */
+  const KALIB = [
+    ["kucuk", "Küçük problem", "#6DAF5A", () => hava("gunes"), "Bence bu küçük bir problem. Kendimiz çözebiliriz.", ["Derin nefes alırım.", "Kibarca söylerim: Lütfen ...", "Sırayla yapmayı öneririm.", "Görmezden gelir, başka bir şeye geçerim."]],
+    ["orta", "Orta problem", "#8E9BB4", () => hava("bulut"), "Bu konuda biriyle konuşmamız gerekiyor mu? Kendimiz çözebilir miyiz? Birlikte karar verelim.", ["Problem çözme basamağına git: Barış yolu.", "Ben diliyle ne olduğunu anlat.", "Olmadıysa biraz soğusun köşesine not bırak."]],
+    ["buyuk", "Büyük problem", "#C2453A", () => hava("firtina"), "Denedik olmadı, sorun devam ediyor. Şiddet içeren sorunlar var. Tehlikedeyim.", ["Öğretmenden yardım al.", "Biri yaralandıysa hemen bir yetişkine söyle.", "Güvenli bir yerde bekle."]],
+  ];
+  const KALIB_DURUM = [["Kalemimin ucu kırıldı.", "kucuk"], ["Oyunda ilk sırayı başkası aldı.", "kucuk"], ["Arkadaşım bana yanlışlıkla çarptı.", "kucuk"], ["Silgimi bulamıyorum.", "kucuk"], ["En sevdiğim oyunu oynayamadık.", "kucuk"],
+    ["Arkadaşım oyuna beni almadı.", "orta"], ["Arkadaşım sırrımı başkalarına anlattı.", "orta"], ["Grupta herkes benim fikrimi dinlemiyor.", "orta"], ["İki gündür aynı arkadaşla tartışıyoruz.", "orta"],
+    ["Biri her gün benimle alay ediyor, konuştuk ama durmadı.", "buyuk"], ["Bahçede bir arkadaşım düştü, dizi kanıyor.", "buyuk"], ["Bir arkadaşım beni itip vurdu.", "buyuk"], ["Okulda bir yabancı beni yanına çağırdı.", "buyuk"]];
+  tool("sorun-boyutu", {
+    title: "Problem kalibrasyonu", icon: "scale", tone: "sun", short: "Küçük mü, orta mı, büyük mü? Birlikte karar verelim",
+    render(host) {
+      let mod = "pano";
+      const box = h("div"); host.append(box);
+      function ciz() {
+        box.replaceChildren(seg([["pano", "Pano"], ["oyun", "Hangi problem?"]], mod, (v) => { mod = v; ciz(); }));
+        const alan = h("div", { style: { marginTop: "14px" } }); box.append(alan);
+        if (mod === "pano") alan.append(h("div.pk-pano", KALIB.map(([, ad, renk, ikon, metin, ne]) => h("div.pk-col", { style: { "--c": renk } }, ikon(), h("b", ad), h("p", metin), h("ul", ne.map((x) => h("li", x)))))), h("p.hint", "Sınıf içi çatışmada öğrenciler problemin büyüklüğüne birlikte karar verir. Aynı sorun herkese aynı büyüklükte gelmeyebilir; önemli olan tepkinin uygun olması."));
+        else ayir(alan, { durumlar: KALIB_DURUM, kutular: KALIB.map(([k, ad, renk, ikon]) => [k, ad, renk, ikon]), sonuc: (b) => { const k = KALIB.find((x) => x[0] === b[0]); return [h("b", k[1] + ": "), k[4], h("ul", k[5].map((x) => h("li", x)))]; } });
+      }
+      ciz();
+    },
+  });
+
+  tool("seninle-mi", {
+    title: "Seninle mi ilgili?", icon: "help", tone: "leaf", short: "Şikâyet mi, bilgilendirme mi?",
+    render(host) {
+      ayir(host, {
+        ust: () => h("p.sb-line", "Söylemeden önce sor: Bu seninle mi ilgili? Amacım korumak ya da kurtarmak mı?"),
+        durumlar: [["Ahmet ödevini yapmamış.", "sikayet"], ["Ahmet düşmek üzere!", "bilgi"], ["Elif kalemini yere düşürdü.", "sikayet"], ["Bahçede kırık cam var.", "bilgi"], ["Can sırada konuşuyor.", "sikayet"], ["Bir arkadaş ağlıyor ve yardım istiyor.", "bilgi"],
+          ["Mert yemeğini bitirmedi.", "sikayet"], ["Biri merdivenlerden düştü.", "bilgi"], ["Defne benden önce bitirdi.", "sikayet"], ["Biri bir arkadaşımıza her gün vuruyor.", "bilgi"], ["Zeynep resmini başka renge boyamış.", "sikayet"], ["Lavaboda su taşıyor.", "bilgi"]],
+        kutular: [["sikayet", "Seninle ilgili değil", "#C2453A", null, "Şikâyet etme"], ["bilgi", "Bilgilendirme", "#2E8B57", null, "Rapor et"]],
+        sonuc: (b) => b[0] === "sikayet" ? [h("b", "Seninle ilgili değil. "), "Kural: Kendine sakla. Kimse tehlikede değil; bunu söylemek kimseye yardım etmez."] : [h("b", "Bilgilendirme. "), "Amaç: korumak ya da kurtarmak. Biri yaralanabilir. Kural: Hemen söyle!"],
+      });
+    },
+  });
+
+  /* =================== 4. BARIŞ YOLU (çatışma çözüm köşesi) =================== */
+  tool("catisma", {
+    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım uzlaşır, el sıkışır",
+    render(host) {
+      let adim = 0, a = null, b = null, sayac = 10, t = null;
+      const box = h("div"); host.append(box);
+      T.onLeave(() => clearInterval(t));
+      const ADIM = [
+        ["Başlangıç: 10 saniye bekle", "Önce ikiniz de durun. 10 saniye bekleyip nefes alalım."],
+        ["Ne oldu?", "Sırayla anlatın. Konuşan konuşurken diğeri sözünü kesmez."],
+        ["Ben ne hissettim?", "Kendine bak. \"Ben ... olunca ... hissettim.\""],
+        ["Neye ihtiyacım var?", "İhtiyaçlarını anla. \"Benim ihtiyacım ...\""],
+        ["Bunu yapabilir misin?", "Arkadaşından isteyebileceğin bir şey söyle. O da \"evet\" ya da \"şunu yapabilirim\" desin."],
+        ["Tekrarlanırsa ne yapabiliriz?", "Bir dahaki sefer için birlikte bir plan yapın."],
+        ["El sıkışalım", "Barış ve uzlaşma: el sıkışalım."],
+      ];
+      function ciz() {
+        clearInterval(t);
+        const st = T.store.activeClass().students;
+        const secici = (cur, set, diger) => h("select.in", { onchange: (e) => { set(st.find((x) => x.id === e.target.value) || null); ciz(); } }, h("option", { value: "" }, "Seç"), st.filter((x) => !diger || x.id !== diger.id).map((x) => h("option", { value: x.id, selected: cur && cur.id === x.id ? true : null }, x.name)));
+        const A = a ? a.name : "1. arkadaş", B = b ? b.name : "2. arkadaş";
+        const yol = h("div.by-yol", ADIM.map(([l], i) => h("button.by-tas" + (i === adim ? ".on" : i < adim ? ".done" : ""), { onclick: () => { adim = i; ciz(); } }, h("i.ayak.sol"), h("span", l), h("i.ayak.sag"))).reverse());
+        const [baslik, yon] = ADIM[adim];
+        let ic = [h("h3", baslik), h("p.sb-line", yon)];
+        if (adim === 0) {
+          const big = h("div.dy-big", sayac);
+          ic.push(big, h("button.btn", { onclick: () => { sayac = 10; big.textContent = sayac; clearInterval(t); t = setInterval(() => { sayac--; big.textContent = Math.max(0, sayac); if (sayac <= 0) { clearInterval(t); T.sound.ok(); } }, 1000); } }, T.icon("timer"), "10 saniye"), h("div.dy-pair", h("label", "Sol ayak izi", secici(a, (x) => (a = x), b)), h("label", "Sağ ayak izi", secici(b, (x) => (b = x), a))), h("p.hint", "İsim seçmek isteğe bağlı ve kaydedilmez."));
+        } else if (adim >= 1 && adim <= 5) ic.push(h("div.dy-ben", h("div", h("b", A), h("p", "Sıra sende.")), h("div", h("b", B), h("p", "Sonra sen."))));
+        else ic = [h("div.dy-bigicon", T.icon("hands")), h("h3", A + " ve " + B + " el sıkıştı!"), h("p.sb-line", "Şimdi nasıl hissediyorsunuz?"), h("button.btn", { onclick: () => { adim = 0; a = b = null; ciz(); } }, T.icon("reset"), "Yeni çatışma")];
+        box.replaceChildren(h("div.by-grid", yol, h("div.dy-step", ic)),
+          h("div.sb-nav", adim > 0 ? h("button.btn.c-chalk", { onclick: () => { adim--; ciz(); } }, T.icon("back"), "Önceki") : h("span"), adim < ADIM.length - 1 ? h("button.btn.big", { onclick: () => { adim++; ciz(); } }, ADIM[adim + 1][0], T.icon("next")) : h("span")));
+      }
+      ciz();
+    },
+  });
+
+  /* =================== 5. YAPIŞKAN NOT PANOLARI =================== */
+  const NOT_RENK = ["#FFF2A8", "#FFD3E1", "#CDEBFF", "#D8F5C8", "#FFE0B8", "#E6DAFF"];
+  function notPanosu(host, def) {
+    const k = def.anahtar;
+    const box = h("div"); host.append(box);
+    const notlar = () => (veri(k) || { n: [] }).n;
+    function ekle(col) {
+      const t = h("textarea.in", { placeholder: def.yerTutucu || "Kısa bir not", style: { minHeight: "90px", fontSize: "20px" } });
+      const ek = def.alanlar ? def.alanlar.map(([ad, yer]) => h("input.in", { placeholder: yer, "aria-label": ad })) : [];
+      let kim = ""; const ss = present();
+      const kimSec = def.isim === false ? null : h("select.in", { onchange: (e) => (kim = e.target.value) }, h("option", { value: "" }, def.isimAd || "İsim yazma (isteğe bağlı)"), ss.map((x) => h("option", { value: x.name }, x.name)));
+      T.modal({ title: (def.kolonlar[col] || [])[0] || "Not ekle", body: h("div", { style: { display: "grid", gap: "10px" } }, t, ek, kimSec), actions: [{ label: "Vazgeç" }, { label: "Ekle", tone: "c-leaf", onClick: () => { const v = t.value.trim(); if (!v) return false; yaz(k, (o) => { o = o || { n: [] }; o.n.push({ id: T.uid(), c: col, t: v, e: ek.map((x) => x.value.trim()), k: kim, r: NOT_RENK[o.n.length % NOT_RENK.length], d: T.isoDate() }); return o; }); T.sound.pop(); ciz(); } }] });
+    }
+    function ciz() {
+      const ns = notlar();
+      box.replaceChildren(
+        def.ust ? def.ust() : null,
+        h("div.np-pano" + (def.raf ? ".raf" : ""), { style: { "--n": def.kolonlar.length } }, def.kolonlar.map(([ad, soru, renk, ikon], ci) => h("div.np-col", { style: { "--c": renk } },
+          h("div.np-head", ikon ? ikon() : null, h("div", h("b", ad), soru ? h("span", soru) : null), h("button.btn.sm.icon", { "aria-label": ad + " notu ekle", onclick: () => ekle(ci) }, T.icon("plus"))),
+          h("div.np-notes", ns.filter((n) => n.c === ci).map((n) => h("div.np-note", { style: { "--r": n.r, transform: `rotate(${((n.id.charCodeAt(0) % 5) - 2) * 0.8}deg)` } },
+            h("p", n.t), (n.e || []).filter(Boolean).map((x, j) => h("small", (def.alanlar[j] || [""])[0] + ": " + x)), n.k ? h("small.np-kim", n.k) : null,
+            h("div.np-act",
+              def.ilerlet && ci < def.kolonlar.length - 1 ? h("button", { "aria-label": "Sonraki aşamaya taşı", title: "Sonraki aşama", onclick: () => { yaz(k, (o) => { const x = o.n.find((y) => y.id === n.id); if (x) x.c++; return o; }); ciz(); } }, T.icon("next")) : null,
+              h("button", { "aria-label": "Notu sil", onclick: () => { yaz(k, (o) => { o.n = o.n.filter((y) => y.id !== n.id); return o; }); ciz(); } }, T.icon("close"))))))))),
+        h("div.row", { style: { marginTop: "12px" } }, ns.length ? h("button.btn.sm.c-chalk", { onclick: async () => { if (await T.confirm("Pano temizlensin mi?", "Bu sınıfın bu panodaki bütün notları silinir.", "Temizle")) { yaz(k, () => ({ n: [] })); ciz(); } } }, T.icon("reset"), "Panoyu temizle") : null, def.not ? h("span.hint", def.not) : null));
+    }
+    ciz();
+  }
+
+  tool("gul-diken", {
+    title: "Gül, diken, tomurcuk", icon: "flower", tone: "pink", short: "Günümüzün analizi: dönüşümlü düşünme panosu",
+    render(host) {
+      notPanosu(host, { anahtar: "gdt", ust: () => h("p.sb-line", "Günümüzün analizi: nasıl geçtiğini detaylı düşünelim."), kolonlar: [
+        ["Gül", "Bugün en çok neyi sevdin? (Başarı, mutluluk)", "#C2453A"], ["Diken", "Bugün seni ne zorladı ya da üzdü? (Zorluk)", "#8A6A3B"], ["Tomurcuk", "Yarın için neyi iple çekiyorsun? (Umut, potansiyel)", "#2E8B57"]],
+        not: "Gün sonunda her çocuk bir ya da üç kutuya not yazar. İsim isteğe bağlı." });
+    },
+  });
+  tool("calma-listesi", {
+    title: "Ünite çalma listemiz", icon: "music", tone: "grape", grades: [2, 8], short: "Ünite sonu yansıtma: tekrar çal, karıştır, sıradaki...",
+    render(host) {
+      const ik = (d) => () => { const s = S("svg", { viewBox: "0 0 48 48", width: 40, height: 40 }); s.innerHTML = `<g fill="none" stroke="#C8E64B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${d}</g>`; return s; };
+      notPanosu(host, { anahtar: "calma", raf: false, ust: () => h("p.sb-line", "Ünite sonlarında, konu bitimlerinde ya da tatil çıkışlarında birlikte düşünelim."), kolonlar: [
+        ["Tekrar çal", "Hangi yöntemi her ünitede yapmalıyız?", "#1B2A4A", ik('<path d="M38 18a15 15 0 0 0-27 3M10 30a15 15 0 0 0 27-3M38 9v9h-9M10 39v-9h9"/>')],
+        ["Karıştır", "Hangi konuyu farklı bir şekilde denemeliyiz?", "#1B2A4A", ik('<path d="M6 14h8l20 20h8M6 34h8l20-20h8M36 8l6 6-6 6M36 28l6 6-6 6"/>')],
+        ["Sıradaki", "Bizi ne heyecanlandırıyor? Merak listemizde ne var?", "#1B2A4A", ik('<path d="M8 10l20 14-20 14zM38 10v28"/>')],
+        ["Sessize al", "Odaklanmayı engelleyen o gürültü nedir?", "#1B2A4A", ik('<path d="M8 18h8l10-8v28l-10-8H8zM34 18l10 12M44 18L34 30"/>')],
+        ["Sesi aç", "Neyi daha fazla yapmalıyız?", "#1B2A4A", ik('<path d="M8 18h8l10-8v28l-10-8H8zM34 16a10 10 0 0 1 0 16M38 10a18 18 0 0 1 0 28"/>')]] });
+    },
+  });
+  tool("bookflix", {
+    title: "Bookflix", icon: "book", tone: "tomato", short: "Sizden gelenler: sınıfın kitap önerileri",
+    render(host) {
+      notPanosu(host, { anahtar: "bookflix", raf: true, yerTutucu: "Kitabın adı", alanlar: [["Yazar", "Yazarı"], ["Neden?", "Neden öneriyorsun? (kısa)"]], isimAd: "Öneren (isteğe bağlı)",
+        ust: () => h("div.bf-logo", "BOOKFLIX", h("small", "Sizden gelenler")),
+        kolonlar: [["Çok popüler", null, "#E50914"], ["Macera sevenler için", null, "#E50914"], ["Komedi ve eğlence", null, "#E50914"], ["Yeniler ve keşfedilmeyi bekleyenler", null, "#E50914"]] });
+    },
+  });
+  tool("favori-hatalar", {
+    title: "Bizim favori hatalarımız", icon: "star", tone: "sun", short: "Hedefe atılan temel adım: H.A.T.A.",
+    render(host) {
+      notPanosu(host, { anahtar: "hata", isim: false, ilerlet: false, yerTutucu: "Hata neydi? (ör. 35 × 4 = 120)", alanlar: [["Doğrusu", "Doğrusu ne?"], ["Öğrendim", "Ne öğrendim? (ör. sağlama yaparım)"]],
+        ust: () => h("div", h("p.sb-line", "Hata yapmak kâğıt uçağı yere çakmak gibidir. O an fikrini fırlatmak cesarettir. En iyi kâğıt uçaklar defalarca yanlış katlanıp düzeltilerek en dengeli hâline ulaşanlardır."), h("p.hint", "Bir hatayı karta yaz, doğrusunu ve ne öğrendiğinizi ekle. Kimin hatası olduğu yazılmaz; hata sınıfın ortak hazinesidir.")),
+        kolonlar: [["Hata neydi?  ·  Doğrusu ne?  ·  Ne öğrendim?", null, "#3C8DD8"]] });
+    },
+  });
+  tool("sogusun", {
+    title: "Biraz soğusun", icon: "snow", tone: "sky", short: "Çatışmaları ertelemeden, görmezden gelmeden yönet",
+    render(host) {
+      notPanosu(host, { anahtar: "sogusun", ilerlet: true, yerTutucu: "Hatırlamak için kısacık bir not (ör. Top meselesi)", isimAd: "Kim yazdı? (isteğe bağlı)",
+        ust: () => h("p.sb-line", "Çatışma anında duygular yoğundur ya da uzun dinlemeye zaman yoktur. Hemen çözmeye çalışmak yerine buraya kısa bir not bırak. Hiçbir çatışma gözden kaçmaz."),
+        kolonlar: [["1. Bu çok sıcak", "Biraz soğumaya bırakalım: kısa bir not.", "#C2453A"], ["2. Kendi uzlaşma denememiz", "Bekleme sürecinde barış yolu şablonuyla konuşmayı deneyin.", "#E9A23B"], ["3. Anlamlı bir sohbet", "Öğretmenle sakin bir ortamda kısa ama derin bir sohbet.", "#3C8DD8"], ["4. Hâlâ sıcak", "Öğretmenle birlikte ileriye dönük olumlu eylemler belirleyin.", "#7A5BC7"], ["Çözüldü", "Biz konuşabiliriz!", "#2E8B57"]],
+        not: "Notu sağ alttaki okla bir sonraki aşamaya taşı." });
+    },
+  });
+
+  /* =================== 6. ÖĞRENME ÇUKURU =================== */
+  const CUKUR = [["Atlama noktası", "Bu kolaymış.", 0.08, 0.28], ["Harika! Öğrenmenin başladığı yer", "Kafam karıştı, yapamıyorum, vazgeçeceğim.", 0.34, 0.72], ["Dip: kaos", "Harika, şu an buradasın. Demek ki öğrenmek üzeresin. Çıkmak için hangi aracı kullanacaksın?", 0.5, 0.86], ["Tırmanış", "Deniyorum, yardım alıyorum, anlıyorum.", 0.7, 0.56], ["Çıkış", "Başardım! Şimdi yeni bir çukura atlayabilirim.", 0.92, 0.26]];
+  tool("ogrenme-cukuru", {
+    title: "Öğrenme çukuru", icon: "pit", tone: "leaf", short: "Zorlanmak başarısızlık değildir!",
+    render(host) {
+      let ogr = null; const box = h("div"); host.append(box);
+      function ciz() {
+        const kay = (veri("cukur") || {})[T.isoDate()] || {}, ps = present();
+        const W = 1000, H = 420;
+        const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, class: "oc-svg" });
+        svg.innerHTML = `<path d="M0 ${H * 0.3} H${W * 0.2} C${W * 0.32} ${H * 0.3} ${W * 0.3} ${H * 0.92} ${W * 0.5} ${H * 0.92} C${W * 0.7} ${H * 0.92} ${W * 0.68} ${H * 0.3} ${W * 0.8} ${H * 0.3} H${W}" fill="none" stroke="#8A6A3B" stroke-width="8"/><path d="M0 ${H * 0.3} H${W * 0.2} C${W * 0.32} ${H * 0.3} ${W * 0.3} ${H * 0.92} ${W * 0.5} ${H * 0.92} C${W * 0.7} ${H * 0.92} ${W * 0.68} ${H * 0.3} ${W * 0.8} ${H * 0.3} H${W} V${H} H0z" fill="#EADBC4"/>`;
+        const durak = CUKUR.map(([ad, soz, x, y], i) => {
+          const kimler = Object.entries(kay).filter(([, v]) => v === i).map(([sid]) => T.store.activeClass().students.find((s) => s.id === sid)).filter(Boolean);
+          return h("button.oc-durak", { style: { left: x * 100 + "%", top: y * 100 + "%" }, onclick: () => { if (!ogr) { T.speak(soz); return; } const o2 = ogr; yaz("cukur", (o) => { o = o || {}; o[T.isoDate()] = o[T.isoDate()] || {}; o[T.isoDate()][o2] = i; return o; }); ogr = null; T.sound.pop(); ciz(); } },
+            h("b", ad), h("span", soz), h("div.oc-kim", kimler.map((s) => T.avatar(s.name, 28))));
+        });
+        box.replaceChildren(
+          h("p.dy-tip", "Adına dokun, sonra şu an bulunduğun yere dokun."),
+          h("div.dy-names", ps.map((st) => h("button" + (ogr === st.id ? ".on" : "") + (kay[st.id] != null ? ".done" : ""), { onclick: () => { ogr = st.id; ciz(); } }, T.avatar(st.name, 30), st.name))),
+          h("div.oc-wrap", svg, durak),
+          h("div.sb-card", h("h3", "Çıkış için araçlarım"), h("div.oc-arac", ["Arkadaşına sor", "Kitaba bak", "Tekrar dene", "Farklı bir yol bul"].map((x) => h("span.pill.info", { style: { fontSize: "18px", padding: "10px 16px" } }, x)))));
+      }
+      ciz();
+    },
+  });
+
+  /* =================== 7. ETKİNLİĞİM BİTTİ =================== */
+  const RUBRIK0 = ["Yönergeyi bir kez daha okudum.", "Bütün soruları ya da adımları yaptım.", "Adımı ve tarihi yazdım.", "Kontrol ettim, sağlamasını yaptım.", "Okunaklı ve düzenli.", "Masamı topladım."];
+  const MENU0 = ["Kitap okurum.", "Bir arkadaşıma yardım ederim.", "Zekâ oyunu oynarım.", "Dönüşümlü düşünme defterime yazarım.", "Resim yaparım.", "Arkadaşlarıma bir soru hazırlarım."];
+  function bitirdimVeri() { const v = veri("bitirdim"); return v || { r: RUBRIK0.slice(), m: MENU0.map((t) => ({ t, o: 0 })) }; }
+  function bitirdimCiz(box, kucuk) {
+    let tik = new Set(), duzen = false;
+    function ciz() {
+      const v = bitirdimVeri(); const hepsi = v.r.length && v.r.every((_, i) => tik.has(i));
+      const rub = h("div.bt-rub", v.r.map((r, i) => h("button.bt-madde" + (tik.has(i) ? ".on" : ""), { onclick: () => { tik.has(i) ? tik.delete(i) : tik.add(i); T.sound.pop(); ciz(); } }, h("i", tik.has(i) ? T.icon("check") : null), h("span", r), duzen ? h("button.btn.sm.icon.c-chalk", { "aria-label": "Sil", onclick: (e) => { e.stopPropagation(); yaz("bitirdim", (o) => { o = o || bitirdimVeri(); o.r.splice(i, 1); return o; }); ciz(); } }, T.icon("close")) : null)));
+      const sirali = v.m.map((x, i) => [x, i]).sort((a, b) => b[0].o - a[0].o);
+      const menu = h("div.bt-menu", sirali.map(([x, i], j) => h("div.bt-sec" + (j < 3 && x.o ? ".top" : ""), h("span", x.t), h("button.btn.sm" + (kucuk ? ".icon" : ""), { "aria-label": "Oy ver", onclick: () => { yaz("bitirdim", (o) => { o = o || bitirdimVeri(); o.m[i].o++; return o; }); ciz(); } }, T.icon("plus"), kucuk ? null : String(x.o)), duzen ? h("button.btn.sm.icon.c-chalk", { "aria-label": "Sil", onclick: () => { yaz("bitirdim", (o) => { o = o || bitirdimVeri(); o.m.splice(i, 1); return o; }); ciz(); } }, T.icon("close")) : null)));
+      const ekle = (alan, yer) => { const inp = h("input.in", { placeholder: yer }); return h("div.row", inp, h("button.btn.sm.c-leaf", { onclick: () => { const t = inp.value.trim(); if (!t) return; yaz("bitirdim", (o) => { o = o || bitirdimVeri(); alan === "r" ? o.r.push(t) : o.m.push({ t, o: 0 }); return o; }); ciz(); } }, T.icon("plus"), "Ekle")); };
+      box.replaceChildren(
+        h("div.bt-grid" + (kucuk ? ".kucuk" : ""),
+          h("div.sb-card", h("h3", "Bitirdim mi? Önce kontrol et"), rub, duzen ? ekle("r", "Yeni ölçüt (ör. Başlık yazdım)") : null,
+            h("div.bt-bitti" + (hepsi ? ".on" : ""), hepsi ? [T.icon("check"), "Bitirdim!"] : `${tik.size} / ${v.r.length} tamam`),
+            hepsi ? h("button.btn.sm.c-chalk", { onclick: () => { tik = new Set(); ciz(); } }, "Sıradaki arkadaş") : null),
+          h("div.sb-card", h("h3", "Etkinliğim bitti, şimdi ne yapabilirim?"), h("p.hint", "Seçenekleri sınıfça belirledik. Beğendiğin seçeneğe + ile oy ver; en çok oy alanlar üstte."), menu, duzen ? ekle("m", "Yeni seçenek önerisi") : null)),
+        h("div.row", { style: { marginTop: "10px" } }, h("button.btn.sm.c-chalk", { onclick: () => { duzen = !duzen; ciz(); } }, T.icon("edit"), duzen ? "Düzenlemeyi bitir" : "Ölçütleri ve seçenekleri düzenle"), !kucuk ? h("span.hint", "Rubriği ve menüyü sınıfınla birlikte yazın. Her sınıf için ayrı saklanır.") : null));
+    }
+    ciz();
+  }
+  tool("bitirdim", { title: "Etkinliğim bitti", icon: "check", tone: "leaf", short: "Bitirme rubriği ve sınıfın seçtiği 'şimdi ne yapabilirim?' menüsü", render(host) { const b = h("div"); host.append(b); bitirdimCiz(b, false); } });
+
+  /* =================== 8. BUMP IT UP DUVARI =================== */
+  const idb = {
+    open: () => new Promise((res, rej) => { try { const r = indexedDB.open("tahta-gorsel", 1); r.onupgradeneeded = () => r.result.createObjectStore("f"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }),
+    async put(k, v) { try { const db = await this.open(); await new Promise((res, rej) => { const t = db.transaction("f", "readwrite"); t.objectStore("f").put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); return true; } catch (e) { return false; } },
+    async get(k) { try { const db = await this.open(); return await new Promise((res) => { const t = db.transaction("f").objectStore("f").get(k); t.onsuccess = () => res(t.result); t.onerror = () => res(null); }); } catch (e) { return null; } },
+    async del(k) { try { const db = await this.open(); db.transaction("f", "readwrite").objectStore("f").delete(k); } catch (e) {} },
+  };
+  T.gorselDepo = idb;
+  async function kucult(file, max = 1100) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      return await new Promise((res) => c.toBlob(res, "image/jpeg", 0.82));
+    } finally { URL.revokeObjectURL(url); }
+  }
+  const CICEK = ["#F29BB8", "#F4CF4B", "#F2994A", "#F5A8D0", "#E8474C", "#5AA9E6"];
+  tool("bump-it-up", {
+    title: "Bump It Up duvarı", icon: "stairs", tone: "sun", grades: [1, 8], short: "Gelişim duvarı: örneklerle bir sonraki basamağa çık",
+    render(host) {
+      let aktif = null, duzen = false, yonerge = false;
+      const box = h("div"); host.append(box);
+      const duvarlar = () => (veri("bump") || { d: [] }).d;
+      const kaydetD = (fn) => yaz("bump", (o) => { o = o || { d: [] }; fn(o.d); return o; });
+      async function foto(img, key) { const b = await idb.get(key); if (b) { const u = URL.createObjectURL(b); img.src = u; T.onLeave(() => URL.revokeObjectURL(u)); } }
+      function yeni() {
+        const ad = h("input.in", { placeholder: "Duvarın adı (ör. Hikâye yazma, Zikzak çizgi)" }), n = h("select.in", [3, 4, 5, 6].map((x) => h("option", { value: x, selected: x === 4 ? true : null }, x + " basamak")));
+        T.modal({ title: "Yeni Bump It Up duvarı", body: h("div", { style: { display: "grid", gap: "10px" } }, ad, n, h("p.hint", "Basamakları sonra tek tek dolduracaksın: başlık, 'geliştirebilirim' maddeleri ve bir örnek fotoğraf.")), actions: [{ label: "Vazgeç" }, { label: "Oluştur", tone: "c-leaf", onClick: () => { const t = ad.value.trim() || "Gelişim duvarı"; const id = T.uid(); kaydetD((d) => d.push({ id, ad: t, b: Array.from({ length: +n.value }, (_, i) => ({ id: T.uid(), baslik: i + 1 + ". basamak", m: "" })) })); aktif = id; duzen = true; ciz(); } }] });
+      }
+      function yonergeKart() {
+        return h("div.sb-card.bu-yon", h("h3", "Bump It Up duvarı nasıl kurulur?"),
+          h("ol",
+            h("li", "Bir beceri seç: hikâye yazma, zikzak çizgi, problem çözme adımları gibi. Tek bir beceri, tek bir duvar."),
+            h("li", "Aynı görevden 3 ile 6 arasında örnek topla. En zayıftan en iyiye sırala. Öğrenci adlarını kapat ya da örneği kendin hazırla."),
+            h("li", "Her basamağa çocuğun anlayacağı dille 'geliştirebilirim' maddeleri yaz: \"Basit cümleler kurabilirim. Büyük harf ve noktaya dikkat ederim.\" gibi."),
+            h("li", "Her basamağa örneğin fotoğrafını yükle. Fotoğraflar yalnızca bu cihazda saklanır."),
+            h("li", "Derste üç adımı kullan: 1. Kâğıdını incele. 2. Şimdi neredesin? Adını o basamağa yapıştır. 3. Bir sonraki basamağa çıkabilir misin? Hedef koy."),
+            h("li", "Taslak kültürü: ilk iş çocuğun kapasitesi değildir, yalnızca bir taslaktır. Arkadaşınla değiş, birbirinize iki tane özel geri bildirim verin (güzel ya da kötü değil; şurası eğri, burası eksik gibi), sonra 2. taslağı yapın.")),
+          h("button.btn.sm.c-chalk", { onclick: () => { yonerge = false; ciz(); } }, "Kapat"));
+      }
+      function ciz() {
+        const ds = duvarlar(); const d = ds.find((x) => x.id === aktif);
+        if (!d) {
+          box.replaceChildren(
+            yonerge || !ds.length ? yonergeKart() : h("button.btn.sm.c-chalk", { onclick: () => { yonerge = true; ciz(); } }, T.icon("help"), "Nasıl kurulur?"),
+            h("div.tool-grid", { style: { marginTop: "14px" } }, ds.map((x) => h("button.tool-card.c-sun", { onclick: () => { aktif = x.id; duzen = false; ciz(); } }, T.icon("stairs"), h("span", x.ad, h("small", x.b.length + " basamak")))),
+              h("button.tool-card.c-chalk", { onclick: yeni }, T.icon("plus"), h("span", "Yeni duvar", h("small", "Kendi basamaklarını kur")))));
+          return;
+        }
+        const kay = (veri("bumpYer") || {})[d.id] || {};
+        const ps = present();
+        const basamaklar = h("div.bu-duvar", { style: { "--n": d.b.length } }, d.b.map((b, i) => {
+          const img = h("img", { alt: b.baslik + " örneği" });
+          foto(img, "bump:" + b.id);
+          const kimler = Object.entries(kay).filter(([, v]) => v === i).map(([sid]) => T.store.activeClass().students.find((s) => s.id === sid)).filter(Boolean);
+          return h("div.bu-bas", { style: { "--c": CICEK[i % 6], "--h": 40 + (i / Math.max(1, d.b.length - 1)) * 60 + "%" } },
+            h("div.bu-cicek", h("b", i + 1)),
+            h("div.bu-kutu",
+              duzen ? h("input.in", { value: b.baslik, onchange: (e) => kaydetD((ds2) => { ds2.find((x) => x.id === d.id).b[i].baslik = e.target.value; }) }) : h("b", b.baslik),
+              h("small", "Geliştirebilirim:"),
+              duzen ? h("textarea.in", { value: b.m, placeholder: "Her satıra bir madde", style: { minHeight: "80px" }, onchange: (e) => kaydetD((ds2) => { ds2.find((x) => x.id === d.id).b[i].m = e.target.value; }) }) : h("ul", (b.m || "").split("\n").filter(Boolean).map((x) => h("li", x))),
+              h("div.bu-foto", img, duzen ? h("label.btn.sm.c-chalk", { style: { cursor: "pointer" } }, T.icon("download"), "Örnek fotoğraf", h("input", { type: "file", accept: "image/*", style: { display: "none" }, onchange: async (e) => { const f = e.target.files[0]; if (!f) return; const bl = await kucult(f); await idb.put("bump:" + b.id, bl); T.toast("Fotoğraf eklendi"); ciz(); } })) : null),
+              h("div.oc-kim", kimler.map((s) => h("span.pill", T.avatar(s.name, 22), s.name))),
+              !duzen ? h("button.btn.sm.c-chalk", { onclick: () => { const sel = h("select.in", ps.map((s) => h("option", { value: s.id }, s.name))); T.modal({ title: "Şimdi neredesin?", body: h("div", { style: { display: "grid", gap: "8px" } }, h("p", b.baslik + " basamağına kimin adını yapıştıralım?"), sel), actions: [{ label: "Vazgeç" }, { label: "Yapıştır", tone: "c-leaf", onClick: () => { yaz("bumpYer", (o) => { o = o || {}; o[d.id] = o[d.id] || {}; o[d.id][sel.value] = i; return o; }); ciz(); } }] }); } }, T.icon("class"), "Adımı yapıştır") : null));
+        }));
+        box.replaceChildren(
+          h("div.bu-adim", ["1. Kâğıdını incele.", "2. Şimdi neredesin? Yapıştır.", "3. Bir sonraki basamağa çıkabilir misin? Hedef koy."].map((x, i) => h("div", { style: { "--c": ["#F29BB8", "#8EC9EE", "#C8E64B"][i] } }, x))),
+          h("div.row", { style: { margin: "12px 0" } }, h("button.btn.sm.c-chalk", { onclick: () => { aktif = null; ciz(); } }, T.icon("back"), "Duvarlar"), h("h2", { style: { margin: 0, fontSize: "24px" } }, d.ad), h("div.spacer"),
+            h("button.btn.sm" + (duzen ? "" : ".c-chalk"), { onclick: () => { duzen = !duzen; ciz(); } }, T.icon("edit"), duzen ? "Bitti" : "Düzenle"),
+            duzen ? h("button.btn.sm.c-chalk", { onclick: () => { kaydetD((ds2) => ds2.find((x) => x.id === d.id).b.push({ id: T.uid(), baslik: d.b.length + 1 + ". basamak", m: "" })); ciz(); } }, T.icon("plus"), "Basamak") : null,
+            duzen ? h("button.btn.sm.c-tomato", { onclick: async () => { if (await T.confirm("Duvar silinsin mi?", d.ad + " duvarı ve fotoğrafları silinir.", "Sil")) { d.b.forEach((b) => idb.del("bump:" + b.id)); kaydetD((ds2) => ds2.splice(ds2.findIndex((x) => x.id === d.id), 1)); aktif = null; ciz(); } } }, T.icon("trash"), "Duvarı sil") : null,
+            !duzen ? h("button.btn.sm.c-chalk", { onclick: () => { yaz("bumpYer", (o) => { o = o || {}; o[d.id] = {}; return o; }); ciz(); } }, T.icon("reset"), "İsimleri temizle") : null),
+          duzen ? h("p.hint", "Başlıkları ve maddeleri yaz, her basamağa örnek fotoğraf yükle. Değişiklikler hemen kaydedilir.") : null,
+          basamaklar);
+      }
+      ciz();
+    },
+  });
+
+  /* =================== Ders ekranı araçları =================== */
+  T.widgets.bitirdim = {
+    title: "Etkinliğim bitti", icon: "check", tone: "leaf", w: 640, h: 460, minW: 420, minH: 320, group: "Sınıf kültürü", desc: "Bitirme rubriği ve ne yapabilirim menüsü",
+    init: () => ({}), render(body) { body.style.overflow = "auto"; const b = h("div"); body.append(b); bitirdimCiz(b, true); },
+  };
+  T.widgets.yzduzey = {
+    title: "Yapay zekâ düzeyi", icon: "spark", tone: "grape", w: 360, h: 220, minW: 260, minH: 160, group: "Sınıf kültürü", desc: "Bu görevin yapay zekâ kullanım düzeyi",
+    init: () => ({ d: 0 }),
+    render(body, w, api) {
+      const ad = ["Düzey 0: Yapay zekâ yok", "Düzey 1: Yardım ve anlama", "Düzey 2: Geri bildirim ve düzenleme", "Düzey 3: Üretim ve tasarım ortağı"], rk = ["#5B7DB1", "#E9C23B", "#6DAF5A", "#E07B3C"];
+      const p = () => { body.replaceChildren(h("div", { style: { display: "grid", gap: "8px", placeContent: "center", textAlign: "center", height: "100%" } }, h("small", "Bugünkü düzey"), h("div", { style: { font: "800 26px var(--display)", color: rk[w.data.d], cursor: "pointer" }, onclick: () => { w.data.d = (w.data.d + 1) % 4; api.save(); p(); } }, ad[w.data.d]), h("span.hint", "Değiştirmek için dokun"))); };
+      p();
+    },
+  };
+  T.widgets.ucadim = {
+    title: "Sormadan önce 3 adım", icon: "teacher", tone: "sky", w: 360, h: 330, minW: 260, minH: 260, group: "Sınıf kültürü", desc: "Beyin, etraf, arkadaş, öğretmen",
+    init: () => ({}),
+    render(body) { body.append(h("div.w3a", [["Son durak: Öğretmen", "#C2453A"], ["3. Arkadaş: fısıldayarak sordun mu?", "#3C8DD8"], ["2. Etraf: panoya, tahtaya, kitaba baktın mı?", "#E0B020"], ["1. Beyin: kendine sordun mu? Yönergeyi okudun mu?", "#D16BA5"]].map(([t, c], i) => h("div", { style: { background: c, width: 70 + i * 10 + "%" } }, t)))); },
+  };
+})();

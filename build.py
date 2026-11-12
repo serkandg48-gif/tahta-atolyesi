@@ -35,6 +35,7 @@ JS_ORDER = [
     "subjects.js",
     "birinci.js",
     "duygu.js",
+    "duygu2.js",
     "zeka.js",
     "plan.js",
     "settings.js",

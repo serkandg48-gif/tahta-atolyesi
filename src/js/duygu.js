@@ -32,19 +32,21 @@
 
   /* ---------- Bölüm ---------- */
   const GRUPLAR = [
-    ["Duygularımı tanıyorum", ["duygumetre", "duygu-kartlari"]],
-    ["Kendimi düzenliyorum", ["sakinlesme", "sorun-boyutu"]],
-    ["Arkadaşlarımla", ["catisma", "iltifat"]],
+    ["Duygularımı tanıyorum", ["duygumetre", "bolgeler", "duygu-kartlari", "beynim"]],
+    ["Kendimi düzenliyorum", ["sakinlesme", "zihin-suzgeci", "dusunce-istasyonu", "gelecek-teleskobu"]],
+    ["Arkadaşlarımla", ["catisma", "sorun-boyutu", "seninle-mi", "sogusun", "iltifat"]],
+    ["Öğrenme kültürü", ["anlama-duzeyi", "uc-adim", "takildim", "ogrenme-cukuru", "favori-hatalar", "bitirdim", "bump-it-up", "yz-duzeyi"]],
+    ["Yansıtma panoları", ["gul-diken", "calma-listesi", "bookflix"]],
   ];
   T.sections.duygu = {
-    title: "Sosyal duygusal öğrenme", icon: "heart", tone: "pink", desc: "Duygumetre, çatışma çözme, sakinleşme",
+    title: "Sosyal duygusal öğrenme ve sınıf kültürü", icon: "heart", tone: "pink", desc: "Duygumetre, çatışma çözme, sakinleşme",
     render(view, sub) {
       if (sub && T.tools[sub]) return T.toolPage(view, sub);
       const wrap = h("div.view-inner"); view.append(wrap);
-      wrap.append(h("div.page-head", h("h1", "Sosyal duygusal öğrenme"), h("div.sub", "Duyguyu adlandırmak, sakinleşmek, sorunu büyüklüğüne göre ele almak ve arkadaşla anlaşmak için sınıf araçları. Öğrencilerin seçimleri yalnızca bu cihazda kalır.")));
+      wrap.append(h("div.page-head", h("h1", "Sosyal duygusal öğrenme"), h("div.sub", "Duyguyu adlandırmak, sakinleşmek, sorunu büyüklüğüne göre ele almak, arkadaşla anlaşmak ve hatadan öğrenmek için sınıf araçları. Öğrencilerin seçimleri ve yüklenen fotoğraflar yalnızca bu cihazda kalır.")));
       GRUPLAR.forEach(([g, ids]) => {
         wrap.append(h("div.section-title", h("h2", g)));
-        wrap.append(h("div.tool-grid", { style: { marginBottom: "18px" } }, ids.map((id) => { const t = T.tools[id]; return h("button.tool-card.c-" + (t.tone || "pink"), { onclick: () => T.go("duygu-" + id) }, T.icon(t.icon), h("span", t.title, h("small", t.short || ""))); })));
+        wrap.append(h("div.tool-grid", { style: { marginBottom: "18px" } }, ids.filter((id) => T.tools[id]).map((id) => { const t = T.tools[id]; return h("button.tool-card.c-" + (t.tone || "pink"), { onclick: () => T.go("duygu-" + id) }, T.icon(t.icon), h("span", t.title, h("small", t.short || ""))); })));
       });
     },
   };
@@ -148,80 +150,6 @@
           const run = () => { big.textContent = n; T.speak(String(n)); if (n > 0) { n--; timer = setTimeout(run, 1800); } else { yazi.textContent = "Sakinleştik. Şimdi konuşmaya hazırız."; } };
           alan.append(big, yazi, h("button.btn.big", { onclick: () => { clearTimeout(timer); n = 10; yazi.textContent = "Her sayıda bir nefes"; run(); } }, "Başla"));
         }
-      }
-      ciz();
-    },
-  });
-
-  /* 4. Sorunum ne büyüklükte? */
-  const BOYUT = [
-    ["kucuk", "Küçük sorun", "#2E8B57", "Kendim çözebilirim.", ["Derin nefes alırım.", "Görmezden gelirim ya da başka bir şeye geçerim.", "Kibarca söylerim: Lütfen ...", "Sırayla yapmayı öneririm."]],
-    ["orta", "Orta sorun", "#E9A23B", "Bir yetişkinden yardım isteyebilirim.", ["Önce sakinleşirim.", "Ne olduğunu ben diliyle anlatırım.", "Öğretmenime ya da aileme söylerim.", "Birlikte bir çözüm buluruz."]],
-    ["buyuk", "Büyük sorun", "#C2453A", "Hemen bir yetişkine haber veririm.", ["Biri yaralandıysa ya da tehlikedeyse beklemem.", "En yakın yetişkine hemen söylerim.", "Güvenli bir yerde beklerim."]],
-  ];
-  const SORUNLAR = [
-    ["Kalemimin ucu kırıldı.", "kucuk"], ["Oyunda ilk sırayı başkası aldı.", "kucuk"], ["Arkadaşım bana yanlışlıkla çarptı.", "kucuk"], ["Beslenmemde sevmediğim bir yiyecek var.", "kucuk"],
-    ["Silgimi bulamıyorum.", "kucuk"], ["Arkadaşım oyuna beni almadı.", "orta"], ["Biri her gün benimle alay ediyor.", "orta"], ["Ödevimi evde unuttum.", "orta"],
-    ["Tuvaletim geldi ama ders devam ediyor.", "orta"], ["Bahçede bir arkadaşım düştü, dizi kanıyor.", "buyuk"], ["Okulda bir yabancı beni yanına çağırdı.", "buyuk"], ["Sınıfta duman kokusu var.", "buyuk"],
-    ["Bir arkadaşım beni itip vurdu.", "buyuk"], ["En sevdiğim oyunu oynayamadık.", "kucuk"], ["Arkadaşım sırrımı başkalarına anlattı.", "orta"],
-  ];
-  tool("sorun-boyutu", {
-    title: "Sorunum ne büyüklükte?", icon: "scale", tone: "sun", short: "Küçük, orta, büyük sorun ve uygun tepki",
-    render(host) {
-      let mod = "ogren", i = 0, secim = null, sira = T.shuffle(SORUNLAR.slice());
-      const box = h("div"); host.append(box);
-      const kart = ([k, l, c, ana, ne]) => h("div.dy-size", { style: { "--c": c } }, h("div.dy-sizehead", h("i"), h("b", l)), h("p.dy-ana", ana), h("ul", ne.map((x) => h("li", x))));
-      function ciz() {
-        const seg = h("div.seg", [["ogren", "Büyüklükler"], ["oyun", "Hangi büyüklükte?"], ["tepki", "Tepkim uygun mu?"]].map(([k, l]) => h("button", { "aria-pressed": String(mod === k), onclick: () => { mod = k; secim = null; ciz(); } }, l)));
-        let ic;
-        if (mod === "ogren") ic = h("div.dy-sizes", BOYUT.map(kart));
-        else if (mod === "oyun") {
-          const [t, dogru] = sira[i % sira.length];
-          ic = h("div.dy-card",
-            h("div.dy-durum", t),
-            h("div.dy-pick", BOYUT.map(([k, l, c]) => h("button" + (secim ? (k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": c }, onclick: () => { if (secim) return; secim = k; k === dogru ? T.sound.ok() : T.sound.no(); ciz(); } }, h("i"), l))),
-            secim ? h("div", kart(BOYUT.find((x) => x[0] === dogru)), h("p.hint", "Sınıfta farklı düşünen var mı? Neden? Bazen aynı sorun kişiye göre farklı büyüklükte hissedilir; önemli olan tepkinin uygun olması.")) : null,
-            h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(t) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; secim = null; ciz(); } }, T.icon("next"), "Sıradaki durum")));
-        } else {
-          let sorun = 1, tepki = 3;
-          const g = h("div");
-          const p = () => {
-            const fark = tepki - sorun;
-            const yorum = fark === 0 ? ["Tepki sorunun büyüklüğüne uygun.", "ok"] : fark > 0 ? ["Tepki sorundan büyük. Önce sakinleşmek işe yarar.", "warn"] : ["Tepki sorundan küçük kalmış. Büyük sorunlarda yardım istemek gerekir.", "info"];
-            const olcek = (ad, v, set, etik) => h("div.dy-scale", h("b", ad), h("div.dy-steps", [1, 2, 3].map((n) => h("button", { "aria-pressed": String(n === v), style: { "--c": BOYUT[n - 1][2] }, onclick: () => { set(n); p(); } }, etik[n - 1]))));
-            g.replaceChildren(olcek("Sorunun büyüklüğü", sorun, (n) => (sorun = n), ["Küçük", "Orta", "Büyük"]), olcek("Tepkimin büyüklüğü", tepki, (n) => (tepki = n), ["Sakin", "Üzgün, sesli", "Bağırma, ağlama"]), h("div.pill." + yorum[1], { style: { fontSize: "20px", padding: "12px 18px" } }, yorum[0]), h("p.hint", "Örnek: Kalemin ucu kırıldı (küçük) ve çok bağırdın (büyük). Bu ikisi uyuşuyor mu?"));
-          };
-          p(); ic = g;
-        }
-        box.replaceChildren(seg, h("div", { style: { marginTop: "16px" } }, ic));
-      }
-      ciz();
-    },
-  });
-
-  /* 5. Çatışma çözüm köşesi */
-  const COZUM = [["Sırayla yapalım", "turn"], ["Paylaşalım", "share"], ["Birlikte oynayalım", "class"], ["Özür dileyelim", "heart"], ["Ara verip sonra konuşalım", "timer"], ["Ortada buluşalım", "scale"], ["Öğretmenden yardım isteyelim", "teacher"], ["Zar atalım ya da kura çekelim", "dice"]];
-  tool("catisma", {
-    title: "Çatışma çözüm köşesi", icon: "class", tone: "sky", short: "İki arkadaş adım adım anlaşır",
-    render(host) {
-      let adim = 0, a = null, b = null, cozum = null;
-      const box = h("div"); host.append(box);
-      const ad = (x, yedek) => (x ? x.name : yedek);
-      const ADIM = ["Dur ve sakinleş", "Ne oldu?", "Dinle ve tekrar et", "Çözüm seç", "Anlaştık"];
-      function ciz() {
-        const st = T.store.activeClass().students;
-        const secici = (cur, set, diger) => h("select.in", { onchange: (e) => { set(st.find((x) => x.id === e.target.value) || null); ciz(); } }, h("option", { value: "" }, "Seç"), st.filter((x) => !diger || x.id !== diger.id).map((x) => h("option", { value: x.id, selected: cur && cur.id === x.id ? true : null }, x.name)));
-        const A = ad(a, "1. arkadaş"), B = ad(b, "2. arkadaş");
-        let ic;
-        if (adim === 0) ic = h("div.dy-step", h("h3", "İkiniz de durun. Üç derin nefes alalım."), h("div.dy-ballwrap.sm", h("div.dy-ball.pulse")), h("p.sb-line", "Hazır mısınız? Kimse bağırmadan, sırayla konuşacağız."), h("div.dy-pair", h("label", "1. arkadaş", secici(a, (x) => (a = x), b)), h("label", "2. arkadaş", secici(b, (x) => (b = x), a))), h("p.hint", "İsim seçmek isteğe bağlı. Seçilen isimler kaydedilmez."));
-        else if (adim === 1) ic = h("div.dy-step", h("h3", "Sırayla ben diliyle anlatın"), h("div.dy-ben", h("div", h("b", A), h("p", "\"Ben ... olunca ... hissettim.\""), h("p", "\"Benim isteğim ...\"")), h("div", h("b", B), h("p", "\"Ben ... olunca ... hissettim.\""), h("p", "\"Benim isteğim ...\""))), h("p.hint", "Suçlayan 'sen' cümleleri yerine kendi duygunu anlat. Konuşan konuşurken diğeri sözünü kesmez."), h("div.dy-faces.sm", DUYGU.map(([k, l]) => h("div.dy-face.mini", T.yuz(k, 52), h("span", l)))));
-        else if (adim === 2) ic = h("div.dy-step", h("h3", "Arkadaşını anladığını göster"), h("div.dy-ben", h("div", h("b", A), h("p", "\"Sen ... olduğu için ... hissetmişsin.\"")), h("div", h("b", B), h("p", "\"Sen ... olduğu için ... hissetmişsin.\""))), h("p.hint", "Duyduğunu kendi cümlenle tekrar et. Doğru anladım mı diye sor."));
-        else if (adim === 3) ic = h("div.dy-step", h("h3", "Birlikte bir çözüm seçin"), h("div.dy-sol", COZUM.map(([l, ic2]) => h("button", { "aria-pressed": String(cozum === l), onclick: () => { cozum = l; T.speak(l); ciz(); } }, T.icon(T.ICONS[ic2] ? ic2 : "star"), l))), h("p.hint", "İkinizin de kabul ettiği çözümü seçin. Anlaşamazsanız 'Öğretmenden yardım isteyelim'i seçin."));
-        else ic = h("div.dy-step.dy-done", h("div.dy-bigicon", T.icon("hands")), h("h3", A + " ve " + B + " anlaştı!"), cozum ? h("p.sb-line", "Çözümümüz: ", h("b", cozum)) : null, h("p.sb-line", "Şimdi nasıl hissediyorsunuz?"), h("button.btn", { onclick: () => { adim = 0; a = b = cozum = null; ciz(); } }, T.icon("reset"), "Yeni çatışma"));
-        box.replaceChildren(
-          h("div.sb-steps", ADIM.map((l, i) => h("button", { "aria-selected": String(i === adim), class: i < adim ? "done" : "", onclick: () => { adim = i; ciz(); } }, h("span.n", i + 1), l))),
-          ic,
-          h("div.sb-nav", adim > 0 ? h("button.btn.c-chalk", { onclick: () => { adim--; ciz(); } }, T.icon("back"), "Önceki") : h("span"), adim < 4 ? h("button.btn.big", { onclick: () => { adim++; ciz(); } }, ADIM[adim + 1], T.icon("next")) : h("span")));
       }
       ciz();
     },

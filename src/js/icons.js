@@ -105,6 +105,17 @@ T.ICONS = {
   share: '<circle class="f" cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="16"/><path d="M24 8v32M8 24h32"/>',
   teacher: '<circle class="f" cx="17" cy="14" r="6"/><circle cx="17" cy="14" r="6"/><path d="M6 40c0-9 5-14 11-14s11 5 11 14M26 10h16v14H30M30 18l6-4"/>',
   hands: '<path class="f" d="M8 28l10-10 8 6 8-6 6 6-14 14z"/><path d="M4 24l8-8 6 4M44 24l-8-8-8 6-6-4-8 8M14 30l4 4M19 26l6 6M24 22l6 6M20 36l4 4 10-10"/>',
+  help: '<circle class="f" cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="18"/><path d="M18 19a6 6 0 1 1 8 5.6c-1.4.6-2 1.6-2 3V30M24 36v.5"/>',
+  filter: '<path class="f" d="M6 10h36L28 26v14l-8-4V26z"/><path d="M6 10h36L28 26v14l-8-4V26z"/>',
+  train: '<rect class="f" x="10" y="8" width="28" height="26" rx="6"/><rect x="10" y="8" width="28" height="26" rx="6"/><path d="M10 22h28M17 28v.5M31 28v.5M16 34l-5 7M32 34l5 7M18 14h12"/>',
+  telescope: '<path class="f" d="M6 22l26-12 4 9-26 12z"/><path d="M6 22l26-12 4 9-26 12zM20 26l-6 16M22 26l6 16M36 19l6-3"/>',
+  brain: '<path class="f" d="M24 10c-4-5-13-3-13 4-5 1-7 8-3 11-2 5 2 10 7 9 2 5 9 5 9 0z"/><path d="M24 10c-4-5-13-3-13 4-5 1-7 8-3 11-2 5 2 10 7 9 2 5 9 5 9 0zM24 10c4-5 13-3 13 4 5 1 7 8 3 11 2 5-2 10-7 9-2 5-9 5-9 0zM24 10v30"/>',
+  flower: '<circle class="f" cx="24" cy="18" r="6"/><circle cx="24" cy="18" r="5"/><path d="M24 8a5 5 0 0 1 0 0M19 13a6 6 0 1 1 10 0a6 6 0 1 1-2 9a6 6 0 1 1-6 0a6 6 0 1 1-2-9zM24 24v18M24 36c-6 0-9-4-9-8 5 0 9 3 9 8"/>',
+  music: '<path class="f" d="M18 34a5 5 0 1 1-10 0a5 5 0 0 1 10 0z"/><path d="M18 34a5 5 0 1 1-10 0a5 5 0 0 1 10 0zM40 30a5 5 0 1 1-10 0a5 5 0 0 1 10 0zM18 34V10l22-4v24"/>',
+  book: '<path class="f" d="M6 10c7-2 13-1 18 3v28c-5-4-11-5-18-3z"/><path d="M6 10c7-2 13-1 18 3v28c-5-4-11-5-18-3zM42 10c-7-2-13-1-18 3v28c5-4 11-5 18-3z"/>',
+  snow: '<path d="M24 6v36M8 15l32 18M8 33l32-18M20 9l4 4 4-4M20 39l4-4 4 4"/>',
+  pit: '<path class="f" d="M4 16h8c4 0 4 22 12 22s8-22 12-22h8v26H4z"/><path d="M4 16h8c4 0 4 22 12 22s8-22 12-22h8"/><circle cx="24" cy="30" r="3"/>',
+  stairs: '<path class="f" d="M6 42V34h10v-8h10v-8h10v-8h6v32z"/><path d="M6 42V34h10v-8h10v-8h10v-8h6"/>',
   bolt: '<path class="f" d="M27 4 9 27h13l-3 17 20-25H26z"/><path d="M27 4 9 27h13l-3 17 20-25H26z"/>',
 };
 T.icon = function (name, cls = "") {

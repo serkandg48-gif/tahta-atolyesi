@@ -36,6 +36,7 @@ JS_ORDER = [
     "tavsan.js",
     "oyun-sahne.js",
     "kutup.js",
+    "timsah.js",
     "math-vitrin.js",
     "math-talks.js",
     "subjects.js",

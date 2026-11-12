@@ -1412,3 +1412,5 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 @media (prefers-reduced-motion: reduce) { .oy-sahne .oy-secenekler .btn.big { transition: none; } }
 .oy-sahne .oy-secenekler .btn.big:disabled { opacity: 1; filter: saturate(.75) brightness(.95); }
 .oy-sahne.tema-cayir > .mat { padding-left: clamp(18px, 9vw, 150px) !important; }
+.tm-d { display: grid; justify-items: center; gap: 0; min-width: 140px; padding: .3em 1em !important; border-radius: 18px !important; box-shadow: 0 6px 0 rgba(20, 30, 50, .28), 0 12px 24px rgba(20, 30, 50, .22); background: linear-gradient(#fff, #EEF2F8) !important; }
+.tm-d b { font: 900 clamp(32px, 4vw, 60px) var(--display); line-height: 1; color: #2F5A1E; } .tm-d small { font: 700 clamp(11px, 1.1vw, 15px) var(--body); color: #46536B; }

@@ -1,6 +1,8 @@
 /* 3B oyunlar (ortak iskelet T.oyun3B ile). */
 (function () {
   const R = (a, b) => Math.floor(a + Math.random() * (b - a + 1)), P = (l) => l[Math.floor(Math.random() * l.length)];
+  /* üleştirme eki: 2'şer, 3'er, 6'şar, 9'ar, 10'ar */
+  const er = (k) => { const BIR = ["sıfır", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"], ON = ["", "on", "yirmi", "otuz", "kırk", "elli", "altmış", "yetmiş", "seksen", "doksan"]; const w = k % 10 ? BIR[k % 10] : k % 100 ? ON[(k % 100) / 10] : "yüz"; const sesli = [...w].filter((ch) => "aeıioöuü".includes(ch)).pop(), kalin = "aıou".includes(sesli), unlu = "aeıioöuü".includes(w[w.length - 1]); return k + "'" + (unlu ? "ş" : "") + (kalin ? "ar" : "er"); };
   const yakin = (ans, n = 4, sp = 3, min = 0) => { const o = new Set([ans]); let t = 0; while (o.size < n && t++ < 200) { const v = ans + R(-sp, sp); if (v >= min && v !== ans) o.add(v); } return T.shuffle([...o]); };
 
   /* ---------- Ortak 3B parçalar ---------- */
@@ -94,6 +96,108 @@
       let sa = null; return { soru: "Duvardaki saat kaçı gösteriyor?", cevap: ans, secenekler: T.shuffle([...o]), aciklama: T.saatOku ? T.saatOku(hh, mm) : ans,
         goster(c, grup) { sa = PARCA.saat(c, grup); sa.g.position.set(0, 3.3, 0); sa.hedefA = -(((hh % 12) + mm / 60) * Math.PI) / 6; sa.hedefY = -(mm * Math.PI) / 30; sa.akrep.rotation.z = sa.hedefA + 1.5; sa.yelkovan.rotation.z = sa.hedefY - 4; },
         adim(c, grup, dt) { if (!sa) return; sa.akrep.rotation.z += (sa.hedefA - sa.akrep.rotation.z) * Math.min(1, dt * 6); sa.yelkovan.rotation.z += (sa.hedefY - sa.yelkovan.rotation.z) * Math.min(1, dt * 6); } }; } });
+
+  /* ---------- Örüntü treni: ahşap tren, vagonlarda geometrik cisimler ---------- */
+  const CISIM = { kk: ["Kırmızı top", 0xd8342a, "kure"], mk: ["Mavi küp", 0x2a6fd8, "kup"], sk: ["Sarı küp", 0xf2b51b, "kup"], mo: ["Mavi koni", 0x2a6fd8, "koni"], ys: ["Yeşil silindir", 0x2e9b4f, "sil"], ss: ["Sarı koni", 0xf2b51b, "koni"], ks: ["Kırmızı silindir", 0xd8342a, "sil"], yk: ["Yeşil top", 0x2e9b4f, "kure"] };
+  const cisim = (c, k) => { const { THREE } = c, [, renk, tur] = CISIM[k], m = new THREE.MeshPhysicalMaterial({ color: renk, roughness: 0.25, clearcoat: 0.8 });
+    const geo = tur === "kure" ? new THREE.SphereGeometry(0.42, 32, 24) : tur === "kup" ? new THREE.BoxGeometry(0.7, 0.7, 0.7) : tur === "koni" ? new THREE.ConeGeometry(0.42, 0.85, 32) : new THREE.CylinderGeometry(0.35, 0.35, 0.8, 32); const o = new THREE.Mesh(geo, m); o.castShadow = true; return o; };
+  T.oyun3B("oruntu-treni", { ortam: "masa", seviyeler: ["İki öğe", "Üç öğe", "Dört öğe"], kamera: { poz: [-1.5, 4.5, 13], bak: [-1.5, 1, 0], fov: 40 },
+    tur(L, c) { const units = [["kk", "mk"], ["sk", "sk", "mo"], ["kk", "ys", "ss"], ["yk", "ks", "ks", "mk"]]; const u = L === 0 ? units[0] : L === 1 ? P(units.slice(0, 3)) : P(units);
+      const dizi = Array.from({ length: 7 }, (_, i) => u[i % u.length]), ans = u[7 % u.length];
+      const secK = T.shuffle([ans, ...T.shuffle(Object.keys(CISIM).filter((k) => k !== ans)).slice(0, 3)]);
+      return { soru: "Örüntüye bak. Son vagona hangi cisim gelmeli?", cevap: CISIM[ans][0], secenekler: secK.map((k) => CISIM[k][0]), aciklama: "Tekrar eden parça: " + u.map((k) => CISIM[k][0].toLocaleLowerCase("tr")).join(", ") + ".",
+        goster(c, grup) { const { THREE } = c, tm = new THREE.MeshStandardMaterial({ map: c.tahta(), roughness: 0.55 }), tekM = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.5, metalness: 0.4 }), kirmizi = new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.4 });
+          const ray = new THREE.Mesh(new THREE.BoxGeometry(22, 0.08, 0.15), tekM); [-0.55, 0.55].forEach((z) => { const r2 = ray.clone(); r2.position.set(0, 0.04, z); grup.add(r2); });
+          for (let i = -11; i < 11; i += 0.8) { const tr = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.06, 1.6), tm); tr.position.set(i, 0.02, 0); tr.receiveShadow = true; grup.add(tr); }
+          const tren = new THREE.Group(); grup.add(tren); grup.userData.tren = tren;
+          const lok = new THREE.Group(); const gv = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.0, 1.1), kirmizi); gv.position.y = 0.85; lok.add(gv); const kz = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.4, 24), new THREE.MeshStandardMaterial({ color: 0x2a6fd8, roughness: 0.4 })); kz.rotation.z = Math.PI / 2; kz.position.set(0.55, 1.0, 0); lok.add(kz); const bc = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 0.6, 16), tekM); bc.position.set(0.95, 1.8, 0); lok.add(bc); const kab = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.0, 1.1), tm); kab.position.set(-0.5, 1.6, 0); lok.add(kab); lok.position.x = 4.6; tren.add(lok);
+          const teker = (p, x) => [-0.6, 0.6].forEach((z) => { const t = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.12, 24), tekM); t.rotation.x = Math.PI / 2; t.position.set(x, 0.3, z); p.add(t); });
+          [-0.5, 0.5].forEach((x) => teker(lok, x));
+          dizi.concat(["?"]).forEach((k, i) => { const v = new THREE.Group(); const kasa = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.45, 1.1), tm); kasa.position.y = 0.6; v.add(kasa); [-0.3, 0.3].forEach((x) => teker(v, x)); v.position.x = 3.1 - i * 1.35;
+            if (k !== "?") { const o = cisim(c, k); o.position.y = 1.25; v.add(o); } else { const q2 = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9), new THREE.MeshBasicMaterial({ map: c.sayiDoku("?", "#FFFFFF", "#EEF3F8", "#1B2A4A", true), transparent: true })); q2.position.set(0, 1.3, 0.3); v.add(q2); grup.userData.son = v; }
+            tren.add(v); });
+          c.golge(tren); tren.position.x = 14; },
+        dogru(c, grup) { const v = grup.userData.son; v.children.filter((o) => o.geometry && o.geometry.type === "PlaneGeometry").forEach((o) => v.remove(o)); const o = cisim(c, ans); o.position.y = 3; o.userData.dus = 1; v.add(o); grup.userData.yeni = o; },
+        adim(c, grup, dt, durum) { const t = grup.userData.tren; if (!t) return; const hedef = durum === "dogru" ? -16 : 0.2; t.position.x += (hedef - t.position.x) * Math.min(1, dt * (durum === "dogru" ? 0.6 : 1.2)); const o = grup.userData.yeni; if (o && o.position.y > 1.25) o.position.y = Math.max(1.25, o.position.y - dt * 6); } }; } });
+
+  /* ---------- Ritmik sayma: sayılı balonlar ---------- */
+  T.oyun3B("ritmik", { ortam: "cayir", seviyeler: ["2, 5, 10", "3, 4, 5, 10", "6-9, 25, 100"], kamera: { poz: [0, 3.5, 14], bak: [0, 3.6, 0], fov: 40 },
+    tur(L, c) { const k = P(L === 0 ? [2, 5, 10] : L === 1 ? [3, 4, 5, 10] : [6, 7, 8, 9, 25, 100]), st = k * R(0, 5), seq = Array.from({ length: 6 }, (_, i) => st + i * k), m = R(2, 5);
+      return { soru: "Balonlarda " + er(k) + " ritmik sayıyoruz. Eksik balonda hangi sayı var?", cevap: seq[m], secenekler: yakin(seq[m], 4, k, 0), aciklama: "Her balonda " + k + " artıyor.",
+        goster(c, grup) { const { THREE } = c, RN = [0xe0452b, 0x2a6fd8, 0xf2b51b, 0x2e9b4f, 0x8a5bd6, 0xff7aa2]; grup.userData.b = [];
+          seq.forEach((v, i) => { const b = new THREE.Group(); const kure = new THREE.Mesh(new THREE.SphereGeometry(0.95, 40, 28), new THREE.MeshPhysicalMaterial({ color: RN[i], roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05, sheen: 0.3 })); kure.scale.set(1, 1.18, 1); b.add(kure);
+            const dg = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.25, 12), kure.material); dg.position.y = -1.18; dg.rotation.x = Math.PI; b.add(dg);
+            const ip = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 3.2, 4), new THREE.MeshBasicMaterial({ color: 0xffffff })); ip.position.y = -2.85; b.add(ip);
+            const pl = new THREE.Mesh(new THREE.CircleGeometry(0.62, 40), new THREE.MeshStandardMaterial({ map: c.sayiDoku(i === m ? "?" : String(v), "#FFFFFF", "#F4F4F4", "#1B2A4A", true), transparent: true })); pl.position.z = 0.97; b.add(pl);
+            b.position.set(-6.25 + i * 2.5, 4.3 + (i % 2) * 0.5, 0); b.userData = { y0: b.position.y, f: Math.random() * 6, pl }; c.golge(b); grup.add(b); grup.userData.b.push(b); }); },
+        dogru(c, grup) { const pl = grup.userData.b[m].userData.pl; pl.material.map.dispose(); pl.material.map = c.sayiDoku(String(seq[m]), "#FFF6B0", "#FFD84A", "#3A2A00", true); pl.material.needsUpdate = true; grup.userData.ucur = 1; },
+        adim(c, grup, dt) { (grup.userData.b || []).forEach((b, i) => { const u = b.userData; if (grup.userData.ucur && i === m) u.y0 += dt * 0.8; b.position.y = u.y0 + Math.sin(c.zaman * 1.2 + u.f) * 0.18; b.rotation.z = Math.sin(c.zaman * 0.9 + u.f) * 0.06; }); } }; } });
+
+  /* ---------- Sayı doğrusu atışı: ahşap cetvel ve dart ---------- */
+  T.oyun3B("dogru-atisi", { ortam: "masa", seviyeler: ["0-20", "0-100", "0-1000"], kamera: { poz: [0, 4.6, 12], bak: [0, 1.4, 0], fov: 42 },
+    tur(L, c) { const [a, b, step] = [[0, 20, 1], [0, 100, 10], [0, 1000, 100]][L], v = L === 0 ? R(1, 19) : L === 1 ? R(1, 99) : R(1, 99) * 10;
+      return { soru: "Dart cetvelde hangi sayıya saplandı?", cevap: v, secenekler: yakin(v, 4, [2, 8, 80][L], 0), aciklama: "En yakın çentiğe bak, aradaki adımları say.",
+        goster(c, grup) { const { THREE } = c, X = (n) => -6.5 + ((n - a) / (b - a)) * 13;
+          const cetvel = new THREE.Mesh(new THREE.BoxGeometry(14.2, 1.2, 0.35), new THREE.MeshStandardMaterial({ map: c.doku(2048, 180, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#F3D9A4"); g.addColorStop(1, "#D9B16A"); x.fillStyle = g; x.fillRect(0, 0, w, h); const P0 = (n) => ((X(n) + 7.1) / 14.2) * w; const adim = (b - a) / 20; for (let n = a; n <= b + 1e-9; n += (b - a) / (L === 0 ? 20 : 100)) { const maj = Math.abs(((n - a) / step) - Math.round((n - a) / step)) < 1e-6; x.strokeStyle = "#3A2A10"; x.lineWidth = maj ? 5 : 2; x.beginPath(); x.moveTo(P0(n), 0); x.lineTo(P0(n), maj ? h * 0.42 : h * 0.22); x.stroke(); if (maj && (L > 0 || Math.round(n) % 5 === 0)) { x.font = "800 52px Nunito, sans-serif"; x.textAlign = "center"; x.fillStyle = "#2A1A08"; x.fillText(String(Math.round(n)), P0(n), h * 0.8); } } }), roughness: 0.6 }));
+          cetvel.position.set(0, 1.0, 0); cetvel.rotation.x = -0.15; c.golge(cetvel); grup.add(cetvel);
+          const dart = new THREE.Group(); const uc = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.5, 16), new THREE.MeshStandardMaterial({ color: 0xcfd6de, metalness: 1, roughness: 0.25 })); uc.rotation.x = Math.PI; uc.position.y = -0.25; dart.add(uc);
+          const gv = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 1.1, 16), new THREE.MeshStandardMaterial({ color: 0xd8342a, roughness: 0.35 })); gv.position.y = 0.55; dart.add(gv);
+          for (let k = 0; k < 3; k++) { const kn = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.5, 0.36), new THREE.MeshStandardMaterial({ color: 0xf2b51b, roughness: 0.5 })); kn.position.y = 1.2; kn.rotation.y = (k * Math.PI) / 3; dart.add(kn); }
+          c.golge(dart); dart.position.set(X(v), 1.95 + 8, 0.2); dart.rotation.x = -0.15; dart.userData.y0 = 1.95; grup.add(dart); grup.userData.dart = dart; },
+        adim(c, grup, dt) { const d = grup.userData.dart; if (d && d.position.y > d.userData.y0) { d.position.y = Math.max(d.userData.y0, d.position.y - dt * 22); if (d.position.y === d.userData.y0) T.Sahne.ses.kon(); } } }; } });
+
+  /* ---------- Problem çiftliği: sepetlerde yumurtalar ---------- */
+  const yumurta = (c) => { const { THREE } = c, m = new THREE.Mesh(new THREE.SphereGeometry(0.28, 32, 24), new THREE.MeshPhysicalMaterial({ color: P([0xf4e4cc, 0xfbf6ee, 0xe9c9a2]), roughness: 0.5, sheen: 0.4 })); m.scale.set(1, 1.3, 1); m.castShadow = true; return m; };
+  const sepet = (c) => { const { THREE } = c, pts = []; for (let i = 0; i <= 10; i++) { const t = i / 10; pts.push(new THREE.Vector2(1.2 + t * 0.5, t * 0.9)); } const g = new THREE.Mesh(new THREE.LatheGeometry(pts, 48), new THREE.MeshStandardMaterial({ color: 0xb07a45, roughness: 0.8, side: THREE.DoubleSide, map: c.doku(256, 256, (x, w, h) => { x.fillStyle = "#B07A45"; x.fillRect(0, 0, w, h); for (let i = 0; i < 16; i++) { x.fillStyle = i % 2 ? "rgba(70,40,15,.35)" : "rgba(255,220,170,.15)"; x.fillRect(0, (i / 16) * h, w, h / 32); } for (let i = 0; i < 24; i++) { x.fillStyle = "rgba(70,40,15,.3)"; x.fillRect((i / 24) * w, 0, 3, h); } }) })); const t2 = new THREE.Mesh(new THREE.CircleGeometry(1.2, 48), g.material); t2.rotation.x = -Math.PI / 2; t2.position.y = 0.01; const gr = new THREE.Group(); gr.add(g, t2); return c.golge(gr); };
+  T.oyun3B("problem-ciftligi", { ortam: "cayir", seviyeler: ["10'a kadar", "20'ye kadar", "100'e kadar"], kamera: { poz: [0, 6.5, 10], bak: [0, 0.8, 0], fov: 40 },
+    tur(L, c) { const max = [10, 20, 100][L], NM = ["Ada", "Can", "Ece", "Mert", "Zeynep", "Efe", "Elif", "Kaan"], who = P(NM), who2 = P(NM.filter((x) => x !== who));
+      const kind = P(L ? ["ekle", "birlestir", "ayir", "karsilastir", "eksik"] : ["ekle", "birlestir", "ayir"]); let a = R(1, max / 2), b = R(1, max / 2), text, ans;
+      if (kind === "ayir" && b > a) [a, b] = [b, a]; if (kind === "karsilastir" && a === b) a++;
+      if (kind === "ekle") { text = `Kümeste ${a} yumurta vardı. Tavuklar ${b} yumurta daha yumurtladı. Şimdi kaç yumurta var?`; ans = a + b; }
+      else if (kind === "birlestir") { text = `${who} ${a}, ${who2} ${b} yumurta topladı. İkisi toplam kaç yumurta topladı?`; ans = a + b; }
+      else if (kind === "ayir") { text = `Sepette ${a} yumurta vardı. ${who} ${b} tanesini kahvaltıda kullandı. Kaç yumurta kaldı?`; ans = a - b; }
+      else if (kind === "karsilastir") { text = `${who}'nın sepetinde ${Math.max(a, b)}, ${who2}'nın sepetinde ${Math.min(a, b)} yumurta var. Aradaki fark kaç?`; ans = Math.abs(a - b); }
+      else { const t = a + b; text = `${who} ${t} yumurta topladı. ${a} tanesini sepete koydu, gerisini kovaya. Kovada kaç yumurta var?`; ans = b; }
+      const goster = Math.max(a, b) <= 20;
+      return { soru: text, cevap: ans, secenekler: yakin(ans, 4, 3, 0), aciklama: kind === "ayir" ? a + " − " + b + " = " + ans : kind === "karsilastir" ? "Büyükten küçüğü çıkarırız." : kind === "eksik" ? a + " + ? = " + (a + b) : a + " + " + b + " = " + ans,
+        goster(c, grup) { const s1 = sepet(c), s2 = sepet(c); s1.position.x = -3; s2.position.x = 3; grup.add(s1, s2); if (!goster) return;
+          const doldur = (n, x, gizle) => { for (let i = 0; i < n; i++) { const y = yumurta(c), a2 = i * 2.4, r = 0.25 + Math.sqrt(i) * 0.28; y.position.set(x + Math.cos(a2) * Math.min(r, 1.1), 0.4 + Math.floor(i / 12) * 0.45, Math.sin(a2) * Math.min(r, 1.1)); y.rotation.set(Math.random(), Math.random(), Math.random() * 0.5 + 1.2); y.userData.dus = 2 + i * 0.08; y.userData.y0 = y.position.y; y.position.y += y.userData.dus; if (gizle) y.material.opacity = 0.35, (y.material.transparent = true); grup.add(y); } };
+          if (kind === "ayir") { doldur(a - b, -3); doldur(b, 3, true); } else if (kind === "eksik") doldur(a, -3); else { doldur(a, -3); doldur(b, 3); } },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
+
+  /* ---------- Solucanı ölç ---------- */
+  T.oyun3B("solucan", { ortam: "cayir", seviyeler: ["Ölç", "Karşılaştır", "Fark"], kamera: { poz: [0, 7, 9], bak: [0, 0.3, 0.4], fov: 42 },
+    tur(L, c) { let a = R(2, 12), b = R(2, 12); if (L && a === b) b = a === 12 ? a - 1 : a + 1; const U = 0.95, X0 = -6;
+      const r = L === 0 ? { soru: "Pembe solucan kaç birim uzunluğunda?", cevap: a, secenekler: yakin(a, 4, 2, 1), aciklama: "Cetvelin 0 çizgisinden başla, solucanın bittiği yeri oku." }
+        : L === 1 ? { soru: "Hangi solucan daha uzun?", cevap: a > b ? "Pembe" : "Yeşil", secenekler: ["Pembe", "Yeşil"], aciklama: "Pembe " + a + ", yeşil " + b + " birim." }
+        : { soru: "Pembe ile yeşil solucan arasında kaç birim fark var?", cevap: Math.abs(a - b), secenekler: yakin(Math.abs(a - b), 4, 3, 0), aciklama: "Pembe " + a + ", yeşil " + b + " birim: fark " + Math.abs(a - b) + "." };
+      return Object.assign(r, {
+        goster(c, grup) { const { THREE } = c;
+          const cetvel = new THREE.Mesh(new THREE.BoxGeometry(13 * U + 0.4, 0.12, 0.9), new THREE.MeshStandardMaterial({ map: c.doku(2048, 160, (x, w, h) => { x.fillStyle = "#F2D27A"; x.fillRect(0, 0, w, h); for (let i = 0; i <= 13; i++) { const px = 0.2 / (13 * U + 0.4) * w + (i / 13) * (13 * U) / (13 * U + 0.4) * w; x.strokeStyle = "#2a2a2a"; x.lineWidth = 6; x.beginPath(); x.moveTo(px, 0); x.lineTo(px, h * 0.45); x.stroke(); x.font = "800 60px Nunito, sans-serif"; x.textAlign = "center"; x.fillStyle = "#2a2a2a"; x.fillText(String(i), px, h * 0.85); } }), roughness: 0.6 }));
+          cetvel.position.set(X0 + (13 * U) / 2, 0.06, 2.0); c.golge(cetvel); grup.add(cetvel);
+          const solucan = (n, z, renk) => { const g2 = new THREE.Group(); for (let i = 0; i < n; i++) { const k = new THREE.Mesh(new THREE.SphereGeometry(U * 0.52, 32, 20), new THREE.MeshPhysicalMaterial({ color: renk, roughness: 0.35, clearcoat: 0.6 })); k.scale.set(1, 0.85, 0.9); k.position.set(X0 + i * U + U / 2, 0.45, z); k.castShadow = true; g2.add(k); }
+            const gz = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 8), new THREE.MeshBasicMaterial({ color: 0x111111 })); gz.position.set(X0 + (n - 0.25) * U, 0.75, z + 0.28); g2.add(gz); grup.add(g2); return g2; };
+          grup.userData.s = [solucan(a, L ? -0.9 : 0.6, 0xf27ba9)]; if (L) grup.userData.s.push(solucan(b, 0.75, 0x8fd16a)); },
+        adim(c, grup) { (grup.userData.s || []).forEach((g2, k) => g2.children.forEach((m, i) => { if (m.geometry.type === "SphereGeometry" && m.scale.y < 0.9) m.position.y = 0.45 + Math.max(0, Math.sin(c.zaman * 3 - i * 0.6 + k)) * 0.08; })); } }); } });
+
+  /* ---------- Grafik dedektifi: meyve kasası sütunları ---------- */
+  T.oyun3B("grafik-dedektifi", { ortam: "masa", seviyeler: ["Üç meyve", "Dört meyve", "Dört meyve, işlemli"], kamera: { poz: [0, 5.5, 11], bak: [0, 2, 0], fov: 40 },
+    tur(L, c) { const cats = T.shuffle([["Elma", 0xc8201c], ["Portakal", 0xf08a24], ["Limon", 0xf2d33a], ["Üzüm", 0x6a3aa8]]).slice(0, L ? 4 : 3), data = cats.map(([n]) => [n, R(1, 8)]);
+      const kind = P(L === 2 ? ["fark", "toplam", "kac"] : L ? ["en", "fark", "kac"] : ["en", "kac"]), mx = Math.max(...data.map((d) => d[1]));
+      const tekEn = data.filter((d) => d[1] === mx).length === 1; let soru, cevap, sec;
+      if (kind === "en" && tekEn) { soru = "Hangi meyveden en çok var?"; cevap = data.find((d) => d[1] === mx)[0]; sec = data.map((d) => d[0]); }
+      else if (kind === "fark") { const [x, y] = T.shuffle(data).slice(0, 2); soru = x[0] + " ile " + y[0] + " arasında kaç fark var?"; cevap = Math.abs(x[1] - y[1]); sec = yakin(cevap, 4, 2, 0); }
+      else if (kind === "toplam") { soru = "Masada toplam kaç meyve var?"; cevap = data.reduce((s2, d) => s2 + d[1], 0); sec = yakin(cevap, 4, 3, 1); }
+      else { const d = P(data); soru = "Kaç tane " + d[0].toLocaleLowerCase("tr") + " var?"; cevap = d[1]; sec = yakin(cevap, 4, 2, 1); }
+      return { soru, cevap, secenekler: sec, aciklama: data.map((d) => d[0] + " " + d[1]).join(", ") + ".",
+        goster(c, grup) { const { THREE } = c;
+          cats.forEach(([ad, renk], i) => { const x = (i - (cats.length - 1) / 2) * 2.6, n = data[i][1];
+            const kasa = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.4, 1.2), new THREE.MeshStandardMaterial({ map: c.tahta(), roughness: 0.6 })); kasa.position.set(x, 0.2, 0); c.golge(kasa); grup.add(kasa);
+            const et = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.5), new THREE.MeshStandardMaterial({ map: c.doku(512, 160, (x2, w, h) => { x2.fillStyle = "#FFF8EC"; x2.fillRect(0, 0, w, h); x2.font = "800 80px Nunito, sans-serif"; x2.textAlign = "center"; x2.textBaseline = "middle"; x2.fillStyle = "#3A2A10"; x2.fillText(ad, w / 2, h / 2); }) })); et.position.set(x, 0.22, 0.61); grup.add(et);
+            for (let k = 0; k < n; k++) { const m = ad === "Üzüm" ? new THREE.Group() : new THREE.Mesh(new THREE.SphereGeometry(0.34, 32, 24), new THREE.MeshPhysicalMaterial({ color: renk, roughness: ad === "Elma" ? 0.3 : 0.6, clearcoat: ad === "Elma" ? 0.7 : 0.1 }));
+              if (ad === "Üzüm") for (let j = 0; j < 7; j++) { const ta = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 12), new THREE.MeshPhysicalMaterial({ color: renk, roughness: 0.25, clearcoat: 0.8 })); ta.position.set(Math.cos(j) * 0.14, -Math.floor(j / 3) * 0.15, Math.sin(j) * 0.14); m.add(ta); }
+              if (ad === "Limon") m.scale.set(1, 0.85, 0.85); m.position.set(x, 0.75 + k * 0.62, 0); m.userData.dus = 2 + k * 0.25; m.userData.y0 = m.position.y; m.position.y += m.userData.dus; c.golge(m); grup.add(m); } }); },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
 
   /* ---------- Tırtıl sayıyor: yaprak üstünde tüylü tırtıl, her boğumda bir sayı ---------- */
   T.oyun3B("tirtil", {

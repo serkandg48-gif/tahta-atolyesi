@@ -1421,3 +1421,4 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .d3-sec { min-width: 120px; font: 900 clamp(28px, 3.4vw, 50px) var(--display) !important; border-radius: 18px !important; background: linear-gradient(#FFF8EC, #EAD9BF) !important; color: #3A1E0A !important; box-shadow: 0 6px 0 #9C7A4E, 0 12px 24px rgba(60, 40, 20, .3) !important; border: 0 !important; }
 .d3-sec:active { transform: translateY(4px); box-shadow: 0 2px 0 #9C7A4E !important; }
 .d3-sec.uzun { font-size: clamp(16px, 1.9vw, 28px) !important; min-width: 0; padding-left: .7em !important; padding-right: .7em !important; }
+.zar3-kap { position: relative; min-height: 0; border-radius: 14px; overflow: hidden; background: #1E6B45; } .zar3-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }

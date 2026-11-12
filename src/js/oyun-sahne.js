@@ -90,7 +90,6 @@
   function cayir(ctx, t, m) {
     Sh.gok(ctx, t, 0, ZEMIN); Sh.tepeler(ctx, 0, ZEMIN); Sh.zemin(ctx, 0, t, ZEMIN); Sh.cicekler(ctx, 0, t, ZEMIN);
     Sh.kelebek(ctx, ((t * 50 + 200) % (W + 300)) - 150, 360 + Math.sin(t * 0.9) * 60, t);
-    if (Sh.tavsan) Sh.tavsan(ctx, m.x, m.y, { sq: m.sq, yon: 1, t, kirp: m.kirp, mutlu: m.mutlu > 0.3 ? 1 : 0, kulak: m.kulak, havada: m.y < ZEMIN + 79 });
     Sh.onPlan(ctx, 0, t);
   }
   const CIZ = { cayir, kutup, deniz, volkan, gece };
@@ -119,7 +118,7 @@
     requestAnimationFrame((z) => { son = z; dongu(z); });
     return {
       tepki(ok) {
-        if (ok) { m.mutlu = 1; m.zip = 0.6; Sh.ses.dogru(); P.kutla(tema === "cayir" ? m.x + 30 : W / 2, tema === "cayir" ? ZEMIN - 60 : 420); }
+        if (ok) { m.mutlu = 1; m.zip = 0.6; Sh.ses.dogru(); P.kutla(W / 2, 420); }
         else { m.kulak = 0.5; Sh.ses.yanlis(); }
       },
     };

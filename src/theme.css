@@ -1440,3 +1440,47 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .gr3-bos { grid-column: 1 / -1; background: #FFFDF6; padding: 10px 12px; border-radius: 2px; box-shadow: 0 5px 10px rgba(0,0,0,.25); font-size: 15px; }
 .nk-cark3 { width: 100%; max-width: 520px; aspect-ratio: 1; }
 .hz-tepsi { height: clamp(260px, 30vw, 380px); background: #5A3A7A; }
+/* ===== Gerçek malzeme takımı: masa, ahşap blok, kart, defter, kara tahta, mantar, kitap sayfası ===== */
+.m-masa { border: 0 !important; border-radius: 14px; box-shadow: inset 0 2px 10px rgba(60,30,10,.25), 0 3px 0 #9B6E43;
+  background: repeating-linear-gradient(92deg, rgba(120,72,30,.10) 0 2px, transparent 2px 9px, rgba(255,235,200,.10) 9px 11px, transparent 11px 23px),
+              repeating-linear-gradient(88deg, rgba(90,50,20,.07) 0 1px, transparent 1px 37px), linear-gradient(180deg, #E2BE8E, #CFA16C) !important; }
+.m-blok { --c: #F2B33D; position: relative; border: 0; cursor: pointer; color: #26201A; font-family: var(--display); font-weight: 800;
+  background: linear-gradient(160deg, rgba(255,255,255,.45), rgba(255,255,255,0) 40%, rgba(0,0,0,.08)), repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, transparent 1px 7px), var(--c);
+  border-radius: 10px; box-shadow: inset 0 2px 0 rgba(255,255,255,.55), inset 0 -3px 0 rgba(0,0,0,.18), 0 6px 0 color-mix(in srgb, var(--c) 60%, #3a2410), 0 12px 16px rgba(40,20,5,.35);
+  text-shadow: 0 1px 0 rgba(255,255,255,.35); transition: transform .12s; }
+.m-blok:hover { transform: translateY(-2px); } .m-blok:active { transform: translateY(4px); box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 2px 0 color-mix(in srgb, var(--c) 60%, #3a2410), 0 4px 8px rgba(40,20,5,.3); }
+.m-kart { background: radial-gradient(rgba(120,100,70,.06) 1px, transparent 1.4px) 0 0 / 5px 5px, linear-gradient(170deg, #FFFEFA, #F6F0E2) !important; border: 0 !important; border-radius: 6px !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 6px 14px rgba(40,30,15,.18), 0 18px 30px -12px rgba(40,30,15,.25) !important; }
+.m-defter { position: relative; border: 0 !important; border-radius: 4px !important; padding-left: 70px !important;
+  background: linear-gradient(90deg, transparent 54px, #E88B8B 54px 56px, transparent 56px), repeating-linear-gradient(180deg, transparent 0 39px, #BCD3EC 39px 41px), #FFFEF8 !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 8px 18px rgba(30,40,60,.18) !important; }
+.m-kara { position: relative; border: 12px solid #8A5A32 !important; border-radius: 10px !important; color: #F4F1E6 !important;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.07), transparent 60%), radial-gradient(rgba(255,255,255,.035) 1px, transparent 1.5px) 0 0 / 4px 4px, #2F4A3A !important;
+  box-shadow: inset 0 0 40px rgba(0,0,0,.45), 0 4px 0 #5E3A1E, 0 12px 24px rgba(0,0,0,.25) !important; }
+.m-kara .hint, .m-kara .tebesir { color: rgba(244,241,230,.75) !important; }
+.m-kara .tebesir-yazi { font-family: var(--hand); text-shadow: 0 0 1px rgba(255,255,255,.6), 0 0 6px rgba(255,255,255,.15); letter-spacing: .5px; }
+.m-mantar { border: 10px solid #8A5A32 !important; border-radius: 10px !important; padding: 18px !important;
+  background: radial-gradient(rgba(90,50,20,.35) 1px, transparent 1.6px) 0 0 / 7px 7px, radial-gradient(rgba(255,235,200,.3) 1px, transparent 1.6px) 3px 4px / 9px 9px, #C49560 !important; box-shadow: inset 0 3px 10px rgba(0,0,0,.4), 0 2px 0 #5E3A1E !important; }
+.m-pim { position: absolute; top: -7px; left: 50%; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), var(--c, #E4553F) 45%, rgba(0,0,0,.45)); box-shadow: 2px 4px 3px rgba(0,0,0,.4); }
+.m-sayfa { border: 0 !important; border-radius: 3px 10px 10px 3px !important; background: linear-gradient(90deg, rgba(0,0,0,.09), rgba(0,0,0,0) 28px), linear-gradient(180deg, #FFFDF5, #F8F1E1) !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.1), 4px 4px 0 -1px #F1E9D6, 4px 4px 0 0 rgba(0,0,0,.08), 8px 8px 0 -1px #EDE3CC, 8px 8px 0 0 rgba(0,0,0,.07), 0 16px 30px rgba(50,35,15,.22) !important; }
+.m-serit { border: 0 !important; border-radius: 3px !important; background: linear-gradient(180deg, #FFFFFF, #F3EEE2) !important; box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 5px 10px rgba(40,30,15,.16) !important; }
+.m-lcd { background: linear-gradient(180deg, #2A3324, #1C2318) !important; color: #C8F59A !important; text-shadow: 0 0 10px rgba(180,255,120,.45); border-radius: 14px !important; box-shadow: inset 0 2px 8px rgba(0,0,0,.6), 0 0 0 6px #3A3F45, 0 0 0 8px #22262A, 0 10px 18px rgba(0,0,0,.3) !important; }
+/* Türkçe araçlarına uygulama */
+.ez-k { border: 0 !important; border-radius: 6px !important; background: linear-gradient(170deg, #FFFEFA, #F4EEDF) !important; box-shadow: 0 1px 1px rgba(0,0,0,.14), 0 6px 12px rgba(40,30,15,.16); transition: transform .12s, box-shadow .12s; }
+.ez-k:hover { transform: translateY(-2px) rotate(-.4deg); }
+.ez-k.on { background: linear-gradient(170deg, #FFF7D6, #FBE9A8) !important; box-shadow: 0 0 0 3px var(--navy), 0 10px 18px rgba(40,30,15,.22); transform: translateY(-3px); }
+.ez-k.ok { background: linear-gradient(170deg, #E4F7E7, #C9EBCF) !important; opacity: .8; }
+.ez-k.no { background: linear-gradient(170deg, #FDE3E0, #F7C6C0) !important; animation: mSalla .35s; }
+@keyframes mSalla { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.nt-k { border: 0 !important; border-radius: 4px !important; background: linear-gradient(180deg, #FFFFFF, #F3EEE2) !important; box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 5px 10px rgba(40,30,15,.16); }
+.nt-k.on { box-shadow: 0 0 0 3px var(--navy), 0 6px 12px rgba(40,30,15,.2); } .nt-k.ok { background: #DDF3E0 !important; } .nt-k.no { background: #FBDAD6 !important; }
+.ok-metin { border: 0 !important; border-radius: 3px 10px 10px 3px !important; background: linear-gradient(90deg, rgba(0,0,0,.09), rgba(0,0,0,0) 28px), linear-gradient(180deg, #FFFDF5, #F8F1E1) !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.1), 4px 4px 0 -1px #F1E9D6, 4px 4px 0 0 rgba(0,0,0,.08), 8px 8px 0 -1px #EDE3CC, 8px 8px 0 0 rgba(0,0,0,.07), 0 16px 30px rgba(50,35,15,.22); }
+.ok-sure { background: linear-gradient(180deg, #2A3324, #1C2318) !important; color: #C8F59A !important; text-shadow: 0 0 10px rgba(180,255,120,.45); box-shadow: inset 0 2px 8px rgba(0,0,0,.6), 0 0 0 6px #3A3F45, 0 0 0 8px #22262A, 0 10px 18px rgba(0,0,0,.3); margin: 8px; }
+.mu-kagit { border: 0 !important; border-radius: 3px !important; background: linear-gradient(180deg, #FFFFFF, #FBF8F1) !important; box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 10px 26px rgba(30,30,40,.18), 0 30px 50px -20px rgba(30,30,40,.2) !important; }
+.hece-blok { font-size: clamp(36px, 5vw, 72px); padding: 8px 20px 10px; }
+.ses-kart { padding: 10px; }
+.ses-harf { font-family: var(--display); font-weight: 800; line-height: 1; text-shadow: 0 2px 0 rgba(0,0,0,.08), 0 6px 10px rgba(0,0,0,.12); }
+.kd-kart { position: relative; padding: 18px 14px 12px !important; }
+.yz-tahta .tebesir-yazi { font-size: clamp(30px, 3.8vw, 52px); }

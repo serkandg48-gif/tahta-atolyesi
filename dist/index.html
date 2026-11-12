@@ -1998,6 +1998,50 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .gr3-bos { grid-column: 1 / -1; background: #FFFDF6; padding: 10px 12px; border-radius: 2px; box-shadow: 0 5px 10px rgba(0,0,0,.25); font-size: 15px; }
 .nk-cark3 { width: 100%; max-width: 520px; aspect-ratio: 1; }
 .hz-tepsi { height: clamp(260px, 30vw, 380px); background: #5A3A7A; }
+/* ===== Gerçek malzeme takımı: masa, ahşap blok, kart, defter, kara tahta, mantar, kitap sayfası ===== */
+.m-masa { border: 0 !important; border-radius: 14px; box-shadow: inset 0 2px 10px rgba(60,30,10,.25), 0 3px 0 #9B6E43;
+  background: repeating-linear-gradient(92deg, rgba(120,72,30,.10) 0 2px, transparent 2px 9px, rgba(255,235,200,.10) 9px 11px, transparent 11px 23px),
+              repeating-linear-gradient(88deg, rgba(90,50,20,.07) 0 1px, transparent 1px 37px), linear-gradient(180deg, #E2BE8E, #CFA16C) !important; }
+.m-blok { --c: #F2B33D; position: relative; border: 0; cursor: pointer; color: #26201A; font-family: var(--display); font-weight: 800;
+  background: linear-gradient(160deg, rgba(255,255,255,.45), rgba(255,255,255,0) 40%, rgba(0,0,0,.08)), repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, transparent 1px 7px), var(--c);
+  border-radius: 10px; box-shadow: inset 0 2px 0 rgba(255,255,255,.55), inset 0 -3px 0 rgba(0,0,0,.18), 0 6px 0 color-mix(in srgb, var(--c) 60%, #3a2410), 0 12px 16px rgba(40,20,5,.35);
+  text-shadow: 0 1px 0 rgba(255,255,255,.35); transition: transform .12s; }
+.m-blok:hover { transform: translateY(-2px); } .m-blok:active { transform: translateY(4px); box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 2px 0 color-mix(in srgb, var(--c) 60%, #3a2410), 0 4px 8px rgba(40,20,5,.3); }
+.m-kart { background: radial-gradient(rgba(120,100,70,.06) 1px, transparent 1.4px) 0 0 / 5px 5px, linear-gradient(170deg, #FFFEFA, #F6F0E2) !important; border: 0 !important; border-radius: 6px !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 6px 14px rgba(40,30,15,.18), 0 18px 30px -12px rgba(40,30,15,.25) !important; }
+.m-defter { position: relative; border: 0 !important; border-radius: 4px !important; padding-left: 70px !important;
+  background: linear-gradient(90deg, transparent 54px, #E88B8B 54px 56px, transparent 56px), repeating-linear-gradient(180deg, transparent 0 39px, #BCD3EC 39px 41px), #FFFEF8 !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 8px 18px rgba(30,40,60,.18) !important; }
+.m-kara { position: relative; border: 12px solid #8A5A32 !important; border-radius: 10px !important; color: #F4F1E6 !important;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.07), transparent 60%), radial-gradient(rgba(255,255,255,.035) 1px, transparent 1.5px) 0 0 / 4px 4px, #2F4A3A !important;
+  box-shadow: inset 0 0 40px rgba(0,0,0,.45), 0 4px 0 #5E3A1E, 0 12px 24px rgba(0,0,0,.25) !important; }
+.m-kara .hint, .m-kara .tebesir { color: rgba(244,241,230,.75) !important; }
+.m-kara .tebesir-yazi { font-family: var(--hand); text-shadow: 0 0 1px rgba(255,255,255,.6), 0 0 6px rgba(255,255,255,.15); letter-spacing: .5px; }
+.m-mantar { border: 10px solid #8A5A32 !important; border-radius: 10px !important; padding: 18px !important;
+  background: radial-gradient(rgba(90,50,20,.35) 1px, transparent 1.6px) 0 0 / 7px 7px, radial-gradient(rgba(255,235,200,.3) 1px, transparent 1.6px) 3px 4px / 9px 9px, #C49560 !important; box-shadow: inset 0 3px 10px rgba(0,0,0,.4), 0 2px 0 #5E3A1E !important; }
+.m-pim { position: absolute; top: -7px; left: 50%; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), var(--c, #E4553F) 45%, rgba(0,0,0,.45)); box-shadow: 2px 4px 3px rgba(0,0,0,.4); }
+.m-sayfa { border: 0 !important; border-radius: 3px 10px 10px 3px !important; background: linear-gradient(90deg, rgba(0,0,0,.09), rgba(0,0,0,0) 28px), linear-gradient(180deg, #FFFDF5, #F8F1E1) !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.1), 4px 4px 0 -1px #F1E9D6, 4px 4px 0 0 rgba(0,0,0,.08), 8px 8px 0 -1px #EDE3CC, 8px 8px 0 0 rgba(0,0,0,.07), 0 16px 30px rgba(50,35,15,.22) !important; }
+.m-serit { border: 0 !important; border-radius: 3px !important; background: linear-gradient(180deg, #FFFFFF, #F3EEE2) !important; box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 5px 10px rgba(40,30,15,.16) !important; }
+.m-lcd { background: linear-gradient(180deg, #2A3324, #1C2318) !important; color: #C8F59A !important; text-shadow: 0 0 10px rgba(180,255,120,.45); border-radius: 14px !important; box-shadow: inset 0 2px 8px rgba(0,0,0,.6), 0 0 0 6px #3A3F45, 0 0 0 8px #22262A, 0 10px 18px rgba(0,0,0,.3) !important; }
+/* Türkçe araçlarına uygulama */
+.ez-k { border: 0 !important; border-radius: 6px !important; background: linear-gradient(170deg, #FFFEFA, #F4EEDF) !important; box-shadow: 0 1px 1px rgba(0,0,0,.14), 0 6px 12px rgba(40,30,15,.16); transition: transform .12s, box-shadow .12s; }
+.ez-k:hover { transform: translateY(-2px) rotate(-.4deg); }
+.ez-k.on { background: linear-gradient(170deg, #FFF7D6, #FBE9A8) !important; box-shadow: 0 0 0 3px var(--navy), 0 10px 18px rgba(40,30,15,.22); transform: translateY(-3px); }
+.ez-k.ok { background: linear-gradient(170deg, #E4F7E7, #C9EBCF) !important; opacity: .8; }
+.ez-k.no { background: linear-gradient(170deg, #FDE3E0, #F7C6C0) !important; animation: mSalla .35s; }
+@keyframes mSalla { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.nt-k { border: 0 !important; border-radius: 4px !important; background: linear-gradient(180deg, #FFFFFF, #F3EEE2) !important; box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 5px 10px rgba(40,30,15,.16); }
+.nt-k.on { box-shadow: 0 0 0 3px var(--navy), 0 6px 12px rgba(40,30,15,.2); } .nt-k.ok { background: #DDF3E0 !important; } .nt-k.no { background: #FBDAD6 !important; }
+.ok-metin { border: 0 !important; border-radius: 3px 10px 10px 3px !important; background: linear-gradient(90deg, rgba(0,0,0,.09), rgba(0,0,0,0) 28px), linear-gradient(180deg, #FFFDF5, #F8F1E1) !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.1), 4px 4px 0 -1px #F1E9D6, 4px 4px 0 0 rgba(0,0,0,.08), 8px 8px 0 -1px #EDE3CC, 8px 8px 0 0 rgba(0,0,0,.07), 0 16px 30px rgba(50,35,15,.22); }
+.ok-sure { background: linear-gradient(180deg, #2A3324, #1C2318) !important; color: #C8F59A !important; text-shadow: 0 0 10px rgba(180,255,120,.45); box-shadow: inset 0 2px 8px rgba(0,0,0,.6), 0 0 0 6px #3A3F45, 0 0 0 8px #22262A, 0 10px 18px rgba(0,0,0,.3); margin: 8px; }
+.mu-kagit { border: 0 !important; border-radius: 3px !important; background: linear-gradient(180deg, #FFFFFF, #FBF8F1) !important; box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 10px 26px rgba(30,30,40,.18), 0 30px 50px -20px rgba(30,30,40,.2) !important; }
+.hece-blok { font-size: clamp(36px, 5vw, 72px); padding: 8px 20px 10px; }
+.ses-kart { padding: 10px; }
+.ses-harf { font-family: var(--display); font-weight: 800; line-height: 1; text-shadow: 0 2px 0 rgba(0,0,0,.08), 0 6px 10px rgba(0,0,0,.12); }
+.kd-kart { position: relative; padding: 18px 14px 12px !important; }
+.yz-tahta .tebesir-yazi { font-size: clamp(30px, 3.8vw, 52px); }
 
 </style>
 </head>
@@ -2012,7 +2056,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="150c77236e";
+window.SURUM="3f6ddae21e";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -9974,14 +10018,14 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
     title: "Hecelere ayır", icon: "hece", tone: "tomato", grades: [1, 4], short: "Kelimeyi renkli hece kartlarına böler",
     render(host) {
       const inp = h("input.in", { value: "Kelebek bahçede uçuyor", style: { fontSize: "22px" }, "aria-label": "Kelime ya da cümle" });
-      const out = h("div.mat.mat-pad", { style: { minHeight: "300px", display: "flex", flexWrap: "wrap", gap: "28px 36px", alignContent: "center", justifyContent: "center" } });
+      const out = h("div.mat.mat-pad.m-masa", { style: { minHeight: "300px", display: "flex", flexWrap: "wrap", gap: "28px 36px", alignContent: "center", justifyContent: "center" } });
       const cols = ["#ffc233", "#2e9bd6", "#6cc04a", "#f27ba9", "#ff9a3c"];
       let mix = false;
       function paint() {
         out.replaceChildren(...inp.value.split(/\s+/).filter(Boolean).map((wd) => {
           const clean = wd.replace(/[.,!?;:"'()]/g, "");
           let hs = T.heceler(clean); if (mix) hs = T.shuffle(hs);
-          return h("div", { style: { display: "flex", gap: "6px" } }, hs.map((x, i) => h("button", { onclick: () => T.speak(x), style: { border: 0, background: cols[i % 5], color: "#2a2a2a", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(36px,5vw,72px)", padding: "6px 18px", borderRadius: "12px", boxShadow: "0 5px 0 rgba(0,0,0,.25)", lineHeight: 1.1 } }, x)));
+          return h("div", { style: { display: "flex", gap: "6px" } }, hs.map((x, i) => h("button.m-blok.hece-blok", { onclick: () => T.speak(x), style: { "--c": cols[i % 5] } }, x)));
         }));
       }
       inp.addEventListener("input", paint);
@@ -10002,14 +10046,14 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
     title: "Ses kartları", icon: "letters", tone: "sun", grades: [1, 2], short: "İlk okuma yazma ses grupları",
     render(host) {
       let i = 0, upper = false;
-      const card = h("div.mat", { style: { minHeight: "420px", display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center" } });
+      const card = h("div.mat.m-kart.ses-kart", { style: { minHeight: "420px", display: "grid", gridTemplateColumns: "1fr 1fr", alignItems: "center" } });
       const strip = h("div.row", { style: { gap: "6px" } });
       function paint() {
         const [l, ex] = SES[i];
         card.replaceChildren(
-          h("button", { onclick: () => T.speak(l), style: { border: 0, background: "transparent", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(160px,22vw,300px)", lineHeight: 1, color: "#ef5b3b" } }, upper ? T.trUpper(l) : l, h("span", { style: { color: "#2e9bd6", fontSize: ".5em" } }, " " + (upper ? l : T.trUpper(l)))),
+          h("button.ses-harf", { onclick: () => T.speak(l), style: { border: 0, background: "transparent", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(160px,22vw,300px)", lineHeight: 1, color: "#ef5b3b" } }, upper ? T.trUpper(l) : l, h("span", { style: { color: "#2e9bd6", fontSize: ".5em" } }, " " + (upper ? l : T.trUpper(l)))),
           h("div", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("div.hint", (i + 1) + ". ses"),
-            ...ex.split(", ").map((w) => h("button.btn.c-chalk", { style: { justifyContent: "flex-start", fontSize: "30px", minHeight: "64px" }, onclick: () => T.speak(w) }, T.icon("speaker"), w.split("").map((ch) => ch === l ? h("span", { style: { color: "#ef5b3b" } }, ch) : ch)))));
+            ...ex.split(", ").map((w) => h("button.btn.c-chalk.m-serit", { style: { justifyContent: "flex-start", fontSize: "30px", minHeight: "64px" }, onclick: () => T.speak(w) }, T.icon("speaker"), w.split("").map((ch) => ch === l ? h("span", { style: { color: "#ef5b3b" } }, ch) : ch)))));
         strip.replaceChildren(...SES.map(([x], k) => h("button.btn.sm" + (k === i ? ".c-sun" : ".c-chalk"), { style: { minWidth: "44px", fontSize: "20px" }, onclick: () => { i = k; paint(); } }, x)));
       }
       host.append(card, strip, h("div.row", btn("chalk", "back", "Önceki", () => { i = (i + SES.length - 1) % SES.length; paint(); }), btn("sun", "next", "Sonraki", () => { i = (i + 1) % SES.length; paint(); }), btn("chalk", "letters", "Büyük / küçük harf", () => { upper = !upper; paint(); }),
@@ -10024,11 +10068,11 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
       const key = "wordwall";
       const s = T.store.get(); s.wordwall = s.wordwall || ["merak", "sorgulamak", "gözlem", "tahmin", "deney", "kanıt", "sonuç", "kavram", "öğrenme", "araştırma"];
       const inp = h("input.in", { placeholder: "Yeni kelime yaz, Enter'a bas", style: { maxWidth: "380px" } });
-      const wall = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px,1fr))", gap: "14px" } });
+      const wall = h("div.m-mantar", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px,1fr))", gap: "22px 16px", alignContent: "start", minHeight: "320px" } });
       const tones = ["#ffc233", "#ef5b3b", "#2e9bd6", "#6cc04a", "#8a5cd0", "#f27ba9"];
       function paint() {
         const by = {}; s.wordwall.slice().sort((a, b) => a.localeCompare(b, "tr")).forEach((w) => { const l = T.trUpper(w[0]); (by[l] = by[l] || []).push(w); });
-        wall.replaceChildren(...Object.entries(by).map(([l, ws], i) => h("div.paper", { style: { padding: "12px 14px", borderTop: `10px solid ${tones[i % 6]}` } },
+        wall.replaceChildren(...Object.entries(by).map(([l, ws], i) => h("div.paper.m-kart.kd-kart", { style: { borderTop: `8px solid ${tones[i % 6]}`, transform: `rotate(${((i * 37) % 5) - 2}deg)` } }, h("i.m-pim", { style: { "--c": tones[i % 6] } }),
           h("div", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "36px", lineHeight: 1 } }, l),
           ws.map((w) => h("div", { style: { display: "flex", alignItems: "center", gap: "6px", fontSize: "20px", fontWeight: 600 } }, h("span", { style: { flex: 1 } }, w),
             h("button.btn.sm.icon.c-chalk", { "aria-label": w + " oku", onclick: () => T.speak(w) }, T.icon("speaker")),
@@ -10057,13 +10101,13 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
     title: "Ayrı mı bitişik mi?", icon: "spell", tone: "leaf", grades: [2, 8], short: "de/da, ki, mi alıştırması",
     render(host) {
       let i = 0, score = 0, answered = false;
-      const box = h("div.mat.mat-pad", { style: { minHeight: "320px", display: "grid", gap: "20px", alignContent: "center", justifyItems: "center", textAlign: "center" } });
+      const box = h("div.mat.mat-pad.m-kara.yz-tahta", { style: { minHeight: "320px", display: "grid", gap: "20px", alignContent: "center", justifyItems: "center", textAlign: "center" } });
       function paint() {
         const [q, part, ans, why] = YAZIM[i];
         answered = false;
-        const sentence = h("div", { style: { fontSize: "clamp(28px,3.6vw,48px)", fontWeight: 600 } }, q.replace("___", part ? " [" + part + "] " : " [ki] "));
+        const sentence = h("div.tebesir-yazi", q.replace("___", part ? " [" + part + "] " : " [ki] "));
         const fb = h("div", { style: { fontSize: "20px", minHeight: "60px", maxWidth: "60ch" } });
-        const choose = (c) => { if (answered) return; answered = true; const ok = c === ans; if (ok) { score++; T.sound.ok(); } else T.sound.no(); fb.replaceChildren(h("b", { style: { color: ok ? "#1e6b33" : "#9b2218" } }, ok ? "Doğru. " : "Bu sefer olmadı. "), why); };
+        const choose = (c) => { if (answered) return; answered = true; const ok = c === ans; if (ok) { score++; T.sound.ok(); } else T.sound.no(); fb.replaceChildren(h("b", { style: { color: ok ? "#9FE6A8" : "#FFB4A8" } }, ok ? "Doğru. " : "Bu sefer olmadı. "), why); };
         box.replaceChildren(h("div.hint", `${i + 1} / ${YAZIM.length}   Puan: ${score}`), sentence,
           h("div.row", { style: { justifyContent: "center" } }, h("button.btn.big.c-sky", { onclick: () => choose("ayrı") }, "Ayrı yazılır"), h("button.btn.big.c-sun", { onclick: () => choose("bitişik") }, "Bitişik yazılır")), fb);
       }
@@ -10628,13 +10672,13 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
         let ic;
         if (mod === "son") {
           const [c, d] = sonL[i % sonL.length];
-          ic = h("div.dy-card", h("div.dy-durum", c, h("span.nt-bos", cevap || "_")),
+          ic = h("div.dy-card.m-defter", h("div.dy-durum", c, h("span.nt-bos", cevap || "_")),
             h("div.row", { style: { justifyContent: "center", gap: "14px" } }, [[".", "Nokta"], ["?", "Soru işareti"], ["!", "Ünlem"]].map(([k, l]) => h("button.btn.big" + (cevap ? (k === d ? ".c-leaf" : k === cevap ? ".c-tomato" : ".c-chalk") : ".c-chalk"), { onclick: () => { if (cevap) return; cevap = k; k === d ? T.sound.ok() : T.sound.no(); ciz(); } }, h("b", { style: { fontSize: "34px" } }, k), l))),
             cevap ? h("p.sb-line", cevap === d ? "Doğru!" : "Bu cümlenin sonuna " + { ".": "nokta", "?": "soru işareti", "!": "ünlem" }[d] + " gelir. Cümleyi o duyguyla bir daha okuyalım.") : null,
             h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(c) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; cevap = null; ciz(); } }, T.icon("next"), "Sıradaki")));
         } else {
           const [c, d] = bL[i % bL.length]; const ws = c.split(" ");
-          ic = h("div.dy-card", h("p.sb-line", "Büyük harfle başlaması gereken kelimelere dokun."),
+          ic = h("div.dy-card.m-kart", h("p.sb-line", "Büyük harfle başlaması gereken kelimelere dokun."),
             h("div.nt-kel", ws.map((w, j) => { const on = secili.has(j); const dogru = d.includes(j); const goster = on ? w[0].toLocaleUpperCase("tr") + w.slice(1) : w; return h("button.nt-k" + (on ? ".on" : "") + (kontrol ? (dogru && on ? ".ok" : dogru !== on ? ".no" : "") : ""), { onclick: () => { if (kontrol) return; on ? secili.delete(j) : secili.add(j); ciz(); } }, goster); })),
             kontrol ? h("p.sb-line", d.every((x) => secili.has(x)) && secili.size === d.length ? "Harika, hepsi doğru!" : "Kırmızı olanlara bir daha bakalım: cümle başı, kişi, yer ve hayvan adları büyük harfle başlar.") : null,
             h("div.row", { style: { justifyContent: "center" } }, !kontrol ? h("button.btn.big", { onclick: () => { kontrol = true; ciz(); } }, T.icon("check"), "Kontrol et") : h("button.btn", { onclick: () => { i++; secili = new Set(); kontrol = false; ciz(); } }, T.icon("next"), "Sıradaki")));
@@ -10657,7 +10701,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
       function ciz() {
         const ta = h("textarea.in", { style: { minHeight: "70px", fontSize: "18px" }, placeholder: "Kendi kelimelerin ya da cümlelerin: her satıra bir tane" });
         box.replaceChildren(h("div.dk-grid",
-          h("div.sb-card", { style: { display: "grid", gap: "14px", justifyItems: "center", textAlign: "center" } },
+          h("div.sb-card.m-defter", { style: { display: "grid", gap: "14px", justifyItems: "center", textAlign: "center" } },
             h("div.dk-no", i < 0 ? "Hazır mıyız?" : i + 1 + " / " + liste.length),
             goster && i >= 0 ? h("div.dy-durum", liste[i]) : h("p.sb-line", "Dinle, defterine yaz."),
             h("div.row", { style: { justifyContent: "center" } },

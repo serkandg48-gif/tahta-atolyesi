@@ -279,13 +279,13 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
         let ic;
         if (mod === "son") {
           const [c, d] = sonL[i % sonL.length];
-          ic = h("div.dy-card", h("div.dy-durum", c, h("span.nt-bos", cevap || "_")),
+          ic = h("div.dy-card.m-defter", h("div.dy-durum", c, h("span.nt-bos", cevap || "_")),
             h("div.row", { style: { justifyContent: "center", gap: "14px" } }, [[".", "Nokta"], ["?", "Soru işareti"], ["!", "Ünlem"]].map(([k, l]) => h("button.btn.big" + (cevap ? (k === d ? ".c-leaf" : k === cevap ? ".c-tomato" : ".c-chalk") : ".c-chalk"), { onclick: () => { if (cevap) return; cevap = k; k === d ? T.sound.ok() : T.sound.no(); ciz(); } }, h("b", { style: { fontSize: "34px" } }, k), l))),
             cevap ? h("p.sb-line", cevap === d ? "Doğru!" : "Bu cümlenin sonuna " + { ".": "nokta", "?": "soru işareti", "!": "ünlem" }[d] + " gelir. Cümleyi o duyguyla bir daha okuyalım.") : null,
             h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(c) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; cevap = null; ciz(); } }, T.icon("next"), "Sıradaki")));
         } else {
           const [c, d] = bL[i % bL.length]; const ws = c.split(" ");
-          ic = h("div.dy-card", h("p.sb-line", "Büyük harfle başlaması gereken kelimelere dokun."),
+          ic = h("div.dy-card.m-kart", h("p.sb-line", "Büyük harfle başlaması gereken kelimelere dokun."),
             h("div.nt-kel", ws.map((w, j) => { const on = secili.has(j); const dogru = d.includes(j); const goster = on ? w[0].toLocaleUpperCase("tr") + w.slice(1) : w; return h("button.nt-k" + (on ? ".on" : "") + (kontrol ? (dogru && on ? ".ok" : dogru !== on ? ".no" : "") : ""), { onclick: () => { if (kontrol) return; on ? secili.delete(j) : secili.add(j); ciz(); } }, goster); })),
             kontrol ? h("p.sb-line", d.every((x) => secili.has(x)) && secili.size === d.length ? "Harika, hepsi doğru!" : "Kırmızı olanlara bir daha bakalım: cümle başı, kişi, yer ve hayvan adları büyük harfle başlar.") : null,
             h("div.row", { style: { justifyContent: "center" } }, !kontrol ? h("button.btn.big", { onclick: () => { kontrol = true; ciz(); } }, T.icon("check"), "Kontrol et") : h("button.btn", { onclick: () => { i++; secili = new Set(); kontrol = false; ciz(); } }, T.icon("next"), "Sıradaki")));
@@ -308,7 +308,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
       function ciz() {
         const ta = h("textarea.in", { style: { minHeight: "70px", fontSize: "18px" }, placeholder: "Kendi kelimelerin ya da cümlelerin: her satıra bir tane" });
         box.replaceChildren(h("div.dk-grid",
-          h("div.sb-card", { style: { display: "grid", gap: "14px", justifyItems: "center", textAlign: "center" } },
+          h("div.sb-card.m-defter", { style: { display: "grid", gap: "14px", justifyItems: "center", textAlign: "center" } },
             h("div.dk-no", i < 0 ? "Hazır mıyız?" : i + 1 + " / " + liste.length),
             goster && i >= 0 ? h("div.dy-durum", liste[i]) : h("p.sb-line", "Dinle, defterine yaz."),
             h("div.row", { style: { justifyContent: "center" } },

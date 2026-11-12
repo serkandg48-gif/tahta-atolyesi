@@ -1189,3 +1189,39 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .sb-dogum b { font: 800 26px var(--display); } .sb-dogum p { margin: 4px 0 0; font-size: 17px; } .sb-dogum > div { flex: 1; }
 .sb-pasta { font-size: 56px; }
 .kp-satir.dogum { background: #FFF1C9; }
+/* Grafik atölyesi */
+.gr-ust { display: grid; gap: 8px; }
+.gr-soru { font: 800 24px var(--display); }
+.gr-duzen { display: grid; grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .gr-duzen { grid-template-columns: 1fr; } }
+.gr-kat { display: grid; gap: 8px; }
+.gr-kk { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 14px; background: #fff; border: 2px solid var(--c); }
+.gr-emo { width: 52px; flex: none; font-size: 30px; text-align: center; border: 0; background: transparent; }
+.gr-ad { flex: 1 1 0; width: 0; min-width: 0; font: 700 18px var(--body); border: 0; background: transparent; }
+.gr-sayac { display: flex; align-items: center; gap: 6px; } .gr-sayac b { min-width: 34px; text-align: center; font: 800 26px var(--display); }
+.gr-sayac button, .gr-sil { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #EEF2FA; font: 800 22px var(--display); cursor: pointer; color: var(--ink); }
+.gr-sil { width: 30px; height: 30px; font-size: 18px; background: transparent; color: #8A96AE; }
+.gr-oyver { padding: 8px 14px; border-radius: 12px; border: 0; background: var(--c); color: #fff; font: 700 16px var(--body); cursor: pointer; } .gr-oyver b { font-size: 22px; } .gr-oyver[disabled] { opacity: .45; cursor: default; }
+.gr-ekle { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 14px; border: 2px dashed var(--line); background: transparent; font: 700 15px var(--body); cursor: pointer; color: var(--ink-soft); }
+.gr-ogr { margin-top: 12px; }
+.gr-kart { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; min-height: 360px; }
+.gr-kart h3 { margin: 0 0 12px; font: 800 22px var(--display); text-align: center; }
+.gr-resim { display: grid; gap: 8px; }
+.gr-rsatir { display: grid; grid-template-columns: 150px 1fr; align-items: center; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.gr-retiket { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 17px; } .gr-retiket span { font-size: 26px; }
+.gr-remo { display: flex; flex-wrap: wrap; gap: 4px; font-size: 34px; line-height: 1; }
+.gr-remo span { animation: gr-gel .35s ease; } .gr-remo span.yarim { clip-path: inset(0 50% 0 0); }
+@keyframes gr-gel { from { transform: scale(.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .gr-remo span { animation: none; } }
+.gr-anahtar { margin-top: 8px; font-weight: 700; color: var(--ink-soft); }
+.gr-sutun { display: grid; grid-template-columns: auto 1fr; gap: 8px; height: 360px; }
+.gr-eksen { display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 54px; font: 700 13px var(--body); color: var(--ink-soft); text-align: right; }
+.gr-alan { display: flex; align-items: stretch; gap: 14px; border-left: 2px solid #1B2A4A; border-bottom: 2px solid #1B2A4A; padding: 0 12px; margin-bottom: 52px; background-image: repeating-linear-gradient(to top, transparent 0 calc(100% / var(--ust) - 1px), #E3E8F2 calc(100% / var(--ust) - 1px) calc(100% / var(--ust))); }
+.gr-bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
+.gr-dolu { border-radius: 8px 8px 0 0; transition: height .4s ease; display: flex; justify-content: center; min-height: 0; }
+.gr-dolu b { color: #fff; font: 800 18px var(--display); padding-top: 4px; }
+.gr-bet { position: absolute; top: 100%; left: 0; right: 0; text-align: center; font: 700 14px var(--body); padding-top: 4px; } .gr-bet span { display: block; font-size: 22px; }
+.gr-cetele { width: 100%; border-collapse: collapse; font-size: 18px; } .gr-cetele th, .gr-cetele td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+.gr-ct { font: 800 26px var(--display); letter-spacing: 2px; } .gr-5 { text-decoration: line-through; margin-right: 10px; } .gr-1 { margin-right: 2px; }
+.gr-oku { margin-top: 16px; background: #FFFBEF; border-radius: 16px; padding: 14px 16px; display: grid; gap: 8px; } .gr-oku h3 { margin: 0; }
+.gr-oku-s { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 18px; }

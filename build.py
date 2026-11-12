@@ -30,6 +30,7 @@ JS_ORDER = [
     "math-sims.js",
     "math-middle.js",
     "math-games.js",
+    "grafik.js",
     "math-vitrin.js",
     "math-talks.js",
     "subjects.js",

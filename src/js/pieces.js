@@ -9,7 +9,7 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
 
   /* --- Taban blokları --- */
   const U = 22; // birlik küp kenarı
-  const cube = (x, y) => S("rect", { x, y, width: U, height: U, fill: "url(#gBlue)", stroke: "#164e7a", "stroke-width": 1.5 });
+  const cube = (x, y) => S("g", {}, S("rect", { x, y, width: U, height: U, rx: 1.5, fill: T.m3d("#3E95D6"), stroke: "#1B5D93", "stroke-width": 1.2 }), S("path", { d: `M${x + 2} ${y + U - 3}V${y + 2}H${x + U - 3}`, stroke: "rgba(255,255,255,.55)", "stroke-width": 1.4, fill: "none" }));
   T.defPiece("yuzluk", { w: U * 10, h: U * 10, value: 100, label: "Yüzlük", rotStep: 90,
     draw: () => { const g = S("g"); for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) g.append(cube(-U * 5 + i * U, -U * 5 + j * U)); return g; } });
   T.defPiece("onluk", { w: U, h: U * 10, value: 10, label: "Onluk", rotStep: 90,
@@ -19,7 +19,7 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
     draw: () => {
       const g = S("g"); const o = 6;
       for (let k = 9; k >= 0; k--) {
-        const r = S("rect", { x: -U * 5 + k * o / 1.5 - 10, y: -U * 5 - k * o / 1.5 + 10, width: U * 10, height: U * 10, fill: k ? "#a9d3f0" : "url(#gBlue)", stroke: "#164e7a", "stroke-width": 1.5 });
+        const r = S("rect", { x: -U * 5 + k * o / 1.5 - 10, y: -U * 5 - k * o / 1.5 + 10, width: U * 10, height: U * 10, fill: k ? T.m3d("#8CC4EC") : T.m3d("#3E95D6"), stroke: "#1B5D93", "stroke-width": 1.5 });
         g.append(r);
       }
       return g;
@@ -27,15 +27,15 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
 
   /* --- Pullar --- */
   T.defPiece("pul", { w: 50, h: 50, value: 1, label: "Pul", rotStep: 0,
-    draw: (p) => S("circle", { r: 23, fill: p.flip ? "#ef5b3b" : "#ffc233", stroke: STROKE, "stroke-width": 2.5 }) });
+    draw: (p) => S("circle", { r: 23, fill: T.m3(p.flip ? "#ef5b3b" : "#ffc233") }) });
   T.defPiece("arti", { w: 54, h: 54, value: 1, label: "+1", rotStep: 0,
-    draw: () => S("g", {}, S("circle", { r: 25, fill: "#ffc233", stroke: STROKE, "stroke-width": 2.5 }), S("path", { d: "M-11 0h22M0 -11v22", stroke: STROKE, "stroke-width": 4, "stroke-linecap": "round" })) });
+    draw: () => S("g", {}, S("circle", { r: 25, fill: T.m3("#ffc233") }), S("path", { d: "M-11 0h22M0 -11v22", stroke: STROKE, "stroke-width": 4, "stroke-linecap": "round" })) });
   T.defPiece("eksi", { w: 54, h: 54, value: -1, label: "−1", rotStep: 0,
-    draw: () => S("g", {}, S("circle", { r: 25, fill: "#ef5b3b", stroke: STROKE, "stroke-width": 2.5 }), S("path", { d: "M-11 0h22", stroke: "#fff", "stroke-width": 4, "stroke-linecap": "round" })) });
+    draw: () => S("g", {}, S("circle", { r: 25, fill: T.m3("#ef5b3b") }), S("path", { d: "M-11 0h22", stroke: "#fff", "stroke-width": 4, "stroke-linecap": "round" })) });
 
   /* --- Cebir karoları --- */
   const X = 120, B = 30;
-  const tile = (w, h, neg, fillPos) => S("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 4, fill: neg ? "#ef5b3b" : fillPos, stroke: STROKE, "stroke-width": 2.5 });
+  const tile = (w, h, neg, fillPos) => S("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 4, fill: T.m3d(neg ? "#ef5b3b" : fillPos), stroke: "rgba(0,0,0,.35)", "stroke-width": 1.5 });
   const lbl = (t, neg, size = 26) => S("text", { "text-anchor": "middle", "dominant-baseline": "central", "font-family": "Lexend, sans-serif", "font-weight": 600, "font-size": size, fill: neg ? "#fff" : "#1d2830" }, t);
   T.defPiece("x2", { w: X, h: X, label: "x²", rotStep: 90, value: 0,
     draw: (p) => S("g", {}, tile(X, X, p.flip, "#4aa3d8"), lbl(p.flip ? "−x²" : "x²", p.flip)) });
@@ -46,7 +46,7 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
 
   /* --- Örüntü blokları (kenar 60) --- */
   const E = 60;
-  const poly = (pts, fill) => S("polygon", { points: pts.map((p) => p.join(",")).join(" "), fill, stroke: STROKE, "stroke-width": 2.5, "stroke-linejoin": "round" });
+  const poly = (pts, fill) => S("polygon", { points: pts.map((p) => p.join(",")).join(" "), fill: T.m3d(fill), stroke: "rgba(0,0,0,.38)", "stroke-width": 1.6, "stroke-linejoin": "round" });
   const polyC = (p, pts, fill) => poly(pts, (p && p.color) || fill);
   const reg = (n, r, rot = 0) => Array.from({ length: n }, (_, i) => { const a = rot + (i * 2 * Math.PI) / n; return [r * Math.cos(a), r * Math.sin(a)]; });
   const h3 = (E * Math.sqrt(3)) / 2;
@@ -78,8 +78,8 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
 
   /* --- Para (biçimlendirilmiş, gerçek tasarım değil) --- */
   const coin = (r, fill, ring, txt, sub) => S("g", {},
-    S("circle", { r, fill: ring, stroke: STROKE, "stroke-width": 2 }),
-    S("circle", { r: r * 0.8, fill, stroke: "rgba(0,0,0,.25)", "stroke-width": 1.5 }),
+    S("circle", { r, fill: T.m3(ring), stroke: "rgba(60,40,10,.45)", "stroke-width": 1 }),
+    S("circle", { r: r * 0.8, fill: T.m3(fill), stroke: "rgba(255,255,255,.45)", "stroke-width": 1 }),
     S("text", { "text-anchor": "middle", y: sub ? -2 : 0, "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": r * 0.62, fill: "#3a2a10" }, txt),
     sub ? S("text", { "text-anchor": "middle", y: r * 0.45, "dominant-baseline": "central", "font-family": "Lexend, sans-serif", "font-size": r * 0.28, fill: "#3a2a10" }, sub) : null);
   const COINS = [[1, 16, "#d9a86a", "#c48d4c", "1", "kuruş"], [5, 19, "#e7c46f", "#cfa94e", "5", "kuruş"], [10, 21, "#e7c46f", "#cfa94e", "10", "kuruş"], [25, 24, "#e7c46f", "#cfa94e", "25", "kuruş"], [50, 27, "#dfe3e6", "#b9c0c6", "50", "kuruş"], [100, 30, "#e7c46f", "#c8ccd0", "1", "TL"]];
@@ -87,7 +87,7 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
   const NOTES = [[5, "#9a7bc4"], [10, "#e2675a"], [20, "#59b37a"], [50, "#f0a04b"], [100, "#4d9bd6"], [200, "#c76fa6"]];
   NOTES.forEach(([v, col]) => T.defPiece("b" + v, { w: 220, h: 110, value: v, label: v + " TL", rotStep: 90,
     draw: () => S("g", {},
-      S("rect", { x: -110, y: -55, width: 220, height: 110, rx: 8, fill: col, stroke: STROKE, "stroke-width": 2 }),
+      S("rect", { x: -110, y: -55, width: 220, height: 110, rx: 5, fill: T.m3d(col), stroke: "rgba(0,0,0,.3)", "stroke-width": 1 }),
       S("rect", { x: -100, y: -45, width: 200, height: 90, rx: 5, fill: "none", stroke: "rgba(255,255,255,.55)", "stroke-width": 2 }),
       S("circle", { cx: 50, cy: 0, r: 30, fill: "rgba(255,255,255,.3)" }),
       S("text", { x: -88, y: -18, "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 40, fill: "#fff" }, v),
@@ -99,13 +99,13 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
   Object.entries(FC).forEach(([n, col]) => {
     n = Number(n); const w = 600 / n;
     T.defPiece("f" + n, { w, h: 56, value: 1 / n, label: n === 1 ? "1" : "1/" + n, rotStep: 90,
-      draw: () => S("g", {}, S("rect", { x: -w / 2, y: -28, width: w, height: 56, rx: 4, fill: col, stroke: STROKE, "stroke-width": 2 }),
+      draw: () => S("g", {}, S("rect", { x: -w / 2, y: -28, width: w, height: 56, rx: 4, fill: T.m3d(col), stroke: "rgba(0,0,0,.35)", "stroke-width": 1.5 }),
         S("text", { "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": n > 8 ? 18 : 24, fill: "#1d1d1d" }, n === 1 ? "1" : "1/" + n)) });
   });
 
   /* --- Not kartı --- */
   T.defPiece("not", { w: 140, h: 90, label: "Not", rotStep: 15,
-    draw: (p) => S("g", {}, S("rect", { x: -70, y: -45, width: 140, height: 90, rx: 6, fill: "#fff6b8", stroke: STROKE, "stroke-width": 2 }),
+    draw: (p) => S("g", {}, S("rect", { x: -70, y: -45, width: 140, height: 90, rx: 2, fill: T.m3d("#FFF1A6") }),
       S("text", { "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Patrick Hand', cursive", "font-size": 36, fill: "#2a2a2a" }, p.text || "?")) });
 })();
 
@@ -113,7 +113,7 @@ T.defPiece = (type, def) => (T.pieceTypes[type] = Object.assign({ rotStep: 15, v
 /* --- Serbest şekiller: renklendirilebilir, enine boyuna esnetilebilir --- */
 (function () {
   const S = (tag, a, ...k) => T.svg(tag, a, ...k);
-  const st = (p, def) => ({ fill: p.color || def, stroke: "#2a2a2a", "stroke-width": 2.5, "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke" });
+  const st = (p, def) => ({ fill: T.m3d(p.color || def), stroke: "rgba(0,0,0,.38)", "stroke-width": 1.6, "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke" });
   const sh = (type, label, w, h, col, mk) => T.defPiece(type, { w, h, label, rotStep: 15, stretch: true, colorable: true, draw: (p) => mk(p, col) });
   sh("s-kare", "Kare", 100, 100, "#ff9a3c", (p, c) => S("rect", Object.assign({ x: -50, y: -50, width: 100, height: 100 }, st(p, c))));
   sh("s-dikdortgen", "Dikdörtgen", 160, 90, "#2e9bd6", (p, c) => S("rect", Object.assign({ x: -80, y: -45, width: 160, height: 90 }, st(p, c))));
@@ -142,7 +142,7 @@ T.Tuval = function (host, opts) {
     T.svg("path", { d: "M-14 -10h28M-10 -10l2 24h16l2-24M-5 -10v-6h10v6", stroke: "#c0392b", "stroke-width": 3, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }));
   svg.append(trash, over);
 
-  const mat = T.h("div.mat" + (opts.grid ? ".grid-bg" : ""), { style: { height: opts.matHeight || "var(--stage-h)" } }, svg);
+  const mat = T.h("div.mat.m-tuval" + (opts.grid ? ".grid-bg" : ""), { style: { height: opts.matHeight || "var(--stage-h)" } }, svg);
   const readout = T.h("div.readout", { style: { color: "var(--chalk)" } });
   const selBar = T.h("div.row");
   const paletteRow = T.h("div.row", { style: { gap: "8px" } });
@@ -168,7 +168,7 @@ T.Tuval = function (host, opts) {
     return p;
   }
   function el(p) {
-    const g = T.svg("g", { "data-id": p.id, style: "cursor:grab", transform: tf(p) });
+    T.m3kur(); const g = T.svg("g", { "data-id": p.id, style: "cursor:grab", transform: tf(p), filter: "url(#m3-golge-k)" });
     g.append(T.pieceTypes[p.type].draw(p));
     return g;
   }

@@ -1491,3 +1491,5 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .btn.m-harf.on { background: linear-gradient(160deg, rgba(255,255,255,.45), rgba(255,255,255,0) 45%), #F2B33D !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 3px 0 #A97A1C, 0 0 0 3px #1B2A4A !important; transform: translateY(-2px); }
 .m-yazi { padding: 0 !important; overflow: hidden; }
 .mat.flash.m-kart .word { color: #1B2A4A; }
+.mat.m-tuval { border: 0 !important; border-radius: 6px; background-color: #FBF8F0 !important; box-shadow: 0 1px 1px rgba(0,0,0,.1), 0 8px 20px rgba(40,35,20,.16) !important; }
+.mat.m-tuval.grid-bg { background-image: linear-gradient(rgba(70,120,190,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(70,120,190,.16) 1px, transparent 1px) !important; background-size: 22px 22px !important; }

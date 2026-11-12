@@ -1362,3 +1362,22 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .oa-fisler { display: grid; grid-template-columns: 1fr 1fr; gap: 0; } .oa-fis { border: 1px dashed #888; padding: 10px 12px; min-height: 30mm; break-inside: avoid; } .oa-fis b { font-size: 15px; } .oa-fis small { display: block; color: #555; } .oa-fis p { margin: 4px 0 0; font-size: 13px; }
 .oa-baski .oa-f.oa-oz { page-break-after: auto; break-after: auto; height: 132mm; } .oa-baski .oa-oz:first-child { border-bottom: 1px dashed #888; margin-bottom: 6mm; padding-bottom: 4mm; }
 .tk-grid span.dg { position: relative; } .tk-grid span.dg i { position: absolute; top: -4px; right: -2px; font-size: 12px; font-style: normal; line-height: 1; }
+/* Tavşan zıplıyor */
+.tv-sahne { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: calc(100vh - 230px); margin: 0 auto; border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(20, 60, 40, .22); background: #BFE6FF; touch-action: manipulation; user-select: none; }
+.tv-sahne:fullscreen { max-height: none; border-radius: 0; }
+.tv-cv { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; }
+.tv-afis { position: absolute; top: 3%; left: 50%; transform: translateX(-50%); width: min(70%, 980px); text-align: center; pointer-events: none; }
+.tv-soru { display: inline-block; padding: .55em 1.1em; border-radius: 22px; background: rgba(255, 255, 255, .92); box-shadow: 0 8px 24px rgba(30, 60, 90, .18); font: 800 clamp(16px, 2.3vw, 34px) var(--display); color: #1B2A4A; line-height: 1.2; }
+.tv-islem { margin-top: .4em; font: 900 clamp(22px, 3.6vw, 56px) var(--display); color: #fff; text-shadow: 0 3px 0 rgba(30, 50, 80, .35), 0 6px 18px rgba(30, 50, 80, .3); letter-spacing: .02em; }
+.tv-skor { position: absolute; top: 3%; left: 2%; right: 2%; display: flex; justify-content: space-between; pointer-events: none; }
+.tv-takim { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0 .4em; padding: .4em .8em; border-radius: 18px; background: rgba(255, 255, 255, .85); font: 700 clamp(11px, 1.1vw, 16px) var(--body); color: #1B2A4A; border: 3px solid transparent; transition: transform .25s, border-color .25s; }
+.tv-takim span { grid-column: 1 / -1; } .tv-takim b { font: 900 clamp(22px, 3vw, 46px) var(--display); } .tv-takim i { font-style: normal; font-size: clamp(18px, 2.2vw, 34px); }
+.tv-takim.t0 b { color: #2E6FB0; } .tv-takim.t1 b { color: #E0742B; } .tv-takim.t1 { margin-left: auto; }
+.tv-takim.sirada.t0 { border-color: #2E6FB0; transform: scale(1.06); } .tv-takim.sirada.t1 { border-color: #E0742B; transform: scale(1.06); }
+.tv-takim.tek { grid-template-columns: auto auto; } .tv-takim.tek b { color: #E0742B; }
+.tv-alt { position: absolute; bottom: 3.5%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 10px; pointer-events: none; }
+.tv-alt > * { pointer-events: auto; }
+.tv-ipucu { padding: .45em 1em; border-radius: 999px; background: rgba(27, 42, 74, .78); color: #fff; font: 700 clamp(13px, 1.4vw, 20px) var(--body); pointer-events: none !important; }
+.tv-sonraki { font-size: clamp(16px, 1.8vw, 26px); padding: .6em 1.4em; box-shadow: 0 8px 20px rgba(0, 0, 0, .2); animation: gr-gel .3s ease; }
+.tv-ayar { gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+@media (prefers-reduced-motion: reduce) { .tv-takim { transition: none; } }

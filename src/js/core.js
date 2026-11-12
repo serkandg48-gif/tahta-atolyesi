@@ -175,6 +175,13 @@ T.gorevliPenceresi = function (c = T.store.activeClass(), sonra) {
   m = T.modal({ title: "Görevliler", body: govde, actions: [{ label: "Tamam", tone: "c-leaf" }], onClose: () => { sonra ? sonra() : T.route(); } });
   return m;
 };
+/* Bugünün sayısı: varsayılan okulun kaçıncı günü; öğretmen ayın gününü ya da kendi sayısını seçebilir */
+T.bugununSayisi = function (c = T.store.activeClass()) {
+  const v = ((T.store.get().sabah || {})[c.id + ":" + T.isoDate()]) || {};
+  if (v.kaynak === "elle" && Number.isFinite(+v.elle)) return Math.min(9999, Math.max(0, Math.round(+v.elle)));
+  if (v.kaynak === "ay") return new Date().getDate();
+  return Math.max(1, T.cal.dayNumber());
+};
 T.confirm = (title, text, yesLabel = "Evet") => new Promise((res) => {
   T.modal({ title, body: T.h("p", text), actions: [
     { label: "Vazgeç", onClick: () => res(false) },

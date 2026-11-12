@@ -178,12 +178,24 @@
     },
   };
 
+  /* Şşşş uyarısı: ses sınırı aşılınca ekranın üstünde büyük uyarı. Öğretmen dokunana kadar kalır. */
+  T.sssUyari = function (sesli) {
+    let el = document.getElementById("sss-uyari");
+    if (!el) {
+      el = h("button#sss-uyari", { "aria-live": "assertive", onclick: () => el.remove() },
+        h("span.sss-parmak", { "aria-hidden": "true" }, "🤫"), h("span.sss-yazi", "Şşşş"), h("small", "Ses çok yükseldi. Kapatmak için dokun."), h("i.sss-say"));
+      document.body.append(el); el._n = 0;
+    }
+    el._n++; el.querySelector(".sss-say").textContent = el._n > 1 ? el._n + ". uyarı" : "";
+    el.classList.remove("sars"); void el.offsetWidth; el.classList.add("sars");
+    if (sesli) { try { const c = new (window.AudioContext || window.webkitAudioContext)(), n = c.sampleRate * 1.4, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.min(1, i / 2500) * Math.min(1, (n - i) / 9000); const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 3800; f.Q.value = 0.9; const g = c.createGain(); g.gain.value = 0.5; s.connect(f); f.connect(g); g.connect(c.destination); s.start(); s.onended = () => c.close(); } catch (e) {} }
+  };
   /* ---------- Ses ölçer ---------- */
   W.noise = {
     title: "Ses ölçer", icon: "noise", tone: "sky", w: 340, h: 300, desc: "Mikrofonla sınıf sesini gösterir",
-    init: () => ({ limit: 60 }),
+    init: () => ({ limit: 60, uyari: true, sesli: true }),
     render(body, w, api) {
-      const d = w.data;
+      const d = w.data; if (d.uyari === undefined) { d.uyari = true; d.sesli = true; }
       const bar = h("div", { style: { position: "relative", height: "100%", borderRadius: "14px", background: "rgba(0,0,0,.06)", overflow: "hidden" } });
       const fill = h("div", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: "0%", background: "var(--leaf)", transition: "height .1s, background .3s" } });
       const line = h("div", { style: { position: "absolute", left: 0, right: 0, borderTop: "3px dashed var(--bad)" } });
@@ -193,8 +205,10 @@
       line.style.bottom = d.limit + "%";
       const startBtn = h("button.btn.sm.c-sky", { onclick: start }, T.icon("noise"), "Dinle");
       body.style.gridTemplateRows = "1fr auto"; body.style.gap = "8px";
-      body.append(bar, h("div.row", startBtn, h("label.f", { style: { flex: 1 } }, h("span", "Sınır"), slider)));
-      let stream = null, raf = 0, over = 0;
+      const sec = (k, l) => h("label.row", { style: { gap: "6px", fontSize: "14px", cursor: "pointer" } }, h("input", { type: "checkbox", checked: d[k] ? true : null, onchange: (e) => { d[k] = e.target.checked; api.save(); } }), l);
+      body.style.gridTemplateRows = "1fr auto auto";
+      body.append(bar, h("div.row", startBtn, h("label.f", { style: { flex: 1 } }, h("span", "Sınır"), slider)), h("div.row", { style: { gap: "14px" } }, sec("uyari", "Şşşş uyarısı"), sec("sesli", "Uyarı sesi")));
+      let stream = null, raf = 0, over = 0, sonUyari = 0;
       async function start() {
         try {
           stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -211,6 +225,7 @@
             const loud = lvl > d.limit;
             over = loud ? over + 1 : Math.max(0, over - 2);
             fill.style.background = loud ? "var(--bad)" : lvl > d.limit * 0.7 ? "var(--sun)" : "var(--leaf)";
+            if (over > 45 && d.uyari && Date.now() - sonUyari > 6000) { sonUyari = Date.now(); T.sssUyari(d.sesli); }
             face.textContent = over > 30 ? "Biraz sessizlik lütfen" : lvl > d.limit * 0.7 ? "Dikkat, ses yükseliyor" : "Harika gidiyoruz";
             raf = requestAnimationFrame(loop);
           };

@@ -285,7 +285,7 @@
     const g = T.store.grade(), now = new Date(), v = gunVeri();
     const okulGunu = Math.max(1, T.cal.dayNumber());
     const kaynak = v.kaynak || "okul";
-    const n = kaynak === "okul" ? okulGunu : now.getDate();
+    const n = T.bugununSayisi();
     const ISLEM = [["1 fazlası", n + 1], ["1 eksiği", n - 1], ["10 fazlası", n + 10], ["10 eksiği", n - 10]];
     if (g >= 2) ISLEM.push(["Tek mi, çift mi?", n % 2 ? "Tek" : "Çift"]);
     if (g >= 2 && n >= 10) ISLEM.push(["Kaç onluk, kaç birlik?", Math.floor(n / 10) + " onluk " + (n % 10) + " birlik"]);
@@ -311,7 +311,11 @@
     body.append(
       h("div.sb-numhead",
         h("div.sb-num", n),
-        h("div", h("div.seg", [["okul", "Okulun " + okulGunu + ". günü"], ["ay", "Ayın " + now.getDate() + ". günü"]].map(([k, l]) => h("button", { "aria-pressed": String(k === kaynak), onclick: () => { kaydet((x) => { x.kaynak = k; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, l))),
+        h("div", h("div.seg", [["okul", "Okulun " + okulGunu + ". günü"], ["ay", "Ayın " + now.getDate() + ". günü"], ["elle", "Kendi sayım"]].map(([k, l]) => h("button", { "aria-pressed": String(k === kaynak), onclick: () => { kaydet((x) => { x.kaynak = k; if (k === "elle" && !Number.isFinite(+x.elle)) x.elle = n; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, l))),
+          kaynak === "elle" ? h("div.row", { style: { gap: "8px", marginTop: "10px" } },
+            h("button.btn.sm.c-chalk", { "aria-label": "Bir azalt", onclick: () => { kaydet((x) => { x.elle = n - 1; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, "−1"),
+            h("input.in", { type: "number", value: n, style: { width: "110px", fontWeight: 800, fontSize: "20px" }, "aria-label": "Bugünün sayısı", onchange: (e) => { const d = parseInt(e.target.value, 10); if (!Number.isFinite(d)) return; kaydet((x) => { x.elle = d; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }),
+            h("button.btn.sm.c-chalk", { "aria-label": "Bir artır", onclick: () => { kaydet((x) => { x.elle = n + 1; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, "+1")) : null,
           h("p.sb-line", "Önce kimin söyleyeceğini seç, cevabı çocuk söyledikten sonra kutuya dokun."),
           h("button.btn.sm.c-chalk", { onclick: () => { kaydet((x) => { x.islem = {}; x.kim = {}; }); paintOps(); } }, T.icon("reset"), "Baştan"))),
       blok, grid);

@@ -73,16 +73,18 @@
     },
   });
 
+  const YZ = [
+    ["Düzey 0: Yapay zekâ yok", "Bu görevde hiçbir yapay zekâ aracından yararlanılmaz. Bütün çalışma kendi aklınla ve izin verilen kaynaklarla yürür.", "#5B7DB1", "Örnek: Hikâyeni baştan sona kendin yazarsın."],
+    ["Düzey 1: Yardım ve anlama", "Kavramları anlamak, zor terimleri sadeleştirmek, tanım almak ya da netleştirici sorular sormak için yapay zekâdan yardım alabilirsin.", "#E9C23B", "Örnek: \"Fotosentez ne demek, basitçe anlat\" diye sorarsın. Cevabı ödevine kopyalamazsın."],
+    ["Düzey 2: Geri bildirim ve düzenleme", "Kendi ürettiğin metin ve fikirlerin taslaklarını gözden geçirmek, dil ve akış geri bildirimi almak için yapay zekâyı kullanabilirsin.", "#6DAF5A", "Örnek: Önce kendin yazarsın, sonra \"Nerede yazım yanlışım var?\" diye sorarsın."],
+    ["Düzey 3: Üretim ve tasarım ortağı", "Proje ya da tasarım görevinde yapay zekâ ile birlikte üretebilirsin. Nasıl ve hangi amaçla kullandığını ayrıntılı yazman gerekir.", "#E07B3C", "Örnek: Afişin için görsel fikri üretirsin ve altına \"Görseli yapay zekâ ile ürettim\" yazarsın."]];
+  T.YZ_DUZEY = YZ;
   tool("yz-duzeyi", {
     title: "Yapay zekâ kullanım düzeyi", icon: "spark", tone: "grape", grades: [3, 8], short: "Bu görevde yapay zekâ ne kadar kullanılabilir?",
     render(host) {
       duzeyPanosu(host, { anahtar: "yz", oy: false, okAd: "Bugünkü düzey",
         ust: () => h("p.sb-line", "Her ödev ve araştırma görevinden önce hangi yapay zekâ kullanım düzeyinin geçerli olduğu açıkça belirtilir. Emin olmadığında çalışmaya başlamadan önce öğretmenine danış."),
-        duzeyler: [
-          ["Düzey 0: Yapay zekâ yok", "Bu görevde hiçbir yapay zekâ aracından yararlanılmaz. Bütün çalışma kendi aklınla ve izin verilen kaynaklarla yürür.", "#5B7DB1"],
-          ["Düzey 1: Yardım ve anlama", "Kavramları anlamak, zor terimleri sadeleştirmek, tanım almak ya da netleştirici sorular sormak için yapay zekâdan yardım alabilirsin.", "#E9C23B"],
-          ["Düzey 2: Geri bildirim ve düzenleme", "Kendi ürettiğin metin ve fikirlerin taslaklarını gözden geçirmek, dil ve akış geri bildirimi almak için yapay zekâyı kullanabilirsin.", "#6DAF5A"],
-          ["Düzey 3: Üretim ve tasarım ortağı", "Proje ya da tasarım görevinde yapay zekâ ile birlikte üretebilirsin. Nasıl ve hangi amaçla kullandığını ayrıntılı yazman gerekir.", "#E07B3C"]] });
+        duzeyler: YZ.map(([ad, ac, r, ornek]) => [ad, ac + " " + ornek, r]) });
     },
   });
 
@@ -542,11 +544,13 @@
     init: () => ({}), render(body) { body.style.overflow = "auto"; const b = h("div"); body.append(b); bitirdimCiz(b, true); },
   };
   T.widgets.yzduzey = {
-    title: "Yapay zekâ düzeyi", icon: "spark", tone: "grape", w: 360, h: 220, minW: 260, minH: 160, group: "Sınıf kültürü", desc: "Bu görevin yapay zekâ kullanım düzeyi",
+    title: "Yapay zekâ düzeyi", icon: "spark", tone: "grape", w: 400, h: 330, minW: 280, minH: 220, group: "Sınıf kültürü", desc: "Bu görevin yapay zekâ kullanım düzeyi",
     init: () => ({ d: 0 }),
     render(body, w, api) {
-      const ad = ["Düzey 0: Yapay zekâ yok", "Düzey 1: Yardım ve anlama", "Düzey 2: Geri bildirim ve düzenleme", "Düzey 3: Üretim ve tasarım ortağı"], rk = ["#5B7DB1", "#E9C23B", "#6DAF5A", "#E07B3C"];
-      const p = () => { body.replaceChildren(h("div", { style: { display: "grid", gap: "8px", placeContent: "center", textAlign: "center", height: "100%" } }, h("small", "Bugünkü düzey"), h("div", { style: { font: "800 26px var(--display)", color: rk[w.data.d], cursor: "pointer" }, onclick: () => { w.data.d = (w.data.d + 1) % 4; api.save(); p(); } }, ad[w.data.d]), h("span.hint", "Değiştirmek için dokun"))); };
+      const p = () => { const [ad, ac, rk, ornek] = YZ[w.data.d]; body.style.overflow = "auto";
+        body.replaceChildren(h("div.yzw", { style: { "--yz": rk } },
+          h("div.yzw-sec", YZ.map((x, i) => h("button" + (i === w.data.d ? ".on" : ""), { style: { "--yz": x[2] }, "aria-label": x[0], title: x[0], onclick: () => { w.data.d = i; api.save(); p(); } }, String(i)))),
+          h("b.yzw-ad", ad), h("p", ac), h("p.yzw-ornek", ornek))); };
       p();
     },
   };

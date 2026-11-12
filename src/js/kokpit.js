@@ -146,7 +146,7 @@
   ];
 
   /* ---------- Kartlar ---------- */
-  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Merak kıvılcımı"], ["akis", "Günün akışı"], ["pin", "Sabitlenen etkinlikler"], ["not", "Hızlı not"], ["muzik", "Atmosfer ve müzik"]];
+  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Merak kıvılcımı"], ["akis", "Günün akışı"], ["pin", "Kısayollarım"], ["not", "Hızlı not"], ["muzik", "Atmosfer ve müzik"]];
   const gizli = () => ayar().gizli || {};
   function ozetKart() {
     const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
@@ -166,7 +166,7 @@
         h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
         h("button.kp-satir", { onclick: () => T.gorevliPenceresi(c), title: "Görevlileri gör ve düzenle" }, T.icon("trophy"), "Görevliler", gv.length ? h("span.kp-yuzler", gv.slice(0, 4).map(([, st]) => T.avatar(st.name, 26))) : h("b", "Ekle")),
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
-        st.kind === "okul" ? h("button.kp-satir", { onclick: () => T.go("sabah-sayi") }, T.icon("spark"), "Bugünün sayısı", h("b", n)) : null,
+        h("button.kp-satir", { onclick: () => T.go("sabah-sayi"), title: "Dokun, sayıyı değiştir" }, T.icon("spark"), "Bugünün sayısı", h("b", T.bugununSayisi(c))),
         sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));
   }
   function kivilcimKart() {
@@ -266,15 +266,30 @@
   T.pinDegis = (r, baslik, ikon, ton) => T.store.update((s) => { s.pinler = s.pinler || {}; const l = (s.pinler[cid()] = s.pinler[cid()] || []); const i = l.findIndex((x) => x.r === r); if (i >= 0) l.splice(i, 1); else l.push({ r, b: baslik, i: ikon, t: ton }); });
   /* Etkinlik kartı: köşesinde Ana tahtaya sabitle düğmesi */
   T.aracKart = (route, t, ton) => {
-    const pin = h("button.tc-pin", { "aria-label": "Ana tahtaya sabitle", title: "Ana tahtaya sabitle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana tahtaya sabitlendi" : "Sabitleme kaldırıldı"); } }, T.icon("pin"));
+    const pin = h("button.tc-pin", { "aria-label": "Ana sayfaya kısayol ekle", title: "Ana sayfaya kısayol ekle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana sayfadaki kısayollara eklendi" : "Kısayol kaldırıldı"); } }, T.icon("pin"));
     if (T.pinliMi(route)) pin.classList.add("on");
     return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin);
   };
+  /* Tüm etkinliklerden kısayol seçme */
+  T.kisayolSec = function () {
+    const kat = Object.entries(T.tools).filter(([, t]) => t.title && !t.gizli).map(([k, t]) => { const sec = t.back || "matematik"; return { r: sec + "-" + k, t, sec: (T.sections[sec] || {}).title || sec }; }).filter((x) => T.sections[x.r.split("-")[0]]);
+    const ara = h("input.in", { placeholder: "Etkinlik ara, örneğin okuma, kesir, duygu", "aria-label": "Etkinlik ara" });
+    const liste = h("div.ks-liste");
+    const ciz = () => {
+      const q = ara.value.trim().toLocaleLowerCase("tr");
+      const gr = {}; kat.filter((x) => !q || (x.t.title + " " + (x.t.short || "") + " " + x.sec).toLocaleLowerCase("tr").includes(q)).forEach((x) => (gr[x.sec] = gr[x.sec] || []).push(x));
+      liste.replaceChildren(...Object.entries(gr).map(([sec, l]) => h("div", h("h3.ks-bas", sec), h("div.ks-grid", l.map((x) => h("button.ks-oge" + (T.pinliMi(x.r) ? ".on" : ""), { onclick: () => { T.pinDegis(x.r, x.t.title, x.t.icon, x.t.tone); ciz(); } }, T.icon(x.t.icon || "star"), h("span", x.t.title), h("i", T.pinliMi(x.r) ? "Eklendi" : "Ekle")))))));
+      if (!liste.children.length) liste.append(h("p.hint", "Bu adla bir etkinlik bulunamadı."));
+    };
+    ara.addEventListener("input", ciz); ciz();
+    T.modal({ title: "Kısayol ekle", wide: true, body: h("div", { style: { display: "grid", gap: "12px" } }, h("p.hint", "En sık açtığın etkinlikleri seç. Ana sayfada tek dokunuşla açılırlar."), ara, liste), actions: [{ label: "Tamam", tone: "c-leaf" }], onClose: () => T.route() });
+    setTimeout(() => ara.focus(), 50);
+  };
   function pinKart() {
     const l = T.pinler();
-    return h("section.kp-kart.kp-pin", { "aria-label": "Sabitlenen etkinlikler" }, h("div.kp-baslik", T.icon("pin"), "Bugün için sabitlediklerim"),
+    return h("section.kp-kart.kp-pin", { "aria-label": "Kısayollarım" }, h("div.kp-baslik", T.icon("pin"), "Kısayollarım", h("button.kp-mini.kp-ekle", { onclick: () => T.kisayolSec(), title: "Kısayol ekle", "aria-label": "Kısayol ekle" }, T.icon("plus"))),
       l.length ? h("div.kp-pinler", l.map((p) => h("div.kp-pinw", h("button.kp-pinb.c-" + (p.t || "sun"), { onclick: () => T.go(p.r) }, T.icon(p.i || "star"), h("span", p.b)), h("button.kp-pinx", { "aria-label": "Kaldır", onclick: () => { T.pinDegis(p.r); T.route(); } }, T.icon("close")))))
-        : h("p.hint", "Türkçe, Matematik, Duygular gibi bölümlerde bir etkinlik kartının köşesindeki iğneye dokun; burada hızlı başlatma kartı olarak görünür."));
+        : h("div.kp-pinbos", h("p", "Sık kullandığın etkinlikleri buraya koy, tek dokunuşla açılsın."), h("button.btn.c-chalk", { onclick: () => T.kisayolSec() }, T.icon("plus"), "Kısayol ekle")));
   }
 
   /* ---------- Her yerden müzik: üst bar düğmesi ---------- */

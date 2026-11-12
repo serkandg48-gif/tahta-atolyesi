@@ -1390,6 +1390,33 @@ html.ekranda #spotify-kutu { bottom: 18px; }
 .gv-bos { width: 48px; height: 48px; border-radius: 50%; background: var(--line); flex: none; }
 .gv-ekle { display: flex; gap: 8px; }
 .gv-ekle .in { flex: 1; }
+.kp-baslik .kp-ekle { margin-left: auto; }
+.kp-pinbos { display: grid; gap: 10px; justify-items: start; }
+.kp-pinbos p { margin: 0; color: var(--ink-2, #4a5878); }
+.ks-liste { display: grid; gap: 14px; max-height: 58vh; overflow: auto; }
+.ks-bas { margin: 0 0 6px; font-size: 16px; }
+.ks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.ks-oge { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left; font: inherit; }
+.ks-oge svg { width: 26px; height: 26px; flex: none; }
+.ks-oge span { flex: 1; font-weight: 700; }
+.ks-oge i { font-style: normal; font-size: 13px; color: #4a5878; }
+.ks-oge.on { border-color: #1B2A4A; background: #EEF2FA; }
+.ks-oge.on i { color: #1B2A4A; font-weight: 800; }
+.yzw { display: grid; gap: 8px; align-content: start; }
+.yzw-sec { display: flex; gap: 6px; }
+.yzw-sec button { flex: 1; height: 38px; border-radius: 10px; border: 2px solid var(--yz); background: #fff; color: var(--ink); font: 800 18px var(--display); cursor: pointer; }
+.yzw-sec button.on { background: var(--yz); color: #fff; }
+.yzw-ad { font: 800 22px var(--display); color: var(--ink); border-left: 6px solid var(--yz); padding-left: 10px; }
+.yzw p { margin: 0; font-size: 16px; line-height: 1.45; }
+.yzw-ornek { background: rgba(0,0,0,.04); border-radius: 10px; padding: 8px 10px; }
+#sss-uyari { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 120; display: grid; justify-items: center; gap: 2px; padding: 14px 44px 16px; border: 0; border-radius: 26px; background: #C2453A; color: #fff; box-shadow: 0 18px 44px rgba(120,20,20,.35); cursor: pointer; font: inherit; }
+#sss-uyari .sss-parmak { font-size: 64px; line-height: 1; }
+#sss-uyari .sss-yazi { font: 900 clamp(54px, 9vw, 110px)/1 var(--display); letter-spacing: .04em; }
+#sss-uyari small { font-size: 16px; opacity: .92; }
+#sss-uyari .sss-say { font-style: normal; font-size: 14px; font-weight: 800; opacity: .9; }
+#sss-uyari.sars { animation: sss-sars .6s ease; }
+@keyframes sss-sars { 0%, 100% { transform: translateX(-50%); } 20% { transform: translateX(calc(-50% - 14px)); } 40% { transform: translateX(calc(-50% + 12px)); } 60% { transform: translateX(calc(-50% - 8px)); } 80% { transform: translateX(calc(-50% + 4px)); } }
+@media (prefers-reduced-motion: reduce) { #sss-uyari.sars { animation: none; } }
 
 </style>
 </head>
@@ -1404,7 +1431,7 @@ html.ekranda #spotify-kutu { bottom: 18px; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="48b9773f12";
+window.SURUM="761171b804";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -1582,6 +1609,13 @@ T.gorevliPenceresi = function (c = T.store.activeClass(), sonra) {
   ciz();
   m = T.modal({ title: "Görevliler", body: govde, actions: [{ label: "Tamam", tone: "c-leaf" }], onClose: () => { sonra ? sonra() : T.route(); } });
   return m;
+};
+/* Bugünün sayısı: varsayılan okulun kaçıncı günü; öğretmen ayın gününü ya da kendi sayısını seçebilir */
+T.bugununSayisi = function (c = T.store.activeClass()) {
+  const v = ((T.store.get().sabah || {})[c.id + ":" + T.isoDate()]) || {};
+  if (v.kaynak === "elle" && Number.isFinite(+v.elle)) return Math.min(9999, Math.max(0, Math.round(+v.elle)));
+  if (v.kaynak === "ay") return new Date().getDate();
+  return Math.max(1, T.cal.dayNumber());
 };
 T.confirm = (title, text, yesLabel = "Evet") => new Promise((res) => {
   T.modal({ title, body: T.h("p", text), actions: [
@@ -3859,12 +3893,24 @@ T.yuzen = TahtaYap("ana");
     },
   };
 
+  /* Şşşş uyarısı: ses sınırı aşılınca ekranın üstünde büyük uyarı. Öğretmen dokunana kadar kalır. */
+  T.sssUyari = function (sesli) {
+    let el = document.getElementById("sss-uyari");
+    if (!el) {
+      el = h("button#sss-uyari", { "aria-live": "assertive", onclick: () => el.remove() },
+        h("span.sss-parmak", { "aria-hidden": "true" }, "🤫"), h("span.sss-yazi", "Şşşş"), h("small", "Ses çok yükseldi. Kapatmak için dokun."), h("i.sss-say"));
+      document.body.append(el); el._n = 0;
+    }
+    el._n++; el.querySelector(".sss-say").textContent = el._n > 1 ? el._n + ". uyarı" : "";
+    el.classList.remove("sars"); void el.offsetWidth; el.classList.add("sars");
+    if (sesli) { try { const c = new (window.AudioContext || window.webkitAudioContext)(), n = c.sampleRate * 1.4, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.min(1, i / 2500) * Math.min(1, (n - i) / 9000); const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 3800; f.Q.value = 0.9; const g = c.createGain(); g.gain.value = 0.5; s.connect(f); f.connect(g); g.connect(c.destination); s.start(); s.onended = () => c.close(); } catch (e) {} }
+  };
   /* ---------- Ses ölçer ---------- */
   W.noise = {
     title: "Ses ölçer", icon: "noise", tone: "sky", w: 340, h: 300, desc: "Mikrofonla sınıf sesini gösterir",
-    init: () => ({ limit: 60 }),
+    init: () => ({ limit: 60, uyari: true, sesli: true }),
     render(body, w, api) {
-      const d = w.data;
+      const d = w.data; if (d.uyari === undefined) { d.uyari = true; d.sesli = true; }
       const bar = h("div", { style: { position: "relative", height: "100%", borderRadius: "14px", background: "rgba(0,0,0,.06)", overflow: "hidden" } });
       const fill = h("div", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: "0%", background: "var(--leaf)", transition: "height .1s, background .3s" } });
       const line = h("div", { style: { position: "absolute", left: 0, right: 0, borderTop: "3px dashed var(--bad)" } });
@@ -3874,8 +3920,10 @@ T.yuzen = TahtaYap("ana");
       line.style.bottom = d.limit + "%";
       const startBtn = h("button.btn.sm.c-sky", { onclick: start }, T.icon("noise"), "Dinle");
       body.style.gridTemplateRows = "1fr auto"; body.style.gap = "8px";
-      body.append(bar, h("div.row", startBtn, h("label.f", { style: { flex: 1 } }, h("span", "Sınır"), slider)));
-      let stream = null, raf = 0, over = 0;
+      const sec = (k, l) => h("label.row", { style: { gap: "6px", fontSize: "14px", cursor: "pointer" } }, h("input", { type: "checkbox", checked: d[k] ? true : null, onchange: (e) => { d[k] = e.target.checked; api.save(); } }), l);
+      body.style.gridTemplateRows = "1fr auto auto";
+      body.append(bar, h("div.row", startBtn, h("label.f", { style: { flex: 1 } }, h("span", "Sınır"), slider)), h("div.row", { style: { gap: "14px" } }, sec("uyari", "Şşşş uyarısı"), sec("sesli", "Uyarı sesi")));
+      let stream = null, raf = 0, over = 0, sonUyari = 0;
       async function start() {
         try {
           stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -3892,6 +3940,7 @@ T.yuzen = TahtaYap("ana");
             const loud = lvl > d.limit;
             over = loud ? over + 1 : Math.max(0, over - 2);
             fill.style.background = loud ? "var(--bad)" : lvl > d.limit * 0.7 ? "var(--sun)" : "var(--leaf)";
+            if (over > 45 && d.uyari && Date.now() - sonUyari > 6000) { sonUyari = Date.now(); T.sssUyari(d.sesli); }
             face.textContent = over > 30 ? "Biraz sessizlik lütfen" : lvl > d.limit * 0.7 ? "Dikkat, ses yükseliyor" : "Harika gidiyoruz";
             raf = requestAnimationFrame(loop);
           };
@@ -4646,7 +4695,7 @@ T.yuzen = TahtaYap("ana");
     const g = T.store.grade(), now = new Date(), v = gunVeri();
     const okulGunu = Math.max(1, T.cal.dayNumber());
     const kaynak = v.kaynak || "okul";
-    const n = kaynak === "okul" ? okulGunu : now.getDate();
+    const n = T.bugununSayisi();
     const ISLEM = [["1 fazlası", n + 1], ["1 eksiği", n - 1], ["10 fazlası", n + 10], ["10 eksiği", n - 10]];
     if (g >= 2) ISLEM.push(["Tek mi, çift mi?", n % 2 ? "Tek" : "Çift"]);
     if (g >= 2 && n >= 10) ISLEM.push(["Kaç onluk, kaç birlik?", Math.floor(n / 10) + " onluk " + (n % 10) + " birlik"]);
@@ -4672,7 +4721,11 @@ T.yuzen = TahtaYap("ana");
     body.append(
       h("div.sb-numhead",
         h("div.sb-num", n),
-        h("div", h("div.seg", [["okul", "Okulun " + okulGunu + ". günü"], ["ay", "Ayın " + now.getDate() + ". günü"]].map(([k, l]) => h("button", { "aria-pressed": String(k === kaynak), onclick: () => { kaydet((x) => { x.kaynak = k; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, l))),
+        h("div", h("div.seg", [["okul", "Okulun " + okulGunu + ". günü"], ["ay", "Ayın " + now.getDate() + ". günü"], ["elle", "Kendi sayım"]].map(([k, l]) => h("button", { "aria-pressed": String(k === kaynak), onclick: () => { kaydet((x) => { x.kaynak = k; if (k === "elle" && !Number.isFinite(+x.elle)) x.elle = n; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, l))),
+          kaynak === "elle" ? h("div.row", { style: { gap: "8px", marginTop: "10px" } },
+            h("button.btn.sm.c-chalk", { "aria-label": "Bir azalt", onclick: () => { kaydet((x) => { x.elle = n - 1; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, "−1"),
+            h("input.in", { type: "number", value: n, style: { width: "110px", fontWeight: 800, fontSize: "20px" }, "aria-label": "Bugünün sayısı", onchange: (e) => { const d = parseInt(e.target.value, 10); if (!Number.isFinite(d)) return; kaydet((x) => { x.elle = d; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }),
+            h("button.btn.sm.c-chalk", { "aria-label": "Bir artır", onclick: () => { kaydet((x) => { x.elle = n + 1; x.islem = {}; x.kim = {}; }); body.replaceChildren(); sayi(body); } }, "+1")) : null,
           h("p.sb-line", "Önce kimin söyleyeceğini seç, cevabı çocuk söyledikten sonra kutuya dokun."),
           h("button.btn.sm.c-chalk", { onclick: () => { kaydet((x) => { x.islem = {}; x.kim = {}; }); paintOps(); } }, T.icon("reset"), "Baştan"))),
       blok, grid);
@@ -8380,16 +8433,18 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     },
   });
 
+  const YZ = [
+    ["Düzey 0: Yapay zekâ yok", "Bu görevde hiçbir yapay zekâ aracından yararlanılmaz. Bütün çalışma kendi aklınla ve izin verilen kaynaklarla yürür.", "#5B7DB1", "Örnek: Hikâyeni baştan sona kendin yazarsın."],
+    ["Düzey 1: Yardım ve anlama", "Kavramları anlamak, zor terimleri sadeleştirmek, tanım almak ya da netleştirici sorular sormak için yapay zekâdan yardım alabilirsin.", "#E9C23B", "Örnek: \"Fotosentez ne demek, basitçe anlat\" diye sorarsın. Cevabı ödevine kopyalamazsın."],
+    ["Düzey 2: Geri bildirim ve düzenleme", "Kendi ürettiğin metin ve fikirlerin taslaklarını gözden geçirmek, dil ve akış geri bildirimi almak için yapay zekâyı kullanabilirsin.", "#6DAF5A", "Örnek: Önce kendin yazarsın, sonra \"Nerede yazım yanlışım var?\" diye sorarsın."],
+    ["Düzey 3: Üretim ve tasarım ortağı", "Proje ya da tasarım görevinde yapay zekâ ile birlikte üretebilirsin. Nasıl ve hangi amaçla kullandığını ayrıntılı yazman gerekir.", "#E07B3C", "Örnek: Afişin için görsel fikri üretirsin ve altına \"Görseli yapay zekâ ile ürettim\" yazarsın."]];
+  T.YZ_DUZEY = YZ;
   tool("yz-duzeyi", {
     title: "Yapay zekâ kullanım düzeyi", icon: "spark", tone: "grape", grades: [3, 8], short: "Bu görevde yapay zekâ ne kadar kullanılabilir?",
     render(host) {
       duzeyPanosu(host, { anahtar: "yz", oy: false, okAd: "Bugünkü düzey",
         ust: () => h("p.sb-line", "Her ödev ve araştırma görevinden önce hangi yapay zekâ kullanım düzeyinin geçerli olduğu açıkça belirtilir. Emin olmadığında çalışmaya başlamadan önce öğretmenine danış."),
-        duzeyler: [
-          ["Düzey 0: Yapay zekâ yok", "Bu görevde hiçbir yapay zekâ aracından yararlanılmaz. Bütün çalışma kendi aklınla ve izin verilen kaynaklarla yürür.", "#5B7DB1"],
-          ["Düzey 1: Yardım ve anlama", "Kavramları anlamak, zor terimleri sadeleştirmek, tanım almak ya da netleştirici sorular sormak için yapay zekâdan yardım alabilirsin.", "#E9C23B"],
-          ["Düzey 2: Geri bildirim ve düzenleme", "Kendi ürettiğin metin ve fikirlerin taslaklarını gözden geçirmek, dil ve akış geri bildirimi almak için yapay zekâyı kullanabilirsin.", "#6DAF5A"],
-          ["Düzey 3: Üretim ve tasarım ortağı", "Proje ya da tasarım görevinde yapay zekâ ile birlikte üretebilirsin. Nasıl ve hangi amaçla kullandığını ayrıntılı yazman gerekir.", "#E07B3C"]] });
+        duzeyler: YZ.map(([ad, ac, r, ornek]) => [ad, ac + " " + ornek, r]) });
     },
   });
 
@@ -8849,11 +8904,13 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     init: () => ({}), render(body) { body.style.overflow = "auto"; const b = h("div"); body.append(b); bitirdimCiz(b, true); },
   };
   T.widgets.yzduzey = {
-    title: "Yapay zekâ düzeyi", icon: "spark", tone: "grape", w: 360, h: 220, minW: 260, minH: 160, group: "Sınıf kültürü", desc: "Bu görevin yapay zekâ kullanım düzeyi",
+    title: "Yapay zekâ düzeyi", icon: "spark", tone: "grape", w: 400, h: 330, minW: 280, minH: 220, group: "Sınıf kültürü", desc: "Bu görevin yapay zekâ kullanım düzeyi",
     init: () => ({ d: 0 }),
     render(body, w, api) {
-      const ad = ["Düzey 0: Yapay zekâ yok", "Düzey 1: Yardım ve anlama", "Düzey 2: Geri bildirim ve düzenleme", "Düzey 3: Üretim ve tasarım ortağı"], rk = ["#5B7DB1", "#E9C23B", "#6DAF5A", "#E07B3C"];
-      const p = () => { body.replaceChildren(h("div", { style: { display: "grid", gap: "8px", placeContent: "center", textAlign: "center", height: "100%" } }, h("small", "Bugünkü düzey"), h("div", { style: { font: "800 26px var(--display)", color: rk[w.data.d], cursor: "pointer" }, onclick: () => { w.data.d = (w.data.d + 1) % 4; api.save(); p(); } }, ad[w.data.d]), h("span.hint", "Değiştirmek için dokun"))); };
+      const p = () => { const [ad, ac, rk, ornek] = YZ[w.data.d]; body.style.overflow = "auto";
+        body.replaceChildren(h("div.yzw", { style: { "--yz": rk } },
+          h("div.yzw-sec", YZ.map((x, i) => h("button" + (i === w.data.d ? ".on" : ""), { style: { "--yz": x[2] }, "aria-label": x[0], title: x[0], onclick: () => { w.data.d = i; api.save(); p(); } }, String(i)))),
+          h("b.yzw-ad", ad), h("p", ac), h("p.yzw-ornek", ornek))); };
       p();
     },
   };
@@ -9439,7 +9496,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   ];
 
   /* ---------- Kartlar ---------- */
-  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Merak kıvılcımı"], ["akis", "Günün akışı"], ["pin", "Sabitlenen etkinlikler"], ["not", "Hızlı not"], ["muzik", "Atmosfer ve müzik"]];
+  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Merak kıvılcımı"], ["akis", "Günün akışı"], ["pin", "Kısayollarım"], ["not", "Hızlı not"], ["muzik", "Atmosfer ve müzik"]];
   const gizli = () => ayar().gizli || {};
   function ozetKart() {
     const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
@@ -9459,7 +9516,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
         h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
         h("button.kp-satir", { onclick: () => T.gorevliPenceresi(c), title: "Görevlileri gör ve düzenle" }, T.icon("trophy"), "Görevliler", gv.length ? h("span.kp-yuzler", gv.slice(0, 4).map(([, st]) => T.avatar(st.name, 26))) : h("b", "Ekle")),
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
-        st.kind === "okul" ? h("button.kp-satir", { onclick: () => T.go("sabah-sayi") }, T.icon("spark"), "Bugünün sayısı", h("b", n)) : null,
+        h("button.kp-satir", { onclick: () => T.go("sabah-sayi"), title: "Dokun, sayıyı değiştir" }, T.icon("spark"), "Bugünün sayısı", h("b", T.bugununSayisi(c))),
         sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));
   }
   function kivilcimKart() {
@@ -9559,15 +9616,30 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   T.pinDegis = (r, baslik, ikon, ton) => T.store.update((s) => { s.pinler = s.pinler || {}; const l = (s.pinler[cid()] = s.pinler[cid()] || []); const i = l.findIndex((x) => x.r === r); if (i >= 0) l.splice(i, 1); else l.push({ r, b: baslik, i: ikon, t: ton }); });
   /* Etkinlik kartı: köşesinde Ana tahtaya sabitle düğmesi */
   T.aracKart = (route, t, ton) => {
-    const pin = h("button.tc-pin", { "aria-label": "Ana tahtaya sabitle", title: "Ana tahtaya sabitle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana tahtaya sabitlendi" : "Sabitleme kaldırıldı"); } }, T.icon("pin"));
+    const pin = h("button.tc-pin", { "aria-label": "Ana sayfaya kısayol ekle", title: "Ana sayfaya kısayol ekle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana sayfadaki kısayollara eklendi" : "Kısayol kaldırıldı"); } }, T.icon("pin"));
     if (T.pinliMi(route)) pin.classList.add("on");
     return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin);
   };
+  /* Tüm etkinliklerden kısayol seçme */
+  T.kisayolSec = function () {
+    const kat = Object.entries(T.tools).filter(([, t]) => t.title && !t.gizli).map(([k, t]) => { const sec = t.back || "matematik"; return { r: sec + "-" + k, t, sec: (T.sections[sec] || {}).title || sec }; }).filter((x) => T.sections[x.r.split("-")[0]]);
+    const ara = h("input.in", { placeholder: "Etkinlik ara, örneğin okuma, kesir, duygu", "aria-label": "Etkinlik ara" });
+    const liste = h("div.ks-liste");
+    const ciz = () => {
+      const q = ara.value.trim().toLocaleLowerCase("tr");
+      const gr = {}; kat.filter((x) => !q || (x.t.title + " " + (x.t.short || "") + " " + x.sec).toLocaleLowerCase("tr").includes(q)).forEach((x) => (gr[x.sec] = gr[x.sec] || []).push(x));
+      liste.replaceChildren(...Object.entries(gr).map(([sec, l]) => h("div", h("h3.ks-bas", sec), h("div.ks-grid", l.map((x) => h("button.ks-oge" + (T.pinliMi(x.r) ? ".on" : ""), { onclick: () => { T.pinDegis(x.r, x.t.title, x.t.icon, x.t.tone); ciz(); } }, T.icon(x.t.icon || "star"), h("span", x.t.title), h("i", T.pinliMi(x.r) ? "Eklendi" : "Ekle")))))));
+      if (!liste.children.length) liste.append(h("p.hint", "Bu adla bir etkinlik bulunamadı."));
+    };
+    ara.addEventListener("input", ciz); ciz();
+    T.modal({ title: "Kısayol ekle", wide: true, body: h("div", { style: { display: "grid", gap: "12px" } }, h("p.hint", "En sık açtığın etkinlikleri seç. Ana sayfada tek dokunuşla açılırlar."), ara, liste), actions: [{ label: "Tamam", tone: "c-leaf" }], onClose: () => T.route() });
+    setTimeout(() => ara.focus(), 50);
+  };
   function pinKart() {
     const l = T.pinler();
-    return h("section.kp-kart.kp-pin", { "aria-label": "Sabitlenen etkinlikler" }, h("div.kp-baslik", T.icon("pin"), "Bugün için sabitlediklerim"),
+    return h("section.kp-kart.kp-pin", { "aria-label": "Kısayollarım" }, h("div.kp-baslik", T.icon("pin"), "Kısayollarım", h("button.kp-mini.kp-ekle", { onclick: () => T.kisayolSec(), title: "Kısayol ekle", "aria-label": "Kısayol ekle" }, T.icon("plus"))),
       l.length ? h("div.kp-pinler", l.map((p) => h("div.kp-pinw", h("button.kp-pinb.c-" + (p.t || "sun"), { onclick: () => T.go(p.r) }, T.icon(p.i || "star"), h("span", p.b)), h("button.kp-pinx", { "aria-label": "Kaldır", onclick: () => { T.pinDegis(p.r); T.route(); } }, T.icon("close")))))
-        : h("p.hint", "Türkçe, Matematik, Duygular gibi bölümlerde bir etkinlik kartının köşesindeki iğneye dokun; burada hızlı başlatma kartı olarak görünür."));
+        : h("div.kp-pinbos", h("p", "Sık kullandığın etkinlikleri buraya koy, tek dokunuşla açılsın."), h("button.btn.c-chalk", { onclick: () => T.kisayolSec() }, T.icon("plus"), "Kısayol ekle")));
   }
 
   /* ---------- Her yerden müzik: üst bar düğmesi ---------- */

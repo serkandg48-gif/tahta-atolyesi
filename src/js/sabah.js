@@ -133,6 +133,7 @@
 
   /* ---------- Hava simgeleri ---------- */
   const HAVA = [["gunesli", "Güneşli"], ["parcali", "Parçalı bulutlu"], ["bulutlu", "Bulutlu"], ["yagmurlu", "Yağmurlu"], ["karli", "Karlı"], ["ruzgarli", "Rüzgârlı"], ["sisli", "Sisli"]];
+  T.HAVA = HAVA; T.havaSvg = (k) => havaSvg(k);
   function havaSvg(k) {
     const s = S("svg", { viewBox: "0 0 64 64", width: 64, height: 64, "aria-hidden": "true" });
     const sun = (cx, cy, r) => { let g = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#E9A23B"/>`; for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4; g += `<path d="M${cx + Math.cos(a) * (r + 4)} ${cy + Math.sin(a) * (r + 4)}L${cx + Math.cos(a) * (r + 10)} ${cy + Math.sin(a) * (r + 10)}" stroke="#E9A23B" stroke-width="3.5" stroke-linecap="round"/>`; } return g; };

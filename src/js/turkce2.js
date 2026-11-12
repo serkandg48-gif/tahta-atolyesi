@@ -295,6 +295,10 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     },
   });
 
+  [["okuma-hizi", "Okuma"], ["metin-uyarla", "Okuma"], ["dikte", "Yazma"], ["5n1k", "Anlama ve anlatma"], ["hikaye-zarlari", "Anlama ve anlatma"], ["es-zit", "Söz varlığı"], ["kelime-duvari", "Söz varlığı"], ["noktalama", "Yazım ve noktalama"], ["yazim", "Yazım ve noktalama"], ["hece", "Ses ve hece"], ["ses", "Ses ve hece"]].forEach(([k, g]) => setTimeout(() => { if (T.tools[k]) T.tools[k].grup = g; }, 0));
+
+  T.grupSira = Object.assign(T.grupSira || {}, { turkce: ["Okuma", "Anlama ve anlatma", "Yazma", "Söz varlığı", "Yazım ve noktalama", "Ses ve hece"] });
+
   /* ---------- 7. Hikâye zarları ---------- */
   const ZAR = { Kahraman: ["meraklı bir kaplumbağa", "unutkan bir robot", "cesur küçük bir kız", "yaşlı bir balıkçı", "uykucu bir kedi", "uzaydan gelen bir çocuk", "konuşan bir ağaç", "utangaç bir ejderha"], Mekân: ["sisli bir ormanda", "bir uzay gemisinde", "okul bahçesinde", "denizin dibinde", "eski bir kütüphanede", "karla kaplı bir köyde", "kalabalık bir pazarda", "bir adanın kıyısında"], Sorun: ["yolunu kaybetti", "sihirli bir kutu buldu", "arkadaşı ona küstü", "büyük bir fırtına başladı", "bir yarışmaya katılmaya karar verdi", "saklı bir kapı buldu", "sesi kayboldu", "önemli bir mektup aldı"], Nesne: ["bir anahtar", "eski bir harita", "kırmızı bir şemsiye", "bir düdük", "parlayan bir taş", "bir fener", "yırtık bir defter", "bir pusula"] };
   tool("hikaye-zarlari", {

@@ -116,6 +116,9 @@ T.ICONS = {
   snow: '<path d="M24 6v36M8 15l32 18M8 33l32-18M20 9l4 4 4-4M20 39l4-4 4 4"/>',
   pit: '<path class="f" d="M4 16h8c4 0 4 22 12 22s8-22 12-22h8v26H4z"/><path d="M4 16h8c4 0 4 22 12 22s8-22 12-22h8"/><circle cx="24" cy="30" r="3"/>',
   stairs: '<path class="f" d="M6 42V34h10v-8h10v-8h10v-8h6v32z"/><path d="M6 42V34h10v-8h10v-8h10v-8h6"/>',
+  magnet: '<path class="f" d="M10 8h10v18a4 4 0 0 0 8 0V8h10v18a14 14 0 0 1-28 0z"/><path d="M10 8h10v18a4 4 0 0 0 8 0V8h10v18a14 14 0 0 1-28 0zM10 15h10M28 15h10"/>',
+  grid: '<rect x="8" y="8" width="32" height="32" rx="3"/><path d="M8 19h32M8 29h32M19 8v32M29 8v32"/>',
+  leaf: '<path class="f" d="M40 8C20 8 8 18 8 32c0 4 1 6 2 8 14 0 30-6 30-32z"/><path d="M40 8C20 8 8 18 8 32c0 4 1 6 2 8 14 0 30-6 30-32zM10 40C18 30 26 22 34 15"/>',
   bolt: '<path class="f" d="M27 4 9 27h13l-3 17 20-25H26z"/><path d="M27 4 9 27h13l-3 17 20-25H26z"/>',
 };
 T.icon = function (name, cls = "") {

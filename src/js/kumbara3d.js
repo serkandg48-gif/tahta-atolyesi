@@ -9,7 +9,11 @@
   const MADENI = { 0.01: ["kr", 1, "#B8763B", 16.5], 0.05: ["kr", 5, "#C9A24A", 17.5], 0.1: ["kr", 10, "#C9A24A", 18.5], 0.25: ["kr", 25, "#C9A24A", 20.5], 0.5: ["kr", 50, "#D9D9D9", 23.85], 1: ["TL", 1, "bimetal", 26.15] };
   const doku = (THREE, w, h, fn) => { const c = document.createElement("canvas"); c.width = w; c.height = h; fn(c.getContext("2d"), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
   const GUILLOCHE = (c, x, y, r, renk, n = 36) => { c.strokeStyle = renk; c.lineWidth = 1; for (let k = 0; k < n; k++) { c.beginPath(); for (let a = 0; a <= Math.PI * 2 + 0.01; a += 0.05) { const rr = r * (0.6 + 0.4 * Math.sin(a * 6 + k * 0.35)); const px = x + Math.cos(a + k * 0.17) * rr, py = y + Math.sin(a + k * 0.17) * rr * 0.8; a ? c.lineTo(px, py) : c.moveTo(px, py); } c.stroke(); } };
-  const banknotDoku = (THREE, v) => { const [koyu, acik, gw, gh] = BANKNOT[v]; return doku(THREE, 1024, Math.round((1024 * gh) / gw), (c, w, h) => {
+  const GORSEL = {};
+  const gorselAnahtar = (v) => "ta-banknot-" + v;
+  const gorselYukle = (v) => new Promise((res) => { let d = null; try { d = localStorage.getItem(gorselAnahtar(v)); } catch (e) {} if (!d) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = d; });
+  const ornekBandi = (c, w, h) => { c.save(); c.translate(w / 2, h / 2); c.rotate(-Math.atan2(h, w)); let fs = Math.round(h * 0.2); c.font = "900 " + fs + "px Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; while (c.measureText("ÖRNEKTİR GEÇMEZ").width < Math.hypot(w, h) * 0.78) { fs += 4; c.font = "900 " + fs + "px Arial, sans-serif"; } c.strokeStyle = "rgba(160,20,20,.8)"; c.lineWidth = 5; c.strokeText("ÖRNEKTİR GEÇMEZ", 0, 0); c.fillStyle = "rgba(220,40,40,.35)"; c.fillText("ÖRNEKTİR GEÇMEZ", 0, 0); c.restore(); };
+  const banknotDoku = (THREE, v) => { const [koyu, acik, gw, gh] = BANKNOT[v]; const im = GORSEL[v]; if (im) return doku(THREE, 1024, Math.round((1024 * gh) / gw), (c, w, h) => { const o = Math.max(w / im.width, h / im.height); c.drawImage(im, (w - im.width * o) / 2, (h - im.height * o) / 2, im.width * o, im.height * o); ornekBandi(c, w, h); }); return doku(THREE, 1024, Math.round((1024 * gh) / gw), (c, w, h) => {
     const g = c.createLinearGradient(0, 0, w, h); g.addColorStop(0, koyu); g.addColorStop(0.35, acik); g.addColorStop(0.65, acik); g.addColorStop(1, koyu); c.fillStyle = g; c.fillRect(0, 0, w, h);
     c.globalAlpha = 0.45; for (let i = 0; i < 70; i++) { c.strokeStyle = koyu; c.lineWidth = 0.8; c.beginPath(); for (let x = 0; x <= w; x += 8) { const y = (i / 70) * h + Math.sin(x / 40 + i * 0.5) * 10; x ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); } c.globalAlpha = 1;
     c.globalAlpha = 0.55; GUILLOCHE(c, w * 0.28, h * 0.52, h * 0.34, koyu); GUILLOCHE(c, w * 0.85, h * 0.3, h * 0.18, koyu, 20); c.globalAlpha = 1;
@@ -47,7 +51,7 @@
     kap.append(yuk, ust); host.append(kap);
     const afis = T.h("div.tv-afis"), skor = T.h("div.tv-skor"), alt = T.h("div.tv-alt"); ust.append(afis, skor, alt);
     const ayar = T.h("div.row.tv-ayar"); host.append(ayar);
-    three().then(kur).catch(() => (yuk.textContent = "Bu cihazda 3B çizim açılamadı."));
+    Promise.all(Object.keys(BANKNOT).map((v) => gorselYukle(v).then((im) => (GORSEL[v] = im)))).then(three).then(kur).catch(() => (yuk.textContent = "Bu cihazda 3B çizim açılamadı."));
     function kur(THREE) {
       let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { yuk.textContent = "Bu cihazda 3B çizim açılamadı."; return; }
       yuk.remove(); r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 0.82; r.outputColorSpace = THREE.SRGBColorSpace;
@@ -93,8 +97,14 @@
         alt.replaceChildren(...(durum === "soru" ? R.opts.map((v) => T.h("button.btn.big.c-chalk.d3-sec", { style: { fontSize: "clamp(20px,2.4vw,34px)" }, onclick: () => sec(v) }, tl(v))) : [T.h("button.btn.c-leaf.tv-sonraki", { onclick: () => { if (D.takim) D.sira = 1 - D.sira; yeni(); } }, "Sonraki")]));
         ayar.replaceChildren(T.h("div.seg", [[0, "1, 5, 10 lira"], [1, "5-50 lira"], [2, "Kuruşlar da"]].map(([k, l]) => T.h("button", { "aria-pressed": String(L === k), onclick: () => { L = k; yeni(); } }, l))),
           T.h("div.seg", [[true, "İki takım"], [false, "Tek sınıf"]].map(([k, l]) => T.h("button", { "aria-pressed": String(D.takim === k), onclick: () => { D.takim = k; ciz(); } }, l))),
-          T.h("div.spacer"), T.h("button.btn.sm.c-chalk", { onclick: () => { D.puan = [0, 0]; ciz(); } }, T.icon("reset"), "Skoru sıfırla"),
+          T.h("div.spacer"), T.h("button.btn.sm.c-chalk", { onclick: gorselPenceresi }, "Banknot görselleri"), T.h("button.btn.sm.c-chalk", { onclick: () => { D.puan = [0, 0]; ciz(); } }, T.icon("reset"), "Skoru sıfırla"),
           T.h("button.btn.sm.c-chalk", { onclick: () => { try { (kap.requestFullscreen || kap.webkitRequestFullscreen).call(kap); } catch (e) {} } }, T.icon("full"), "Tam ekran"));
+      };
+      const gorselPenceresi = () => {
+        const satir = (v) => { const dur = T.h("span.hint", GORSEL[v] ? "Yüklendi" : "Çizim kullanılıyor");
+          const inp = T.h("input", { type: "file", accept: "image/*", style: { display: "none" }, onchange: (e) => { const f = e.target.files[0]; if (!f) return; const im = new Image(); im.onload = () => { const c = document.createElement("canvas"), o = Math.min(1, 1100 / im.width); c.width = Math.round(im.width * o); c.height = Math.round(im.height * o); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); try { localStorage.setItem(gorselAnahtar(v), c.toDataURL("image/jpeg", 0.82)); GORSEL[v] = c; delete onbellek["b" + v]; dur.textContent = "Yüklendi"; yeni(); } catch (x) { dur.textContent = "Cihazda yer kalmadı, daha küçük bir görsel dene."; } URL.revokeObjectURL(im.src); }; im.src = URL.createObjectURL(f); } });
+          return T.h("div.row", { style: { gap: "8px", alignItems: "center" } }, T.h("b", { style: { minWidth: "70px" } }, v + " TL"), T.h("button.btn.sm.c-chalk", { onclick: () => inp.click() }, "Görsel seç"), GORSEL[v] ? T.h("button.btn.sm.c-chalk", { onclick: () => { try { localStorage.removeItem(gorselAnahtar(v)); } catch (x) {} GORSEL[v] = null; delete onbellek["b" + v]; dur.textContent = "Çizim kullanılıyor"; yeni(); } }, "Kaldır") : null, dur, inp); };
+        T.modal({ title: "Banknot görselleri", body: T.h("div", { style: { display: "grid", gap: "10px" } }, T.h("p.hint", { style: { margin: 0 } }, "Her banknotun ön yüz görselini kendi cihazından seç. Görseller yalnızca bu cihazda saklanır, internete gönderilmez. TCMB kuralı gereği üzerine ÖRNEKTİR GEÇMEZ yazısı kendiliğinden eklenir."), ...Object.keys(BANKNOT).map((v) => satir(+v))), actions: [{ label: "Tamam", tone: "c-leaf" }] });
       };
       const sec = (v) => { if (durum !== "soru") return; if (v === R.ans) { durum = "dogru"; Sh.ses.dogru(); T.konfeti && T.konfeti(); D.puan[D.takim ? D.sira : 0]++; } else { durum = "yanlis"; Sh.ses.yanlis(); sallama = 0.5; } ciz(); };
       r.domElement.addEventListener("pointerdown", () => Sh.ac());

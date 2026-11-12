@@ -214,8 +214,9 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
   tool("5n1k", {
     title: "5N1K çarkı", icon: "dice", tone: "sun", short: "Çarkı çevir, soruyu ve cevaplayacak arkadaşı seç",
     render(host) {
-      let aci = 0, secilen = null, kisi = null;
-      const box = h("div"); host.append(box);
+      let aci = 0, secilen = null, kisi = null, ck = null;
+      const cHost = h("div.zar3-kap.nk-cark3"), panel = h("div.sb-card", { style: { display: "grid", gap: "14px", alignContent: "start" } });
+      host.append(h("div.nk-grid", cHost, panel));
       function cark() {
         const s = S("svg", { viewBox: "-110 -110 220 220", class: "nk-cark" });
         const g = S("g", { style: `transform: rotate(${aci}deg); transition: transform 3s cubic-bezier(.2,.8,.2,1); transform-origin: 0 0` });
@@ -225,15 +226,24 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
         s.append(g, S("circle", { r: 14, fill: "#fff", stroke: "#1B2A4A", "stroke-width": 3 }), S("path", { d: "M-10 -112L10 -112L0 -92Z", fill: "#1B2A4A" }));
         return s;
       }
+      const svgYap = () => { cHost.classList.remove("zar3-kap"); cHost.replaceChildren(cark()); };
+      const sec = (k) => { secilen = k; T.speak(N1K[k][0]); ciz(); };
+      function cevir() {
+        if (ck && ck.donuyor()) return; T.sound.unlock();
+        const k = T.rand(0, 5); secilen = null; kisi = null; ciz();
+        if (ck) ck.cevir(k, () => sec(k));
+        else { aci += 1440 + (360 - k * 60 - 30) - (aci % 360); svgYap(); setTimeout(() => sec(k), 3000); }
+      }
       function ciz() {
-        box.replaceChildren(h("div.nk-grid", h("div", cark()),
-          h("div.sb-card", { style: { display: "grid", gap: "14px", alignContent: "start" } },
-            secilen != null ? [h("div.nk-soru", { style: { "--c": N1K[secilen][1] } }, N1K[secilen][0]), h("p.sb-line", N1K[secilen][2])] : h("p.sb-line", "Okuduğumuz metin için çarkı çevir."),
-            kisi ? h("div.sb-who", T.avatar(kisi.name, 48), h("b", { style: { fontSize: "26px" } }, kisi.name)) : null,
-            h("div.row", h("button.btn.big", { onclick: () => { const k = T.rand(0, 5); aci += 1440 + (360 - k * 60 - 30) - (aci % 360); secilen = null; kisi = null; ciz(); setTimeout(() => { secilen = k; T.speak(N1K[k][0]); ciz(); }, 3000); } }, T.icon("dice"), "Çarkı çevir"),
-              h("button.btn.c-chalk", { onclick: () => { kisi = T.pick(present()); if (kisi) T.speak(kisi.name); ciz(); } }, T.icon("class"), "Kim cevaplayacak?")))));
+        panel.replaceChildren(
+          secilen != null ? [h("div.nk-soru", { style: { "--c": N1K[secilen][1] } }, N1K[secilen][0]), h("p.sb-line", N1K[secilen][2])] : h("p.sb-line", "Okuduğumuz metin için çarkı çevir."),
+          kisi ? h("div.sb-who", T.avatar(kisi.name, 48), h("b", { style: { fontSize: "26px" } }, kisi.name)) : null,
+          h("div.row", h("button.btn.big", { onclick: cevir }, T.icon("dice"), "Çarkı çevir"),
+            h("button.btn.c-chalk", { onclick: () => { kisi = T.pick(present()); if (kisi) T.speak(kisi.name); ciz(); } }, T.icon("class"), "Kim cevaplayacak?")));
       }
       ciz();
+      if (T.cark3B) T.cark3B(cHost, null, { sure: 3.4 }).then((x) => { if (!x) return svgYap(); ck = x; ck.kur(N1K.map(([ad, renk]) => ({ ad, renk }))); ck.r.domElement.style.cursor = "pointer"; ck.r.domElement.addEventListener("click", cevir); });
+      else svgYap();
     },
   });
 
@@ -322,14 +332,18 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
   tool("hikaye-zarlari", {
     title: "Hikâye zarları", icon: "dice", tone: "grape", short: "Kahraman, mekân, sorun, nesne: zarları at, hikâyeyi kur",
     render(host) {
-      let z = {}; const box = h("div"); host.append(box);
-      const at = () => { Object.keys(ZAR).forEach((k) => (z[k] = T.pick(ZAR[k]))); ciz(true); };
-      function ciz(anim) {
-        box.replaceChildren(h("div.hz-zarlar", Object.entries(ZAR).map(([k], i) => h("button.hz-zar" + (anim ? ".at" : ""), { style: { animationDelay: i * 0.12 + "s" }, onclick: () => { z[k] = T.pick(ZAR[k].filter((x) => x !== z[k])); ciz(); } }, h("small", k), h("b", z[k] || "?")))),
-          h("div.row", { style: { justifyContent: "center", margin: "16px 0" } }, h("button.btn.big", { onclick: at }, T.icon("dice"), "Zarları at"), z.Kahraman ? h("button.btn.c-chalk", { onclick: () => T.speak(`Bir varmış bir yokmuş, ${z.Mekân} ${z.Kahraman} yaşarmış. Bir gün ${z.Sorun}.`) }, T.icon("speaker"), "Başlangıcı oku") : null),
-          z.Kahraman ? h("div.sb-card", h("h3", "Hikâyemiz böyle başlıyor"), h("p.sb-quote", { style: { fontSize: "26px" } }, `Bir varmış bir yokmuş, ${z.Mekân} ${z.Kahraman} yaşarmış. Bir gün ${z.Sorun}. Yanında yalnızca ${z.Nesne} vardı...`),
-            h("ul", { style: { fontSize: "19px" } }, h("li", "Kahramanımız ne hissetti?"), h("li", (() => { const n = z.Nesne.replace(/^bir /, ""); return n[0].toLocaleUpperCase("tr") + n.slice(1) + " ona nasıl yardım etti?"; })()), h("li", "Hikâye nasıl bitti?")), h("p.hint", "Tek bir zara dokunursan yalnızca o değişir.")) : h("p.sb-line", { style: { textAlign: "center" } }, "Zarları at, ortaya çıkan kahramanla birlikte bir hikâye kuralım."));
+      let z = {}, zar3 = null; const RENK = { Kahraman: "#D9483B", "Mekân": "#3B7FC4", Sorun: "#8C5BB8", Nesne: "#2F9A63" };
+      const tepsi = h("div.zar3-kap.hz-tepsi"), box = h("div"); host.append(tepsi, box);
+      const liste = () => Object.keys(ZAR).map((k) => ({ baslik: k, secilen: z[k] || ZAR[k][0], digerleri: ZAR[k], renk: RENK[k] || "#555" }));
+      const at = () => { Object.keys(ZAR).forEach((k) => (z[k] = T.pick(ZAR[k]))); if (zar3) { zar3.at(liste()); setTimeout(() => ciz(), 1300); ciz(false, true); } else ciz(true); };
+      const tek = (i) => { const k = Object.keys(ZAR)[i]; z[k] = T.pick(ZAR[k].filter((x) => x !== z[k])); if (zar3) { zar3.at(liste(), [i]); setTimeout(() => ciz(), 1300); ciz(false, true); } else ciz(); };
+      function ciz(anim, bekle) {
+        box.replaceChildren(zar3 ? null : h("div.hz-zarlar", Object.entries(ZAR).map(([k], i) => h("button.hz-zar" + (anim ? ".at" : ""), { style: { animationDelay: i * 0.12 + "s" }, onclick: () => tek(i) }, h("small", k), h("b", z[k] || "?")))),
+          h("div.row", { style: { justifyContent: "center", margin: "16px 0" } }, h("button.btn.big", { onclick: at }, T.icon("dice"), "Zarları at"), z.Kahraman && !bekle ? h("button.btn.c-chalk", { onclick: () => T.speak(`Bir varmış bir yokmuş, ${z.Mekân} ${z.Kahraman} yaşarmış. Bir gün ${z.Sorun}.`) }, T.icon("speaker"), "Başlangıcı oku") : null),
+          z.Kahraman && !bekle ? h("div.sb-card", h("h3", "Hikâyemiz böyle başlıyor"), h("p.sb-quote", { style: { fontSize: "26px" } }, `Bir varmış bir yokmuş, ${z.Mekân} ${z.Kahraman} yaşarmış. Bir gün ${z.Sorun}. Yanında yalnızca ${z.Nesne} vardı...`),
+            h("ul", { style: { fontSize: "19px" } }, h("li", "Kahramanımız ne hissetti?"), h("li", (() => { const n = z.Nesne.replace(/^bir /, ""); return n[0].toLocaleUpperCase("tr") + n.slice(1) + " ona nasıl yardım etti?"; })()), h("li", "Hikâye nasıl bitti?")), h("p.hint", "Tek bir zara dokunursan yalnızca o değişir.")) : bekle ? null : h("p.sb-line", { style: { textAlign: "center" } }, "Zarları at, ortaya çıkan kahramanla birlikte bir hikâye kuralım."));
       }
+      if (T.metinZar3B) T.metinZar3B(tepsi, Object.keys(ZAR).length, tek).then((x) => { if (!x) { tepsi.remove(); ciz(); return; } zar3 = x; zar3.at(liste(), null, false); ciz(); }); else tepsi.remove();
       ciz();
     },
   });

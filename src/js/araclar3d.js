@@ -137,10 +137,110 @@
     };
   }
 
+  /* ---------- Ortak ahşap çark: T.cark3B(kap, api) → { kur(dilimler), cevir(i, bitti), donuyor } ---------- */
+  const RENKLER = ["#E4553F", "#F2B33D", "#3FA36B", "#3B83C4", "#8C5BB8", "#E07AA0", "#2FA6A0", "#E58A3A"];
+  T.cark3B = (kap, api, o = {}) => sahne3(kap, { kamera: [0, 0.4, 15], bak: [0, -0.4, 0], fov: 30, arka: o.arka || ["#F4E9D6", "#D8C3A2"], env: ["#FFFFFF", "#E8DCC8", "#6B5A48"], sigdir: 15, oran: 0.95 }, api).then((c) => {
+    if (!c) return null;
+    const { THREE, sahne } = c; isikla(c, 1.7, [3, 6, 10]);
+    const R = 3.3, ahsap = ahsapDoku(c), koyu = ahsapDoku(c, "#6E4424", "#4A2A14");
+    const cark = new THREE.Group(); sahne.add(cark);
+    const govde = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.16, R + 0.16, 0.42, 96), new THREE.MeshStandardMaterial({ map: koyu, roughness: 0.5 })); govde.rotation.x = Math.PI / 2; cark.add(govde);
+    const yuzM = new THREE.MeshStandardMaterial({ roughness: 0.48 }), yuz = new THREE.Mesh(new THREE.CircleGeometry(R, 120), yuzM); yuz.position.z = 0.215; cark.add(yuz);
+    const pirinc = new THREE.MeshStandardMaterial({ color: 0xd4a648, metalness: 0.9, roughness: 0.25 });
+    const jant = new THREE.Mesh(new THREE.TorusGeometry(R + 0.1, 0.1, 12, 120), pirinc); jant.position.z = 0.22; cark.add(jant);
+    const gobek = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.3, 40), pirinc); gobek.rotation.x = Math.PI / 2; gobek.position.z = 0.36; sahne.add(gobek);
+    const civiler = new THREE.Group(); cark.add(civiler);
+    const ayak = new THREE.Mesh(new THREE.BoxGeometry(0.7, 5.2, 0.5), new THREE.MeshStandardMaterial({ map: ahsap, roughness: 0.6 })); ayak.position.set(0, -2.7, -0.55); sahne.add(ayak);
+    const taban = new THREE.Mesh(yuvKutu(THREE, 4.6, 0.5, 2.0, 0.12), new THREE.MeshStandardMaterial({ map: koyu, roughness: 0.55 })); taban.position.set(0, -5.3, -0.2); sahne.add(taban);
+    const sh = new THREE.Shape(); sh.moveTo(0, -0.6); sh.lineTo(0.4, 0.3); sh.quadraticCurveTo(0, 0.55, -0.4, 0.3); sh.closePath();
+    const dil = new THREE.Group(); dil.position.set(0, R + 0.62, 0.42); dil.scale.setScalar(1.45); sahne.add(dil);
+    dil.add(new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.16, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04, bevelSegments: 3 }), new THREE.MeshPhysicalMaterial({ color: 0xc8261b, roughness: 0.3, clearcoat: 1 })));
+    const vida = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), pirinc); vida.position.set(0, 0.15, 0.22); dil.add(vida);
+    let liste = [], doku = null, donus = null, flap = 0, sonDilim = -1;
+    const ciz = () => {
+      const n = Math.max(1, liste.length), s = (Math.PI * 2) / n, S = 1024, m = S / 2, rad = S / 2 - 4;
+      doku && doku.dispose();
+      doku = c.doku(S, S, (x) => {
+        x.fillStyle = "#f3e7d2"; x.fillRect(0, 0, S, S);
+        for (let i = 0; i < n; i++) { const a0 = i * s; x.beginPath(); x.moveTo(m, m); x.arc(m, m, rad, -a0, -(a0 + s), true); x.closePath(); x.fillStyle = (liste[i] && liste[i].renk) || RENKLER[(i + (n > 1 && n % RENKLER.length === 1 && i === n - 1 ? 1 : 0)) % RENKLER.length]; x.fill(); }
+        for (let i = 0; i < 260; i++) { x.strokeStyle = Math.random() < 0.5 ? "rgba(0,0,0,.07)" : "rgba(255,255,255,.07)"; x.lineWidth = 1 + Math.random() * 2; x.beginPath(); x.arc(m, m, Math.random() * rad, 0, Math.PI * 2); x.stroke(); }
+        if (n > 1) for (let i = 0; i < n; i++) { const a = -i * s; x.strokeStyle = "rgba(255,248,230,.9)"; x.lineWidth = 5; x.beginPath(); x.moveTo(m, m); x.lineTo(m + Math.cos(a) * rad, m + Math.sin(a) * rad); x.stroke(); }
+        for (let i = 0; i < n; i++) { const ad2 = liste[i] ? liste[i].ad : "?"; let fs = Math.min(n <= 8 ? 96 : 76, rad * 0.55 * s * 0.9); x.font = `800 ${fs}px "Baloo 2", sans-serif`; while (fs > 14 && x.measureText(ad2).width > rad * 0.66) { fs -= 2; x.font = `800 ${fs}px "Baloo 2", sans-serif`; }
+          x.save(); x.translate(m, m); x.rotate(-(i * s + s / 2)); x.textAlign = "right"; x.textBaseline = "middle"; x.fillStyle = "rgba(0,0,0,.25)"; x.fillText(ad2, rad * 0.9 + 2, 3); x.fillStyle = "#FFFFFF"; x.fillText(ad2, rad * 0.9, 0); x.restore(); }
+        const g = x.createRadialGradient(m, m, rad * 0.6, m, m, rad); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,.18)"); x.fillStyle = g; x.beginPath(); x.arc(m, m, rad, 0, Math.PI * 2); x.fill();
+      });
+      yuzM.map = doku; yuzM.needsUpdate = true;
+      civiler.clear(); if (n > 1) for (let i = 0; i < n; i++) { const a = i * s, cv = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.26, 10), pirinc); cv.rotation.x = Math.PI / 2; cv.position.set(Math.cos(a) * (R - 0.14), Math.sin(a) * (R - 0.14), 0.34); civiler.add(cv); }
+    };
+    c.kare = (dt) => {
+      if (donus) {
+        donus.t += dt; const p = Math.min(1, donus.t / donus.sure), e2 = 1 - Math.pow(1 - p, 4);
+        cark.rotation.z = donus.f0 + (donus.f1 - donus.f0) * e2;
+        const s = (Math.PI * 2) / Math.max(1, liste.length), k = Math.floor((((Math.PI / 2 - cark.rotation.z) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2) / s);
+        if (k !== sonDilim) { sonDilim = k; if (liste.length > 1) { flap = Math.min(0.6, flap + 0.35); T.sound.tick(); } }
+        if (p >= 1) { const b = donus.bitti, i = donus.i; donus = null; b && b(i); }
+      }
+      flap *= Math.exp(-dt * 10); dil.rotation.z = flap;
+    };
+    return {
+      r: c.r,
+      donuyor: () => !!donus,
+      kur(l) { if (donus) return; liste = l; ciz(); },
+      cevir(wi, bitti) {
+        if (donus) return; const s = (Math.PI * 2) / Math.max(1, liste.length);
+        const f0 = cark.rotation.z % (Math.PI * 2); cark.rotation.z = f0;
+        let f1 = Math.PI / 2 - (wi + 0.5) * s + (Math.random() - 0.5) * s * 0.6; while (f1 > f0 - Math.PI * 2 * 5) f1 -= Math.PI * 2;
+        donus = { t: 0, sure: o.sure || 4.6 + Math.random() * 0.8, f0, f1, i: wi, bitti };
+      },
+    };
+  });
+
+  /* ---------- Yazılı zarlar (hikâye zarları): T.metinZar3B(kap, n, dokun) → { at(zarlar, hangi) } ---------- */
+  T.metinZar3B = (kap, n, dokun) => sahne3(kap, { kamera: [0, 9.8, 3.4], bak: [0, 0, 0.2], fov: 34, env: ["#FFFFFF", "#D6DCE6", "#4A5260"], sigdir: 10.6, oran: 2.4 }, null).then((c) => {
+    if (!c) return null;
+    const { THREE, sahne } = c; c.r.shadowMap.enabled = true; c.r.shadowMap.type = THREE.PCFSoftShadowMap;
+    sahne.add(new THREE.HemisphereLight(0xffffff, 0x334455, 0.8)); const gun = new THREE.DirectionalLight(0xffffff, 2.0); gun.position.set(-3, 10, 5); gun.castShadow = true; gun.shadow.mapSize.set(1024, 1024); Object.assign(gun.shadow.camera, { left: -8, right: 8, top: 6, bottom: -6 }); sahne.add(gun);
+    const kece = c.doku(256, 256, (x, ww, hh) => { x.fillStyle = "#5A3A7A"; x.fillRect(0, 0, ww, hh); for (let i = 0; i < 6000; i++) { x.fillStyle = Math.random() < 0.5 ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.08)"; x.fillRect(Math.random() * ww, Math.random() * hh, 1.5, 1.5); } }); kece.wrapS = kece.wrapT = THREE.RepeatWrapping; kece.repeat.set(5, 3);
+    const zemin = new THREE.Mesh(new THREE.PlaneGeometry(14, 7), new THREE.MeshStandardMaterial({ map: kece, roughness: 1 })); zemin.rotation.x = -Math.PI / 2; zemin.receiveShadow = true; sahne.add(zemin);
+    const tahtaM = new THREE.MeshStandardMaterial({ map: ahsapDoku(c, "#7A4A26", "#5A3418"), roughness: 0.55 });
+    [[0, -3.6, 14.4, 0.4], [0, 3.6, 14.4, 0.4], [-7.0, 0, 0.4, 6.8], [7.0, 0, 0.4, 6.8]].forEach(([x, z, sx, sz]) => { const k = new THREE.Mesh(new THREE.BoxGeometry(sx, 0.5, sz), tahtaM); k.position.set(x, 0.25, z); k.castShadow = k.receiveShadow = true; sahne.add(k); });
+    const geo = yuvKutu(THREE, 1, 1, 1, 0.12), BOY = 2.25, ARA = 3.1;
+    const yuzDoku = (baslik, metin, renk) => c.doku(512, 512, (x, ww, hh) => {
+      const g = x.createRadialGradient(ww * 0.4, hh * 0.35, 20, ww / 2, hh / 2, ww * 0.75); g.addColorStop(0, "#FFFFFF"); g.addColorStop(1, "#EFE9DE"); x.fillStyle = g; x.fillRect(0, 0, ww, hh);
+      x.fillStyle = renk; x.fillRect(0, 0, ww, 92); x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle"; x.font = '800 54px "Baloo 2", sans-serif'; x.fillText(baslik, ww / 2, 50);
+      const kel = metin.split(" "); let fs = 78, satir;
+      const sar = () => { satir = []; let cur = ""; x.font = `800 ${fs}px "Baloo 2", sans-serif`; kel.forEach((k) => { const t = cur ? cur + " " + k : k; if (x.measureText(t).width > ww * 0.84 && cur) { satir.push(cur); cur = k; } else cur = t; }); satir.push(cur); };
+      sar(); while (fs > 30 && (satir.length * fs * 1.08 > hh - 150 || satir.some((l) => x.measureText(l).width > ww * 0.9))) { fs -= 4; sar(); }
+      x.fillStyle = "#1B2A4A"; const y0 = 92 + (hh - 92) / 2 - ((satir.length - 1) * fs * 1.08) / 2; satir.forEach((l, i) => x.fillText(l, ww / 2, y0 + i * fs * 1.08));
+    });
+    const zarlar = Array.from({ length: n }, (_, i) => { const m = new THREE.Mesh(geo, Array.from({ length: 6 }, () => new THREE.MeshPhysicalMaterial({ roughness: 0.35, clearcoat: 0.6 }))); m.scale.setScalar(BOY); m.castShadow = true; m.position.set((i - (n - 1) / 2) * ARA, BOY / 2, 0); sahne.add(m); return { m, uc: null }; });
+    c.kare = (dt) => zarlar.forEach((z) => { const u = z.uc; if (!u) return; u.t += dt; const p = Math.min(1, u.t / u.sure);
+      const x = u.p0.x + (u.p1.x - u.p0.x) * (1 - Math.pow(1 - p, 2)), zz = u.p0.z + (u.p1.z - u.p0.z) * (1 - Math.pow(1 - p, 2));
+      const zip = Math.abs(Math.sin(p * Math.PI * 2.5)) * (1 - p) * 2.4; z.m.position.set(x, BOY / 2 + zip + (1 - p) * (1 - p) * 2.5, zz);
+      if (p < 0.8) { z.m.rotation.x += u.don.x * dt * (1 - p); z.m.rotation.y += u.don.y * dt * (1 - p); z.m.rotation.z += u.don.z * dt * (1 - p); } else z.m.quaternion.slerp(u.son, Math.min(1, dt * 12));
+      if (p >= 1) { z.m.quaternion.copy(u.son); z.uc = null; } });
+    const ray = new THREE.Raycaster(), nk = new THREE.Vector2();
+    c.r.domElement.addEventListener("pointerdown", (e) => { const b = c.r.domElement.getBoundingClientRect(); nk.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); ray.setFromCamera(nk, c.kamera); const v = ray.intersectObjects(zarlar.map((z) => z.m))[0]; if (v && dokun) dokun(zarlar.findIndex((z) => z.m === v.object)); });
+    c.r.domElement.style.cursor = "pointer";
+    return {
+      at(liste, hangi, ani = true) {
+        (hangi || liste.map((_, i) => i)).forEach((i) => {
+          const z = zarlar[i], L = liste[i]; if (!z || !L) return;
+          const diger = T.shuffle(L.digerleri.filter((t) => t !== L.secilen)).slice(0, 5); while (diger.length < 5) diger.push(L.secilen);
+          const yuzler = [diger[0], diger[1], L.secilen, diger[2], diger[3], diger[4]];
+          z.m.material.forEach((mt, k) => { mt.map && mt.map.dispose(); mt.map = yuzDoku(L.baslik, yuzler[k], L.renk); mt.needsUpdate = true; });
+          const son = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), (Math.random() - 0.5) * 0.25);
+          if (!ani) { z.m.quaternion.copy(son); return; }
+          z.uc = { t: 0, sure: 1.1 + Math.random() * 0.4, p0: new THREE.Vector3(-6 + Math.random(), 3.5, 2.5 - Math.random()), p1: new THREE.Vector3((i - (n - 1) / 2) * ARA + (Math.random() - 0.5) * 0.3, BOY / 2, (Math.random() - 0.5) * 0.6), don: new THREE.Vector3(Math.random() * 14 + 8, Math.random() * 10, Math.random() * 14 + 8), son };
+        });
+        if (ani) T.sound.drum();
+      },
+    };
+  });
+
   /* ---------- İsim çek: dönen ahşap çark ---------- */
   if (W.name) {
     const eski = W.name.render; W.name.w = Math.max(W.name.w || 0, 420); W.name.h = Math.max(W.name.h || 0, 480);
-    const RENKLER = ["#E4553F", "#F2B33D", "#3FA36B", "#3B83C4", "#8C5BB8", "#E07AA0", "#2FA6A0", "#E58A3A"];
     W.name.render = function (body, w, api) {
       const d = w.data;
       const kap = T.h("div.zar3-kap.cark3-kap"), ad = T.h("div.cark3-ad"), info = T.h("div.hint", { style: { textAlign: "center", fontSize: "13px" } });
@@ -152,63 +252,19 @@
       const cur = d.current && api.cls().students.find((s) => s.id === d.current); ad.textContent = cur ? cur.name : "Kim olacak?";
       let yeniden = () => {}, cevir = () => T.toast("Çark hazırlanıyor");
       yaz();
-      sahne3(kap, { kamera: [0, 0.4, 15], bak: [0, -0.4, 0], fov: 30, arka: ["#F4E9D6", "#D8C3A2"], env: ["#FFFFFF", "#E8DCC8", "#6B5A48"], sigdir: 15, oran: 0.95 }, api).then((c) => {
-        if (!c) { body.replaceChildren(); eski(body, w, api); return; }
-        const { THREE, sahne } = c; isikla(c, 1.7, [3, 6, 10]);
-        const R = 3.3, ahsap = ahsapDoku(c), koyu = ahsapDoku(c, "#6E4424", "#4A2A14");
-        const cark = new THREE.Group(); sahne.add(cark);
-        const govde = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.16, R + 0.16, 0.42, 96), new THREE.MeshStandardMaterial({ map: koyu, roughness: 0.5 })); govde.rotation.x = Math.PI / 2; cark.add(govde);
-        const yuzM = new THREE.MeshStandardMaterial({ roughness: 0.48 }), yuz = new THREE.Mesh(new THREE.CircleGeometry(R, 120), yuzM); yuz.position.z = 0.215; cark.add(yuz);
-        const pirinc = new THREE.MeshStandardMaterial({ color: 0xd4a648, metalness: 0.9, roughness: 0.25 });
-        const jant = new THREE.Mesh(new THREE.TorusGeometry(R + 0.1, 0.1, 12, 120), pirinc); jant.position.z = 0.22; cark.add(jant);
-        const gobek = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.3, 40), pirinc); gobek.rotation.x = Math.PI / 2; gobek.position.z = 0.36; sahne.add(gobek);
-        const civiler = new THREE.Group(); cark.add(civiler);
-        const ayak = new THREE.Mesh(new THREE.BoxGeometry(0.7, 5.2, 0.5), new THREE.MeshStandardMaterial({ map: ahsap, roughness: 0.6 })); ayak.position.set(0, -2.7, -0.55); sahne.add(ayak);
-        const taban = new THREE.Mesh(yuvKutu(THREE, 4.6, 0.5, 2.0, 0.12), new THREE.MeshStandardMaterial({ map: koyu, roughness: 0.55 })); taban.position.set(0, -5.3, -0.2); sahne.add(taban);
-        const sh = new THREE.Shape(); sh.moveTo(0, -0.6); sh.lineTo(0.4, 0.3); sh.quadraticCurveTo(0, 0.55, -0.4, 0.3); sh.closePath();
-        const dil = new THREE.Group(); dil.position.set(0, R + 0.62, 0.42); dil.scale.setScalar(1.45); sahne.add(dil);
-        const ok = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.16, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04, bevelSegments: 3 }), new THREE.MeshPhysicalMaterial({ color: 0xc8261b, roughness: 0.3, clearcoat: 1 })); ok.position.y = 0.0; dil.add(ok);
-        const vida = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), pirinc); vida.position.set(0, 0.15, 0.22); dil.add(vida);
-        let liste = [], doku = null;
-        const ciz = () => {
-          const n = Math.max(1, liste.length), s = (Math.PI * 2) / n, S = 1024, m = S / 2, rad = S / 2 - 4;
-          doku && doku.dispose();
-          doku = c.doku(S, S, (x) => {
-            x.fillStyle = "#f3e7d2"; x.fillRect(0, 0, S, S);
-            for (let i = 0; i < n; i++) { const a0 = i * s; x.beginPath(); x.moveTo(m, m); x.arc(m, m, rad, -a0, -(a0 + s), true); x.closePath(); x.fillStyle = n === 1 ? RENKLER[0] : RENKLER[(i % RENKLER.length + (n % RENKLER.length === 1 && i === n - 1 ? 1 : 0)) % RENKLER.length]; x.fill(); }
-            for (let i = 0; i < 260; i++) { x.strokeStyle = Math.random() < 0.5 ? "rgba(0,0,0,.07)" : "rgba(255,255,255,.07)"; x.lineWidth = 1 + Math.random() * 2; x.beginPath(); x.arc(m, m, Math.random() * rad, 0, Math.PI * 2); x.stroke(); }
-            if (n > 1) for (let i = 0; i < n; i++) { const a = -i * s; x.strokeStyle = "rgba(255,248,230,.9)"; x.lineWidth = 5; x.beginPath(); x.moveTo(m, m); x.lineTo(m + Math.cos(a) * rad, m + Math.sin(a) * rad); x.stroke(); }
-            for (let i = 0; i < n; i++) { const ad2 = liste[i] ? liste[i].name : "?"; let fs = Math.min(76, rad * 0.55 * s * 0.9); x.font = `800 ${fs}px "Baloo 2", sans-serif`; while (fs > 14 && x.measureText(ad2).width > rad * 0.66) { fs -= 2; x.font = `800 ${fs}px "Baloo 2", sans-serif`; }
-              x.save(); x.translate(m, m); x.rotate(-(i * s + s / 2)); x.textAlign = "right"; x.textBaseline = "middle"; x.fillStyle = "rgba(0,0,0,.25)"; x.fillText(ad2, rad * 0.9 + 2, 3); x.fillStyle = "#FFFFFF"; x.fillText(ad2, rad * 0.9, 0); x.restore(); }
-            const g = x.createRadialGradient(m, m, rad * 0.6, m, m, rad); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,.18)"); x.fillStyle = g; x.beginPath(); x.arc(m, m, rad, 0, Math.PI * 2); x.fill();
-          });
-          yuzM.map = doku; yuzM.needsUpdate = true;
-          civiler.clear(); if (n > 1) for (let i = 0; i < n; i++) { const a = i * s, cv = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.26, 10), pirinc); cv.rotation.x = Math.PI / 2; cv.position.set(Math.cos(a) * (R - 0.14), Math.sin(a) * (R - 0.14), 0.34); civiler.add(cv); }
-        };
-        yeniden = () => { if (donus) return; liste = havuz(); ciz(); };
-        let donus = null, flap = 0, sonDilim = -1;
+      T.cark3B(kap, api).then((ck) => {
+        if (!ck) { body.replaceChildren(); eski(body, w, api); return; }
+        let liste = [];
+        const kur = () => { liste = havuz(); ck.kur(liste.map((st) => ({ ad: st.name }))); };
+        yeniden = () => { if (!ck.donuyor()) kur(); };
         cevir = () => {
-          if (donus) return; T.sound.unlock();
-          let p = gelenler(api.cls()); if (!p.length) { T.toast("Sınıf listesi boş"); return; }
-          if (d.fair && p.every((st) => d.used.includes(st.id))) { d.used = []; }
-          liste = havuz(); ciz(); yaz();
-          const wi = T.rand(0, liste.length - 1), s = (Math.PI * 2) / liste.length;
-          const f0 = cark.rotation.z % (Math.PI * 2); cark.rotation.z = f0;
-          let f1 = Math.PI / 2 - (wi + 0.5) * s + (Math.random() - 0.5) * s * 0.6; while (f1 > f0 - Math.PI * 2 * 5) f1 -= Math.PI * 2;
-          donus = { t: 0, sure: 4.6 + Math.random() * 0.8, f0, f1, kazanan: liste[wi] }; ad.textContent = "…";
+          if (ck.donuyor()) return; T.sound.unlock();
+          const p = gelenler(api.cls()); if (!p.length) { T.toast("Sınıf listesi boş"); return; }
+          if (d.fair && p.every((st) => d.used.includes(st.id))) d.used = [];
+          kur(); yaz(); ad.textContent = "…";
+          ck.cevir(T.rand(0, liste.length - 1), (i) => { const st = liste[i]; ad.textContent = st.name; ad.animate([{ transform: "scale(.7)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }], { duration: 420, easing: "ease-out" }); T.sound.ok(); d.current = st.id; if (d.fair && !d.used.includes(st.id)) d.used.push(st.id); api.save(); yaz(); });
         };
-        c.kare = (dt) => {
-          if (donus) {
-            donus.t += dt; const p = Math.min(1, donus.t / donus.sure), e2 = 1 - Math.pow(1 - p, 4);
-            cark.rotation.z = donus.f0 + (donus.f1 - donus.f0) * e2;
-            const s = (Math.PI * 2) / Math.max(1, liste.length), k = Math.floor((((Math.PI / 2 - cark.rotation.z) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2) / s);
-            if (k !== sonDilim) { sonDilim = k; if (liste.length > 1) { flap = Math.min(0.6, flap + 0.35); T.sound.tick(); } }
-            if (p >= 1) { const st = donus.kazanan; donus = null; ad.textContent = st.name; ad.animate([{ transform: "scale(.7)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }], { duration: 420, easing: "ease-out" }); T.sound.ok(); d.current = st.id; if (d.fair && !d.used.includes(st.id)) d.used.push(st.id); api.save(); yaz(); }
-          }
-          flap *= Math.exp(-dt * 10); dil.rotation.z = flap;
-        };
-        liste = havuz(); ciz();
-        c.r.domElement.style.cursor = "pointer"; c.r.domElement.addEventListener("click", () => cevir());
+        kur(); ck.r.domElement.style.cursor = "pointer"; ck.r.domElement.addEventListener("click", () => cevir());
       });
     };
   }

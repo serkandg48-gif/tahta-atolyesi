@@ -178,17 +178,21 @@
     const uygun = hepsi.filter((k) => k[0] === g || k[0] === 0); const liste = uygun.length ? uygun : hepsi;
     const anahtar = "ta-kitap:" + cid() + ":" + dersler[0];
     let sec = +yerel(anahtar) || (liste[0] || [])[2];
-    const cer = h("iframe.ky-cerceve", { title: "MEB kitabı", loading: "lazy", referrerpolicy: "no-referrer" });
+    const cer = h("iframe.ky-cerceve", { title: "MEB kitabı", loading: "lazy", allow: "fullscreen; clipboard-write; autoplay", allowfullscreen: "true" });
+    let mod = yerel("ta-panel-mod") || "pdf";
+    const katman = T.kalemKatmani ? T.kalemKatmani(cer) : cer; katman.classList && katman.classList.add("ky-katman");
     const yeniSekme = h("a.btn.sm.c-chalk", { target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç");
-    const yukle = () => { const u = MK + sec + "/x"; if (cer.getAttribute("src") !== u) cer.setAttribute("src", u); yeniSekme.href = u; };
+    const yukle = () => { const u = mod === "etk" ? "https://tymm.meb.gov.tr/etkilesimli-kitap/_shared/index.html?kitap=" + sec : MK + sec + "/x"; if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle && katman.temizle(); } yeniSekme.href = u; };
+    const modSec = h("div.seg", [["pdf", "Kitap"], ["etk", "Etkileşimli"]].map(([m, l]) => h("button", { "aria-pressed": String(mod === m), onclick: (e) => { mod = m; yerel("ta-panel-mod", m); e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); yukle(); } }, l)));
     const secici = h("select.in", { "aria-label": "Kitap seç", onchange: (e) => { sec = +e.target.value; yerel(anahtar, String(sec)); yukle(); } },
       liste.map((k) => h("option", { value: k[2], selected: k[2] === sec ? true : null }, k[3])));
     const panel = h("aside.kitap-yan", { "aria-label": "MEB kitabı" },
       h("div.ky-ust", T.icon("book"), h("b", "MEB kitabı"), h("div.grow"), h("button.btn.sm.icon.c-chalk", { "aria-label": "Kitabı kapat", title: "Kitabı kapat", onclick: kapat }, T.icon("close"))),
       liste.length ? secici : h("p.hint", "Bu sınıf için listede kitap yok."),
+      liste.length ? modSec : null,
       h("div.row", { style: { gap: "8px", flexWrap: "wrap" } }, yeniSekme, h("a.btn.sm.c-chalk", { href: "https://tymm.meb.gov.tr/ders-kitaplari", target: "_blank", rel: "noopener" }, "Tüm MEB kitapları")),
-      liste.length ? cer : null,
-      h("p.hint.ky-not", "Kitap MEB'in kendi sitesinden açılır. Sayfa açılmazsa Yeni sekmede aç'a dokun."));
+      liste.length ? katman : null,
+      h("p.hint.ky-not", "Kitabın üstüne kalemle yazabilirsin; sayfa çevirmek için ✋. Sayfa açılmazsa Yeni sekmede aç."));
     if (liste.length) yukle();
     return panel;
   };

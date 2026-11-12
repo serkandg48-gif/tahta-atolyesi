@@ -30,12 +30,13 @@
       const wrap = h("div.view-inner.genis"); view.append(wrap);
       let g = +yerel("ta-kitaplar-sinif:" + cid()) || T.store.grade(); if (g < 1 || g > 4) g = 1;
       let sec = yerel("ta-kitaplar-sec:" + cid()), mod = yerel("ta-kitaplar-mod") || "pdf";
-      const cer = h("iframe.dk-cerceve", { title: "Ders kitabı", referrerpolicy: "no-referrer", allowfullscreen: "true" });
-      const ust = h("div.dk-okuyucu-ust"); const okuyucu = h("div.dk-okuyucu", ust, cer);
+      const cer = h("iframe.dk-cerceve", { title: "Ders kitabı", allow: "fullscreen; clipboard-write; autoplay", allowfullscreen: "true" });
+      const katman = T.kalemKatmani(cer);
+      const ust = h("div.dk-okuyucu-ust"); const okuyucu = h("div.dk-okuyucu", ust, katman);
       const solKap = h("div.dk-sol");
       const ac = (k) => {
         sec = k[2]; yerel("ta-kitaplar-sec:" + cid(), sec);
-        const u = url(sec, mod); if (cer.getAttribute("src") !== u) cer.setAttribute("src", u);
+        const u = url(sec, mod); if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle(); }
         ust.replaceChildren(h("b", k[3]), h("div.grow"),
           h("div.seg", [["pdf", "Kitap"], ["etk", "Etkileşimli"]].map(([m, l]) => h("button", { "aria-pressed": String(mod === m), onclick: () => { mod = m; yerel("ta-kitaplar-mod", m); ac(k); } }, l))),
           h("button.btn.sm.c-chalk", { onclick: () => { try { (okuyucu.requestFullscreen || okuyucu.webkitRequestFullscreen).call(okuyucu); } catch (e) {} } }, T.icon("full"), "Tam ekran"),
@@ -61,5 +62,5 @@
     },
   };
   T.YARDIM = T.YARDIM || {};
-  T.YARDIM.kitaplar = ["Ders kitapları", "MEB'in Maarif Modeli ders kitapları sınıfına ve dersine göre listelenir, tahtada sayfanın içinde açılır.", ["Sınıfı seç, soldan kitaba dokun.", "Etkileşimli seçeneği MEB'in etkileşimli kitabını açar.", "Tam ekran ile kitabı tahtanın tamamına yay.", "Listede olmayan bir kitabı, MEB bağlantısını yapıştırarak Kitap ekle ile kendin ekleyebilirsin."]];
+  T.YARDIM.kitaplar = ["Ders kitapları", "MEB'in Maarif Modeli ders kitapları sınıfına ve dersine göre listelenir, tahtada sayfanın içinde açılır.", ["Sınıfı seç, soldan kitaba dokun.", "Etkileşimli seçeneği MEB'in etkileşimli kitabını açar.", "Kitabın üstündeki kalem, fosforlu kalem ve silgiyle sayfanın üstüne yazabilirsin. Sayfayı çevirmek için el simgesine dokun; sayfa değişince çöp kutusuyla temizle.", "Tam ekran ile kitabı tahtanın tamamına yay.", "Listede olmayan bir kitabı, MEB bağlantısını yapıştırarak Kitap ekle ile kendin ekleyebilirsin."]];
 })();

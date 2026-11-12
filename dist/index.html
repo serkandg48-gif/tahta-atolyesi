@@ -1944,6 +1944,16 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .sh-takim { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0 .4em; padding: .4em .8em; border-radius: 18px; background: rgba(255, 255, 255, .88); font: 700 clamp(11px, 1.1vw, 16px) var(--body); color: #1B2A4A; border: 3px solid transparent; }
 .sh-takim span { grid-column: 1 / -1; } .sh-takim b { font: 900 clamp(22px, 3vw, 46px) var(--display); } .sh-takim i { font-style: normal; font-size: clamp(18px, 2.2vw, 34px); }
 .sh-takim.t0 b { color: #2E6FB0; } .sh-takim.t1 b { color: #E0742B; } .sh-takim.sirada.t0 { border-color: #2E6FB0; } .sh-takim.sirada.t1 { border-color: #E0742B; }
+/* Kitap üstü kalem katmanı */
+.kk-kap { position: relative; min-height: 0; display: grid; } .kk-kap > iframe { grid-area: 1 / 1; }
+.kk-cv { grid-area: 1 / 1; width: 100%; height: 100%; pointer-events: none; touch-action: none; border-radius: 12px; }
+.kk-kap.ciz .kk-cv { pointer-events: auto; cursor: crosshair; }
+.kk-arac { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; align-items: center; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .94); box-shadow: 0 4px 14px rgba(20, 30, 60, .18); z-index: 2; flex-wrap: wrap; max-width: calc(100% - 16px); }
+.kk-d { width: 38px; height: 38px; border-radius: 10px; border: 0; background: transparent; font-size: 19px; cursor: pointer; } .kk-d.on { background: #1B2A4A; } .kk-d:hover { background: #EEF2FA; } .kk-d.on:hover { background: #1B2A4A; }
+.kk-renk { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #C9D2E3; cursor: pointer; } .kk-renk.on { box-shadow: 0 0 0 3px #1B2A4A; }
+.ky-katman { height: calc(100vh - 330px); min-height: 360px; } .ky-katman .ky-cerceve { height: 100%; min-height: 0; }
+.dk-okuyucu .kk-kap { min-height: 0; }
+.kk-fos { display: inline-block; width: 22px; height: 12px; border-radius: 4px; background: #FFE13B; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); transform: rotate(-20deg); vertical-align: middle; }
 
 </style>
 </head>
@@ -1958,7 +1968,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="2fdb04412d";
+window.SURUM="426ee1fa85";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -10464,17 +10474,21 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     const uygun = hepsi.filter((k) => k[0] === g || k[0] === 0); const liste = uygun.length ? uygun : hepsi;
     const anahtar = "ta-kitap:" + cid() + ":" + dersler[0];
     let sec = +yerel(anahtar) || (liste[0] || [])[2];
-    const cer = h("iframe.ky-cerceve", { title: "MEB kitabı", loading: "lazy", referrerpolicy: "no-referrer" });
+    const cer = h("iframe.ky-cerceve", { title: "MEB kitabı", loading: "lazy", allow: "fullscreen; clipboard-write; autoplay", allowfullscreen: "true" });
+    let mod = yerel("ta-panel-mod") || "pdf";
+    const katman = T.kalemKatmani ? T.kalemKatmani(cer) : cer; katman.classList && katman.classList.add("ky-katman");
     const yeniSekme = h("a.btn.sm.c-chalk", { target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç");
-    const yukle = () => { const u = MK + sec + "/x"; if (cer.getAttribute("src") !== u) cer.setAttribute("src", u); yeniSekme.href = u; };
+    const yukle = () => { const u = mod === "etk" ? "https://tymm.meb.gov.tr/etkilesimli-kitap/_shared/index.html?kitap=" + sec : MK + sec + "/x"; if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle && katman.temizle(); } yeniSekme.href = u; };
+    const modSec = h("div.seg", [["pdf", "Kitap"], ["etk", "Etkileşimli"]].map(([m, l]) => h("button", { "aria-pressed": String(mod === m), onclick: (e) => { mod = m; yerel("ta-panel-mod", m); e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); yukle(); } }, l)));
     const secici = h("select.in", { "aria-label": "Kitap seç", onchange: (e) => { sec = +e.target.value; yerel(anahtar, String(sec)); yukle(); } },
       liste.map((k) => h("option", { value: k[2], selected: k[2] === sec ? true : null }, k[3])));
     const panel = h("aside.kitap-yan", { "aria-label": "MEB kitabı" },
       h("div.ky-ust", T.icon("book"), h("b", "MEB kitabı"), h("div.grow"), h("button.btn.sm.icon.c-chalk", { "aria-label": "Kitabı kapat", title: "Kitabı kapat", onclick: kapat }, T.icon("close"))),
       liste.length ? secici : h("p.hint", "Bu sınıf için listede kitap yok."),
+      liste.length ? modSec : null,
       h("div.row", { style: { gap: "8px", flexWrap: "wrap" } }, yeniSekme, h("a.btn.sm.c-chalk", { href: "https://tymm.meb.gov.tr/ders-kitaplari", target: "_blank", rel: "noopener" }, "Tüm MEB kitapları")),
-      liste.length ? cer : null,
-      h("p.hint.ky-not", "Kitap MEB'in kendi sitesinden açılır. Sayfa açılmazsa Yeni sekmede aç'a dokun."));
+      liste.length ? katman : null,
+      h("p.hint.ky-not", "Kitabın üstüne kalemle yazabilirsin; sayfa çevirmek için ✋. Sayfa açılmazsa Yeni sekmede aç."));
     if (liste.length) yukle();
     return panel;
   };
@@ -11129,6 +11143,47 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
   };
 })();
 
+/* ---- kalem-katman.js ---- */
+/* Kitap üstü kalem katmanı: MEB kitabının (iframe) üstüne öğretmenin kendi kalemi.
+   El modunda katman tıklamaları kitaba geçirir; kalem, fosforlu ve silgi modunda üstüne çizer. */
+(function () {
+  const { h } = T;
+  const RENK = ["#E0302D", "#1D5FD1", "#1A1A1A", "#16A34A"];
+  T.kalemKatmani = function (cerceve, opts = {}) {
+    const kap = h("div.kk-kap"), cv = h("canvas.kk-cv");
+    let mod = "el", renk = RENK[0], ciziyor = false, son = null, cizgiler = [], aktif = null;
+    const boyut = () => { const r = kap.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1); const w = Math.round(r.width * d), hh = Math.round(r.height * d); if (w && (cv.width !== w || cv.height !== hh)) { cv.width = w; cv.height = hh; yenidenCiz(); } };
+    const ctx = cv.getContext("2d");
+    const ciz1 = (c) => { const d = cv.width / (kap.clientWidth || 1); ctx.save(); ctx.scale(d, d); ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.globalCompositeOperation = c.mod === "silgi" ? "destination-out" : "source-over"; ctx.globalAlpha = c.mod === "fosforlu" ? 0.35 : 1;
+      ctx.strokeStyle = c.mod === "fosforlu" ? "#FFE13B" : c.renk; ctx.lineWidth = c.mod === "fosforlu" ? 22 : c.mod === "silgi" ? 34 : 4;
+      ctx.beginPath(); c.n.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); if (c.n.length === 1) ctx.lineTo(c.n[0][0] + 0.1, c.n[0][1]); ctx.stroke(); ctx.restore(); };
+    const yenidenCiz = () => { ctx.clearRect(0, 0, cv.width, cv.height); cizgiler.forEach(ciz1); };
+    const nk = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    cv.addEventListener("pointerdown", (e) => { if (mod === "el") return; ciziyor = true; cv.setPointerCapture(e.pointerId); aktif = { mod, renk, n: [nk(e)] }; cizgiler.push(aktif); yenidenCiz(); e.preventDefault(); });
+    cv.addEventListener("pointermove", (e) => { if (!ciziyor) return; aktif.n.push(nk(e)); yenidenCiz(); });
+    const bitir = () => { ciziyor = false; aktif = null; };
+    cv.addEventListener("pointerup", bitir); cv.addEventListener("pointercancel", bitir);
+    const dugme = (k, ad, ic) => h("button.kk-d" + (mod === k ? ".on" : ""), { "aria-label": ad, title: ad, "aria-pressed": String(mod === k), onclick: () => { mod = k; ciz(); } }, ic);
+    const arac = h("div.kk-arac");
+    const ciz = () => {
+      kap.classList.toggle("ciz", mod !== "el");
+      arac.replaceChildren(
+        dugme("el", "Kitabı kullan (sayfa çevir, kaydır)", "✋"),
+        dugme("kalem", "Kalem", "✏️"),
+        mod === "kalem" ? RENK.map((r) => h("button.kk-renk" + (r === renk ? ".on" : ""), { "aria-label": "Renk", style: { background: r }, onclick: () => { renk = r; ciz(); } })) : null,
+        dugme("fosforlu", "Fosforlu kalem", h("span.kk-fos")), dugme("silgi", "Silgi", "🧽"),
+        h("button.kk-d", { "aria-label": "Geri al", title: "Geri al", onclick: () => { cizgiler.pop(); yenidenCiz(); } }, "↶"),
+        h("button.kk-d", { "aria-label": "Hepsini temizle", title: "Hepsini temizle (sayfa değiştirince)", onclick: () => { cizgiler = []; yenidenCiz(); } }, "🗑️"));
+    };
+    kap.append(cerceve, cv, arac); ciz();
+    if (window.ResizeObserver) new ResizeObserver(boyut).observe(kap); else setInterval(boyut, 1000);
+    setTimeout(boyut, 50);
+    kap.temizle = () => { cizgiler = []; yenidenCiz(); };
+    return kap;
+  };
+})();
+
 /* ---- ders-kitap.js ---- */
 /* Ders kitapları: MEB'in Maarif kitapları sınıfa ve derse göre; tahtada sayfa içinde açılır. Kitap dosyası kopyalanmaz, MEB'in sitesinden açılır. */
 (function () {
@@ -11162,12 +11217,13 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       const wrap = h("div.view-inner.genis"); view.append(wrap);
       let g = +yerel("ta-kitaplar-sinif:" + cid()) || T.store.grade(); if (g < 1 || g > 4) g = 1;
       let sec = yerel("ta-kitaplar-sec:" + cid()), mod = yerel("ta-kitaplar-mod") || "pdf";
-      const cer = h("iframe.dk-cerceve", { title: "Ders kitabı", referrerpolicy: "no-referrer", allowfullscreen: "true" });
-      const ust = h("div.dk-okuyucu-ust"); const okuyucu = h("div.dk-okuyucu", ust, cer);
+      const cer = h("iframe.dk-cerceve", { title: "Ders kitabı", allow: "fullscreen; clipboard-write; autoplay", allowfullscreen: "true" });
+      const katman = T.kalemKatmani(cer);
+      const ust = h("div.dk-okuyucu-ust"); const okuyucu = h("div.dk-okuyucu", ust, katman);
       const solKap = h("div.dk-sol");
       const ac = (k) => {
         sec = k[2]; yerel("ta-kitaplar-sec:" + cid(), sec);
-        const u = url(sec, mod); if (cer.getAttribute("src") !== u) cer.setAttribute("src", u);
+        const u = url(sec, mod); if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle(); }
         ust.replaceChildren(h("b", k[3]), h("div.grow"),
           h("div.seg", [["pdf", "Kitap"], ["etk", "Etkileşimli"]].map(([m, l]) => h("button", { "aria-pressed": String(mod === m), onclick: () => { mod = m; yerel("ta-kitaplar-mod", m); ac(k); } }, l))),
           h("button.btn.sm.c-chalk", { onclick: () => { try { (okuyucu.requestFullscreen || okuyucu.webkitRequestFullscreen).call(okuyucu); } catch (e) {} } }, T.icon("full"), "Tam ekran"),
@@ -11193,7 +11249,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     },
   };
   T.YARDIM = T.YARDIM || {};
-  T.YARDIM.kitaplar = ["Ders kitapları", "MEB'in Maarif Modeli ders kitapları sınıfına ve dersine göre listelenir, tahtada sayfanın içinde açılır.", ["Sınıfı seç, soldan kitaba dokun.", "Etkileşimli seçeneği MEB'in etkileşimli kitabını açar.", "Tam ekran ile kitabı tahtanın tamamına yay.", "Listede olmayan bir kitabı, MEB bağlantısını yapıştırarak Kitap ekle ile kendin ekleyebilirsin."]];
+  T.YARDIM.kitaplar = ["Ders kitapları", "MEB'in Maarif Modeli ders kitapları sınıfına ve dersine göre listelenir, tahtada sayfanın içinde açılır.", ["Sınıfı seç, soldan kitaba dokun.", "Etkileşimli seçeneği MEB'in etkileşimli kitabını açar.", "Kitabın üstündeki kalem, fosforlu kalem ve silgiyle sayfanın üstüne yazabilirsin. Sayfayı çevirmek için el simgesine dokun; sayfa değişince çöp kutusuyla temizle.", "Tam ekran ile kitabı tahtanın tamamına yay.", "Listede olmayan bir kitabı, MEB bağlantısını yapıştırarak Kitap ekle ile kendin ekleyebilirsin."]];
 })();
 
 /* ---- zeka.js ---- */

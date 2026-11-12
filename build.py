@@ -48,6 +48,7 @@ JS_ORDER = [
     "kitap-rapor.js",
     "olcme-arac.js",
     "sinif-araclari.js",
+    "kalem-katman.js",
     "ders-kitap.js",
     "zeka.js",
     "plan.js",

@@ -1161,11 +1161,11 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
   .kp-ders-ust { left: 8px; }
   #ses-dur { bottom: 104px; }
 }
-.sb-soru, .sb-acik { display: grid; gap: 4px; justify-items: center; text-align: center; padding: 14px 10px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font: inherit; color: var(--ink); }
-.sb-soru { cursor: pointer; border: 2px dashed #E9A23B; background: #FFFBEF; }
-.sb-soru b { font: 800 34px/1 var(--display); color: #E9A23B; } .sb-soru span { font-size: 14px; color: var(--ink-soft); }
+.sb-sor, .sb-acik { display: grid; gap: 4px; justify-items: center; text-align: center; padding: 14px 10px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font: inherit; color: var(--ink); }
+.sb-sor { cursor: pointer; border: 2px dashed #E9A23B; background: #FFFBEF; }
+.sb-sor b { font: 800 34px/1 var(--display); color: #E9A23B; } .sb-sor span { font-size: 14px; color: var(--ink-soft); }
 .sb-acik b { font: 800 26px/1.1 var(--display); color: var(--navy); }
-.sb-soru small, .sb-acik small { font-size: 14px; font-weight: 700; color: var(--ink-soft); }
+.sb-sor small, .sb-acik small { font-size: 14px; font-weight: 700; color: var(--ink-soft); }
 .sb-secenek { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
 .sb-secenek button { padding: 16px 10px; border-radius: 14px; border: 1px solid var(--line); background: #fff; font: 800 22px var(--display); color: var(--ink); cursor: pointer; }
 .sb-secenek button.yanlis, .sb-gun.yanlis { animation: sss-sars .5s; background: #FBE3E0; }
@@ -1182,3 +1182,10 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .tk-grid span.bugun { background: var(--navy); color: #fff; }
 .sb-month > .sb-gun.sb-we, .sb-month > .sb-gun.sb-cl { background: #E9EBF0; color: #8A93A6; }
 .sb-month > .sb-gun.sb-t { background: var(--navy); color: #fff; opacity: 1; text-decoration: none; box-shadow: 0 0 0 4px #FFE7A3; }
+.dg-satir { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.dg-satir b { flex: 1; }
+.dg-bugun { font: 800 20px var(--display); color: #B8456A; }
+.sb-dogum { display: flex; align-items: center; gap: 18px; padding: 18px 22px; border-radius: 22px; background: linear-gradient(120deg, #FFF1C9, #FFD9E4); margin-bottom: 14px; }
+.sb-dogum b { font: 800 26px var(--display); } .sb-dogum p { margin: 4px 0 0; font-size: 17px; } .sb-dogum > div { flex: 1; }
+.sb-pasta { font-size: 56px; }
+.kp-satir.dogum { background: #FFF1C9; }

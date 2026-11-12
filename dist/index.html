@@ -1719,11 +1719,11 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
   .kp-ders-ust { left: 8px; }
   #ses-dur { bottom: 104px; }
 }
-.sb-soru, .sb-acik { display: grid; gap: 4px; justify-items: center; text-align: center; padding: 14px 10px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font: inherit; color: var(--ink); }
-.sb-soru { cursor: pointer; border: 2px dashed #E9A23B; background: #FFFBEF; }
-.sb-soru b { font: 800 34px/1 var(--display); color: #E9A23B; } .sb-soru span { font-size: 14px; color: var(--ink-soft); }
+.sb-sor, .sb-acik { display: grid; gap: 4px; justify-items: center; text-align: center; padding: 14px 10px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font: inherit; color: var(--ink); }
+.sb-sor { cursor: pointer; border: 2px dashed #E9A23B; background: #FFFBEF; }
+.sb-sor b { font: 800 34px/1 var(--display); color: #E9A23B; } .sb-sor span { font-size: 14px; color: var(--ink-soft); }
 .sb-acik b { font: 800 26px/1.1 var(--display); color: var(--navy); }
-.sb-soru small, .sb-acik small { font-size: 14px; font-weight: 700; color: var(--ink-soft); }
+.sb-sor small, .sb-acik small { font-size: 14px; font-weight: 700; color: var(--ink-soft); }
 .sb-secenek { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
 .sb-secenek button { padding: 16px 10px; border-radius: 14px; border: 1px solid var(--line); background: #fff; font: 800 22px var(--display); color: var(--ink); cursor: pointer; }
 .sb-secenek button.yanlis, .sb-gun.yanlis { animation: sss-sars .5s; background: #FBE3E0; }
@@ -1740,6 +1740,13 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .tk-grid span.bugun { background: var(--navy); color: #fff; }
 .sb-month > .sb-gun.sb-we, .sb-month > .sb-gun.sb-cl { background: #E9EBF0; color: #8A93A6; }
 .sb-month > .sb-gun.sb-t { background: var(--navy); color: #fff; opacity: 1; text-decoration: none; box-shadow: 0 0 0 4px #FFE7A3; }
+.dg-satir { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.dg-satir b { flex: 1; }
+.dg-bugun { font: 800 20px var(--display); color: #B8456A; }
+.sb-dogum { display: flex; align-items: center; gap: 18px; padding: 18px 22px; border-radius: 22px; background: linear-gradient(120deg, #FFF1C9, #FFD9E4); margin-bottom: 14px; }
+.sb-dogum b { font: 800 26px var(--display); } .sb-dogum p { margin: 4px 0 0; font-size: 17px; } .sb-dogum > div { flex: 1; }
+.sb-pasta { font-size: 56px; }
+.kp-satir.dogum { background: #FFF1C9; }
 
 </style>
 </head>
@@ -1754,7 +1761,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="bee673327d";
+window.SURUM="3dcfaf482c";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -1946,6 +1953,20 @@ T.gorunumYaz = (fn) => T.store.update((s) => { s.gorunum = Object.assign({ mod: 
 T.SADE_GIZLI = ["kultur", "zeka"];
 T.bolumGorunur = (id) => { const g = T.gorunum(); if (g.bolum.includes(id)) return false; if (g.mod === "sade" && T.SADE_GIZLI.includes(id)) return false; return true; };
 T.kartGizli = (route) => T.gorunum().kart.includes(route);
+/* Konfeti: 2,5 saniyelik kutlama */
+T.konfeti = function () {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = document.createElement("canvas"); c.style.cssText = "position:fixed;inset:0;z-index:200;pointer-events:none"; c.width = innerWidth; c.height = innerHeight; document.body.append(c);
+  const x = c.getContext("2d"), R = ["#E9A23B", "#C2453A", "#2E8B57", "#2E6FB0", "#B8456A", "#6B55B5"];
+  const p = Array.from({ length: 160 }, () => ({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * 0.4, vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 4, r: 4 + Math.random() * 6, a: Math.random() * 6, c: R[Math.floor(Math.random() * R.length)] }));
+  const bas = performance.now();
+  const f = (t) => { x.clearRect(0, 0, c.width, c.height); p.forEach((q) => { q.x += q.vx; q.y += q.vy; q.a += 0.1; x.save(); x.translate(q.x, q.y); x.rotate(q.a); x.fillStyle = q.c; x.fillRect(-q.r / 2, -q.r / 4, q.r, q.r / 2); x.restore(); }); if (t - bas < 2600) requestAnimationFrame(f); else c.remove(); };
+  requestAnimationFrame(f);
+};
+/* Doğum günleri: yalnızca gün ve ay, bu cihazda */
+T.dogumlar = (c = T.store.activeClass()) => ((T.store.get().dogum || {})[c.id] || {});
+T.dogumGunuOlanlar = (c = T.store.activeClass(), tarih = new Date()) => { const k = T.pad(tarih.getMonth() + 1) + "-" + T.pad(tarih.getDate()), d = T.dogumlar(c); return c.students.filter((st) => d[st.id] === k); };
+T.yaklasanDogum = (c = T.store.activeClass(), gun = 7) => { const out = []; for (let i = 1; i <= gun; i++) { const t = new Date(); t.setDate(t.getDate() + i); T.dogumGunuOlanlar(c, t).forEach((st) => out.push([st, i, t])); } return out; };
 T.confirm = (title, text, yesLabel = "Evet") => new Promise((res) => {
   T.modal({ title, body: T.h("p", text), actions: [
     { label: "Vazgeç", onClick: () => res(false) },
@@ -4597,12 +4618,12 @@ T.yuzen = TahtaYap("ana");
       const s = T.store.get(), c = T.store.activeClass();
       const wrap = h("div.view-inner");
       view.append(wrap);
-      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["liste", "Sınıf listesi", "edit"]];
+      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["dogum", "Doğum günleri", "star"], ["liste", "Sınıf listesi", "edit"]];
       wrap.append(
         h("div.page-head", h("h1", c.name + " sınıfı"), h("div.sub", c.students.length + " öğrenci. Kayıtlar bu cihazda tutulur; Google ile giriş açılınca bütün cihazlarında görünecek."), h("div.grow"), classPicker()),
         h("div.tabs", { role: "tablist" }, tabs.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(tab === k), onclick: () => { tab = k; T.route(); } }, T.icon(ic), l))));
       const area = h("div"); wrap.append(area);
-      ({ yoklama, puan, oturma, gorev, gecmis, liste })[tab](area, s, c);
+      ({ yoklama, puan, oturma, gorev, gecmis, dogum, liste })[tab](area, s, c);
     },
   };
 
@@ -4763,6 +4784,26 @@ T.yuzen = TahtaYap("ana");
   }
 
   /* ---------- Liste ---------- */
+  /* ---------- Doğum günleri ---------- */
+  function dogum(area, s, c) {
+    const AY = T.AYLAR, d = T.dogumlar(c);
+    const yaz = (sid, v) => T.store.update((st) => { st.dogum = st.dogum || {}; const x = (st.dogum[c.id] = st.dogum[c.id] || {}); if (v) x[sid] = v; else delete x[sid]; });
+    const satir = (st) => {
+      const [ay, gun] = (d[st.id] || "-").split("-");
+      const gs = h("select.in", { "aria-label": st.name + " doğum günü", style: { width: "90px" } }, h("option", { value: "" }, "Gün"), Array.from({ length: 31 }, (_, i) => h("option", { value: T.pad(i + 1), selected: T.pad(i + 1) === gun ? true : null }, i + 1)));
+      const as = h("select.in", { "aria-label": st.name + " doğum ayı", style: { width: "140px" } }, h("option", { value: "" }, "Ay"), AY.map((a, i) => h("option", { value: T.pad(i + 1), selected: T.pad(i + 1) === ay ? true : null }, a)));
+      const kaydet = () => { if (gs.value && as.value) yaz(st.id, as.value + "-" + gs.value); else if (!gs.value && !as.value) yaz(st.id, null); };
+      gs.addEventListener("change", kaydet); as.addEventListener("change", kaydet);
+      return h("div.dg-satir", T.avatar(st.name, 36), h("b", st.name), gs, as);
+    };
+    const bugun = T.dogumGunuOlanlar(c), yakin = T.yaklasanDogum(c, 30);
+    area.append(h("div", { style: { display: "grid", gap: "16px", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", alignItems: "start" } },
+      h("div.paper", { style: { padding: "18px", display: "grid", gap: "8px" } }, h("h3", { style: { margin: 0 } }, "Doğum günlerini yaz"), h("p.hint", { style: { margin: 0 } }, "Yalnızca gün ve ay. Yıl istenmez, bilgiler bu cihazda kalır ve yapay zekâya gönderilmez."), c.students.map(satir)),
+      h("div.paper", { style: { padding: "18px", display: "grid", gap: "10px" } }, h("h3", { style: { margin: 0 } }, "Yaklaşan doğum günleri"),
+        bugun.length ? h("div.dg-bugun", "🎂 Bugün: ", bugun.map((x) => x.name).join(", ")) : null,
+        yakin.length ? yakin.map(([st, n, t]) => h("div.dg-satir", T.avatar(st.name, 30), h("b", st.name), h("span", t.getDate() + " " + AY[t.getMonth()]), h("span.hint", n === 1 ? "yarın" : n + " gün sonra"))) : h("p.hint", "Önümüzdeki 30 günde doğum günü yok."),
+        h("p.hint", { style: { margin: 0 } }, "Doğum günü olan arkadaş sabah rutininde ve ana sayfada kutlanır. Hafta sonuna denk gelenler cuma günü hatırlatılır."))));
+  }
   function liste(area, s, c) {
     const ta = h("textarea.in", { style: { minHeight: "320px" }, "aria-label": "Öğrenci listesi" });
     ta.value = c.students.map((x) => x.name).join("\n");
@@ -5022,7 +5063,10 @@ T.yuzen = TahtaYap("ana");
     const paintHava = () => havaBox.replaceChildren(...HAVA.map(([k, l]) => h("button", { "aria-pressed": String(gunVeri().hava === k), onclick: () => { kaydet((x) => (x.hava = k)); T.speak("Bugün hava " + T.trLower(l)); paintHava(); } }, havaSvg(k), h("span", l))));
     paintHava();
     const duties = T.gorevliler(c);
+    const cuma = new Date().getDay() === 5;
+    const kutlanan = T.dogumGunuOlanlar(c).concat(cuma ? [1, 2].flatMap((i) => { const t = new Date(); t.setDate(t.getDate() + i); return T.dogumGunuOlanlar(c, t); }) : []);
     body.append(
+      kutlanan.length ? h("div.sb-dogum", h("span.sb-pasta", "🎂"), h("div", h("b", "Bugün " + kutlanan.map((x) => x.name).join(" ve ") + " için kutlama günü!"), h("p", cuma && !T.dogumGunuOlanlar(c).length ? "Hafta sonundaki doğum gününü bugünden kutlayalım." : "Hep birlikte iyi ki doğdun diyelim.")), h("button.btn.c-sun", { onclick: () => { T.sound.ok && T.sound.ok(); T.konfeti && T.konfeti(); T.speak("İyi ki doğdun " + kutlanan.map((x) => x.name).join(" ve ") + "!"); } }, "Kutlayalım")) : null,
       h("div.sb-hero", h("div", h("div.sb-big", hr < 12 ? "Günaydın" : "Merhaba", ", " + c.name + "!"), h("p", `Bugün ${T.longDate()}. ${mevsim(new Date().getMonth())} mevsimindeyiz.`))),
       h("div.sb-grid2",
         h("div.sb-card", h("h3", "Bugün hava nasıl?"), h("p.hint", "Pencereden bakalım, birlikte seçelim."), havaBox),
@@ -5064,7 +5108,7 @@ T.yuzen = TahtaYap("ana");
     };
     const bilgi = (k, etiket, dogru, soru, secenek) => (gunVeri().acik || {})[k]
       ? h("div.sb-acik", h("small", etiket), h("b", dogru))
-      : h("button.sb-soru", { onclick: () => sor(k, soru, dogru, secenek) }, h("small", etiket), h("b", "?"), h("span", soru));
+      : h("button.sb-sor", { onclick: () => sor(k, soru, dogru, secenek) }, h("small", etiket), h("b", "?"), h("span", soru));
     const info = h("div.sb-facts",
       bilgi("tarih", "Ayın kaçı", SORU[0][2], SORU[0][1], SORU[0][3]),
       bilgi("ay", "Ay", SORU[1][2], SORU[1][1], SORU[1][3]),
@@ -10404,6 +10448,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       st.kind === "okul" ? tally : null,
       h("div.kp-satirlar",
         h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
+        T.dogumGunuOlanlar(c).length ? h("button.kp-satir.dogum", { onclick: () => T.go("sabah"), title: "Doğum günü" }, h("span", "🎂"), "Doğum günü", h("b", T.dogumGunuOlanlar(c).map((x) => x.name.split(" ")[0]).join(", "))) : null,
         h("button.kp-satir", { onclick: () => T.gorevliPenceresi(c), title: "Görevlileri gör ve düzenle" }, T.icon("trophy"), "Görevliler", gv.length ? h("span.kp-yuzler", gv.slice(0, 4).map(([, st]) => T.avatar(st.name, 26))) : h("b", "Ekle")),
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
         h("button.kp-satir", { onclick: () => T.go("sabah-sayi"), title: "Dokun, sayıyı değiştir" }, T.icon("spark"), "Bugünün sayısı", h("b", T.bugununSayisi(c))),

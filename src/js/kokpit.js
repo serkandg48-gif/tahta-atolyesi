@@ -164,6 +164,7 @@
       st.kind === "okul" ? tally : null,
       h("div.kp-satirlar",
         h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
+        T.dogumGunuOlanlar(c).length ? h("button.kp-satir.dogum", { onclick: () => T.go("sabah"), title: "Doğum günü" }, h("span", "🎂"), "Doğum günü", h("b", T.dogumGunuOlanlar(c).map((x) => x.name.split(" ")[0]).join(", "))) : null,
         h("button.kp-satir", { onclick: () => T.gorevliPenceresi(c), title: "Görevlileri gör ve düzenle" }, T.icon("trophy"), "Görevliler", gv.length ? h("span.kp-yuzler", gv.slice(0, 4).map(([, st]) => T.avatar(st.name, 26))) : h("b", "Ekle")),
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
         h("button.kp-satir", { onclick: () => T.go("sabah-sayi"), title: "Dokun, sayıyı değiştir" }, T.icon("spark"), "Bugünün sayısı", h("b", T.bugununSayisi(c))),

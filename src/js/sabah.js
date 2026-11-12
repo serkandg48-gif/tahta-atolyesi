@@ -224,7 +224,10 @@
     const paintHava = () => havaBox.replaceChildren(...HAVA.map(([k, l]) => h("button", { "aria-pressed": String(gunVeri().hava === k), onclick: () => { kaydet((x) => (x.hava = k)); T.speak("Bugün hava " + T.trLower(l)); paintHava(); } }, havaSvg(k), h("span", l))));
     paintHava();
     const duties = T.gorevliler(c);
+    const cuma = new Date().getDay() === 5;
+    const kutlanan = T.dogumGunuOlanlar(c).concat(cuma ? [1, 2].flatMap((i) => { const t = new Date(); t.setDate(t.getDate() + i); return T.dogumGunuOlanlar(c, t); }) : []);
     body.append(
+      kutlanan.length ? h("div.sb-dogum", h("span.sb-pasta", "🎂"), h("div", h("b", "Bugün " + kutlanan.map((x) => x.name).join(" ve ") + " için kutlama günü!"), h("p", cuma && !T.dogumGunuOlanlar(c).length ? "Hafta sonundaki doğum gününü bugünden kutlayalım." : "Hep birlikte iyi ki doğdun diyelim.")), h("button.btn.c-sun", { onclick: () => { T.sound.ok && T.sound.ok(); T.konfeti && T.konfeti(); T.speak("İyi ki doğdun " + kutlanan.map((x) => x.name).join(" ve ") + "!"); } }, "Kutlayalım")) : null,
       h("div.sb-hero", h("div", h("div.sb-big", hr < 12 ? "Günaydın" : "Merhaba", ", " + c.name + "!"), h("p", `Bugün ${T.longDate()}. ${mevsim(new Date().getMonth())} mevsimindeyiz.`))),
       h("div.sb-grid2",
         h("div.sb-card", h("h3", "Bugün hava nasıl?"), h("p.hint", "Pencereden bakalım, birlikte seçelim."), havaBox),
@@ -266,7 +269,7 @@
     };
     const bilgi = (k, etiket, dogru, soru, secenek) => (gunVeri().acik || {})[k]
       ? h("div.sb-acik", h("small", etiket), h("b", dogru))
-      : h("button.sb-soru", { onclick: () => sor(k, soru, dogru, secenek) }, h("small", etiket), h("b", "?"), h("span", soru));
+      : h("button.sb-sor", { onclick: () => sor(k, soru, dogru, secenek) }, h("small", etiket), h("b", "?"), h("span", soru));
     const info = h("div.sb-facts",
       bilgi("tarih", "Ayın kaçı", SORU[0][2], SORU[0][1], SORU[0][3]),
       bilgi("ay", "Ay", SORU[1][2], SORU[1][1], SORU[1][3]),

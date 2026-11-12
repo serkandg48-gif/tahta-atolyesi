@@ -188,6 +188,20 @@ T.gorunumYaz = (fn) => T.store.update((s) => { s.gorunum = Object.assign({ mod: 
 T.SADE_GIZLI = ["kultur", "zeka"];
 T.bolumGorunur = (id) => { const g = T.gorunum(); if (g.bolum.includes(id)) return false; if (g.mod === "sade" && T.SADE_GIZLI.includes(id)) return false; return true; };
 T.kartGizli = (route) => T.gorunum().kart.includes(route);
+/* Konfeti: 2,5 saniyelik kutlama */
+T.konfeti = function () {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = document.createElement("canvas"); c.style.cssText = "position:fixed;inset:0;z-index:200;pointer-events:none"; c.width = innerWidth; c.height = innerHeight; document.body.append(c);
+  const x = c.getContext("2d"), R = ["#E9A23B", "#C2453A", "#2E8B57", "#2E6FB0", "#B8456A", "#6B55B5"];
+  const p = Array.from({ length: 160 }, () => ({ x: Math.random() * c.width, y: -20 - Math.random() * c.height * 0.4, vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 4, r: 4 + Math.random() * 6, a: Math.random() * 6, c: R[Math.floor(Math.random() * R.length)] }));
+  const bas = performance.now();
+  const f = (t) => { x.clearRect(0, 0, c.width, c.height); p.forEach((q) => { q.x += q.vx; q.y += q.vy; q.a += 0.1; x.save(); x.translate(q.x, q.y); x.rotate(q.a); x.fillStyle = q.c; x.fillRect(-q.r / 2, -q.r / 4, q.r, q.r / 2); x.restore(); }); if (t - bas < 2600) requestAnimationFrame(f); else c.remove(); };
+  requestAnimationFrame(f);
+};
+/* Doğum günleri: yalnızca gün ve ay, bu cihazda */
+T.dogumlar = (c = T.store.activeClass()) => ((T.store.get().dogum || {})[c.id] || {});
+T.dogumGunuOlanlar = (c = T.store.activeClass(), tarih = new Date()) => { const k = T.pad(tarih.getMonth() + 1) + "-" + T.pad(tarih.getDate()), d = T.dogumlar(c); return c.students.filter((st) => d[st.id] === k); };
+T.yaklasanDogum = (c = T.store.activeClass(), gun = 7) => { const out = []; for (let i = 1; i <= gun; i++) { const t = new Date(); t.setDate(t.getDate() + i); T.dogumGunuOlanlar(c, t).forEach((st) => out.push([st, i, t])); } return out; };
 T.confirm = (title, text, yesLabel = "Evet") => new Promise((res) => {
   T.modal({ title, body: T.h("p", text), actions: [
     { label: "Vazgeç", onClick: () => res(false) },

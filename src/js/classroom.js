@@ -20,12 +20,12 @@
       const s = T.store.get(), c = T.store.activeClass();
       const wrap = h("div.view-inner");
       view.append(wrap);
-      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["liste", "Sınıf listesi", "edit"]];
+      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["dogum", "Doğum günleri", "star"], ["liste", "Sınıf listesi", "edit"]];
       wrap.append(
         h("div.page-head", h("h1", c.name + " sınıfı"), h("div.sub", c.students.length + " öğrenci. Kayıtlar bu cihazda tutulur; Google ile giriş açılınca bütün cihazlarında görünecek."), h("div.grow"), classPicker()),
         h("div.tabs", { role: "tablist" }, tabs.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(tab === k), onclick: () => { tab = k; T.route(); } }, T.icon(ic), l))));
       const area = h("div"); wrap.append(area);
-      ({ yoklama, puan, oturma, gorev, gecmis, liste })[tab](area, s, c);
+      ({ yoklama, puan, oturma, gorev, gecmis, dogum, liste })[tab](area, s, c);
     },
   };
 
@@ -186,6 +186,26 @@
   }
 
   /* ---------- Liste ---------- */
+  /* ---------- Doğum günleri ---------- */
+  function dogum(area, s, c) {
+    const AY = T.AYLAR, d = T.dogumlar(c);
+    const yaz = (sid, v) => T.store.update((st) => { st.dogum = st.dogum || {}; const x = (st.dogum[c.id] = st.dogum[c.id] || {}); if (v) x[sid] = v; else delete x[sid]; });
+    const satir = (st) => {
+      const [ay, gun] = (d[st.id] || "-").split("-");
+      const gs = h("select.in", { "aria-label": st.name + " doğum günü", style: { width: "90px" } }, h("option", { value: "" }, "Gün"), Array.from({ length: 31 }, (_, i) => h("option", { value: T.pad(i + 1), selected: T.pad(i + 1) === gun ? true : null }, i + 1)));
+      const as = h("select.in", { "aria-label": st.name + " doğum ayı", style: { width: "140px" } }, h("option", { value: "" }, "Ay"), AY.map((a, i) => h("option", { value: T.pad(i + 1), selected: T.pad(i + 1) === ay ? true : null }, a)));
+      const kaydet = () => { if (gs.value && as.value) yaz(st.id, as.value + "-" + gs.value); else if (!gs.value && !as.value) yaz(st.id, null); };
+      gs.addEventListener("change", kaydet); as.addEventListener("change", kaydet);
+      return h("div.dg-satir", T.avatar(st.name, 36), h("b", st.name), gs, as);
+    };
+    const bugun = T.dogumGunuOlanlar(c), yakin = T.yaklasanDogum(c, 30);
+    area.append(h("div", { style: { display: "grid", gap: "16px", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", alignItems: "start" } },
+      h("div.paper", { style: { padding: "18px", display: "grid", gap: "8px" } }, h("h3", { style: { margin: 0 } }, "Doğum günlerini yaz"), h("p.hint", { style: { margin: 0 } }, "Yalnızca gün ve ay. Yıl istenmez, bilgiler bu cihazda kalır ve yapay zekâya gönderilmez."), c.students.map(satir)),
+      h("div.paper", { style: { padding: "18px", display: "grid", gap: "10px" } }, h("h3", { style: { margin: 0 } }, "Yaklaşan doğum günleri"),
+        bugun.length ? h("div.dg-bugun", "🎂 Bugün: ", bugun.map((x) => x.name).join(", ")) : null,
+        yakin.length ? yakin.map(([st, n, t]) => h("div.dg-satir", T.avatar(st.name, 30), h("b", st.name), h("span", t.getDate() + " " + AY[t.getMonth()]), h("span.hint", n === 1 ? "yarın" : n + " gün sonra"))) : h("p.hint", "Önümüzdeki 30 günde doğum günü yok."),
+        h("p.hint", { style: { margin: 0 } }, "Doğum günü olan arkadaş sabah rutininde ve ana sayfada kutlanır. Hafta sonuna denk gelenler cuma günü hatırlatılır."))));
+  }
   function liste(area, s, c) {
     const ta = h("textarea.in", { style: { minHeight: "320px" }, "aria-label": "Öğrenci listesi" });
     ta.value = c.students.map((x) => x.name).join("\n");

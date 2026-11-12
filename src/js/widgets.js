@@ -450,7 +450,8 @@
     render(body, w, api) {
       const s = T.store.get(), c = api.cls(), dt = s.duties[c.id] || {};
       body.style.alignContent = "start"; body.style.gap = "8px";
-      const rows = Object.entries(dt).map(([g, sid]) => { const st = c.students.find((x) => x.id === sid); return st ? h("div", { style: { display: "flex", alignItems: "center", gap: "10px" } }, T.avatar(st.name, 44), h("div", h("div", { style: { fontWeight: 800, fontSize: "18px" } }, st.name), h("div.hint", g))) : null; });
+      const ent = Object.entries(dt); if (!dt["Nöbetçi"] && T.nobetci(c)) ent.unshift(["Nöbetçi", null]);
+      const rows = ent.map(([g, sid]) => { const st = g === "Nöbetçi" ? T.nobetci(c) : c.students.find((x) => x.id === sid); return st ? h("div", { style: { display: "flex", alignItems: "center", gap: "10px" } }, T.avatar(st.name, 44), h("div", h("div", { style: { fontWeight: 800, fontSize: "18px" } }, st.name), h("div.hint", g))) : null; });
       body.append(...(rows.length ? rows : [h("div.hint", "Görevleri Sınıfım bölümünden ata.")]));
     },
   };

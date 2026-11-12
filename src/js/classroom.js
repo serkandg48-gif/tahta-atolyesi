@@ -142,9 +142,12 @@
   function gorev(area, s, c) {
     const dt = (s.duties[c.id] = s.duties[c.id] || {});
     const list = h("div.stack");
+    const oto = T.nobetciOto(c);
+    list.append(h("label.paper", { style: { padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" } }, h("input", { type: "checkbox", checked: oto ? true : null, onchange: (e) => { T.store.update((st) => { st.nobetOto = st.nobetOto || {}; st.nobetOto[c.id] = e.target.checked; }); T.route(); } }), h("div", h("b", "Nöbetçi her okul günü kendiliğinden değişsin"), h("div.hint", oto ? "Sıra listesine göre her gün bir sonraki öğrenci; o gün gelmeyen atlanır. Bugün: " + ((T.nobetci(c) || {}).name || "-") : "Kapalıyken nöbetçiyi aşağıdan sen seçersin."))));
     Object.entries(dt).forEach(([g, sid]) => {
-      const sel = h("select.in", { "aria-label": g, onchange: (e) => { T.store.update(() => (dt[g] = e.target.value)); T.route(); } }, c.students.map((st) => h("option", { value: st.id, selected: st.id === sid }, st.name)));
-      const st = c.students.find((x) => x.id === sid);
+      const otoN = g === "Nöbetçi" && oto;
+      const sel = otoN ? h("div.hint", "Kendiliğinden değişiyor") : h("select.in", { "aria-label": g, onchange: (e) => { T.store.update(() => (dt[g] = e.target.value)); T.route(); } }, c.students.map((st) => h("option", { value: st.id, selected: st.id === sid }, st.name)));
+      const st = otoN ? T.nobetci(c) : c.students.find((x) => x.id === sid);
       list.append(h("div.paper", { style: { padding: "12px 16px", display: "flex", alignItems: "center", gap: "14px" } },
         st ? T.avatar(st.name, 52) : null, h("div", { style: { flex: 1 } }, h("div", { style: { fontWeight: 800, fontSize: "18px" } }, g), sel),
         h("button.btn.sm.icon.c-tomato", { "aria-label": g + " görevini sil", onclick: () => { T.store.update(() => delete dt[g]); T.route(); } }, T.icon("trash"))));

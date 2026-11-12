@@ -1341,7 +1341,7 @@ div.kp-satir { cursor: default; }
 #yuzen { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
 #yuzen .board { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
 #yuzen .wd { pointer-events: auto; box-shadow: 0 18px 48px rgba(20,30,50,.3); }
-#layer { position: relative; z-index: 50; }
+
 .view.pencere .board { border-radius: 24px; }
 
 /* Etkinlik kartı ve sabitleme */
@@ -1366,6 +1366,12 @@ div.kp-satir { cursor: default; }
 html.ekranda #yuzen { display: none; }
 .view.pencere .view-inner { padding-top: 58px; }
 .kp-tema-w { position: relative; display: grid; } .kp-tema-w .kp-pinx { top: 14px; right: 8px; transform: none; background: rgba(255,255,255,.9); }
+.modal { position: relative; }
+.modal-bas { display: flex; align-items: flex-start; gap: 12px; position: sticky; top: -24px; margin: -24px -24px 14px; padding: 20px 20px 10px 24px; background: inherit; z-index: 2; border-radius: inherit; }
+.modal-bas h2 { flex: 1; margin: 0; }
+.modal-x { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
+.modal-x svg { width: 20px; height: 20px; }
+.modal-actions { position: sticky; bottom: -24px; background: var(--paper); margin: 20px -24px -24px; padding: 14px 24px; border-top: 1px solid var(--line); }
 
 </style>
 </head>
@@ -1380,7 +1386,7 @@ html.ekranda #yuzen { display: none; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="d3ba14f5fd";
+window.SURUM="88e2c19ade";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -1497,27 +1503,37 @@ T.toast = function (msg, ms = 2600) {
   T.$("#layer").append(el);
   setTimeout(() => el.remove(), ms);
 };
-T.modal = function ({ title, body, actions = [], wide = false, onClose }) {
+T.modal = function ({ title, body, actions = [], wide = false, onClose, ust = false }) {
   const close = () => { scrim.remove(); document.removeEventListener("keydown", onKey); onClose && onClose(); };
   const onKey = (e) => { if (e.key === "Escape") close(); };
   const box = T.h("div.modal", { role: "dialog", "aria-modal": "true", "aria-label": title, style: wide ? { width: "min(1100px, 100%)" } : null },
-    title ? T.h("h2", title) : null,
+    title ? T.h("div.modal-bas", T.h("h2", title), T.h("button.modal-x", { "aria-label": "Kapat", title: "Kapat", onclick: () => close() }, T.icon("close"))) : null,
     body,
     actions.length ? T.h("div.modal-actions", actions.map((a) =>
       T.h("button.btn." + (a.tone || "c-chalk"), { onclick: () => { const r = a.onClick ? a.onClick() : null; if (r !== false) close(); } }, a.label))) : null
   );
   const scrim = T.h("div.scrim", { onclick: (e) => { if (e.target === scrim) close(); } }, box);
-  T.$("#layer").append(scrim);
+  if (!ust) T.$$("#layer > .scrim").forEach((x) => x._kapat ? x._kapat() : x.remove()); scrim._kapat = close; T.$("#layer").append(scrim);
   document.addEventListener("keydown", onKey);
   const f = box.querySelector("input, textarea, select, button");
   f && setTimeout(() => f.focus(), 30);
   return { close, box };
 };
+/* Nöbetçi: açıksa her okul günü sıradaki gelen öğrenciye geçer */
+T.nobetciOto = (c = T.store.activeClass()) => ((T.store.get().nobetOto || {})[c.id] !== false);
+T.nobetci = function (c = T.store.activeClass()) {
+  const s = T.store.get();
+  if (!T.nobetciOto(c)) { const id = (s.duties[c.id] || {})["Nöbetçi"]; return c.students.find((x) => x.id === id) || null; }
+  if (!c.students.length) return null;
+  const n = Math.max(1, T.cal.dayNumber()), day = (s.attendance[c.id] || {})[T.isoDate()] || {};
+  for (let k = 0; k < c.students.length; k++) { const st = c.students[(n - 1 + k) % c.students.length]; if (day[st.id] !== "yok") return st; }
+  return c.students[(n - 1) % c.students.length];
+};
 T.confirm = (title, text, yesLabel = "Evet") => new Promise((res) => {
   T.modal({ title, body: T.h("p", text), actions: [
     { label: "Vazgeç", onClick: () => res(false) },
     { label: yesLabel, tone: "c-tomato", onClick: () => res(true) },
-  ], onClose: () => res(false) });
+  ], onClose: () => res(false), ust: true });
 });
 
 T.copyText = async function (text, okMsg = "Panoya kopyalandı") {
@@ -4061,7 +4077,8 @@ T.yuzen = TahtaYap("ana");
     render(body, w, api) {
       const s = T.store.get(), c = api.cls(), dt = s.duties[c.id] || {};
       body.style.alignContent = "start"; body.style.gap = "8px";
-      const rows = Object.entries(dt).map(([g, sid]) => { const st = c.students.find((x) => x.id === sid); return st ? h("div", { style: { display: "flex", alignItems: "center", gap: "10px" } }, T.avatar(st.name, 44), h("div", h("div", { style: { fontWeight: 800, fontSize: "18px" } }, st.name), h("div.hint", g))) : null; });
+      const ent = Object.entries(dt); if (!dt["Nöbetçi"] && T.nobetci(c)) ent.unshift(["Nöbetçi", null]);
+      const rows = ent.map(([g, sid]) => { const st = g === "Nöbetçi" ? T.nobetci(c) : c.students.find((x) => x.id === sid); return st ? h("div", { style: { display: "flex", alignItems: "center", gap: "10px" } }, T.avatar(st.name, 44), h("div", h("div", { style: { fontWeight: 800, fontSize: "18px" } }, st.name), h("div.hint", g))) : null; });
       body.append(...(rows.length ? rows : [h("div.hint", "Görevleri Sınıfım bölümünden ata.")]));
     },
   };
@@ -4212,9 +4229,12 @@ T.yuzen = TahtaYap("ana");
   function gorev(area, s, c) {
     const dt = (s.duties[c.id] = s.duties[c.id] || {});
     const list = h("div.stack");
+    const oto = T.nobetciOto(c);
+    list.append(h("label.paper", { style: { padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" } }, h("input", { type: "checkbox", checked: oto ? true : null, onchange: (e) => { T.store.update((st) => { st.nobetOto = st.nobetOto || {}; st.nobetOto[c.id] = e.target.checked; }); T.route(); } }), h("div", h("b", "Nöbetçi her okul günü kendiliğinden değişsin"), h("div.hint", oto ? "Sıra listesine göre her gün bir sonraki öğrenci; o gün gelmeyen atlanır. Bugün: " + ((T.nobetci(c) || {}).name || "-") : "Kapalıyken nöbetçiyi aşağıdan sen seçersin."))));
     Object.entries(dt).forEach(([g, sid]) => {
-      const sel = h("select.in", { "aria-label": g, onchange: (e) => { T.store.update(() => (dt[g] = e.target.value)); T.route(); } }, c.students.map((st) => h("option", { value: st.id, selected: st.id === sid }, st.name)));
-      const st = c.students.find((x) => x.id === sid);
+      const otoN = g === "Nöbetçi" && oto;
+      const sel = otoN ? h("div.hint", "Kendiliğinden değişiyor") : h("select.in", { "aria-label": g, onchange: (e) => { T.store.update(() => (dt[g] = e.target.value)); T.route(); } }, c.students.map((st) => h("option", { value: st.id, selected: st.id === sid }, st.name)));
+      const st = otoN ? T.nobetci(c) : c.students.find((x) => x.id === sid);
       list.append(h("div.paper", { style: { padding: "12px 16px", display: "flex", alignItems: "center", gap: "14px" } },
         st ? T.avatar(st.name, 52) : null, h("div", { style: { flex: 1 } }, h("div", { style: { fontWeight: 800, fontSize: "18px" } }, g), sel),
         h("button.btn.sm.icon.c-tomato", { "aria-label": g + " görevini sil", onclick: () => { T.store.update(() => delete dt[g]); T.route(); } }, T.icon("trash"))));
@@ -4510,7 +4530,8 @@ T.yuzen = TahtaYap("ana");
     const havaBox = h("div.sb-hava");
     const paintHava = () => havaBox.replaceChildren(...HAVA.map(([k, l]) => h("button", { "aria-pressed": String(gunVeri().hava === k), onclick: () => { kaydet((x) => (x.hava = k)); T.speak("Bugün hava " + T.trLower(l)); paintHava(); } }, havaSvg(k), h("span", l))));
     paintHava();
-    const duties = Object.entries(s.duties[c.id] || {}).map(([g, sid]) => [g, c.students.find((x) => x.id === sid)]).filter((x) => x[1]);
+    const duties = Object.entries(s.duties[c.id] || {}).map(([g, sid]) => [g, g === "Nöbetçi" ? T.nobetci(c) : c.students.find((x) => x.id === sid)]).filter((x) => x[1]);
+    if (!(s.duties[c.id] || {})["Nöbetçi"] && T.nobetci(c)) duties.unshift(["Nöbetçi", T.nobetci(c)]);
     body.append(
       h("div.sb-hero", h("div", h("div.sb-big", hr < 12 ? "Günaydın" : "Merhaba", ", " + c.name + "!"), h("p", `Bugün ${T.longDate()}. ${mevsim(new Date().getMonth())} mevsimindeyiz.`))),
       h("div.sb-grid2",
@@ -9363,7 +9384,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   function ozetKart() {
     const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
     const day = (s.attendance[c.id] || {})[T.isoDate()] || {}; const taken = Object.keys(day).length > 0; const came = c.students.filter((x) => day[x.id] !== "yok").length;
-    const nobId = (s.duties[c.id] || {})["Nöbetçi"]; const nob = nobId && c.students.find((x) => x.id === nobId);
+    const nob = T.nobetci(c);
     const tally = h("div.kp-tally", { "aria-hidden": "true" });
     for (let i = 0; i < Math.floor(Math.min(n, 100) / 5); i++) { const g = T.svg("svg", { viewBox: "0 0 40 30" }); g.innerHTML = '<path d="M5 3v24M12 3v24M19 3v24M26 3v24M1 24 32 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>'; tally.append(g); }
     for (let i = 0; i < n % 5 && n <= 100; i++) { const g = T.svg("svg", { viewBox: "0 0 8 30" }); g.innerHTML = '<path d="M4 3v24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'; tally.append(g); }
@@ -9376,7 +9397,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       st.kind === "okul" ? tally : null,
       h("div.kp-satirlar",
         h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
-        nob ? h("div.kp-satir", T.avatar(nob.name, 26), "Nöbetçi", h("b", nob.name)) : null,
+        nob ? h("button.kp-satir", { onclick: () => T.go("sinif"), title: T.nobetciOto(c) ? "Her okul günü sıradaki öğrenciye geçer" : "Sınıfım'dan değiştir" }, T.avatar(nob.name, 26), "Nöbetçi", h("b", nob.name)) : null,
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
         st.kind === "okul" ? h("button.kp-satir", { onclick: () => T.go("sabah-sayi") }, T.icon("spark"), "Bugünün sayısı", h("b", n)) : null,
         sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));

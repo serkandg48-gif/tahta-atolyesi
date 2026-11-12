@@ -113,27 +113,37 @@ T.toast = function (msg, ms = 2600) {
   T.$("#layer").append(el);
   setTimeout(() => el.remove(), ms);
 };
-T.modal = function ({ title, body, actions = [], wide = false, onClose }) {
+T.modal = function ({ title, body, actions = [], wide = false, onClose, ust = false }) {
   const close = () => { scrim.remove(); document.removeEventListener("keydown", onKey); onClose && onClose(); };
   const onKey = (e) => { if (e.key === "Escape") close(); };
   const box = T.h("div.modal", { role: "dialog", "aria-modal": "true", "aria-label": title, style: wide ? { width: "min(1100px, 100%)" } : null },
-    title ? T.h("h2", title) : null,
+    title ? T.h("div.modal-bas", T.h("h2", title), T.h("button.modal-x", { "aria-label": "Kapat", title: "Kapat", onclick: () => close() }, T.icon("close"))) : null,
     body,
     actions.length ? T.h("div.modal-actions", actions.map((a) =>
       T.h("button.btn." + (a.tone || "c-chalk"), { onclick: () => { const r = a.onClick ? a.onClick() : null; if (r !== false) close(); } }, a.label))) : null
   );
   const scrim = T.h("div.scrim", { onclick: (e) => { if (e.target === scrim) close(); } }, box);
-  T.$("#layer").append(scrim);
+  if (!ust) T.$$("#layer > .scrim").forEach((x) => x._kapat ? x._kapat() : x.remove()); scrim._kapat = close; T.$("#layer").append(scrim);
   document.addEventListener("keydown", onKey);
   const f = box.querySelector("input, textarea, select, button");
   f && setTimeout(() => f.focus(), 30);
   return { close, box };
 };
+/* Nöbetçi: açıksa her okul günü sıradaki gelen öğrenciye geçer */
+T.nobetciOto = (c = T.store.activeClass()) => ((T.store.get().nobetOto || {})[c.id] !== false);
+T.nobetci = function (c = T.store.activeClass()) {
+  const s = T.store.get();
+  if (!T.nobetciOto(c)) { const id = (s.duties[c.id] || {})["Nöbetçi"]; return c.students.find((x) => x.id === id) || null; }
+  if (!c.students.length) return null;
+  const n = Math.max(1, T.cal.dayNumber()), day = (s.attendance[c.id] || {})[T.isoDate()] || {};
+  for (let k = 0; k < c.students.length; k++) { const st = c.students[(n - 1 + k) % c.students.length]; if (day[st.id] !== "yok") return st; }
+  return c.students[(n - 1) % c.students.length];
+};
 T.confirm = (title, text, yesLabel = "Evet") => new Promise((res) => {
   T.modal({ title, body: T.h("p", text), actions: [
     { label: "Vazgeç", onClick: () => res(false) },
     { label: yesLabel, tone: "c-tomato", onClick: () => res(true) },
-  ], onClose: () => res(false) });
+  ], onClose: () => res(false), ust: true });
 });
 
 T.copyText = async function (text, okMsg = "Panoya kopyalandı") {

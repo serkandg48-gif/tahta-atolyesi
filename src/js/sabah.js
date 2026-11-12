@@ -223,7 +223,8 @@
     const havaBox = h("div.sb-hava");
     const paintHava = () => havaBox.replaceChildren(...HAVA.map(([k, l]) => h("button", { "aria-pressed": String(gunVeri().hava === k), onclick: () => { kaydet((x) => (x.hava = k)); T.speak("Bugün hava " + T.trLower(l)); paintHava(); } }, havaSvg(k), h("span", l))));
     paintHava();
-    const duties = Object.entries(s.duties[c.id] || {}).map(([g, sid]) => [g, c.students.find((x) => x.id === sid)]).filter((x) => x[1]);
+    const duties = Object.entries(s.duties[c.id] || {}).map(([g, sid]) => [g, g === "Nöbetçi" ? T.nobetci(c) : c.students.find((x) => x.id === sid)]).filter((x) => x[1]);
+    if (!(s.duties[c.id] || {})["Nöbetçi"] && T.nobetci(c)) duties.unshift(["Nöbetçi", T.nobetci(c)]);
     body.append(
       h("div.sb-hero", h("div", h("div.sb-big", hr < 12 ? "Günaydın" : "Merhaba", ", " + c.name + "!"), h("p", `Bugün ${T.longDate()}. ${mevsim(new Date().getMonth())} mevsimindeyiz.`))),
       h("div.sb-grid2",

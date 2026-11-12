@@ -144,7 +144,7 @@
   function ozetKart() {
     const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
     const day = (s.attendance[c.id] || {})[T.isoDate()] || {}; const taken = Object.keys(day).length > 0; const came = c.students.filter((x) => day[x.id] !== "yok").length;
-    const nobId = (s.duties[c.id] || {})["Nöbetçi"]; const nob = nobId && c.students.find((x) => x.id === nobId);
+    const nob = T.nobetci(c);
     const tally = h("div.kp-tally", { "aria-hidden": "true" });
     for (let i = 0; i < Math.floor(Math.min(n, 100) / 5); i++) { const g = T.svg("svg", { viewBox: "0 0 40 30" }); g.innerHTML = '<path d="M5 3v24M12 3v24M19 3v24M26 3v24M1 24 32 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>'; tally.append(g); }
     for (let i = 0; i < n % 5 && n <= 100; i++) { const g = T.svg("svg", { viewBox: "0 0 8 30" }); g.innerHTML = '<path d="M4 3v24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'; tally.append(g); }
@@ -157,7 +157,7 @@
       st.kind === "okul" ? tally : null,
       h("div.kp-satirlar",
         h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
-        nob ? h("div.kp-satir", T.avatar(nob.name, 26), "Nöbetçi", h("b", nob.name)) : null,
+        nob ? h("button.kp-satir", { onclick: () => T.go("sinif"), title: T.nobetciOto(c) ? "Her okul günü sıradaki öğrenciye geçer" : "Sınıfım'dan değiştir" }, T.avatar(nob.name, 26), "Nöbetçi", h("b", nob.name)) : null,
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
         st.kind === "okul" ? h("button.kp-satir", { onclick: () => T.go("sabah-sayi") }, T.icon("spark"), "Bugünün sayısı", h("b", n)) : null,
         sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));

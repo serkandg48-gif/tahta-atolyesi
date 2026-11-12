@@ -783,7 +783,7 @@ div.kp-satir { cursor: default; }
 #yuzen { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
 #yuzen .board { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
 #yuzen .wd { pointer-events: auto; box-shadow: 0 18px 48px rgba(20,30,50,.3); }
-#layer { position: relative; z-index: 50; }
+
 .view.pencere .board { border-radius: 24px; }
 
 /* Etkinlik kartı ve sabitleme */
@@ -808,3 +808,9 @@ div.kp-satir { cursor: default; }
 html.ekranda #yuzen { display: none; }
 .view.pencere .view-inner { padding-top: 58px; }
 .kp-tema-w { position: relative; display: grid; } .kp-tema-w .kp-pinx { top: 14px; right: 8px; transform: none; background: rgba(255,255,255,.9); }
+.modal { position: relative; }
+.modal-bas { display: flex; align-items: flex-start; gap: 12px; position: sticky; top: -24px; margin: -24px -24px 14px; padding: 20px 20px 10px 24px; background: inherit; z-index: 2; border-radius: inherit; }
+.modal-bas h2 { flex: 1; margin: 0; }
+.modal-x { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
+.modal-x svg { width: 20px; height: 20px; }
+.modal-actions { position: sticky; bottom: -24px; background: var(--paper); margin: 20px -24px -24px; padding: 14px 24px; border-top: 1px solid var(--line); }

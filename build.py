@@ -44,6 +44,7 @@ JS_ORDER = [
     "rutin-veri.js",
     "rutin.js",
     "kitap-rapor.js",
+    "olcme-arac.js",
     "sinif-araclari.js",
     "ders-kitap.js",
     "zeka.js",

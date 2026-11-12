@@ -1879,6 +1879,46 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .di-tabak > div { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; max-width: 90px; } .di-tabak small { font: 800 20px var(--display); }
 .di-mesaj { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-radius: 16px; background: #1B2A4A; color: #fff; font: 700 19px var(--body); }
 @media (prefers-reduced-motion: reduce) { .di-b.yeni, .di-nokta.on { animation: none; } }
+/* Ölçme araçları */
+.oa-kartlar { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 12px 0 6px; }
+.oa-kart { display: grid; gap: 4px; justify-items: start; text-align: left; padding: 14px 16px; border-radius: 18px; border: 2px solid var(--line); background: #fff; cursor: pointer; font: inherit; color: var(--ink); }
+.oa-kart:hover, .oa-kart:focus-visible { border-color: #6B55B5; } .oa-kart .ikon3d { width: 44px; height: 44px; } .oa-kart b { font: 800 18px var(--display); } .oa-kart small { color: var(--ink-soft); font-size: 14px; }
+.oa-bas { font: 800 22px var(--display); margin: 18px 0 8px; }
+.oa-liste { display: grid; gap: 6px; }
+.oa-satir { display: grid; grid-template-columns: 1.4fr 1.2fr .8fr .8fr; gap: 10px; align-items: center; text-align: left; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: #fff; font: inherit; color: var(--ink); cursor: pointer; }
+.oa-satir b { font-size: 17px; } .oa-satir span { color: var(--ink-soft); font-size: 14px; }
+@media (max-width: 700px) { .oa-satir { grid-template-columns: 1fr; gap: 2px; } }
+.oa-sablon { display: flex; flex-wrap: wrap; gap: 6px; } .oa-sablon button { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font: 700 14px var(--body); cursor: pointer; } .oa-sablon button.on { background: #1B2A4A; color: #fff; }
+.oa-dz { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; } .oa-dz > :only-child { grid-column: 1 / -1; }
+@media (max-width: 1000px) { .oa-dz { grid-template-columns: 1fr; } }
+.oa-duzen { display: grid; gap: 8px; width: 300px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; } .oa-duzen label { display: grid; gap: 4px; font-weight: 700; font-size: 14px; }
+.oa-tablo-kap { overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+.oa-tablo { border-collapse: collapse; width: 100%; } .oa-tablo th, .oa-tablo td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: center; } .oa-tablo th { font-size: 14px; vertical-align: bottom; max-width: 140px; } .oa-tablo th small { display: block; font-weight: 500; color: var(--ink-soft); }
+.oa-ad { text-align: left !important; font-weight: 700; white-space: nowrap; } .oa-ad .avatar, .oa-ad svg, .oa-ad img { vertical-align: middle; margin-right: 6px; }
+.oa-hucre { width: 52px; height: 44px; border-radius: 10px; border: 2px dashed #C9D2E3; background: #FAFBFE; font: 800 22px var(--display); cursor: pointer; color: #fff; }
+.oa-hucre.d0 { background: #C2453A; border: 0; } .oa-hucre.d1 { background: #D98A1F; border: 0; } .oa-hucre.d2 { background: #2E8B57; border: 0; }
+.oa-rozet { display: inline-grid; padding: 4px 10px; border-radius: 10px; color: #fff; font-weight: 800; font-size: 14px; } .oa-rozet small { font-weight: 600; opacity: .85; font-size: 11px; }
+.oa-ozet { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; } .oa-ozet > div:not(.grow) { display: grid; justify-items: center; padding: 6px 14px; border-radius: 12px; background: #fff; border: 2px solid var(--c); font-weight: 700; font-size: 13px; } .oa-ozet > div b { font: 800 24px var(--display); color: var(--c); }
+.oa-y-soru { font: 800 26px var(--display); margin-top: 8px; }
+.oa-y-izgara { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.oa-y-sec { display: grid; gap: 8px; justify-items: center; padding: 14px; border-radius: 18px; background: #fff; border: 2px solid var(--line); } .oa-y-sec.dogru { border-color: #2E8B57; background: #EEF7F0; }
+.oa-y-ad { font: 800 28px var(--display); } .oa-y-sayac { display: flex; align-items: center; gap: 10px; } .oa-y-sayac b { font: 800 34px var(--display); min-width: 46px; text-align: center; }
+.oa-y-sayac button { width: 46px; height: 46px; border-radius: 50%; border: 0; background: #EEF2FA; font: 800 24px var(--display); cursor: pointer; color: var(--ink); }
+.oa-y-bar { width: 60%; height: 140px; display: flex; align-items: flex-end; background: #F4F6FA; border-radius: 10px; overflow: hidden; } .oa-y-bar i { display: block; width: 100%; background: #6B55B5; transition: height .4s; }
+.oa-y-karar { margin-top: 14px; padding: 14px 16px; border-radius: 16px; background: #1B2A4A; color: #fff; font-size: 19px; }
+.oa-nokta { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #fff; font: 800 14px var(--display); font-style: normal; }
+/* yazdırma formları */
+.oa-baski .oa-f { page-break-after: always; font-family: var(--body); color: #000; } .oa-baski .oa-f:last-child { page-break-after: auto; }
+.oa-f-ust { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; } .oa-f-ust h2 { margin: 0; font-size: 20px; } .oa-f-ust small { font-size: 11px; }
+.oa-f-kim { display: grid; gap: 2px; text-align: right; font-size: 12px; }
+.oa-f-tablo { width: 100%; border-collapse: collapse; font-size: 11px; } .oa-f-tablo th, .oa-f-tablo td { border: 1px solid #555; padding: 4px 5px; height: 20px; } .oa-f-tablo th { background: #eee; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.oa-f-alt { margin-top: 8px; font-size: 9px; color: #666; text-align: right; }
+.oa-oz { height: 48vh; overflow: hidden; display: grid; grid-template-rows: auto auto 1fr auto auto; } .oa-oz-kim { font-size: 13px; margin-bottom: 6px; } .oa-oz-kim i { display: inline-block; width: 140px; border-bottom: 1px solid #000; margin-right: 12px; }
+.oa-oz-tablo { width: 100%; border-collapse: collapse; font-size: 13px; } .oa-oz-tablo th, .oa-oz-tablo td { border: 1px solid #777; padding: 5px; text-align: center; } .oa-oz-tablo td:first-child { text-align: left; } .oa-oz-tablo th span { display: block; font-size: 20px; }
+.oa-yuvarlak { display: inline-block; width: 16px; height: 16px; border: 1.5px solid #000; border-radius: 50%; }
+.oa-yildiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; font-size: 12px; } .oa-yildiz > div { display: grid; gap: 4px; } .oa-yildiz small { color: #555; } .oa-yildiz i { display: block; border-bottom: 1px solid #000; height: 18px; }
+.oa-fisler { display: grid; grid-template-columns: 1fr 1fr; gap: 0; } .oa-fis { border: 1px dashed #888; padding: 10px 12px; min-height: 30mm; break-inside: avoid; } .oa-fis b { font-size: 15px; } .oa-fis small { display: block; color: #555; } .oa-fis p { margin: 4px 0 0; font-size: 13px; }
+.oa-baski .oa-f.oa-oz { page-break-after: auto; break-after: auto; height: 132mm; } .oa-baski .oa-oz:first-child { border-bottom: 1px dashed #888; margin-bottom: 6mm; padding-bottom: 4mm; }
 
 </style>
 </head>
@@ -1893,7 +1933,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="dad323e53c";
+window.SURUM="5581607cff";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -10153,13 +10193,16 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
 
   /* ---------- Bölüm: Ölçme ve değerlendirme ---------- */
   let filtre = "oneri", ara = "";
+  const olcmeSekme = () => { try { return localStorage.getItem("ta-olcme-sek") || "araclar"; } catch (e) { return "araclar"; } };
   T.sections.olcme = {
     title: "Ölçme ve değerlendirme", icon: "check", tone: "grape", desc: "Düşünme rutinleri: yansıt, üzerine yaz, A4 yazdır",
     render(view, sub) {
       if (sub && sub.startsWith("r-")) { const r = rutin(sub.slice(2)); if (r) return rutinSayfasi(view, r); }
+      if (sub && sub.startsWith("a-") && T.olcmeAracSayfa && T.olcmeAracSayfa(view, sub.slice(2)) !== false) return;
       const wrap = h("div.view-inner"); view.append(wrap);
-      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Düşünmeyi görünür kılan rutinler, öğrencinin nasıl düşündüğünü görmenin en kolay yolu. Bir rutine dokun: tahtada yansıt, birlikte yaz ya da A4 bas.")),
-        h("div.seg.ders-sekme", { role: "tablist" }, h("button", { "aria-pressed": "true" }, "Düşünme rutinleri")));
+      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama ve düşünmeyi görünür kılan rutinler.")),
+        h("div.seg.ders-sekme", { role: "tablist" }, [["araclar", "Değerlendirme araçları"], ["rutin", "Düşünme rutinleri"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(olcmeSekme() === k), onclick: () => { try { localStorage.setItem("ta-olcme-sek", k); } catch (e) {} T.route(); } }, l))));
+      if (olcmeSekme() === "araclar" && T.olcmeAraclari) { T.olcmeAraclari(wrap); return; }
       const aramaKutu = h("input.in", { placeholder: "Rutin ara, örneğin gör, bakış açısı, köprü", value: ara, "aria-label": "Rutin ara", style: { maxWidth: "420px" } });
       const cipler = h("div.rt-cipler");
       const liste = h("div.rt-liste");
@@ -10183,7 +10226,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
   /* Başka bölümler (ör. kitap raporları) aynı şablon motorunu kullanır */
   Object.assign(T, { rutinSablon: sablon, rutinCocukYonerge: cocukYonerge, rutinYazdirR: yazdir, rutinYansitR: yansit, rutinTemizle: (rid) => yaz(rid, (x) => (x.v = {})) });
   T.YARDIM = T.YARDIM || {};
-  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Düşünme rutinleri: her biri A4 şablon olarak çizili, tahtada yansıtılır, birlikte yazılır, basılır.", ["Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
+  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları ve düşünme rutinleri.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
 })();
 
 /* ---- kitap-rapor.js ---- */
@@ -10275,6 +10318,176 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     },
   };
   T.YARDIM = T.YARDIM || {};
+})();
+
+/* ---- olcme-arac.js ---- */
+/* Ölçme ve değerlendirme araçları (MEB biçimlendirici değerlendirme kılavuzlarındaki yapıya göre):
+   dereceleme ölçeği (1-3: Geliştirilmeli, Orta, İyi), kontrol listesi (+/−), öz ve akran değerlendirme formları,
+   hızlı yoklama ve gelişim takibi. Puanlar yalnızca bu cihazda, sınıfa göre saklanır. */
+(function () {
+  const { h } = T;
+  const cid = () => T.store.activeClass().id;
+  const DUZEY = [["gel", "Geliştirilmeli", "#C2453A"], ["orta", "Orta", "#D98A1F"], ["iyi", "İyi", "#2E8B57"]];
+  const GERI = { gel: "Bu ölçütlerde biraz daha çalışmaya ihtiyacın var. Birlikte bir adım daha atalım.", orta: "Güzel bir yoldasın. Eksik kalan ölçütlere odaklanırsan daha da iyi olacak.", iyi: "Harika! Ölçütlerin hepsini başarıyla gösterdin. Bir arkadaşına da yol gösterebilirsin." };
+  const SABLON = [
+    ["Sunum", ["Konuyu açık anlattı", "Sesini duyulur kullandı", "Dinleyenlerle göz teması kurdu", "Süreyi iyi kullandı"]],
+    ["Poster ya da ürün", ["Konuyla ilgili bilgi doğru", "Başlık ve görseller uyumlu", "Düzenli ve okunaklı", "Özgün bir fikir var"]],
+    ["Grup çalışması", ["Görevini yerine getirdi", "Arkadaşlarını dinledi", "Fikirlerini paylaştı", "Malzemeyi paylaştı ve topladı"]],
+    ["Deney ve gözlem", ["Tahminde bulundu", "Gözlemini doğru kaydetti", "Sonucu açıkladı", "Güvenlik kurallarına uydu"]],
+    ["Sesli okuma", ["Akıcı okudu", "Noktalamaya uydu", "Vurgu ve tonlama yaptı", "Okuduğunu anlattı"]],
+    ["Yazma", ["Başlık koydu", "Giriş, gelişme, sonuç var", "Büyük harf ve noktalama doğru", "Kelimeleri doğru yazdı"]],
+  ];
+  const oku = () => ((T.store.get().olcmeArac || {})[cid()]) || { olcekler: [], yoklama: null };
+  const yaz = (fn) => T.store.update((s) => { s.olcmeArac = s.olcmeArac || {}; const c = (s.olcmeArac[cid()] = s.olcmeArac[cid()] || { olcekler: [] }); fn(c); });
+  const olcek = (id) => oku().olcekler.find((o) => o.id === id);
+  /* MEB kılavuzlarındaki gibi: toplam puan aralığı üçe bölünür */
+  const duzey = (o, p) => {
+    const k = o.kriter.length; if (!k) return null;
+    const v = o.kriter.map((_, i) => p && p[i]); if (v.some((x) => !x && x !== 0)) return null;
+    if (o.tur === "liste") { const n = v.filter((x) => x === 1).length, oran = n / k; return { top: n + " / " + k, d: oran < 0.5 ? 0 : oran < 0.85 ? 1 : 2 }; }
+    const t = v.reduce((a, b) => a + b, 0), alt = k, ust = 3 * k, adim = (ust - alt + 1) / 3;
+    return { top: t + " / " + ust, d: t < alt + adim ? 0 : t < alt + 2 * adim ? 1 : 2 };
+  };
+  const tarihYaz = (iso) => new Date(iso + "T12:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
+
+  /* ---------- Yazdırma ---------- */
+  function yazdir(dugum, yon) {
+    document.querySelectorAll("#rt-baski, #rt-baski-stil").forEach((x) => x.remove());
+    const kap = h("div#rt-baski.oa-baski", dugum);
+    const st = h("style#rt-baski-stil", "@page { size: A4 " + (yon === "dikey" ? "portrait" : "landscape") + "; margin: 10mm; }");
+    document.head.append(st); document.body.append(kap); document.documentElement.classList.add("rt-yazdiriliyor");
+    const bitir = () => { window.removeEventListener("afterprint", bitir); if (!kap.isConnected) return; document.documentElement.classList.remove("rt-yazdiriliyor"); kap.remove(); st.remove(); };
+    window.addEventListener("afterprint", bitir);
+    setTimeout(() => { try { window.print(); } catch (e) {} setTimeout(bitir, 1500); }, 60);
+  }
+  T.olcmeYazdir = yazdir;
+  const formUst = (baslik, alt) => h("div.oa-f-ust", h("div", h("h2", baslik), alt ? h("small", alt) : null), h("div.oa-f-kim", "Sınıf: " + T.store.activeClass().name, h("span", "Tarih: ........................")));
+  const formOlcek = (o, dolu) => {
+    const ogr = T.store.activeClass().students;
+    return h("div.oa-f", formUst(o.ad, (o.tur === "liste" ? "Kontrol listesi (+ / −)" : "Dereceleme ölçeği: 1 Geliştirilmeli, 2 Orta, 3 İyi") + (o.ders ? " · " + o.ders : "")),
+      h("table.oa-f-tablo", h("tr", h("th", "Öğrenci"), o.kriter.map((k) => h("th", k)), h("th", "Puan"), h("th", "Düzey")),
+        ogr.map((st) => { const p = (o.puan || {})[st.id] || {}, d = dolu ? duzey(o, p) : null; return h("tr", h("td", st.name), o.kriter.map((_, i) => h("td", dolu && p[i] != null ? (o.tur === "liste" ? (p[i] ? "+" : "−") : p[i]) : "")), h("td", d ? d.top : ""), h("td", d ? DUZEY[d.d][1] : "")); })),
+      h("div.oa-f-alt", "Tahta Atölyesi · MEB biçimlendirici değerlendirme kılavuzlarındaki yapıya göre"));
+  };
+  const YUZ = [["😊", "Yapabiliyorum"], ["🙂", "Biraz yardımla"], ["😐", "Henüz değil"]];
+  const ozForm = (o, akran) => h("div.oa-f.oa-oz", formUst(akran ? "Arkadaşımı değerlendiriyorum" : "Kendimi değerlendiriyorum", o.ad),
+    h("div.oa-oz-kim", akran ? ["Benim adım: ", h("i"), " Arkadaşımın adı: ", h("i")] : ["Adım: ", h("i")]),
+    h("table.oa-oz-tablo", h("tr", h("th", akran ? "Arkadaşım..." : "Ben..."), YUZ.map(([e, l]) => h("th", h("span", e), l))), o.kriter.map((k) => h("tr", h("td", k), YUZ.map(() => h("td", h("b.oa-yuvarlak")))))),
+    akran ? h("div.oa-yildiz", h("div", h("b", "⭐ ⭐ İki yıldız"), h("small", "Arkadaşının en iyi yaptığı iki şey"), h("i"), h("i")), h("div", h("b", "🌱 Bir dilek"), h("small", "Bir dahaki sefere şunu deneyebilir"), h("i")))
+      : h("div.oa-yildiz", h("div", h("b", "En çok neyi başardım?"), h("i"), h("i")), h("div", h("b", "Bir dahaki sefere neyi deneyeceğim?"), h("i"), h("i"))),
+    h("div.oa-f-alt", "Tahta Atölyesi"));
+  const geriFisleri = (o) => {
+    const ogr = T.store.activeClass().students.filter((st) => duzey(o, (o.puan || {})[st.id]));
+    return h("div.oa-fisler", ogr.map((st) => { const d = duzey(o, o.puan[st.id]); return h("div.oa-fis", h("b", st.name), h("small", o.ad + " · " + DUZEY[d.d][1]), h("p", (o.geri || GERI)[DUZEY[d.d][0]])); }));
+  };
+
+  /* ---------- Ölçek sayfası ---------- */
+  function olcekSayfasi(view, o) {
+    const wrap = h("div.view-inner.genis"); view.append(wrap);
+    const ogr = T.store.activeClass().students;
+    let duzen = false;
+    const ciz = () => {
+      o = olcek(o.id); if (!o) return T.go("olcme");
+      const say = [0, 0, 0]; ogr.forEach((st) => { const d = duzey(o, (o.puan || {})[st.id]); if (d) say[d.d]++; });
+      const hucre = (st, i) => {
+        const v = ((o.puan || {})[st.id] || {})[i];
+        const et = o.tur === "liste" ? (v === 1 ? "+" : v === 0 ? "−" : "") : v || "";
+        return h("td", h("button.oa-hucre" + (v != null ? ".d" + (o.tur === "liste" ? (v ? 2 : 0) : v - 1) : ""), { "aria-label": st.name + ", " + o.kriter[i], onclick: () => {
+          yaz((c) => { const x = c.olcekler.find((q) => q.id === o.id); x.puan = x.puan || {}; const p = (x.puan[st.id] = x.puan[st.id] || {}); const cur = p[i]; p[i] = o.tur === "liste" ? (cur === 1 ? 0 : cur === 0 ? null : 1) : cur == null ? 3 : cur === 1 ? null : cur - 1; if (p[i] == null) delete p[i]; });
+          T.sound.tick && T.sound.tick(); ciz();
+        } }, et));
+      };
+      const kriterDuzen = duzen ? h("div.oa-duzen",
+        h("label", "Ölçeğin adı", h("input.in", { value: o.ad, onchange: (e) => yaz((c) => (c.olcekler.find((q) => q.id === o.id).ad = e.target.value)) })),
+        h("label", "Ders ya da konu", h("input.in", { value: o.ders || "", onchange: (e) => yaz((c) => (c.olcekler.find((q) => q.id === o.id).ders = e.target.value)) })),
+        h("b", "Ölçütler"), o.kriter.map((k, i) => h("div.row", { style: { gap: "6px" } }, h("input.in", { value: k, onchange: (e) => yaz((c) => (c.olcekler.find((q) => q.id === o.id).kriter[i] = e.target.value)) }),
+          h("button.btn.sm.c-chalk", { "aria-label": "Ölçütü sil", onclick: () => { yaz((c) => { const x = c.olcekler.find((q) => q.id === o.id); x.kriter.splice(i, 1); Object.values(x.puan || {}).forEach((p) => { for (let j = i; j < 12; j++) { if (p[j + 1] != null) p[j] = p[j + 1]; else delete p[j]; } }); }); ciz(); } }, "×"))),
+        o.kriter.length < 8 ? h("button.btn.sm.c-chalk", { onclick: () => { yaz((c) => c.olcekler.find((q) => q.id === o.id).kriter.push("Yeni ölçüt")); ciz(); } }, T.icon("plus"), "Ölçüt ekle") : null,
+        h("b", "Düzeylere göre geri bildirim"), DUZEY.map(([k, l]) => h("label", l, h("textarea.in", { rows: 2, value: (o.geri || GERI)[k], onchange: (e) => yaz((c) => { const x = c.olcekler.find((q) => q.id === o.id); x.geri = Object.assign({}, GERI, x.geri || {}); x.geri[k] = e.target.value; }) })))) : null;
+      wrap.replaceChildren(
+        h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("olcme") }, T.icon("back")), h("h2", o.ad), h("span.hint", (o.tur === "liste" ? "Kontrol listesi" : "Dereceleme ölçeği") + " · " + tarihYaz(o.tarih)), h("div.grow"),
+          h("button.btn.c-chalk" + (duzen ? ".on" : ""), { onclick: () => { duzen = !duzen; ciz(); } }, T.icon("edit"), duzen ? "Düzenlemeyi bitir" : "Ölçütleri düzenle")),
+        h("div.oa-dz", kriterDuzen ? kriterDuzen : null, h("div.oa-tablo-kap",
+          h("p.hint", { style: { margin: "0 0 8px" } }, o.tur === "liste" ? "Hücreye dokun: + (var), − (yok), boş." : "Hücreye dokun: 3 İyi, 2 Orta, 1 Geliştirilmeli, boş. Satır dolunca düzey kendiliğinden hesaplanır."),
+          h("table.oa-tablo", h("tr", h("th", "Öğrenci"), o.kriter.map((k) => h("th", k)), h("th", "Düzey")),
+            ogr.map((st) => { const d = duzey(o, (o.puan || {})[st.id]); return h("tr", h("td.oa-ad", T.avatar(st.name, 26), st.name), o.kriter.map((_, i) => hucre(st, i)), h("td", d ? h("span.oa-rozet", { style: { background: DUZEY[d.d][2] } }, DUZEY[d.d][1], h("small", d.top)) : h("span.hint", "…"))); })))),
+        h("div.oa-ozet", DUZEY.map(([, l, c], i) => h("div", { style: { "--c": c } }, h("b", String(say[i])), l)), h("div.grow"),
+          h("button.btn.sm.c-chalk", { onclick: () => yazdir(formOlcek(o, false), "yatay") }, T.icon("plan"), "Boş form"),
+          h("button.btn.sm.c-chalk", { onclick: () => yazdir(formOlcek(o, true), "yatay") }, T.icon("plan"), "Sonuçları yazdır"),
+          h("button.btn.sm.c-chalk", { onclick: () => yazdir(geriFisleri(o), "dikey") }, T.icon("plan"), "Geri bildirim fişleri"),
+          h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, false), ozForm(o, false)), "dikey") }, T.icon("plan"), "Öz değerlendirme formu"),
+          h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, true), ozForm(o, true)), "dikey") }, T.icon("plan"), "Akran değerlendirme formu")));
+    };
+    ciz();
+  }
+
+  /* ---------- Hızlı yoklama ---------- */
+  function yoklamaSayfasi(view) {
+    const wrap = h("div.view-inner.genis"); view.append(wrap);
+    let y = oku().yoklama || { soru: "", tur: "harf", say: {}, dogru: null, goster: false };
+    const kaydet = () => yaz((c) => (c.yoklama = y));
+    const SEC = { harf: ["A", "B", "C", "D"], basparmak: ["👍 Anladım", "✋ Biraz", "👎 Anlamadım"], dogruyanlis: ["Doğru", "Yanlış"] };
+    const ciz = () => {
+      const s = SEC[y.tur], top = s.reduce((a, k) => a + (y.say[k] || 0), 0), mx = Math.max(1, ...s.map((k) => y.say[k] || 0));
+      const dogruOran = y.dogru && top ? Math.round(((y.say[y.dogru] || 0) / top) * 100) : null;
+      wrap.replaceChildren(
+        h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("olcme") }, T.icon("back")), h("h2", "Hızlı yoklama"), h("span.hint", "Çocuklar parmak ya da kartla cevap verir, sen sayarsın"), h("div.grow"),
+          h("button.btn.sm.c-chalk", { onclick: () => { y.say = {}; y.goster = false; kaydet(); ciz(); } }, T.icon("reset"), "Sayımı sıfırla")),
+        h("input.in.oa-y-soru", { value: y.soru, placeholder: "Soruyu yaz (ör. 3 × 4 kaçtır?) ya da sözlü sor", onchange: (e) => { y.soru = e.target.value; kaydet(); } }),
+        h("div.row", { style: { gap: "8px", flexWrap: "wrap", margin: "10px 0" } },
+          h("div.seg", [["harf", "A B C D"], ["basparmak", "Başparmak"], ["dogruyanlis", "Doğru / Yanlış"]].map(([k, l]) => h("button", { "aria-pressed": String(y.tur === k), onclick: () => { y.tur = k; y.say = {}; y.dogru = null; y.goster = false; kaydet(); ciz(); } }, l))),
+          y.tur !== "basparmak" ? h("div.row", { style: { gap: "6px" } }, h("span.hint", "Doğru cevap:"), s.map((k) => h("button.btn.sm" + (y.dogru === k ? ".c-leaf" : ".c-chalk"), { onclick: () => { y.dogru = y.dogru === k ? null : k; kaydet(); ciz(); } }, k))) : null,
+          h("div.spacer"), h("button.btn.c-sky", { onclick: () => { y.goster = !y.goster; kaydet(); ciz(); } }, T.icon("eye"), y.goster ? "Sonucu gizle" : "Sonucu göster")),
+        h("div.oa-y-izgara", s.map((k) => h("div.oa-y-sec" + (y.goster && y.dogru === k ? ".dogru" : ""),
+          h("div.oa-y-ad", k), h("div.oa-y-sayac", h("button", { "aria-label": k + " azalt", onclick: () => { y.say[k] = Math.max(0, (y.say[k] || 0) - 1); kaydet(); ciz(); } }, "−"), h("b", String(y.say[k] || 0)), h("button", { "aria-label": k + " artır", onclick: () => { y.say[k] = (y.say[k] || 0) + 1; T.sound.pop(); kaydet(); ciz(); } }, "+")),
+          y.goster ? h("div.oa-y-bar", h("i", { style: { height: ((y.say[k] || 0) / mx) * 100 + "%" } })) : null))),
+        y.goster && top ? h("div.oa-y-karar", dogruOran != null ? [h("b", "%" + dogruOran + " doğru. "), dogruOran >= 80 ? "Sınıfın çoğu anladı, devam edebilirsin." : dogruOran >= 50 ? "Yarı yarıya. Yanlış seçeneği seçenlerle kısa bir tekrar iyi olur." : "Çoğu henüz anlamadı. Konuyu farklı bir yolla yeniden anlatmayı dene."]
+          : y.tur === "basparmak" ? [h("b", (y.say[s[0]] || 0) + " / " + top + " anladığını söyledi. "), (y.say[s[2]] || 0) > top / 4 ? "Anlamadım diyenlerle küçük grup çalışması yapabilirsin." : "Devam edebilirsin."] : "Doğru cevabı işaretlersen yüzde hesaplanır.") : null);
+    };
+    ciz();
+  }
+
+  /* ---------- Gelişim takibi ---------- */
+  function gelisimSayfasi(view) {
+    const wrap = h("div.view-inner.genis"); view.append(wrap);
+    const ogr = T.store.activeClass().students, ol = oku().olcekler.slice().sort((a, b) => (a.tarih < b.tarih ? -1 : 1));
+    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("olcme") }, T.icon("back")), h("h2", "Gelişim takibi"), h("span.hint", "Her öğrencinin ölçeklerdeki düzeyi, tarih sırasıyla")),
+      ol.length ? h("div.oa-tablo-kap", h("table.oa-tablo.oa-gelisim", h("tr", h("th", "Öğrenci"), ol.map((o) => h("th", o.ad, h("small", tarihYaz(o.tarih))))),
+        ogr.map((st) => h("tr", h("td.oa-ad", T.avatar(st.name, 26), st.name), ol.map((o) => { const d = duzey(o, (o.puan || {})[st.id]); return h("td", d ? h("i.oa-nokta", { title: DUZEY[d.d][1], style: { background: DUZEY[d.d][2] } }, DUZEY[d.d][1][0]) : h("span.hint", "·")); })))))
+        : h("p.hint", "Henüz ölçek yok. Bir dereceleme ölçeği ya da kontrol listesi oluşturup puanladıkça burada görünür."),
+      h("p.hint", { style: { marginTop: "10px" } }, "G: Geliştirilmeli, O: Orta, İ: İyi. Veli görüşmesinden önce bakmak için."));
+  }
+
+  /* ---------- Liste: Ölçme bölümündeki "Değerlendirme araçları" sekmesi ---------- */
+  T.olcmeAraclari = function (wrap) {
+    const ol = oku().olcekler;
+    const yeniOlcek = (tur) => {
+      const ad = h("input.in", { placeholder: "Ölçeğin adı, ör. Hayvanlar posteri" }), ders = h("input.in", { placeholder: "Ders ya da konu (isteğe bağlı)" });
+      let sec = SABLON[0];
+      const sablonlar = h("div.oa-sablon", SABLON.map((s) => h("button" + (s === sec ? ".on" : ""), { onclick: (e) => { sec = s; e.target.parentNode.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b === e.target)); } }, s[0])), h("button", { onclick: (e) => { sec = ["Boş", ["Ölçüt 1", "Ölçüt 2", "Ölçüt 3"]]; e.target.parentNode.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b === e.target)); } }, "Boş başla"));
+      T.modal({ title: tur === "liste" ? "Yeni kontrol listesi" : "Yeni dereceleme ölçeği", body: h("div", { style: { display: "grid", gap: "8px" } }, ad, ders, h("b", "Hazır ölçütler"), sablonlar, h("p.hint", { style: { margin: 0 } }, "Ölçütleri sonra kendi sözcüklerinle değiştirebilirsin.")),
+        actions: [{ label: "Oluştur", tone: "c-leaf", onClick: () => { const id = "o" + Date.now().toString(36); yaz((c) => c.olcekler.unshift({ id, tur, ad: ad.value.trim() || sec[0], ders: ders.value.trim(), kriter: sec[1].slice(), puan: {}, tarih: T.isoDate() })); setTimeout(() => T.go("olcme-a-" + id), 30); } }] });
+    };
+    const kart = (ic, ad, ac, onclick) => h("button.oa-kart", { onclick }, T.icon3d(ic), h("b", ad), h("small", ac));
+    wrap.append(
+      h("div.oa-kartlar",
+        kart("scale", "Dereceleme ölçeği", "Ölçüt başına 1-3 puan; düzey ve geri bildirim kendiliğinden", () => yeniOlcek("olcek")),
+        kart("check", "Kontrol listesi", "Ölçüt var mı yok mu: + / −", () => yeniOlcek("liste")),
+        kart("hand", "Hızlı yoklama", "A B C D, başparmak ya da doğru/yanlış; sınıfın ne kadarı anladı?", () => T.go("olcme-a-yoklama")),
+        kart("chart", "Gelişim takibi", "Her öğrencinin düzeyleri tarih sırasıyla", () => T.go("olcme-a-gelisim")),
+        kart("ticket", "Çıkış bileti", "Dersin sonunda tek soruluk kart (tahtada araç olarak açılır)", () => { T.go("ana"); setTimeout(() => T.yuzen && T.yuzen.add("ticket"), 200); })),
+      h("p.hint", "Öz değerlendirme ve akran değerlendirme formları her ölçeğin içinden, aynı ölçütlerle çocuk diline çevrilmiş olarak basılır."),
+      h("h2.oa-bas", "Ölçeklerim"),
+      ol.length ? h("div.oa-liste", ol.map((o) => { const n = T.store.activeClass().students.filter((st) => duzey(o, (o.puan || {})[st.id])).length; return h("button.oa-satir", { onclick: () => T.go("olcme-a-" + o.id) }, h("b", o.ad), h("span", (o.tur === "liste" ? "Kontrol listesi" : "Dereceleme ölçeği") + (o.ders ? " · " + o.ders : "")), h("span", tarihYaz(o.tarih)), h("span", n + " / " + T.store.activeClass().students.length + " puanlandı")); }))
+        : h("p.hint", "Henüz ölçek yok. Yukarıdan bir dereceleme ölçeği ya da kontrol listesi oluştur."),
+      h("p.hint", { style: { marginTop: "12px" } }, "Düzeyler MEB'in biçimlendirici değerlendirme kılavuzlarındaki gibi Geliştirilmeli, Orta ve İyi olarak hesaplanır: toplam puan aralığı üçe bölünür."));
+  };
+  T.olcmeAracSayfa = function (view, id) {
+    if (id === "yoklama") return yoklamaSayfasi(view);
+    if (id === "gelisim") return gelisimSayfasi(view);
+    const o = olcek(id); if (!o) return false;
+    olcekSayfasi(view, o); return true;
+  };
 })();
 
 /* ---- sinif-araclari.js ---- */
@@ -11368,7 +11581,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       ingilizce: ["ingilizce", "İngilizce", "Resimli kartlar, dinle ve seç.", "ingilizce", "grape"],
       zeka: ["zeka", "Düşünme soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink"],
       duygu: ["duygu", "SDÖ araçlarımız", "Duygumetre, sakinleşme, yansıtma, çatışma çözme.", "heart", "pink"],
-      olcme: ["olcme", "Ölçme ve değerlendirme", "Düşünme rutinleri: yansıt, birlikte yaz, A4 yazdır.", "check", "grape"],
+      olcme: ["olcme", "Ölçme ve değerlendirme", "Dereceleme ölçeği, kontrol listesi, hızlı yoklama, düşünme rutinleri.", "check", "grape"],
       kitaplar: ["kitaplar", "Ders kitapları", "MEB kitapları sınıfına göre, tahtada sayfa içinde açılır.", "book", "sky"],
       kultur: ["kultur", "Sınıf düzenimiz", "Basamak duvarı, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };

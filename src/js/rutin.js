@@ -191,13 +191,16 @@
 
   /* ---------- Bölüm: Ölçme ve değerlendirme ---------- */
   let filtre = "oneri", ara = "";
+  const olcmeSekme = () => { try { return localStorage.getItem("ta-olcme-sek") || "araclar"; } catch (e) { return "araclar"; } };
   T.sections.olcme = {
     title: "Ölçme ve değerlendirme", icon: "check", tone: "grape", desc: "Düşünme rutinleri: yansıt, üzerine yaz, A4 yazdır",
     render(view, sub) {
       if (sub && sub.startsWith("r-")) { const r = rutin(sub.slice(2)); if (r) return rutinSayfasi(view, r); }
+      if (sub && sub.startsWith("a-") && T.olcmeAracSayfa && T.olcmeAracSayfa(view, sub.slice(2)) !== false) return;
       const wrap = h("div.view-inner"); view.append(wrap);
-      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Düşünmeyi görünür kılan rutinler, öğrencinin nasıl düşündüğünü görmenin en kolay yolu. Bir rutine dokun: tahtada yansıt, birlikte yaz ya da A4 bas.")),
-        h("div.seg.ders-sekme", { role: "tablist" }, h("button", { "aria-pressed": "true" }, "Düşünme rutinleri")));
+      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama ve düşünmeyi görünür kılan rutinler.")),
+        h("div.seg.ders-sekme", { role: "tablist" }, [["araclar", "Değerlendirme araçları"], ["rutin", "Düşünme rutinleri"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(olcmeSekme() === k), onclick: () => { try { localStorage.setItem("ta-olcme-sek", k); } catch (e) {} T.route(); } }, l))));
+      if (olcmeSekme() === "araclar" && T.olcmeAraclari) { T.olcmeAraclari(wrap); return; }
       const aramaKutu = h("input.in", { placeholder: "Rutin ara, örneğin gör, bakış açısı, köprü", value: ara, "aria-label": "Rutin ara", style: { maxWidth: "420px" } });
       const cipler = h("div.rt-cipler");
       const liste = h("div.rt-liste");
@@ -221,5 +224,5 @@
   /* Başka bölümler (ör. kitap raporları) aynı şablon motorunu kullanır */
   Object.assign(T, { rutinSablon: sablon, rutinCocukYonerge: cocukYonerge, rutinYazdirR: yazdir, rutinYansitR: yansit, rutinTemizle: (rid) => yaz(rid, (x) => (x.v = {})) });
   T.YARDIM = T.YARDIM || {};
-  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Düşünme rutinleri: her biri A4 şablon olarak çizili, tahtada yansıtılır, birlikte yazılır, basılır.", ["Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
+  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları ve düşünme rutinleri.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
 })();

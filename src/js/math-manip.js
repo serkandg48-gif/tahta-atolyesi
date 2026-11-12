@@ -146,7 +146,7 @@
             const key = d + ":" + k, on = shaded[key];
             const w = 960 / d, x = 20 + k * w, y = 10 + ri * rh;
             const g = S("g", { style: "cursor:pointer" });
-            g.append(S("rect", { x, y, width: w, height: rh - 6, fill: on ? COL[ri] : "#fff", stroke: "#2a2a2a", "stroke-width": 2.5 }));
+            T.m3kur(); g.append(S("rect", { x, y, width: w, height: rh - 6, rx: 3, fill: on ? T.m3d(COL[ri]) : "url(#m3-ahsap-acik)", stroke: "rgba(60,35,10,.45)", "stroke-width": 1.5, filter: "url(#m3-golge-k)" }));
             const t = labels === "kesir" ? (d === 1 ? "1" : "1/" + d) : labels === "ondalik" ? (1 / d).toLocaleString("tr-TR", { maximumFractionDigits: 2 }) : labels === "yuzde" ? "%" + Math.round(100 / d) : "";
             if (t) g.append(S("text", { x: x + w / 2, y: y + rh / 2 - 2, "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": d >= 10 ? 18 : 24, fill: "#2a2a2a" }, t));
             g.addEventListener("click", () => { shaded[key] = !shaded[key]; T.sound.pop(); paint(); });
@@ -211,7 +211,7 @@
           const d = Math.round((q - p) * 1000) / 1000;
           svg.append(S("text", { x: (x1 + x2) / 2, y: 228 - hgt * 0.8 - 10, "text-anchor": "middle", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 28, fill: col }, (d > 0 ? "+" : "") + T.fmt(d)));
         });
-        if (from != null) svg.append(S("circle", { cx: X(from), cy: 240, r: 12, fill: "#2e9bd6", stroke: "#2a2a2a", "stroke-width": 3 }));
+        if (from != null) svg.append(S("circle", { cx: X(from), cy: 240, r: 12, fill: T.m3("#2e9bd6") }));
       }
       svg.addEventListener("pointerdown", (e) => {
         const p = T.svgPoint(svg, e.clientX, e.clientY);
@@ -269,12 +269,12 @@
       function area(pts) { let s = 0; for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; s += x1 * y2 - x2 * y1; } return Math.abs(s) / 2; }
       function perim(pts) { let s = 0; for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; s += Math.hypot(x2 - x1, y2 - y1); } return s; }
       function paint() {
-        svg.replaceChildren(S("rect", { x: 10, y: 10, width: 580, height: 580, rx: 20, fill: "#f4f0e6", stroke: "#2a2a2a", "stroke-width": 4 }));
+        T.m3kur(); svg.replaceChildren(S("rect", { x: 10, y: 10, width: 580, height: 580, rx: 20, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
         bands.forEach((b, k) => {
-          if (b.length > 1) svg.append(S("polygon", { points: b.map(([i, j]) => P(i) + "," + P(j)).join(" "), fill: COLS[k % 5], "fill-opacity": b.length > 2 ? 0.25 : 0, stroke: COLS[k % 5], "stroke-width": 7, "stroke-linejoin": "round" }));
+          if (b.length > 1) svg.append(S("polygon", { points: b.map(([i, j]) => P(i) + "," + P(j)).join(" "), fill: COLS[k % 5], "fill-opacity": b.length > 2 ? 0.18 : 0, filter: "url(#m3-golge-k)", "stroke-linejoin": "round", stroke: COLS[k % 5], "stroke-width": 7, "stroke-linejoin": "round" }));
         });
         for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-          const c = S("circle", { cx: P(i), cy: P(j), r: 9, fill: "#2a2a2a", style: "cursor:pointer" });
+          const c = S("circle", { cx: P(i), cy: P(j), r: 9, fill: T.m3("#D9DDE2"), filter: "url(#m3-golge-k)", style: "cursor:pointer" });
           c.addEventListener("pointerdown", () => { const b = bands[cur]; const idx = b.findIndex(([x, y]) => x === i && y === j); if (idx >= 0) b.splice(idx, 1); else b.push([i, j]); T.sound.tick(); paint(); });
           svg.append(c);
           svg.append(S("circle", { cx: P(i), cy: P(j), r: 24, fill: "transparent", style: "cursor:pointer", onpointerdown: () => { const b = bands[cur]; const idx = b.findIndex(([x, y]) => x === i && y === j); if (idx >= 0) b.splice(idx, 1); else b.push([i, j]); T.sound.tick(); paint(); } }));
@@ -314,7 +314,7 @@
         svg.append(S("path", { d: `M${O[0]} ${O[1]} L ${O[0] + 90} ${O[1]} A 90 90 0 0 0 ${O[0] + Math.cos(a) * 90} ${O[1] - Math.sin(a) * 90} Z`, fill: "rgba(239,91,59,.25)" }));
         svg.append(S("line", { x1: O[0], y1: O[1], x2: O[0] + R + 30, y2: O[1], stroke: "#2a2a2a", "stroke-width": 7, "stroke-linecap": "round" }));
         svg.append(S("line", { x1: O[0], y1: O[1], x2: O[0] + Math.cos(a) * (R + 30), y2: O[1] - Math.sin(a) * (R + 30), stroke: "#ef5b3b", "stroke-width": 7, "stroke-linecap": "round" }));
-        const hd = S("circle", { cx: O[0] + Math.cos(a) * (R + 30), cy: O[1] - Math.sin(a) * (R + 30), r: 22, fill: "#ef5b3b", stroke: "#2a2a2a", "stroke-width": 3, style: "cursor:grab" });
+        const hd = S("circle", { cx: O[0] + Math.cos(a) * (R + 30), cy: O[1] - Math.sin(a) * (R + 30), r: 22, fill: T.m3("#ef5b3b"), filter: "url(#m3-golge-k)", style: "cursor:grab" });
         svg.append(hd, S("circle", { cx: O[0], cy: O[1], r: 8, fill: "#2a2a2a" }));
         if (showV) svg.append(S("text", { x: 40, y: 60, "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 46, fill: "#2a2a2a" }, ang + "°  " + kind(ang)));
       }

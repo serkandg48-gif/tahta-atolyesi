@@ -75,9 +75,9 @@
         const H = Math.floor(n / 100), Tn = Math.floor((n % 100) / 10), O = n % 10;
         const s = S("svg", { viewBox: `0 0 ${Math.max(300, H * 118 + Tn * 18 + Math.ceil(O / 5) * 18 + 40)} 120`, style: "width:100%;max-height:150px" });
         let x = 4;
-        for (let i = 0; i < H; i++) { s.append(S("rect", { x, y: 4, width: 110, height: 110, fill: "#8fd0f5", stroke: "#164e7a", "stroke-width": 2 })); for (let k = 1; k < 10; k++) { s.append(S("line", { x1: x + k * 11, y1: 4, x2: x + k * 11, y2: 114, stroke: "#164e7a", "stroke-width": 0.6 })); s.append(S("line", { x1: x, y1: 4 + k * 11, x2: x + 110, y2: 4 + k * 11, stroke: "#164e7a", "stroke-width": 0.6 })); } x += 118; }
-        for (let i = 0; i < Tn; i++) { s.append(S("rect", { x, y: 4, width: 11, height: 110, fill: "#8fd0f5", stroke: "#164e7a", "stroke-width": 2 })); for (let k = 1; k < 10; k++) s.append(S("line", { x1: x, y1: 4 + k * 11, x2: x + 11, y2: 4 + k * 11, stroke: "#164e7a", "stroke-width": 0.6 })); x += 18; }
-        for (let i = 0; i < O; i++) s.append(S("rect", { x: x + Math.floor(i / 5) * 18, y: 103 - (i % 5) * 16, width: 11, height: 11, fill: "#8fd0f5", stroke: "#164e7a", "stroke-width": 2 }));
+        for (let i = 0; i < H; i++) { s.append(S("rect", { x, y: 4, width: 110, height: 110, fill: T.m3d("#5DADE8"), stroke: "#1B5D93", "stroke-width": 1.5 })); for (let k = 1; k < 10; k++) { s.append(S("line", { x1: x + k * 11, y1: 4, x2: x + k * 11, y2: 114, stroke: "#164e7a", "stroke-width": 0.6 })); s.append(S("line", { x1: x, y1: 4 + k * 11, x2: x + 110, y2: 4 + k * 11, stroke: "#164e7a", "stroke-width": 0.6 })); } x += 118; }
+        for (let i = 0; i < Tn; i++) { s.append(S("rect", { x, y: 4, width: 11, height: 110, fill: T.m3d("#5DADE8"), stroke: "#1B5D93", "stroke-width": 1.5 })); for (let k = 1; k < 10; k++) s.append(S("line", { x1: x, y1: 4 + k * 11, x2: x + 11, y2: 4 + k * 11, stroke: "#164e7a", "stroke-width": 0.6 })); x += 18; }
+        for (let i = 0; i < O; i++) s.append(S("rect", { x: x + Math.floor(i / 5) * 18, y: 103 - (i % 5) * 16, width: 11, height: 11, fill: T.m3d("#5DADE8"), stroke: "#1B5D93", "stroke-width": 1.5 }));
         return s;
       }
       function tally(n) {
@@ -136,7 +136,7 @@
       }
       function paint() {
         const s = S("svg", { viewBox: "0 0 800 500", style: "width:100%;height:100%" });
-        if (shown) pts.forEach(([x, y]) => s.append(S("circle", { cx: x, cy: y, r: 24, fill: "#2a2a2a" })));
+        if (shown) pts.forEach(([x, y]) => (T.m3kur(), s.append(S("circle", { cx: x, cy: y, r: 24, fill: T.m3("#E4553F"), filter: "url(#m3-golge-k)" }))));
         else s.append(S("text", { x: 400, y: 250, "text-anchor": "middle", "dominant-baseline": "middle", "font-family": "'Patrick Hand', cursive", "font-size": 54, fill: "#55625b" }, "Kaç nokta gördün? Nasıl gördün?"));
         mat.replaceChildren(s);
         cnt.textContent = shown && !secs ? pts.length + " nokta" : "";
@@ -244,8 +244,8 @@
       function paint() {
         const s = S("svg", { viewBox: "0 0 900 560", style: "width:100%;height:100%" });
         if (!grouped) {
-          s.append(S("path", { d: "M300 80h300v40c40 20 60 60 60 110v270a30 30 0 0 1-30 30H270a30 30 0 0 1-30-30V230c0-50 20-90 60-110z", fill: "rgba(170,220,240,.35)", stroke: "#2a2a2a", "stroke-width": 5 }));
-          s.append(S("rect", { x: 290, y: 50, width: 320, height: 40, rx: 8, fill: "#b9834a", stroke: "#2a2a2a", "stroke-width": 4 }));
+          s.append(S("path", { d: "M300 80h300v40c40 20 60 60 60 110v270a30 30 0 0 1-30 30H270a30 30 0 0 1-30-30V230c0-50 20-90 60-110z", fill: "rgba(200,230,245,.28)", stroke: "rgba(120,160,185,.9)", "stroke-width": 4 }), S("path", { d: "M270 240c0-40 14-70 40-88v330c-26-4-40-20-40-40z", fill: "url(#m3-cam)", "pointer-events": "none" }));
+          T.m3kur(); s.append(S("rect", { x: 290, y: 50, width: 320, height: 40, rx: 8, fill: T.m3d("#C08A4A"), stroke: "#7A5228", "stroke-width": 2 }));
           const r = n > 150 ? 9 : n > 60 ? 12 : 16;
           seed.forEach(([a, b, c], i) => {
             // tabandan yukarı doğru doldur
@@ -259,9 +259,9 @@
           for (let t = 0; t < tens; t++) {
             const gx = 30 + (t % 10) * 86, gy = 30 + Math.floor(t / 10) * 120;
             s.append(S("rect", { x: gx - 6, y: gy - 6, width: 76, height: 104, rx: 10, fill: "none", stroke: "#2e9bd6", "stroke-width": 3, "stroke-dasharray": "6 5" }));
-            for (let k = 0; k < 10; k++) s.append(S("circle", { cx: gx + 14 + (k % 2) * 36, cy: gy + 10 + Math.floor(k / 2) * 19, r: 8, fill: seed[t * 10 + k][2] }));
+            for (let k = 0; k < 10; k++) s.append(S("circle", { cx: gx + 14 + (k % 2) * 36, cy: gy + 10 + Math.floor(k / 2) * 19, r: 8, fill: T.m3(seed[t * 10 + k][2]) }));
           }
-          for (let k = 0; k < ones; k++) s.append(S("circle", { cx: 40 + k * 26, cy: 530, r: 9, fill: seed[tens * 10 + k][2] }));
+          for (let k = 0; k < ones; k++) s.append(S("circle", { cx: 40 + k * 26, cy: 530, r: 9, fill: T.m3(seed[tens * 10 + k][2]) }));
         }
         mat.replaceChildren(s);
         out.textContent = reveal ? n + " şeker" + (grouped ? ` = ${Math.floor(n / 10)} onluk ${n % 10} birlik` : "") : "";

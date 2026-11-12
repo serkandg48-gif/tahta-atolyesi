@@ -251,9 +251,9 @@ T.sesDur = function () {
 };
 T.sesCaliyor = () => !!document.getElementById("ses-dur");
 const cumleler = (t, max) => {
-  const out = []; String(t).replace(/\s+/g, " ").trim().split(/(?<=[.!?…:;])\s+/).forEach((c) => {
+  const out = []; (String(t).replace(/\s+/g, " ").trim().match(/[^.!?…:;]+[.!?…:;]*/g) || []).map((c) => c.trim()).filter(Boolean).forEach((c) => {
     if (c.length <= max) { out.push(c); return; }
-    let parca = ""; c.split(/(?<=,)\s+|\s+/).forEach((w) => { if ((parca + " " + w).trim().length > max) { if (parca) out.push(parca.trim()); parca = w; } else parca = (parca + " " + w).trim(); });
+    let parca = ""; c.split(/\s+/).forEach((w) => { if ((parca + " " + w).trim().length > max) { if (parca) out.push(parca.trim()); parca = w; } else parca = (parca + " " + w).trim(); });
     if (parca) out.push(parca);
   });
   return out.filter(Boolean);

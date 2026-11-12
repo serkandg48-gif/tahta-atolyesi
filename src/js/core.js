@@ -278,7 +278,7 @@ const sunucuSes = async (text) => {
   let url = T._sesOnbellek.get(text);
   if (!url) {
     const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + (JSON.parse(localStorage.getItem("tahta-atolyesi-oturum") || "{}").token || "") }, body: JSON.stringify({ metin: text }) });
-    if (!r.ok) { T._dogalHata = (T._dogalHata || 0) + 1; if (T._dogalHata >= 2) T._dogalYok = true; throw 0; }
+    if (!r.ok) { T._dogalHata = (T._dogalHata || 0) + 1; if (T._dogalHata >= 2) { T._dogalYok = true; clearTimeout(T._dogalTekrar); T._dogalTekrar = setTimeout(() => { T._dogalYok = false; T._dogalHata = 0; }, r.status === 429 ? 30 * 60000 : 3 * 60000); } throw 0; }
     T._dogalHata = 0;
     url = URL.createObjectURL(await r.blob()); T._sesOnbellek.set(text, url);
   }

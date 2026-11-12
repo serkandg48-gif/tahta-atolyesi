@@ -71,7 +71,7 @@
 
   /* ---------- Müzik ve atmosfer (Web Audio) ---------- */
   /* Klasik çalma listesi: Pixabay lisanslı parçalar, dist/muzik içinde. Yalnızca çalınca indirilir. */
-  const KLASIK = [["piyano-vals", "Piyano valsi", "Tunetank"], ["keman", "Keman", "Nastelbom"], ["sakin-klasik", "Sakin klasik", "AtlasAudio"], ["modern-klasik", "Modern klasik", "AtlasAudio"], ["yaylilar", "Yaylılar", "Nastelbom"], ["klasik-esinti", "Klasik esinti", "Starostin"], ["dag-klasik", "Dağ esintisi", "The Mountain"], ["kraliyet-ingiliz", "Kraliyet marşı", "Alex Morgan"], ["saray-bahcesi", "Saray bahçesi", "Mondamusic"], ["sinematik", "Sinematik", "Lexin Music"]];
+  const KLASIK = [["piyano-vals", "Piyano valsi", "Tunetank"], ["keman", "Keman", "Nastelbom"], ["sakin-klasik", "Sakin klasik", "AtlasAudio"], ["modern-klasik", "Modern klasik", "AtlasAudio"], ["yaylilar", "Yaylılar", "Nastelbom"], ["klasik-esinti", "Klasik esinti", "Starostin"], ["dag-klasik", "Dağ esintisi", "The Mountain"], ["kraliyet-ingiliz", "Kraliyet marşı", "Alex Morgan"], ["saray-bahcesi", "Saray bahçesi", "Mondamusic"], ["sinematik", "Sinematik", "Lexin Music"], ["stride-piyano", "Stride piyano", "Alex Morgan"], ["yayli-salon", "Yaylı salonu", "Cinematic Strings Hall"], ["moszkowski-etut", "Moszkowski, Etüt 7", "Lorenzo Buczek"], ["dingin-atmosfer", "Dingin atmosfer", "SigmaEffect"], ["sonbahar-ormani", "Sonbahar ormanı", "The Fealdo Project"], ["sakin-lofi", "Sakin lofi", "Velario Music"]];
   const Muzik = (function () {
     let ozelUrl = null, ctx, master, analyser, mod = null, audioEl = null, hacim = 0.5;
     function kur() {

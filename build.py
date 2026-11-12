@@ -31,6 +31,7 @@ JS_ORDER = [
     "math-middle.js",
     "math-games.js",
     "grafik.js",
+    "dort-islem.js",
     "math-vitrin.js",
     "math-talks.js",
     "subjects.js",

@@ -238,10 +238,12 @@ T.download = async function (name, text, mime = "text/plain") {
    1) Claude içinde: Claude sesi.  2) Sitede ve giriş yapılmışsa: sunucudaki doğal Türkçe ses (Gemini), bir kez üretilip saklanır.
    3) Yedek: cihazın en iyi Türkçe sesi (Edge'de "Natural", Chrome'da "Google Türkçe" sesleri tercih edilir). */
 T._voice = null;
+T.sesTercih = () => { try { return localStorage.getItem("ta-ses-tercih") || "dogal"; } catch (e) { return "dogal"; } };
 T.pickVoice = function (lang = "tr") {
   try {
+    if (lang === "tr") { let ad = null; try { ad = localStorage.getItem("ta-ses-cihaz"); } catch (e) {} if (ad) { const s = speechSynthesis.getVoices().find((v) => v.name === ad); if (s) return s; } }
     const vs = speechSynthesis.getVoices().filter((v) => v.lang && v.lang.toLowerCase().startsWith(lang));
-    const puan = (v) => (/natural|neural/i.test(v.name) ? 6 : 0) + (/online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (/microsoft/i.test(v.name) ? 1 : 0) + (v.localService ? 0 : 1);
+    const puan = (v) => (/natural|neural|doğal/i.test(v.name) ? 8 : 0) + (/emel|ahmet/i.test(v.name) ? 3 : 0) + (/online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (/premium|enhanced|yelda|cem/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1) - (/tolga|espeak/i.test(v.name) ? 4 : 0);
     return vs.sort((a, b) => puan(b) - puan(a))[0] || null;
   } catch (e) { return null; }
 };
@@ -276,7 +278,8 @@ const sunucuSes = async (text) => {
   let url = T._sesOnbellek.get(text);
   if (!url) {
     const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + (JSON.parse(localStorage.getItem("tahta-atolyesi-oturum") || "{}").token || "") }, body: JSON.stringify({ metin: text }) });
-    if (!r.ok) throw 0;
+    if (!r.ok) { T._dogalHata = (T._dogalHata || 0) + 1; if (T._dogalHata >= 2) T._dogalYok = true; throw 0; }
+    T._dogalHata = 0;
     url = URL.createObjectURL(await r.blob()); T._sesOnbellek.set(text, url);
   }
   return url;
@@ -297,9 +300,9 @@ T.speak = async function (text, lang = "tr", opt = {}) {
     if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); if (no === T._sesNo) sesPill(false); return; }
   } catch (e) { /* devam */ }
   if (lang === "tr" && !T.pickVoice("tr")) await new Promise((res) => { let n = 0; const t = setInterval(() => { if (T.pickVoice("tr") || ++n > 15) { clearInterval(t); res(); } }, 100); });
-  if (lang === "tr" && !T.pickVoice("tr") && !(T.auth && T.auth.user()) && !T._sesUyari) { T._sesUyari = true; T.toast("Bu cihazda Türkçe ses yok. Doğal Türkçe ses için Ayarlar'dan Google ile giriş yap."); }
+  
   const parcalar = cumleler(text, 230);
-  const dogal = lang === "tr" && T.auth && T.auth.user() && !T._dogalYok;
+  const dogal = lang === "tr" && !T._dogalYok && T.sesTercih() !== "cihaz";
   let sonraki = dogal ? sunucuSes(parcalar[0]).catch(() => null) : null;
   for (let i = 0; i < parcalar.length; i++) {
     if (no !== T._sesNo) return;

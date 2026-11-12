@@ -17,6 +17,28 @@
       wrap.append(h("div.page-head", h("h1", "Ayarlar")),
         h("div", { style: { display: "grid", gap: "22px", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", alignItems: "start" } },
           (() => {
+            /* Sesli okuma: doğal ses (sunucu) ya da cihazın sesi */
+            const durumEl = h("p.hint", { style: { margin: 0 } });
+            const sesler = () => { try { return speechSynthesis.getVoices().filter((v) => (v.lang || "").toLowerCase().startsWith("tr")); } catch (e) { return []; } };
+            const secili = (() => { try { return localStorage.getItem("ta-ses-cihaz") || ""; } catch (e) { return ""; } })();
+            const sec = h("select.in", { "aria-label": "Cihaz sesi", onchange: (e) => { try { e.target.value ? localStorage.setItem("ta-ses-cihaz", e.target.value) : localStorage.removeItem("ta-ses-cihaz"); } catch (x) {} T._voice = null; } });
+            const doldur = () => { const vs = sesler(); sec.replaceChildren(h("option", { value: "" }, "En iyisini kendin seç"), ...vs.map((v) => h("option", { value: v.name, selected: v.name === secili ? true : null }, v.name + (/natural|online/i.test(v.name) ? " (doğal)" : "")))); if (!vs.length) durumEl.textContent = "Bu tarayıcıda Türkçe cihaz sesi bulunamadı."; };
+            doldur(); try { speechSynthesis.addEventListener("voiceschanged", doldur); } catch (e) {}
+            const tercih = T.sesTercih();
+            return h("section.paper", { style: { padding: "20px", display: "grid", gap: "12px" } }, h("h2", { style: { fontSize: "22px" } }, "Sesli okuma"),
+              h("div.seg", [["dogal", "Doğal ses (önerilen)"], ["cihaz", "Cihazın sesi"]].map(([v, l]) => h("button", { "aria-pressed": String(tercih === v), onclick: () => { try { localStorage.setItem("ta-ses-tercih", v); } catch (e) {} T._dogalYok = false; T._dogalHata = 0; T.route(); } }, l))),
+              h("p.hint", { style: { margin: 0 } }, "Doğal ses yapay zekâyla üretilir ve insan sesine çok yakındır. İnternet gerekir; bir kez okunan cümle saklanır, sonra hemen çalar."),
+              h("label", { style: { display: "grid", gap: "4px", fontWeight: 700 } }, "Cihaz sesi (doğal ses yoksa bu kullanılır)", sec),
+              h("p.hint", { style: { margin: 0 } }, "En doğal cihaz sesleri Microsoft Edge tarayıcısındaki Emel ve Ahmet (Natural) sesleridir. Tahtada Chrome yerine Edge kullanırsan internet olmadan da daha doğal okur."),
+              h("div.row", { style: { gap: "8px" } }, h("button.btn.c-leaf", { onclick: async () => {
+                durumEl.textContent = "Deneniyor...";
+                const metin = "Merhaba çocuklar! Bugün birlikte okuyacağız.";
+                if (T.sesTercih() === "dogal") { try { const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ metin }) }); if (r.ok) { durumEl.textContent = "Doğal ses çalışıyor."; T._dogalYok = false; T._dogalHata = 0; } else { const j = await r.json().catch(() => ({})); durumEl.textContent = "Doğal ses şu an kullanılamıyor (" + ((j.error && j.error.message) || r.status) + "). Cihazın sesi okuyacak."; } } catch (e) { durumEl.textContent = "Doğal sese ulaşılamadı. Cihazın sesi okuyacak."; } }
+                else durumEl.textContent = "Cihazın sesi: " + ((T.pickVoice("tr") || {}).name || "Türkçe ses yok");
+                T.speak(metin);
+              } }, T.icon("speaker"), "Dinle")), durumEl);
+          })(),
+          (() => {
             const g = T.gorunum();
             const bolumler = T.menu();
             const kartAd = (r) => { const k = r.slice(r.indexOf("-") + 1); return (T.tools[k] || {}).title || r; };

@@ -115,7 +115,12 @@ function wav(pcm, rate = 24000) {
   const out = new Uint8Array(44 + n); out.set(new Uint8Array(h), 0); out.set(pcm, 44); return out;
 }
 async function ses(env, metin) {
-  const model = env.TTS_MODEL || "gemini-2.5-flash-preview-tts";
+  const modeller = (env.TTS_MODEL ? [env.TTS_MODEL] : []).concat(["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts"]);
+  let son = { fail: "upstream" };
+  for (const model of modeller) { const r = await sesModel(env, metin, model); if (!r.fail) return r; son = r; if (r.fail === "busy") continue; }
+  return son;
+}
+async function sesModel(env, metin, model) {
   /* Dil açıkça Türkçe verilir; "fare", "su", "pide" gibi kelimeler İngilizce okunmasın. */
   const istek = (dilKodu) => fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
@@ -127,6 +132,7 @@ async function ses(env, metin) {
   });
   let r = await istek(true);
   if (r.status === 400) r = await istek(false);
+  if (r.status === 404) return { fail: "model" };
   if (r.status === 429) return { fail: "busy" };
   if (!r.ok) return { fail: "upstream" };
   const j = await r.json();
@@ -180,6 +186,27 @@ async function api(request, env, path) {
     return json({ token, user, quota: q });
   }
 
+  /* Doğal ses: giriş gerekmez; IP ve günlük sınırla korunur, okunan cümle saklanır. */
+  if (path === "/api/ses" && request.method === "POST") {
+    let b; try { b = await request.json(); } catch { return err("bad_request", "İstek okunamadı.", 400); }
+    const metin = String(b.metin || "").replace(/\s+/g, " ").trim().slice(0, SES_MAX);
+    if (!metin) return err("bad_request", "Okunacak metin yok.", 400);
+    const anahtar = await sha("v2|" + (env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
+    const depo = env.SES.get(env.SES.idFromName("ses:" + anahtar.slice(0, 2)));
+    const varolan = await depo.al(anahtar);
+    const ses_h = { "content-type": "audio/wav", "cache-control": "public, max-age=31536000, immutable" };
+    if (varolan) return new Response(unb64u(varolan), { headers: ses_h });
+    const ip = request.headers.get("cf-connecting-ip") || "x";
+    const iq = await genel(env).kullan(today() + ":ses:" + (await sha(ip)).slice(0, 16), Math.max(1, parseInt(env.TTS_IP_LIMIT, 10) || 150));
+    if (!iq.ok) return err("tts_limit", "Doğal ses bugünlük doldu, cihazın sesi kullanılıyor.", 429);
+    const gq = await genel(env).kullan(today() + ":ses", Math.max(1, parseInt(env.TTS_LIMIT, 10) || 300));
+    if (!gq.ok) return err("tts_limit", "Doğal ses bugünlük doldu, cihazın sesi kullanılıyor.", 429);
+    let g; try { g = await ses(env, metin); } catch { g = { fail: "network" }; }
+    if (g.fail) { await genel(env).iade(today() + ":ses"); return err("tts_" + g.fail, "Doğal ses şu an üretilemedi.", 503); }
+    if (g.wav.length < 120000) await depo.koy(anahtar, b64u(g.wav));
+    return new Response(g.wav, { headers: ses_h });
+  }
+
   const user = await readSession(env, request);
   if (!user) return err("signed_out", "Oturum kapandı. Google ile yeniden giriş yap.", 401);
 
@@ -210,23 +237,6 @@ async function api(request, env, path) {
       return json({ error: { code: "upstream", message: "Yapay zekâ yanıt vermedi. Biraz sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 502);
     }
     return json({ text: g.text, quota: q });
-  }
-
-  if (path === "/api/ses" && request.method === "POST") {
-    let b; try { b = await request.json(); } catch { return err("bad_request", "İstek okunamadı.", 400); }
-    const metin = String(b.metin || "").replace(/\s+/g, " ").trim().slice(0, SES_MAX);
-    if (!metin) return err("bad_request", "Okunacak metin yok.", 400);
-    const anahtar = await sha("v2|" + (env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
-    const depo = env.SES.get(env.SES.idFromName("ses:" + anahtar.slice(0, 2)));
-    const varolan = await depo.al(anahtar);
-    const ses_h = { "content-type": "audio/wav", "cache-control": "public, max-age=31536000, immutable" };
-    if (varolan) return new Response(unb64u(varolan), { headers: ses_h });
-    const gq = await genel(env).kullan(today() + ":ses", Math.max(1, parseInt(env.TTS_LIMIT, 10) || 300));
-    if (!gq.ok) return err("tts_limit", "Doğal ses bugünlük doldu, cihazın sesi kullanılıyor.", 429);
-    let g; try { g = await ses(env, metin); } catch { g = { fail: "network" }; }
-    if (g.fail) { await genel(env).iade(today() + ":ses"); return err("tts_" + g.fail, "Doğal ses şu an üretilemedi.", 503); }
-    if (g.wav.length < 120000) await depo.koy(anahtar, b64u(g.wav));
-    return new Response(g.wav, { headers: ses_h });
   }
 
   return err("not_found", "Böyle bir adres yok.", 404);

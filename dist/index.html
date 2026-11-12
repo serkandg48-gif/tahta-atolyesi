@@ -1702,6 +1702,23 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ok-canli { display: grid; justify-items: center; } .ok-canli b { font: 800 40px var(--display); color: #C2453A; }
 .ok-ozet { grid-column: 1 / -1; margin: 0; font-size: 16px; font-weight: 600; }
 @media (max-width: 800px) { .ok-rehber { grid-template-columns: 1fr; } }
+/* Telefon: çanta alta, yatay şerit */
+@media (max-width: 600px) {
+  :root { --canta-w: 0px; }
+  .dock, html[data-kademe="ortaokul"] .dock { left: 6px; right: 6px; top: auto !important; bottom: 6px; width: auto; height: 86px; flex-direction: row; padding: 6px; border-radius: 20px; }
+  .dock-sec { grid-template-columns: 1fr; width: 74px; flex: none; }
+  .dock-sec button { padding: 6px 4px; font-size: 12px; }
+  .dock-serit { flex-direction: row; overflow-x: auto; overflow-y: hidden; mask-image: none; padding: 0; }
+  .dock .dock-item { min-width: 72px; width: 72px; min-height: 0; height: 100%; font-size: 11px; }
+  .dock .dock-item .ikon3d { width: 30px; height: 30px; }
+  .dock .dock-sep { width: 1px; height: auto; margin: 8px 2px; flex: 0 0 1px; }
+  .dock .dock-item.dock-tam { border-top: 0; border-left: 1px dashed var(--line); border-radius: 0 14px 14px 0; }
+  .dock-ok, .dock-kucult { display: none; }
+  .view.pencere { margin: 6px 6px 100px 6px; }
+  .kp-izgara { inset: 60px 8px 100px 8px !important; }
+  .kp-ders-ust { left: 8px; }
+  #ses-dur { bottom: 104px; }
+}
 
 </style>
 </head>
@@ -1716,7 +1733,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="d64a0c1e13";
+window.SURUM="56312c04ab";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";

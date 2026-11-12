@@ -247,19 +247,52 @@
     const takvim2 = () => { Object.assign(acik, gunVeri().acik || {}); top.replaceChildren(kart("dun", "Dün", addDays(now, -1)), kart("bugun", "Bugün", now), kart("yarin", "Yarın", addDays(now, 1))); };
     takvim2();
     const n = T.cal.dayNumber(), st = T.cal.status();
+    /* Çocuklarla birlikte doldurulan bilgi kartları: önce soru, doğru seçilince açılır */
+    const yilinGunu = Math.floor((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(now.getFullYear(), 0, 0)) / 864e5);
+    const SORU = [
+      ["tarih", "Bugün ayın kaçı?", String(now.getDate()), () => T.shuffle([now.getDate() - 1, now.getDate(), now.getDate() + 1].filter((x) => x >= 1 && x <= 31).map(String))],
+      ["ay", "Hangi aydayız?", AY[now.getMonth()], () => AY.slice()],
+      ["mevsim", "Hangi mevsimdeyiz?", mevsim(now.getMonth()), () => ["İlkbahar", "Yaz", "Sonbahar", "Kış"]],
+      ["hafta", "Haftanın kaçıncı günü?", ((now.getDay() + 6) % 7) + 1 + ". gün", () => [1, 2, 3, 4, 5, 6, 7].map((x) => x + ". gün")],
+    ];
+    const sor = (k, soru, dogru, secenekler) => {
+      const govde = h("div", { style: { display: "grid", gap: "12px" } }, h("p", { style: { fontSize: "22px", margin: 0, fontWeight: 700 } }, soru));
+      const ipucu = h("p.hint", { style: { margin: 0, minHeight: "22px" } });
+      const m = T.modal({ title: "Birlikte bulalım", body: govde, actions: [{ label: "Vazgeç" }] });
+      govde.append(h("div.sb-secenek", secenekler().map((x) => h("button", { onclick: (e) => {
+        if (x === dogru) { kaydet((v2) => { v2.acik = v2.acik || {}; v2.acik[k] = true; }); T.sound.ok && T.sound.ok(); T.speak(soru.replace("?", "") + ": " + dogru); m.close(); body.replaceChildren(); takvim(body); }
+        else { e.target.classList.add("yanlis"); ipucu.textContent = "Bir daha düşünelim. İpucu için takvime ya da pencereye bakabiliriz."; T.sound.tick && T.sound.tick(); }
+      } }, x))), ipucu);
+    };
+    const bilgi = (k, etiket, dogru, soru, secenek) => (gunVeri().acik || {})[k]
+      ? h("div.sb-acik", h("small", etiket), h("b", dogru))
+      : h("button.sb-soru", { onclick: () => sor(k, soru, dogru, secenek) }, h("small", etiket), h("b", "?"), h("span", soru));
     const info = h("div.sb-facts",
-      h("div", h("small", "Ay"), h("b", AY[now.getMonth()])), h("div", h("small", "Mevsim"), h("b", mevsim(now.getMonth()))),
-      h("div", h("small", "Haftanın"), h("b", ((now.getDay() + 6) % 7) + 1 + ". günü")), h("div", h("small", "Yılın"), h("b", Math.floor((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(now.getFullYear(), 0, 0)) / 864e5) + ". günü")),
-      st.kind === "okul" ? h("div", h("small", "Okulun"), h("b", n + ". günü")) : null);
-    // Ay takvimi
+      bilgi("tarih", "Ayın kaçı", SORU[0][2], SORU[0][1], SORU[0][3]),
+      bilgi("ay", "Ay", SORU[1][2], SORU[1][1], SORU[1][3]),
+      bilgi("mevsim", "Mevsim", SORU[2][2], SORU[2][1], SORU[2][3]),
+      bilgi("hafta", "Haftanın", SORU[3][2], SORU[3][1], SORU[3][3]),
+      (gunVeri().acik || {}).ay ? h("div.sb-acik", h("small", "Yılın"), h("b", yilinGunu + ". günü")) : null,
+      st.kind === "okul" ? h("div.sb-acik", h("small", "Okulun"), h("b", n + ". günü")) : null);
+    // Ay takvimi: açılınca çocuklar bugünü kendisi bulur
     const y = now.getFullYear(), m = now.getMonth(), first = new Date(y, m, 1), days = new Date(y, m + 1, 0).getDate();
+    const v0 = gunVeri(), bulundu = (v0.acik || {}).bugunBul, takvimAcik = (v0.acik || {}).takvim;
     const grid = h("div.sb-month", ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((g) => h("div.sb-wd", g)));
+    const not = h("p.hint");
     for (let i = 0; i < (first.getDay() + 6) % 7; i++) grid.append(h("div.sb-e"));
     for (let d = 1; d <= days; d++) {
-      const dt = new Date(y, m, d), we = dt.getDay() === 0 || dt.getDay() === 6, closed = T.cal.closedReason(dt);
-      grid.append(h("div" + (sameDay(dt, now) ? ".sb-t" : dt < now ? ".sb-p" : "") + (we ? ".sb-we" : "") + (closed ? ".sb-cl" : ""), { title: closed || "" }, d));
+      const dt = new Date(y, m, d), we = dt.getDay() === 0 || dt.getDay() === 6, closed = T.cal.closedReason(dt), bugun = sameDay(dt, now);
+      grid.append(h("button.sb-gun" + (bugun && bulundu ? ".sb-t" : bulundu && dt < now ? ".sb-p" : "") + (we ? ".sb-we" : "") + (closed ? ".sb-cl" : ""), { title: closed || "", onclick: (e) => {
+        if (bulundu) return;
+        if (bugun) { kaydet((v2) => { v2.acik = v2.acik || {}; v2.acik.bugunBul = true; }); T.sound.ok && T.sound.ok(); T.speak("Aferin! Bugün " + d + " " + AY[m]); body.replaceChildren(); takvim(body); }
+        else { e.target.classList.add("yanlis"); not.textContent = d < now.getDate() ? "Bu gün geçti. Biraz ileriye bakalım." : "Bu gün henüz gelmedi. Biraz geriye bakalım."; }
+      } }, d));
     }
-    body.append(top, info, h("div.sb-card", h("h3", AY[m] + " " + y), grid, h("p.hint", "Geçen günler soluk, hafta sonları ve tatiller gri, bugün lacivert.")));
+    not.textContent = bulundu ? "Geçen günler soluk, hafta sonları ve tatiller gri, bugün lacivert." : "Bugünü takvimde bulalım: bir arkadaşımız gelip bugüne dokunsun.";
+    const takvimKart = takvimAcik
+      ? h("div.sb-card", h("h3", AY[m] + " " + y), grid, not)
+      : h("button.sb-card.sb-takvim-ac", { onclick: () => { kaydet((v2) => { v2.acik = v2.acik || {}; v2.acik.takvim = true; }); body.replaceChildren(); takvim(body); } }, T.icon3d("calendar"), h("b", "Takvimi açalım"), h("span.hint", "Açınca bugünü çocuklar bulacak"));
+    body.append(top, info, takvimKart, h("div.row", { style: { gap: "8px" } }, h("button.btn.sm.c-chalk", { onclick: () => { kaydet((v2) => { v2.acik = {}; }); body.replaceChildren(); takvim(body); } }, T.icon("reset"), "Baştan doldur")));
   }
 
   /* 3. Belirli gün ve haftalar + günün sözü */

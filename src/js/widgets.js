@@ -459,6 +459,23 @@
     },
   };
 
+  /* ---------- Takvim ---------- */
+  W.takvim = {
+    title: "Takvim", icon: "calendar", tone: "sky", w: 420, h: 380, desc: "Ay takvimi, bugün ve tatiller",
+    init: () => ({ kay: 0 }),
+    render(body, w) {
+      const AY = T.AYLAR, now = new Date();
+      const ciz = () => {
+        const d0 = new Date(now.getFullYear(), now.getMonth() + (w.data.kay || 0), 1), y = d0.getFullYear(), m = d0.getMonth(), gun = new Date(y, m + 1, 0).getDate();
+        const g = h("div.tk-grid", ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"].map((x) => h("b", x)));
+        for (let i = 0; i < (d0.getDay() + 6) % 7; i++) g.append(h("span"));
+        for (let d = 1; d <= gun; d++) { const dt = new Date(y, m, d), kapali = T.cal.closedReason(dt), hs = dt.getDay() === 0 || dt.getDay() === 6;
+          g.append(h("span" + (dt.toDateString() === now.toDateString() ? ".bugun" : "") + (hs || kapali ? ".tatil" : ""), { title: kapali || "" }, d)); }
+        body.replaceChildren(h("div.tk-ust", h("button.btn.sm.icon.c-chalk", { "aria-label": "Önceki ay", onclick: () => { w.data.kay--; ciz(); } }, T.icon("back")), h("b", AY[m] + " " + y), h("button.btn.sm.icon.c-chalk", { "aria-label": "Sonraki ay", onclick: () => { w.data.kay++; ciz(); } }, T.icon("next"))), g);
+      };
+      ciz();
+    },
+  };
   /* ---------- Görev panosu ---------- */
   W.duties = {
     title: "Sınıf görevleri", icon: "star", tone: "sun", w: 360, h: 260, desc: "Nöbetçi ve sorumlular",

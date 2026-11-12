@@ -1161,3 +1161,24 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
   .kp-ders-ust { left: 8px; }
   #ses-dur { bottom: 104px; }
 }
+.sb-soru, .sb-acik { display: grid; gap: 4px; justify-items: center; text-align: center; padding: 14px 10px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font: inherit; color: var(--ink); }
+.sb-soru { cursor: pointer; border: 2px dashed #E9A23B; background: #FFFBEF; }
+.sb-soru b { font: 800 34px/1 var(--display); color: #E9A23B; } .sb-soru span { font-size: 14px; color: var(--ink-soft); }
+.sb-acik b { font: 800 26px/1.1 var(--display); color: var(--navy); }
+.sb-soru small, .sb-acik small { font-size: 14px; font-weight: 700; color: var(--ink-soft); }
+.sb-secenek { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.sb-secenek button { padding: 16px 10px; border-radius: 14px; border: 1px solid var(--line); background: #fff; font: 800 22px var(--display); color: var(--ink); cursor: pointer; }
+.sb-secenek button.yanlis, .sb-gun.yanlis { animation: sss-sars .5s; background: #FBE3E0; }
+.sb-gun { border: 0; background: transparent; font: inherit; cursor: pointer; border-radius: 10px; }
+.sb-gun:hover { background: #EEF2FA; }
+.sb-takvim-ac { display: grid; justify-items: center; gap: 8px; cursor: pointer; padding: 28px; border: 2px dashed var(--line); font: inherit; color: var(--ink); width: 100%; }
+.sb-takvim-ac b { font: 800 26px var(--display); }
+.sb-month > .sb-gun { text-align: center; padding: 10px 0; border-radius: 10px; font: 700 20px var(--display); background: var(--bg); color: var(--ink); }
+.tk-ust { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; } .tk-ust b { font: 800 min(7cqw, 24px) var(--display); }
+.tk-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; flex: 1; }
+.tk-grid > * { display: grid; place-items: center; border-radius: 8px; font: 700 min(5cqw, 20px) var(--display); }
+.tk-grid b { font: 600 min(3.6cqw, 14px) var(--body); color: var(--ink-soft); }
+.tk-grid span.tatil { color: #8A93A6; background: #EEF0F4; }
+.tk-grid span.bugun { background: var(--navy); color: #fff; }
+.sb-month > .sb-gun.sb-we, .sb-month > .sb-gun.sb-cl { background: #E9EBF0; color: #8A93A6; }
+.sb-month > .sb-gun.sb-t { background: var(--navy); color: #fff; opacity: 1; text-decoration: none; box-shadow: 0 0 0 4px #FFE7A3; }

@@ -3,6 +3,98 @@
   const R = (a, b) => Math.floor(a + Math.random() * (b - a + 1)), P = (l) => l[Math.floor(Math.random() * l.length)];
   const yakin = (ans, n = 4, sp = 3, min = 0) => { const o = new Set([ans]); let t = 0; while (o.size < n && t++ < 200) { const v = ans + R(-sp, sp); if (v >= min && v !== ans) o.add(v); } return T.shuffle([...o]); };
 
+  /* ---------- Ortak 3B parçalar ---------- */
+  const PARCA = {};
+  PARCA.cerceve = (c, grup, n, x0, z0, renk1 = 0xd8342a, n2 = 0, renk2 = 0x2a6fd8, buz = false) => {
+    const { THREE } = c, tm = new THREE.MeshStandardMaterial({ map: c.tahta(), roughness: 0.6 }), cw = 1.05;
+    const kasa = new THREE.Mesh(new THREE.BoxGeometry(cw * 5 + 0.3, 0.3, cw * 2 + 0.3), tm); kasa.position.set(x0, 0.15, z0); c.golge(kasa); grup.add(kasa);
+    const bm = new THREE.MeshStandardMaterial({ color: 0x5a3a1e, roughness: 0.8 });
+    for (let i = 0; i < 10; i++) { const x = x0 + ((i % 5) - 2) * cw, z = z0 + (Math.floor(i / 5) - 0.5) * cw;
+      const cuk = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.06, 32), bm); cuk.position.set(x, 0.31, z); grup.add(cuk);
+      if (i < n + n2) { const mat = buz ? new THREE.MeshPhysicalMaterial({ color: i < n ? 0x9fd6ff : 0x5fb0f0, transmission: 0.35, roughness: 0.12, thickness: 0.6, ior: 1.31, clearcoat: 1 }) : new THREE.MeshPhysicalMaterial({ color: i < n ? renk1 : renk2, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.08 });
+        const top = new THREE.Mesh(buz ? new THREE.BoxGeometry(0.66, 0.66, 0.66) : new THREE.SphereGeometry(0.38, 32, 24), mat); top.position.set(x, buz ? 0.66 : 0.7, z); if (buz) top.rotation.y = Math.random() * 0.4; c.golge(top); top.userData.dus = 3 + Math.random(); top.userData.y0 = top.position.y; top.position.y += top.userData.dus; grup.add(top); } }
+  };
+  PARCA.dusur = (grup, dt) => grup.traverse((o) => { if (o.userData && o.userData.dus > 0) { o.userData.dus = Math.max(0, o.userData.dus - dt * 9); o.position.y = o.userData.y0 + o.userData.dus * o.userData.dus * 0.25; } });
+  PARCA.elma = (c) => { const { THREE } = c, g = new THREE.Group();
+    const k = new THREE.Mesh(new THREE.SphereGeometry(0.5, 40, 28), new THREE.MeshPhysicalMaterial({ color: 0xc8201c, roughness: 0.3, clearcoat: 0.8, clearcoatRoughness: 0.2 })); k.scale.set(1, 0.92, 1); g.add(k);
+    const sap = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.3, 8), new THREE.MeshStandardMaterial({ color: 0x5a3a1a })); sap.position.y = 0.55; sap.rotation.z = 0.2; g.add(sap);
+    const yp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 8), new THREE.MeshStandardMaterial({ color: 0x3f9a3a, roughness: 0.6 })); yp.scale.set(1.6, 0.25, 0.7); yp.position.set(0.16, 0.6, 0); yp.rotation.z = -0.4; g.add(yp); return c.golge(g); };
+  PARCA.disk = (c, metin, renk, kesik) => { const { THREE } = c, g = new THREE.Group();
+    const d = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.35, 64), new THREE.MeshStandardMaterial({ color: renk, roughness: 0.45, metalness: 0.1 })); d.rotation.x = Math.PI / 2; g.add(d);
+    const yuz = new THREE.Mesh(new THREE.CircleGeometry(0.98, 64), new THREE.MeshStandardMaterial({ map: c.sayiDoku(metin, "#FFFFFF", kesik ? "#E5E9F0" : "#EEF3F8", "#1B2A4A", true), roughness: 0.4 })); yuz.position.z = 0.181; g.add(yuz); g.userData.yuz = yuz; return c.golge(g); };
+  PARCA.blok = (c, grup, n, x0 = -6) => { const { THREE } = c, U = 0.34;
+    const mat = new THREE.MeshPhysicalMaterial({ color: 0x7fc6f2, roughness: 0.35, clearcoat: 0.6 }), cizgi = new THREE.LineBasicMaterial({ color: 0x2b6a99 });
+    const kup = (x, y, z, sx, sy, sz) => { const geo = new THREE.BoxGeometry(sx * U, sy * U, sz * U); const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); c.golge(m); grup.add(m);
+      const kenar = new THREE.LineSegments(new THREE.EdgesGeometry(geo), cizgi); m.add(kenar);
+      /* birim çizgileri */
+      const pts = []; for (let i = 1; i < sx; i++) { const xx = -sx * U / 2 + i * U; pts.push(xx, sy * U / 2 + 0.002, -sz * U / 2, xx, sy * U / 2 + 0.002, sz * U / 2); } for (let j = 1; j < sz; j++) { const zz = -sz * U / 2 + j * U; pts.push(-sx * U / 2, sy * U / 2 + 0.002, zz, sx * U / 2, sy * U / 2 + 0.002, zz); }
+      if (pts.length) { const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); m.add(new THREE.LineSegments(lg, cizgi)); }
+      m.userData.dus = 2 + Math.random(); m.userData.y0 = y; m.position.y += m.userData.dus; };
+    const Y = Math.floor(n / 100), O = Math.floor((n % 100) / 10), B = n % 10; let x = x0;
+    for (let i = 0; i < Y; i++) { kup(x + 5 * U, U / 2, 0, 10, 1, 10); x += 10 * U + 0.4; }
+    for (let i = 0; i < O; i++) { kup(x + U / 2, U / 2, 0, 1, 1, 10); x += U + 0.22; }
+    x += 0.3; for (let i = 0; i < B; i++) kup(x + Math.floor(i / 5) * (U + 0.18), U / 2, -1.2 + (i % 5) * (U + 0.18), 1, 1, 1);
+  };
+  PARCA.saat = (c, grup) => { const { THREE } = c, g = new THREE.Group();
+    const cerceve = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.28, 24, 96), new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.45, map: c.tahta() })); g.add(cerceve);
+    const yuz = new THREE.Mesh(new THREE.CircleGeometry(2.55, 96), new THREE.MeshStandardMaterial({ roughness: 0.6, map: c.doku(1024, 1024, (x, w, h) => { x.fillStyle = "#FBF8F1"; x.fillRect(0, 0, w, h); x.translate(w / 2, h / 2); for (let i = 0; i < 60; i++) { const a = (i * Math.PI) / 30; x.strokeStyle = "#222"; x.lineWidth = i % 5 ? 4 : 12; x.beginPath(); x.moveTo(Math.sin(a) * (i % 5 ? 470 : 440), -Math.cos(a) * (i % 5 ? 470 : 440)); x.lineTo(Math.sin(a) * 500, -Math.cos(a) * 500); x.stroke(); } x.font = "800 110px Georgia, serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillStyle = "#1B2A4A"; for (let i = 1; i <= 12; i++) { const a = (i * Math.PI) / 6; x.fillText(String(i), Math.sin(a) * 365, -Math.cos(a) * 365 + 6); } }) }));
+    yuz.position.z = 0.02; g.add(yuz);
+    const akrep = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.35, 0.06), new THREE.MeshStandardMaterial({ color: 0xc0392b, metalness: 0.3, roughness: 0.4 })); akrep.geometry.translate(0, 0.6, 0); akrep.position.z = 0.1;
+    const yelkovan = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.0, 0.05), new THREE.MeshStandardMaterial({ color: 0x1f4f8a, metalness: 0.3, roughness: 0.4 })); yelkovan.geometry.translate(0, 0.9, 0); yelkovan.position.z = 0.16;
+    const pim = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.12, 24), new THREE.MeshStandardMaterial({ color: 0xc9a24a, metalness: 1, roughness: 0.3 })); pim.rotation.x = Math.PI / 2; pim.position.z = 0.22;
+    const cam = new THREE.Mesh(new THREE.CircleGeometry(2.55, 64), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, roughness: 0.05, thickness: 0.1, transparent: true, opacity: 0.25 })); cam.position.z = 0.3;
+    g.add(akrep, yelkovan, pim, cam); c.golge(g); grup.add(g); return { g, akrep, yelkovan };
+  };
+
+  /* ---------- Eşini bul ---------- */
+  T.oyun3B("esini-bul", { ortam: "masa", seviyeler: ["5'e kadar", "10'a kadar", "20'ye kadar"], kamera: { poz: [0, 9, 9], bak: [0, 0.5, 0.5], fov: 38 },
+    tur(L, c) { const max = [5, 10, 20][L], n = R(1, max), tur = P(n > 10 ? ["cerceve", "elma"] : ["cerceve", "elma"]);
+      return { soru: "Masada kaç tane var?", cevap: n, secenekler: yakin(n, 4, 3, 0), aciklama: "Beşerli gruplara bakmak saymayı hızlandırır.",
+        goster(c, grup) { if (tur === "cerceve") { PARCA.cerceve(c, grup, Math.min(n, 10), n > 10 ? -3.3 : 0, 0); if (n > 10) PARCA.cerceve(c, grup, n - 10, 3.3, 0); }
+          else for (let i = 0; i < n; i++) { const e = PARCA.elma(c); const sx = (i % 5) - 2, sz = Math.floor(i / 5) - (Math.ceil(n / 5) - 1) / 2; e.position.set(sx * 1.35 + (Math.random() - 0.5) * 0.3, 0.46, sz * 1.3 + (Math.random() - 0.5) * 0.2); e.rotation.y = Math.random() * 6; e.userData.dus = 3 + i * 0.15; e.userData.y0 = 0.46; e.position.y += e.userData.dus; grup.add(e); } },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
+
+  /* ---------- Hızlı gör ---------- */
+  T.oyun3B("hizli-gor", { ortam: "masa", seviyeler: ["5'e kadar", "10'a kadar", "İki çerçeve"], kamera: { poz: [0, 9, 8], bak: [0, 0.4, 0.3], fov: 36 },
+    tur(L, c) { const iki = L === 2, a = iki ? R(3, 9) : R(1, L ? 10 : 5), b = iki ? R(2, 9) : 0, ans = a + b; let sure = 1.6;
+      return { soru: iki ? "İyi bak! İki tepside birlikte kaç bilye var?" : "İyi bak! Tepside kaç bilye var?", cevap: ans, secenekler: yakin(ans, 4, 2, 0), aciklama: iki ? a + " + " + b + " = " + ans + ". 10'u tamamlamak işe yarar." : "Önce üst sıraya bak: 5'ten fazla mı az mı?",
+        goster(c, grup) { PARCA.cerceve(c, grup, a, iki ? -3.3 : 0, 0); if (iki) PARCA.cerceve(c, grup, b, 3.3, 0, 0x2a6fd8); grup.userData.ortu = null; },
+        adim(c, grup, dt, durum) { PARCA.dusur(grup, dt); sure -= dt; const { THREE } = c; if (sure < 0 && !grup.userData.ortu && durum === "soru") { const o = new THREE.Mesh(new THREE.BoxGeometry(iki ? 13.5 : 6.6, 1.2, 3.2), new THREE.MeshStandardMaterial({ color: 0x2b3a5a, roughness: 0.7 })); o.position.set(0, 4, 0); o.userData.in = 1; c.golge(o); grup.add(o); grup.userData.ortu = o; }
+          const o = grup.userData.ortu; if (o) { if (durum !== "soru" && durum !== "yanlis") o.position.y += (5 - o.position.y) * Math.min(1, dt * 6); else o.position.y += (0.75 - o.position.y) * Math.min(1, dt * 8); } } }; } });
+
+  /* ---------- Sayı bağı ---------- */
+  T.oyun3B("sayi-bagi", { ortam: "masa", seviyeler: ["5'e kadar", "10'a kadar", "20'ye kadar"], kamera: { poz: [0, 6, 10], bak: [0, 2.2, 0], fov: 38 },
+    tur(L, c) { const w = R(L ? 6 : 3, [5, 10, 20][L]), a = R(0, w), butun = L === 2 && Math.random() < 0.3, ans = butun ? w : w - a;
+      return { soru: butun ? "Parçaları birleştir: bütün kaç?" : "Bütün ve bir parça belli. Eksik parça kaç?", cevap: ans, secenekler: yakin(ans, 4, 3, 0), aciklama: w + ", " + a + " ve " + (w - a) + " parçalarına ayrılır.",
+        goster(c, grup) { const { THREE } = c; const ust = PARCA.disk(c, butun ? "?" : String(w), 0xe9a23b), s1 = PARCA.disk(c, String(a), 0x3e86d6), s2 = PARCA.disk(c, butun ? String(w - a) : "?", 0x3e86d6, true);
+          ust.position.set(0, 4.3, 0); s1.position.set(-2.8, 1.4, 0); s2.position.set(2.8, 1.4, 0); grup.add(ust, s1, s2); grup.userData.soruDisk = butun ? ust : s2;
+          const cub = (a1, b1) => { const v = new THREE.Vector3().subVectors(b1, a1), m = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, v.length(), 16), new THREE.MeshStandardMaterial({ color: 0x8a6a45, roughness: 0.5, metalness: 0.2 })); m.position.copy(a1).add(v.multiplyScalar(0.5)); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3().subVectors(b1, a1).normalize()); m.position.z = -0.3; c.golge(m); grup.add(m); };
+          cub(new THREE.Vector3(0, 4.3, 0), new THREE.Vector3(-2.8, 1.4, 0)); cub(new THREE.Vector3(0, 4.3, 0), new THREE.Vector3(2.8, 1.4, 0)); },
+        dogru(c, grup) { const d = grup.userData.soruDisk; const yuz = d.userData.yuz.material; yuz.map.dispose(); yuz.map = c.sayiDoku(String(ans), "#FFF6B0", "#FFD84A", "#3A2A00", true); yuz.needsUpdate = true; grup.userData.zip = 1; },
+        adim(c, grup, dt) { const d = grup.userData.soruDisk; if (!d) return; d.rotation.y = grup.userData.zip ? Math.sin(c.zaman * 10) * 0.3 * grup.userData.zip : Math.sin(c.zaman * 1.5) * 0.08; if (grup.userData.zip) grup.userData.zip = Math.max(0, grup.userData.zip - dt * 0.7); } }; } });
+
+  /* ---------- Buzu kır: 10'u tamamla ---------- */
+  T.oyun3B("onu-tamamla", { ortam: "masa", seviyeler: ["10'a tamamla", "20'ye tamamla", "10 yap stratejisi"], kamera: { poz: [0, 9, 8], bak: [0, 0.4, 0.3], fov: 36 },
+    tur(L, c) { if (L < 2) { const t = L ? 20 : 10, n = R(1, t - 1); return { soru: "Buz tepsisinde " + n + " buz var. " + t + " olması için kaç buz daha lazım?", cevap: t - n, secenekler: yakin(t - n, 4, 3, 0), aciklama: n + " ile " + (t - n) + " birlikte " + t + " eder.",
+        goster(c, grup) { PARCA.cerceve(c, grup, Math.min(n, 10), t === 20 ? -3.3 : 0, 0, 0, 0, 0, true); if (t === 20) PARCA.cerceve(c, grup, Math.max(0, n - 10), 3.3, 0, 0, 0, 0, true); }, adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; }
+      const a = R(6, 9), b = R(3, 9), need = 10 - a; return { soru: a + " + " + b + " = 10 + ?", cevap: a + b - 10, secenekler: yakin(a + b - 10, 4, 3, 0), aciklama: b + " sayısından " + need + " tanesi " + a + "'yı 10 yapar, geriye " + (b - need) + " kalır.",
+        goster(c, grup) { PARCA.cerceve(c, grup, a, -3.3, 0, 0, need, 0, true); PARCA.cerceve(c, grup, b - need, 3.3, 0, 0, 0, 0, true); }, adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
+
+  /* ---------- Blokları say ---------- */
+  T.oyun3B("bloklari-say", { ortam: "masa", seviyeler: ["50'ye kadar", "99'a kadar", "999'a kadar"], kamera: { poz: [0, 6.2, 6.4], bak: [0, 0.2, -0.3], fov: 40 },
+    tur(L, c) { const n = R(L === 0 ? 11 : 20, [50, 99, 999][L]), ters = Number(String(n).split("").reverse().join(""));
+      const o = new Set([n, n + 10 > 999 ? n - 20 : n + 10, Math.max(1, n - 1), ters === n ? n + 1 : ters]); let k = 0; while (o.size < 4 && k++ < 30) o.add(n + R(-12, 12));
+      return { soru: "Bloklar hangi sayıyı gösteriyor?", cevap: n, secenekler: T.shuffle([...o]).slice(0, 4), aciklama: (n >= 100 ? Math.floor(n / 100) + " yüzlük, " : "") + Math.floor((n % 100) / 10) + " onluk, " + (n % 10) + " birlik.",
+        goster(c, grup) { const gen = Math.floor(n / 100) * 3.8 + Math.floor((n % 100) / 10) * 0.56 + 1.5; PARCA.blok(c, grup, n, -gen / 2); }, adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } });
+
+  /* ---------- Saat treni ---------- */
+  T.oyun3B("saat-treni", { ortam: "masa", seviyeler: ["Tam ve yarım", "Çeyrekler", "5 dakika"], kamera: { poz: [0, 3.6, 12], bak: [0, 2.8, 0], fov: 40 },
+    tur(L, c) { const hh = R(1, 12), mm = L === 0 ? P([0, 30]) : L === 1 ? P([0, 15, 30, 45]) : R(0, 11) * 5, f = (a, b) => a + ":" + T.pad(b), ans = f(hh, mm);
+      const o = new Set([ans]); while (o.size < 4) o.add(f(P([hh, (hh % 12) + 1, ((hh + 10) % 12) + 1]), L === 0 ? P([0, 30]) : P([0, 15, 30, 45, mm, (mm + 30) % 60])));
+      let sa = null; return { soru: "Duvardaki saat kaçı gösteriyor?", cevap: ans, secenekler: T.shuffle([...o]), aciklama: T.saatOku ? T.saatOku(hh, mm) : ans,
+        goster(c, grup) { sa = PARCA.saat(c, grup); sa.g.position.set(0, 3.3, 0); sa.hedefA = -(((hh % 12) + mm / 60) * Math.PI) / 6; sa.hedefY = -(mm * Math.PI) / 30; sa.akrep.rotation.z = sa.hedefA + 1.5; sa.yelkovan.rotation.z = sa.hedefY - 4; },
+        adim(c, grup, dt) { if (!sa) return; sa.akrep.rotation.z += (sa.hedefA - sa.akrep.rotation.z) * Math.min(1, dt * 6); sa.yelkovan.rotation.z += (sa.hedefY - sa.yelkovan.rotation.z) * Math.min(1, dt * 6); } }; } });
+
   /* ---------- Tırtıl sayıyor: yaprak üstünde tüylü tırtıl, her boğumda bir sayı ---------- */
   T.oyun3B("tirtil", {
     ortam: "cayir", simge: "🍃", seviyeler: ["Birer ileri", "İleri ve geri", "Ritmik sayma"],

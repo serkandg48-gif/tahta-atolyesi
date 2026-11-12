@@ -19,12 +19,12 @@
 
   /* ---------- Bölüm ---------- */
   T.sections.birinci = {
-    title: "1. sınıf", icon: "letters", tone: "tomato", desc: "Kitabım, sesler, harf yazma, hece ve kelime oyunları",
+    title: "Türkçe (1. sınıf)", icon: "letters", tone: "tomato", desc: "Kitabım, sesler, harf yazma, hece ve kelime oyunları",
     render(view, sub) {
       if (sub && T.tools[sub]) return T.toolPage(view, sub);
       const wrap = h("div.view-inner"); view.append(wrap);
       const L = learned();
-      wrap.append(h("div.page-head", h("h1", "1. sınıf atölyesi"), h("div.sub", "Oyunlar yalnızca öğrendiğiniz seslerle çalışır. Yeni bir ses öğrenince aşağıdan işaretle.")));
+      wrap.append(h("div.page-head", h("h1", "Türkçe: ilk okuma yazma"), h("div.sub", "Oyunlar yalnızca öğrendiğiniz seslerle çalışır. Yeni bir ses öğrenince aşağıdan işaretle.")));
       wrap.append(h("div.paper", { style: { padding: "16px 18px", marginBottom: "22px", display: "grid", gap: "10px" } },
         h("div.row", h("b", { style: { fontSize: "18px" } }, "Öğrendiğimiz sesler"), h("span.pill.ok", L.length + " ses"), h("div.spacer"),
           h("button.btn.sm.c-chalk", { onclick: () => { const nx = ORDER.find((l) => !L.includes(l)); if (nx) { setLearned(L.concat(nx)); T.route(); } } }, T.icon("plus"), "Sıradaki sesi ekle")),

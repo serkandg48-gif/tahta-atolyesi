@@ -24,6 +24,7 @@ JS_ORDER = [
     "board.js",
     "widgets.js",
     "classroom.js",
+    "sabah.js",
     "math-sense.js",
     "math-manip.js",
     "math-sims.js",

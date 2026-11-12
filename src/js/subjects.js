@@ -10,7 +10,7 @@
       render(view, sub) {
         if (sub && T.tools[sub]) return T.toolPage(view, sub);
         const wrap = h("div.view-inner"); view.append(wrap);
-        wrap.append(h("div.page-head", h("h1", title), h("div.sub", intro)));
+        wrap.append(h("div.page-head", h("h1", (T.dersAdi()[id]) || title), h("div.sub", intro)));
         const g = T.store.grade();
         const list = Object.entries(T.tools).filter(([, t]) => t.back === id).sort((a, b) => (fit(b[1], g) - fit(a[1], g)));
         wrap.append(h("div.tool-grid", list.map(([k, t]) => h("button.tool-card.c-" + (t.tone || tone), { onclick: () => T.go(id + "-" + k) }, T.icon(t.icon), h("span", t.title, h("small", t.short || ""))))));

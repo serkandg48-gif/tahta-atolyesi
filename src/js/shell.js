@@ -37,13 +37,31 @@
       actions: [{ label: "Sınıfları düzenle", onClick: () => T.go("sinif") }, { label: "Kapat" }] });
   }
 
-  /* ---------- Tebeşirlik ---------- */
-  const DOCK = [["ana", "Ana sayfa", "home", "chalk"], ["ekran", "Ders ekranı", "board", "sun"], ["sinif", "Sınıfım", "class", "sky"], "|", ["birinci", "1. sınıf", "letters", "tomato"],
-    ["matematik", "Matematik", "math", "sun"], ["turkce", "Türkçe", "turkce", "tomato"], ["fen", "Fen", "fen", "leaf"], ["sosyal", "Hayat / Sosyal", "sosyal", "sky"], ["ingilizce", "İngilizce", "ingilizce", "grape"], ["zeka", "Bağlam soruları", "zeka", "pink"], "|",
-    ["plan", "Plan", "plan", "grape"], ["ayarlar", "Ayarlar", "settings", "chalk"]];
+  /* ---------- Tebeşirlik: seçili sınıfın düzeyine göre dersler ---------- */
+  T.dersAdi = (g = T.store.grade()) => ({ sosyal: g <= 3 ? "Hayat Bilgisi" : "Sosyal Bilgiler" });
+  T.menu = function (g = T.store.grade()) {
+    const D = {
+      turkce1: ["birinci", "Türkçe", "İlk okuma yazma: Kitabım, sesler, harf yazma, hece ve kelime oyunları.", "letters", "tomato"],
+      turkce: ["turkce", "Türkçe", "Okuma hızı, metin uyarlama, anlama ve yazım araçları.", "turkce", "tomato"],
+      matematik: ["matematik", "Matematik", "Sayı hissi, oyunlar, manipülatifler, simülasyonlar.", "math", "sun"],
+      hayat: ["sosyal", "Hayat Bilgisi", "Günlük rutin, duygular, trafik, mevsimler, aile ve çevre.", "sosyal", "sky"],
+      sosyal: ["sosyal", "Sosyal Bilgiler", "Zaman şeridi, harita, aile ağacı, çevremiz.", "sosyal", "sky"],
+      fen: ["fen", "Fen Bilimleri", "Maddenin halleri, besin zinciri, vücudumuz, ışık ve kuvvet.", "fen", "leaf"],
+      ingilizce: ["ingilizce", "İngilizce", "Resimli kartlar, dinle ve seç.", "ingilizce", "grape"],
+      zeka: ["zeka", "Bağlam soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink"],
+    };
+    const ids = g <= 1 ? ["turkce1", "matematik", "hayat"]
+      : g === 2 ? ["turkce", "matematik", "hayat", "ingilizce"]
+      : g === 3 ? ["turkce", "matematik", "hayat", "fen", "ingilizce"]
+      : g === 4 ? ["turkce", "matematik", "fen", "sosyal", "ingilizce"]
+      : ["turkce", "matematik", "fen", "sosyal", "ingilizce"];
+    return ids.concat("zeka").map((k) => D[k]);
+  };
   function dock(cur) {
-    T.$("#dock").replaceChildren(...DOCK.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) :
-      h("button.dock-item.c-" + d[3], { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon(d[2]), d[1])));
+    const items = [["ana", "Ana sayfa", "home"], ["sabah", "Sabah rutini", "sun"], ["ekran", "Ders ekranı", "board"], ["sinif", "Sınıfım", "class"], "|"]
+      .concat(T.menu().map((m) => [m[0], m[0] === "zeka" ? "Bağlam" : m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+    T.$("#dock").replaceChildren(...items.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) :
+      h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon(d[2]), d[1])));
   }
 
   /* ---------- Ana sayfa ---------- */
@@ -83,16 +101,10 @@
         h("div.quick", [["timer", "Zamanlayıcı", "tomato"], ["name", "İsim çek", "grape"], ["dice", "Zar at", "sun"], ["groups", "Grup kur", "leaf"], ["traffic", "Trafik ışığı", "leaf"], ["noise", "Ses ölçer", "sky"]].map(([k, l, t]) =>
           h("button.btn.big.c-" + t, { onclick: () => { T.go("ekran"); setTimeout(() => T.board.add(k), 60); } }, T.icon(T.widgets[k].icon), l))));
 
-      const tiles = [["birinci", "1. sınıf", "Kitabım, sesler, harf yazma, hece oyunları.", "letters", "tomato", 0.9], ["ekran", "Ders ekranı", "Araçları tahtaya diz, sürükle, büyüt.", "board", "sun", -1.2],
-        ["sinif", "Sınıfım", "Yoklama, davranış puanı, oturma planı.", "class", "sky", 0.8],
-        ["matematik", "Matematik", "Sayı hissi, oyunlar, manipülatifler, simülasyonlar.", "math", "sun", -0.6],
-        ["turkce", "Türkçe", "Hece kartları, okuma hızı, yazım.", "turkce", "tomato", 1.1],
-        ["fen", "Fen", "Ölçüm tablosu, ay evreleri, devre.", "fen", "leaf", -0.9],
-        ["sosyal", "Hayat / Sosyal", "Zaman şeridi, aile ağacı, harita.", "sosyal", "sky", 0.6],
-        ["ingilizce", "İngilizce", "Resimli kartlar, dinle ve seç.", "ingilizce", "grape", -1],
-        ["zeka", "Bağlam soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink", 1.3],
-        ["plan", "Plan", "Yapay zekayla günlük ve yıllık plan.", "plan", "grape", -0.4]];
-      wrap.append(h("div.section-title", h("h2", "Atölyeler")),
+      const tiles = [["sabah", "Sabah rutini", "Takvim, günün sözü, günün sayısı, günün akışı.", "sun", "sun", 0], ["ekran", "Ders ekranı", "Araçları tahtaya diz, sürükle, büyüt.", "board", "sun", 0],
+        ["sinif", "Sınıfım", "Yoklama, davranış puanı, oturma planı.", "class", "sky", 0]]
+        .concat(T.menu().map((m) => [m[0], m[1], m[2], m[3], m[4], 0]), [["plan", "Plan", "Yapay zekâyla günlük ve yıllık plan.", "plan", "grape", 0]]);
+      wrap.append(h("div.section-title", h("h2", T.store.grade() + ". sınıf atölyeleri")),
         h("div.tiles", tiles.map(([id, t, d, ic, tone, tilt]) => h("button.tile.c-" + tone, { style: { "--tilt": tilt + "deg" }, onclick: () => T.go(id) }, T.icon(ic, "ic"), h("div", h("h3", t), h("p", d))))));
     },
   };
@@ -100,6 +112,7 @@
   /* ---------- Yönlendirme ---------- */
   T.route = function () {
     T.cleanups.splice(0).forEach((f) => { try { f(); } catch (e) {} });
+    T.$$("#layer > .scrim").forEach((x) => x.remove());
     const raw = (location.hash || "#ana").slice(1);
     const i = raw.indexOf("-");
     const id = i < 0 ? raw : raw.slice(0, i), sub = i < 0 ? null : raw.slice(i + 1);

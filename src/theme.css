@@ -807,3 +807,4 @@ div.kp-satir { cursor: default; }
 .kp-ozet .kp-satir svg { width: 22px; height: 22px; }
 html.ekranda #yuzen { display: none; }
 .view.pencere .view-inner { padding-top: 58px; }
+.kp-tema-w { position: relative; display: grid; } .kp-tema-w .kp-pinx { top: 14px; right: 8px; transform: none; background: rgba(255,255,255,.9); }

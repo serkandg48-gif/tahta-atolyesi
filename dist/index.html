@@ -1365,6 +1365,7 @@ div.kp-satir { cursor: default; }
 .kp-ozet .kp-satir svg { width: 22px; height: 22px; }
 html.ekranda #yuzen { display: none; }
 .view.pencere .view-inner { padding-top: 58px; }
+.kp-tema-w { position: relative; display: grid; } .kp-tema-w .kp-pinx { top: 14px; right: 8px; transform: none; background: rgba(255,255,255,.9); }
 
 </style>
 </head>
@@ -1379,7 +1380,7 @@ html.ekranda #yuzen { display: none; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="71af00c5ef";
+window.SURUM="d3ba14f5fd";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -9236,27 +9237,55 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     ["izgara", "Noktalı ızgara", "radial-gradient(circle, #C9CFDB 1.6px, transparent 1.8px) 0 0 / 28px 28px, #F7F8FB"],
     ["dingin", "Dingin renkler", "radial-gradient(at 15% 20%, #DCE9F7 0, transparent 50%), radial-gradient(at 85% 15%, #F7E3EC 0, transparent 50%), radial-gradient(at 70% 85%, #E2F2E4 0, transparent 50%), radial-gradient(at 20% 85%, #FBF0D9 0, transparent 50%), #F4F5F8"],
   ];
-  let bgUrl = null;
+  const FOTO = [["kelebek", "Kelebek"], ["kizilgerdan", "Kızılgerdan"], ["karahindiba", "Karahindiba"], ["kaplumbaga", "Deniz kaplumbağası"], ["sonbahar", "Sisli göl"], ["uzay", "Uzay"], ["atolye", "Atölye masası"], ["suluboya", "Suluboya tepeler"], ["monstera", "Sakin duvar"]];
+  const CIZIM = TEMA.filter((t) => ["karatahta", "izgara", "dingin", "doga"].includes(t[0]));
+  let bgUrl = null, donenSecim = null;
+  const ozelListe = () => ayar().ozelBg || [];
+  function havuz() { return FOTO.map((f) => ({ tip: "foto", id: f[0] })).concat(ozelListe().map((id) => ({ tip: "dosya", id }))); }
+  function donenSec() {
+    const h2 = havuz(); const son = ayar().sonDonen;
+    const aday = h2.filter((x) => x.tip + x.id !== son); const sec = aday[Math.floor(Math.random() * aday.length)] || h2[0];
+    ayarYaz((k) => (k.sonDonen = sec.tip + sec.id)); return sec;
+  }
   async function arkaPlanUygula(el = T.$("#tuval")) {
     if (!el) return;
-    const a = ayar().bg || { tip: "tema", id: "doga" };
-    el.style.background = "";
-    if (a.tip === "tema") { const t = TEMA.find((x) => x[0] === a.id) || TEMA[0]; el.style.background = t[2]; el.style.backgroundSize = t[2].startsWith("url") ? "cover" : ""; el.style.backgroundPosition = "center"; }
-    else if (a.tip === "url") { el.style.background = `#222 url("${a.url.replace(/"/g, "%22")}") center / cover no-repeat`; }
-    else if (a.tip === "dosya") { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg")); if (b) { if (bgUrl) URL.revokeObjectURL(bgUrl); bgUrl = URL.createObjectURL(b); el.style.background = `#222 url("${bgUrl}") center / cover no-repeat`; } }
+    const k = ayar();
+    let a = k.bg || { tip: "foto", id: "kelebek" };
+    if (k.donen !== false) { if (!donenSecim) donenSecim = donenSec(); a = donenSecim; }
+    el.style.background = ""; el.style.backgroundSize = "cover"; el.style.backgroundPosition = "center";
+    if (a.tip === "foto") el.style.background = `#ccc url("arka/${a.id}.jpg") center / cover no-repeat`;
+    else if (a.tip === "tema") { const t = TEMA.find((x) => x[0] === a.id) || TEMA[0]; el.style.background = t[2]; el.style.backgroundSize = t[2].startsWith("url") ? "cover" : ""; el.style.backgroundPosition = "center"; }
+    else if (a.tip === "url") el.style.background = `#222 url("${a.url.replace(/"/g, "%22")}") center / cover no-repeat`;
+    else if (a.tip === "dosya") { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg:" + (a.id || ""))) || (T.gorselDepo && (await T.gorselDepo.get("kokpit:bg"))); if (b) { if (bgUrl) URL.revokeObjectURL(bgUrl); bgUrl = URL.createObjectURL(b); el.style.background = `#222 url("${bgUrl}") center / cover no-repeat`; } else el.style.background = `#ccc url("arka/kelebek.jpg") center / cover no-repeat`; }
   }
+  async function kucukResim(id) { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg:" + id)); return b ? URL.createObjectURL(b) : ""; }
   T.arkaPlanSec = function () {
-    const el = T.$("#tuval");
     const url = h("input.in", { placeholder: "https://... görsel bağlantısı", value: (ayar().bg || {}).tip === "url" ? ayar().bg.url : "" });
     let m;
-    const sec = (bg) => { ayarYaz((k) => (k.bg = bg)); if (el) arkaPlanUygula(el); };
-    m = T.modal({ title: "Arka planı değiştir", wide: true, body: h("div", { style: { display: "grid", gap: "16px" } },
-      h("div.kp-temalar", TEMA.map(([id, ad, css]) => h("button.kp-tema" + ((ayar().bg || { id: "doga" }).id === id ? ".on" : ""), { onclick: () => { sec({ tip: "tema", id }); m.close(); } }, h("span", { style: { background: css, backgroundSize: "cover", backgroundPosition: "center" } }), ad))),
-      h("div.sb-card", { style: { display: "grid", gap: "10px" } }, h("b", "Kendi fotoğrafın"),
-        h("label.btn.c-chalk", { style: { cursor: "pointer", justifySelf: "start" } }, T.icon("download"), "Bilgisayarımdan yükle", h("input", { type: "file", accept: "image/*", style: { display: "none" }, onchange: async (e) => { const f = e.target.files[0]; if (!f) return; const ok = T.gorselDepo && (await T.gorselDepo.put("kokpit:bg", f)); if (!ok) { T.toast("Fotoğraf kaydedilemedi"); return; } sec({ tip: "dosya" }); m.close(); } })),
-        h("div.row", url, h("button.btn.c-leaf", { onclick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return; } sec({ tip: "url", url: u }); m.close(); } }, "Kullan")),
-        h("p.hint", "Fotoğraf yalnızca bu cihazda saklanır. Bağlantıdaki görselin kullanım hakkının sende olduğundan emin ol."))),
-      actions: [{ label: "Kapat" }] });
+    const sec = (bg) => { ayarYaz((k) => { k.bg = bg; k.donen = false; }); donenSecim = null; arkaPlanUygula(); };
+    const govde = h("div", { style: { display: "grid", gap: "16px" } });
+    const etkin = (bg) => { const a = ayar(); return a.donen === false && a.bg && a.bg.tip === bg.tip && a.bg.id === bg.id; };
+    function ciz() {
+      const a = ayar();
+      const ozel = h("div.kp-temalar");
+      ozelListe().forEach(async (id) => { const u = await kucukResim(id); ozel.append(h("div.kp-tema-w", h("button.kp-tema" + (etkin({ tip: "dosya", id }) ? ".on" : ""), { onclick: () => { sec({ tip: "dosya", id }); m.close(); } }, h("span", { style: { background: `#ddd url("${u}") center / cover` } }), "Benim görselim"), h("button.kp-pinx", { "aria-label": "Sil", onclick: () => { ayarYaz((k) => (k.ozelBg = (k.ozelBg || []).filter((x) => x !== id))); T.gorselDepo.del("kokpit:bg:" + id); ciz(); } }, T.icon("close")))); });
+      govde.replaceChildren(
+        h("label.bt-madde" + (a.donen !== false ? ".on" : ""), { style: { cursor: "pointer" } }, h("input", { type: "checkbox", checked: a.donen !== false ? true : null, onchange: (e) => { ayarYaz((k) => (k.donen = e.target.checked)); donenSecim = null; arkaPlanUygula(); ciz(); } }), h("span", "Her açılışta değişsin (fotoğraflar ve benim görsellerim arasından)")),
+        h("b", "Fotoğraflar"),
+        h("div.kp-temalar", FOTO.map(([id, ad]) => h("button.kp-tema" + (etkin({ tip: "foto", id }) ? ".on" : ""), { onclick: () => { sec({ tip: "foto", id }); m.close(); } }, h("span", { style: { background: `#ddd url("arka/${id}-k.jpg") center / cover` } }), ad))),
+        h("b", "Benim görsellerim"),
+        ozel,
+        h("div.row", h("label.btn.c-chalk", { style: { cursor: "pointer" } }, T.icon("download"), "Görsel ekle", h("input", { type: "file", accept: "image/*", multiple: true, style: { display: "none" }, onchange: async (e) => {
+          for (const f of e.target.files) { const id = T.uid(); const ok = T.gorselDepo && (await T.gorselDepo.put("kokpit:bg:" + id, f)); if (ok) ayarYaz((k) => (k.ozelBg = (k.ozelBg || []).concat(id))); }
+          T.toast("Görsel eklendi"); ciz();
+        } })), h("span.hint", "Birden çok görsel seçebilirsin. Yalnızca bu cihazda saklanır.")),
+        h("div.row", url, h("button.btn.c-leaf", { onclick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return; } sec({ tip: "url", url: u }); m.close(); } }, "Bağlantıyı kullan")),
+        h("b", "Düz zeminler"),
+        h("div.kp-temalar", CIZIM.map(([id, ad, css]) => h("button.kp-tema" + (etkin({ tip: "tema", id }) ? ".on" : ""), { onclick: () => { sec({ tip: "tema", id }); m.close(); } }, h("span", { style: { background: css, backgroundSize: "cover", backgroundPosition: "center" } }), ad))),
+        h("p.hint", "Kendi eklediğin görselin ya da bağlantının kullanım hakkının sende olduğundan emin ol."));
+    }
+    ciz();
+    m = T.modal({ title: "Arka plan", wide: true, body: govde, actions: [{ label: "Kapat" }] });
   };
 
   /* ---------- Müzik ve atmosfer (Web Audio) ---------- */

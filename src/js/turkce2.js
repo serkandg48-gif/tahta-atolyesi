@@ -323,7 +323,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     },
   });
 
-  [["okuma-hizi", "Okuma"], ["metin-uyarla", "Okuma"], ["dikte", "Yazma"], ["5n1k", "Anlama ve anlatma"], ["hikaye-zarlari", "Anlama ve anlatma"], ["es-zit", "Söz varlığı"], ["kelime-duvari", "Söz varlığı"], ["noktalama", "Yazım ve noktalama"], ["yazim", "Yazım ve noktalama"], ["hece", "Ses ve hece"], ["ses", "Ses ve hece"]].forEach(([k, g]) => setTimeout(() => { if (T.tools[k]) T.tools[k].grup = g; }, 0));
+  [["okuma-tiyatrosu", "Okuma"], ["okuma-hizi", "Okuma"], ["metin-uyarla", "Okuma"], ["dikte", "Yazma"], ["5n1k", "Anlama ve anlatma"], ["hikaye-zarlari", "Anlama ve anlatma"], ["es-zit", "Söz varlığı"], ["kelime-duvari", "Söz varlığı"], ["noktalama", "Yazım ve noktalama"], ["yazim", "Yazım ve noktalama"], ["hece", "Ses ve hece"], ["ses", "Ses ve hece"]].forEach(([k, g]) => setTimeout(() => { if (T.tools[k]) T.tools[k].grup = g; }, 0));
 
   T.grupSira = Object.assign(T.grupSira || {}, { turkce: ["Okuma", "Anlama ve anlatma", "Yazma", "Söz varlığı", "Yazım ve noktalama", "Ses ve hece"] });
 

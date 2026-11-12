@@ -49,6 +49,7 @@ JS_ORDER = [
     "math-talks.js",
     "subjects.js",
     "turkce2.js",
+    "tiyatro.js",
     "fenhayat.js",
     "birinci.js",
     "duygu.js",

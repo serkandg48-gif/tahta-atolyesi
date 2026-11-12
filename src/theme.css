@@ -1536,3 +1536,20 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .sb-hava button { border: 0 !important; background: linear-gradient(170deg, #FFFEFA, #F3ECDC) !important; box-shadow: 0 5px 10px rgba(50,30,10,.2) !important; }
 .sb-hava button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--navy), 0 8px 14px rgba(50,30,10,.25) !important; transform: translateY(-2px); }
 .m-harita { border: 0 !important; border-radius: 4px !important; background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0) 55%, rgba(120,80,30,.22)), linear-gradient(180deg, #F4EAD2, #E9DAB8) !important; box-shadow: 0 2px 2px rgba(0,0,0,.12), 0 14px 26px rgba(50,35,15,.22) !important; }
+/* Okuma tiyatrosu */
+.ot-kap { position: relative; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 40px rgba(30,15,40,.35); background: #2A2140; }
+.ot-sahne { display: block; width: 100%; height: auto; max-height: calc(100vh - 250px); }
+.ot-alt { position: absolute; left: 0; right: 0; bottom: 0; display: grid; justify-items: center; gap: 10px; padding: 40px 16px 18px; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(20,8,30,.55)); }
+.ot-alt > * { pointer-events: auto; }
+.ot-kart { position: absolute; z-index: 2; top: 9%; left: 50%; transform: translateX(-50%); width: min(78%, 900px); }
+.ot-cumle { background: linear-gradient(180deg, #FFFDF6, #F4ECDA); color: #2A1E3F; border-radius: 16px; padding: 14px 26px; text-align: center; font: 800 clamp(26px, 3.4vw, 50px)/1.15 var(--display); box-shadow: 0 8px 0 #C9B48E, 0 18px 30px rgba(0,0,0,.35); animation: otGel .5s cubic-bezier(.2,1.4,.4,1); }
+@keyframes otGel { from { transform: translateY(-30px) scale(.9); opacity: 0; } }
+.ot-dugme { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.ot-b { display: inline-flex; align-items: center; gap: 10px; border: 0; border-radius: 999px; padding: 14px 28px; font: 800 clamp(18px, 1.8vw, 26px) var(--display); cursor: pointer; color: #fff; box-shadow: 0 6px 0 rgba(0,0,0,.3), 0 12px 20px rgba(0,0,0,.3); transition: transform .12s; }
+.ot-b svg { width: 26px; height: 26px; } .ot-b:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.3); }
+.ot-b.dinle { background: linear-gradient(180deg, #6E8BFF, #4A63D8); } .ot-b.oyna { background: linear-gradient(180deg, #FFB648, #F08A1C); }
+.ot-b.evet { background: linear-gradient(180deg, #5BD57A, #2FA552); } .ot-b.hayir { background: linear-gradient(180deg, #FF7A7A, #E04848); }
+.ot-soru, .ot-not, .ot-sonuc { width: 100%; text-align: center; color: #fff; font: 800 clamp(20px, 2.2vw, 32px) var(--display); text-shadow: 0 3px 8px rgba(0,0,0,.6); }
+.ot-sonuc.iyi { color: #FFE27A; }
+.ot-skor { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-weight: 700; }
+.ot-puan { margin-left: auto; font: 800 24px var(--display); }

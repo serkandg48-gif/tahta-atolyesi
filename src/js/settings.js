@@ -16,6 +16,19 @@
       const backup = () => JSON.stringify(T.store.get());
       wrap.append(h("div.page-head", h("h1", "Ayarlar")),
         h("div", { style: { display: "grid", gap: "22px", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", alignItems: "start" } },
+          (() => {
+            const g = T.gorunum();
+            const bolumler = T.menu();
+            const kartAd = (r) => { const k = r.slice(r.indexOf("-") + 1); return (T.tools[k] || {}).title || r; };
+            return h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Görünüm"),
+              h("div.seg", [["sade", "Sade: her gün kullanılanlar"], ["tam", "Tüm araçlar"]].map(([v, l]) => h("button", { "aria-pressed": String(g.mod === v), onclick: () => { T.gorunumYaz((x) => (x.mod = v)); T.route(); } }, l))),
+              h("p.hint", { style: { margin: 0 } }, "Sade görünümde çantada yalnızca her gün gereken araçlar ve dersler durur. Çantanın altındaki Tümünü göster ile de geçebilirsin."),
+              h("div", h("b", "Çantada görünen bölümler"), h("div.gz-bolumler", bolumler.map((m) => h("label.row", { style: { gap: "8px", cursor: "pointer" } },
+                h("input", { type: "checkbox", checked: !g.bolum.includes(m[0]) ? true : null, onchange: (e) => { T.gorunumYaz((x) => { x.bolum = x.bolum.filter((b) => b !== m[0]); if (!e.target.checked) x.bolum.push(m[0]); }); T.route(); } }),
+                h("span", m[1]), g.mod === "sade" && T.SADE_GIZLI.includes(m[0]) ? h("small.hint", "sade görünümde gizli") : null)))),
+              g.kart.length ? h("div", h("b", "Gizlediğin kartlar"), h("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" } }, g.kart.map((r) => h("button.btn.sm.c-chalk", { onclick: () => { T.gorunumYaz((x) => (x.kart = x.kart.filter((y) => y !== r))); T.route(); } }, T.icon("eye"), kartAd(r)))),
+                h("button.btn.sm.c-chalk", { style: { marginTop: "8px" }, onclick: () => { T.gorunumYaz((x) => (x.kart = [])); T.route(); } }, "Hepsini geri aç")) : h("p.hint", { style: { margin: 0 } }, "Bir etkinlik kartının köşesindeki göz simgesiyle o kartı gizleyebilirsin."));
+          })(),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Ben ve okulum"),
             field("Adım", inp("teacher", "Örnek: Ayşe Öğretmen"), "Ana sayfadaki selamlamada kullanılır."),
             field("Okulum", inp("school", "Örnek: Cumhuriyet İlkokulu")),

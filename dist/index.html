@@ -1681,6 +1681,14 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .rt-pusula { grid-template-rows: repeat(3, minmax(0, 1fr)); }
 .rt-merkez { grid-template-rows: repeat(3, minmax(0, 1fr)); }
 .rt-gul, .rt-merkez.yuvarlak .rt-cekirdek { height: auto; width: 100%; max-height: 100%; max-width: 100%; align-self: center; }
+.gz-bolumler { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 14px; margin-top: 6px; }
+.tc-wrap { position: relative; }
+.tc-gizle { position: absolute; top: 8px; right: 40px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; color: #8A96AE; cursor: pointer; display: grid; place-items: center; opacity: 0; transition: opacity .15s; }
+.tc-gizle svg { width: 16px; height: 16px; }
+.tc-wrap:hover .tc-gizle, .tc-wrap:focus-within .tc-gizle { opacity: 1; }
+@media (hover: none) { .tc-gizle { opacity: .55; } }
+.dock .dock-item.dock-tam { min-height: 58px; color: var(--navy); font-weight: 700; border-top: 1px dashed var(--line); border-radius: 0 0 14px 14px; }
+.dock .dock-item.dock-tam svg { width: 22px; height: 22px; }
 
 </style>
 </head>
@@ -1695,7 +1703,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="7b1b66bd29";
+window.SURUM="cdfac0ad93";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -1881,6 +1889,12 @@ T.bugununSayisi = function (c = T.store.activeClass()) {
   if (v.kaynak === "ay") return new Date().getDate();
   return Math.max(1, T.cal.dayNumber());
 };
+/* Görünüm: sade (her gün kullanılanlar) ya da tam; gizlenen bölümler ve kartlar. Öğretmene göre, sınıftan bağımsız. */
+T.gorunum = () => { const g = T.store.get().gorunum || {}; return { mod: g.mod || "sade", bolum: g.bolum || [], kart: g.kart || [] }; };
+T.gorunumYaz = (fn) => T.store.update((s) => { s.gorunum = Object.assign({ mod: "sade", bolum: [], kart: [] }, s.gorunum || {}); fn(s.gorunum); });
+T.SADE_GIZLI = ["kultur", "zeka"];
+T.bolumGorunur = (id) => { const g = T.gorunum(); if (g.bolum.includes(id)) return false; if (g.mod === "sade" && T.SADE_GIZLI.includes(id)) return false; return true; };
+T.kartGizli = (route) => T.gorunum().kart.includes(route);
 T.confirm = (title, text, yesLabel = "Evet") => new Promise((res) => {
   T.modal({ title, body: T.h("p", text), actions: [
     { label: "Vazgeç", onClick: () => res(false) },
@@ -9027,7 +9041,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     },
   });
   tool("bookflix", {
-    title: "Bookflix", icon: "book", tone: "tomato", short: "Sizden gelenler: sınıfın kitap önerileri",
+    title: "Sınıfın kitap önerileri", icon: "book", tone: "tomato", short: "Dizi platformu gibi raflar: arkadaşına kitap öner (Bookflix)",
     render(host) {
       notPanosu(host, { anahtar: "bookflix", raf: true, yerTutucu: "Kitabın adı", alanlar: [["Yazar", "Yazarı"], ["Neden?", "Neden öneriyorsun? (kısa)"]], isimAd: "Öneren (isteğe bağlı)",
         ust: () => h("div.bf-logo", "BOOKFLIX", h("small", "Sizden gelenler")),
@@ -9122,7 +9136,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
   }
   const CICEK = ["#F29BB8", "#F4CF4B", "#F2994A", "#F5A8D0", "#E8474C", "#5AA9E6"];
   tool("bump-it-up", {
-    title: "Bump It Up duvarı", icon: "stairs", tone: "sun", grades: [1, 8], short: "Gelişim duvarı: örneklerle bir sonraki basamağa çık",
+    title: "Basamak duvarı", icon: "stairs", tone: "sun", grades: [1, 8], short: "Örnek çalışmalarla bir üst basamağa (Bump It Up) çık",
     render(host) {
       let aktif = null, duzen = false, yonerge = false;
       const box = h("div"); host.append(box);
@@ -9351,7 +9365,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     const wrap = h("div.view-inner"); view.append(wrap);
     wrap.append(h("div.page-head", h("h1", "SDÖ araçlarımız"), h("div.sub", "Sosyal duygusal öğrenme araçları, Maarif Modeli'ndeki sosyal duygusal öğrenme becerilerine göre gruplandı. Öğrencilerin seçimleri yalnızca bu cihazda kalır.")));
     SDB.forEach(([ad, kod, ids]) => wrap.append(grupBas(ad, kod), kartlar(ids.map((id) => ["duygu-" + id, T.tools[id]]), "pink")));
-    wrap.append(h("p.hint", "Sınıf düzeni araçları (Bump It Up, Etkinliğim bitti, YZ düzeyi) artık ", h("a", { href: "#kultur", onclick: (e) => { e.preventDefault(); T.go("kultur"); } }, "Sınıf düzenimiz"), " bölümünde."));
+    wrap.append(h("p.hint", "Sınıf düzeni araçları (Basamak duvarı, Etkinliğim bitti, YZ düzeyi) artık ", h("a", { href: "#kultur", onclick: (e) => { e.preventDefault(); T.go("kultur"); } }, "Sınıf düzenimiz"), " bölümünde."));
   };
   T.sections.kultur = {
     title: "Sınıf düzenimiz", icon: "trophy", tone: "sun", desc: "Bump It Up, Etkinliğim bitti, YZ düzeyi, anlama düzeyi",
@@ -9406,7 +9420,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
   Object.assign(T.YARDIM, {
     kesif: ["Hayat ve Fen", "Her ünitede kullanılan sorgulama araçları ve sınıf düzeyine uygun etkinlikler.", ["Gör, düşün, merak et ile bir görselden sorgulamayı başlat.", "Sınıflandırma panosunda grupları ve kartları sen yazarsın.", "Gözlem günlüğü her gün bir ölçüm kaydeder, grafiği kendisi çizer."]],
     duygu: ["SDÖ araçlarımız", "Duyguyu tanıma, sakinleşme, yansıtma ve çatışma çözme araçları. Maarif SDÖ becerilerine göre gruplu.", ["Duygumetreyi sabah ya da teneffüs dönüşü aç.", "Sorun ne büyüklükte? aracı şikâyetleri sınıflandırmaya yardım eder.", "Öğrencilerin seçimleri yalnızca bu cihazda kalır."]],
-    kultur: ["Sınıf düzenimiz", "Bump It Up duvarı, Etkinliğim bitti menüsü, YZ düzeyi ve anlama düzeyi panoları.", ["Bump It Up duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
+    kultur: ["Sınıf düzenimiz", "Bump It Up duvarı, Etkinliğim bitti menüsü, YZ düzeyi ve anlama düzeyi panoları.", ["Basamak duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
   });
 })();
 
@@ -9427,6 +9441,22 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     "Perspektif Alma": "Bakış açısı alma", "Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma": "Tartışma ve ikilemler", "Olasılıklar ve Benzetmeler Üretmek": "Olasılık ve benzetme",
     "Fikirleri Sentezleme ve Düzenleme": "Sentezleme ve düzenleme", "Sanat, Resim ve Nesneleri Keşfetmek": "Sanat ve nesneler", "Uluslararası Düşünme": "Küresel düşünme" };
   const RENK = ["#2E6FB0", "#D98A1F", "#2E8B57", "#B8456A", "#6B55B5", "#1F8A8A", "#C2453A", "#7A6A2E"];
+  const ONERILEN = ["gor-dusun-merak-et", "dusun-esles-paylas", "eskiden-dusunurdum-simdi-dusunuyorum", "3-2-1-kopru", "dusun-sorgula-kesfet", "baglan-genislet-meydan-oku", "iddia-destek-soru", "pusula", "renk-sembol-gorsel", "basliklar", "gor-hisset-dusun-merak-et", "bakmak-on-kere-iki"];
+  /* Maarif Modeli bağlantıları: rutin kategorisine göre destekleyebileceği kavramsal beceriler ve eğilimler */
+  const MAARIF = {
+    "Temel Düşünme Rutinleri": ["Gözlemleme (KB2.2)", "Sorgulama (KB2.8)", "Merak (E1.1)"],
+    "Fikirleri Tanıtma ve Keşfetme": ["Gözlemleme (KB2.2)", "Merak (E1.1)", "Soru Sorma (E3.8)"],
+    "Fikirlerin Daha Derinlemesine İncelenmesi": ["Yorumlama (KB2.14)", "Muhakeme (KB2.16)", "Gerçeği Arama (E3.4)"],
+    "Nesnelerin ve Sistemlerin Araştırılması": ["Çözümleme (KB2.4)", "Analitiklik (E3.6)", "Sistematiklik (E3.7)"],
+    "Perspektif Alma": ["Empati (E2.1)", "Açık Fikirlilik (E3.5)", "Yorumlama (KB2.14)"],
+    "Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma": ["Tartışma (KB2.18)", "Karar Verme (KB3.1)", "Eleştirel Bakma (E3.10)"],
+    "Olasılıklar ve Benzetmeler Üretmek": ["Yaratıcılık (E3.3)", "Karşılaştırma (KB2.7)", "Problem Çözme (KB3.2)"],
+    "Fikirleri Sentezleme ve Düzenleme": ["Özetleme (KB2.3)", "Sentezleme (KB2.20)", "Yansıtma (KB2.15)"],
+    "Sanat, Resim ve Nesneleri Keşfetmek": ["Gözlemleme (KB2.2)", "Yorumlama (KB2.14)", "Yaratıcılık (E3.3)"],
+    "Uluslararası Düşünme": ["Empati (E2.1)", "Sorumluluk (E2.2)", "Açık Fikirlilik (E3.5)"],
+  };
+  const OZEL_MAARIF = { "eskiden-dusunurdum-simdi-dusunuyorum": ["Yansıtma (KB2.15)"], "3-2-1-kopru": ["Yansıtma (KB2.15)"], "dusun-esles-paylas": ["Muhakeme (KB2.16)"], "iddia-destek-soru": ["Muhakeme (KB2.16)", "Şüphe Duyma (E3.9)"], "ogrenme-icin-alan-yaratma": ["Odaklanma (E3.2)"], "duygular-ve-secenekler": ["Empati (E2.1)"] };
+  T.rutinMaarif = (r) => [...new Set((OZEL_MAARIF[r.id] || []).concat(...r.kat.map((k) => MAARIF[k] || [])))].slice(0, 4);
   const cid = () => T.store.activeClass().id;
   const rutin = (id) => T.RUTINLER.find((r) => r.id === id);
 
@@ -9526,6 +9556,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     r.secmeli ? h("p.rt-not", "Kutulardan birini seç ve yalnızca onu doldur.") : null,
     h("ol", adimlar(r).map(([b, q], i) => h("li", { style: { "--c": RENK[i % RENK.length] } }, h("b", b), h("span", q)))));
   const ogretmenYonerge = (r) => h("div.rt-yon.ogretmen", h("h4", "Öğretmene"), h("p", h("b", "Amaç: "), r.amac), h("p", h("b", "Ne zaman, nasıl: "), r.ne),
+    h("p", h("b", "Maarif Modeli'nde destekleyebileceği: "), T.rutinMaarif(r).join(", ")),
     h("p.hint", "Şablon " + (r.yon === "dikey" ? "A4 dikey" : "A4 yatay") + " basılır. Tahtada kutulara dokunup yazabilirsiniz; yazılanlar bu sınıf için saklanır."));
 
   /* ---------- Yazdır ---------- */
@@ -9583,7 +9614,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
   }
 
   /* ---------- Bölüm: Ölçme ve değerlendirme ---------- */
-  let filtre = null, ara = "";
+  let filtre = "oneri", ara = "";
   T.sections.olcme = {
     title: "Ölçme ve değerlendirme", icon: "check", tone: "grape", desc: "Düşünme rutinleri: yansıt, üzerine yaz, A4 yazdır",
     render(view, sub) {
@@ -9595,13 +9626,13 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       const cipler = h("div.rt-cipler");
       const liste = h("div.rt-liste");
       const ciz = () => {
-        cipler.replaceChildren(h("button" + (!filtre ? ".on" : ""), { onclick: () => { filtre = null; ciz(); } }, "Hepsi (" + T.RUTINLER.length + ")"),
+        cipler.replaceChildren(h("button" + (filtre === "oneri" ? ".on" : ""), { onclick: () => { filtre = "oneri"; ciz(); } }, "İlkokul için önerilen 12"), h("button" + (!filtre ? ".on" : ""), { onclick: () => { filtre = null; ciz(); } }, "Tüm rutinler (" + T.RUTINLER.length + ")"),
           KAT_SIRA.filter((k) => T.RUTINLER.some((r) => r.kat.includes(k))).map((k) => h("button" + (filtre === k ? ".on" : ""), { onclick: () => { filtre = k; ciz(); } }, KAT_KISA[k] || k)));
         const q = ara.trim().toLocaleLowerCase("tr");
-        const l = T.RUTINLER.filter((r) => (!filtre || r.kat.includes(filtre)) && (!q || (r.ad + " " + r.adim.map((a) => a[0]).join(" ")).toLocaleLowerCase("tr").includes(q)));
+        const l = (filtre === "oneri" && !q ? ONERILEN.map(rutin).filter(Boolean) : T.RUTINLER.filter((r) => (!filtre || filtre === "oneri" || r.kat.includes(filtre)))).filter((r) => (!q || (r.ad + " " + r.adim.map((a) => a[0]).join(" ")).toLocaleLowerCase("tr").includes(q)));
         liste.replaceChildren(...l.map((r) => h("button.rt-kart", { onclick: () => T.go("olcme-r-" + r.id) },
           h("div.rt-mini." + (r.yon === "dikey" ? "dikey" : "yatay"), r.adim.slice(0, 6).map((_, i) => h("i", { style: { background: RENK[i % RENK.length] } }))),
-          h("div", h("b", r.ad), h("small", r.adim.map((a) => a[0]).slice(0, 4).join(" · ")), h("span.rt-yontag", r.yon === "dikey" ? "A4 dikey" : "A4 yatay")))));
+          h("div", h("b", r.ad), h("small", r.adim.map((a) => a[0]).slice(0, 4).join(" · ")), h("span.rt-yontag", T.rutinMaarif(r).slice(0, 2).map((x) => x.replace(/ \(.*\)/, "")).join(" · ") + " · " + (r.yon === "dikey" ? "A4 dikey" : "A4 yatay"))))));
         if (!l.length) liste.append(h("p.hint", "Bu adla bir rutin bulunamadı."));
       };
       aramaKutu.addEventListener("input", () => { ara = aramaKutu.value; ciz(); });
@@ -10006,6 +10037,19 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       const backup = () => JSON.stringify(T.store.get());
       wrap.append(h("div.page-head", h("h1", "Ayarlar")),
         h("div", { style: { display: "grid", gap: "22px", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", alignItems: "start" } },
+          (() => {
+            const g = T.gorunum();
+            const bolumler = T.menu();
+            const kartAd = (r) => { const k = r.slice(r.indexOf("-") + 1); return (T.tools[k] || {}).title || r; };
+            return h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Görünüm"),
+              h("div.seg", [["sade", "Sade: her gün kullanılanlar"], ["tam", "Tüm araçlar"]].map(([v, l]) => h("button", { "aria-pressed": String(g.mod === v), onclick: () => { T.gorunumYaz((x) => (x.mod = v)); T.route(); } }, l))),
+              h("p.hint", { style: { margin: 0 } }, "Sade görünümde çantada yalnızca her gün gereken araçlar ve dersler durur. Çantanın altındaki Tümünü göster ile de geçebilirsin."),
+              h("div", h("b", "Çantada görünen bölümler"), h("div.gz-bolumler", bolumler.map((m) => h("label.row", { style: { gap: "8px", cursor: "pointer" } },
+                h("input", { type: "checkbox", checked: !g.bolum.includes(m[0]) ? true : null, onchange: (e) => { T.gorunumYaz((x) => { x.bolum = x.bolum.filter((b) => b !== m[0]); if (!e.target.checked) x.bolum.push(m[0]); }); T.route(); } }),
+                h("span", m[1]), g.mod === "sade" && T.SADE_GIZLI.includes(m[0]) ? h("small.hint", "sade görünümde gizli") : null)))),
+              g.kart.length ? h("div", h("b", "Gizlediğin kartlar"), h("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" } }, g.kart.map((r) => h("button.btn.sm.c-chalk", { onclick: () => { T.gorunumYaz((x) => (x.kart = x.kart.filter((y) => y !== r))); T.route(); } }, T.icon("eye"), kartAd(r)))),
+                h("button.btn.sm.c-chalk", { style: { marginTop: "8px" }, onclick: () => { T.gorunumYaz((x) => (x.kart = [])); T.route(); } }, "Hepsini geri aç")) : h("p.hint", { style: { margin: 0 } }, "Bir etkinlik kartının köşesindeki göz simgesiyle o kartı gizleyebilirsin."));
+          })(),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Ben ve okulum"),
             field("Adım", inp("teacher", "Örnek: Ayşe Öğretmen"), "Ana sayfadaki selamlamada kullanılır."),
             field("Okulum", inp("school", "Örnek: Cumhuriyet İlkokulu")),
@@ -10339,9 +10383,11 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   T.pinDegis = (r, baslik, ikon, ton) => T.store.update((s) => { s.pinler = s.pinler || {}; const l = (s.pinler[cid()] = s.pinler[cid()] || []); const i = l.findIndex((x) => x.r === r); if (i >= 0) l.splice(i, 1); else l.push({ r, b: baslik, i: ikon, t: ton }); });
   /* Etkinlik kartı: köşesinde Ana tahtaya sabitle düğmesi */
   T.aracKart = (route, t, ton) => {
+    if (T.kartGizli(route)) return null;
+    const gizle = h("button.tc-gizle", { "aria-label": "Bu kartı gizle", title: "Bu kartı gizle (Ayarlar'dan geri açılır)", onclick: (e) => { e.stopPropagation(); T.gorunumYaz((g) => g.kart.includes(route) || g.kart.push(route)); const w = e.target.closest(".tc-wrap"); if (w) w.remove(); T.toast("Kart gizlendi. Ayarlar > Görünüm'den geri açabilirsin"); } }, T.icon("eyeoff"));
     const pin = h("button.tc-pin", { "aria-label": "Ana sayfaya kısayol ekle", title: "Ana sayfaya kısayol ekle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana sayfadaki kısayollara eklendi" : "Kısayol kaldırıldı"); } }, T.icon("pin"));
     if (T.pinliMi(route)) pin.classList.add("on");
-    return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon3d(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin);
+    return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon3d(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin, gizle);
   };
   /* Tüm etkinliklerden kısayol seçme */
   T.kisayolSec = function () {
@@ -10397,7 +10443,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     fen: ["Fen Bilimleri", "Deney, gözlem ve modelleme etkinlikleri.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne etkinliği ana sayfaya ekler."]],
     sosyal: ["Hayat Bilgisi ve Sosyal", "Okul, aile, çevre ve zaman konularında sınıf etkinlikleri.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne etkinliği ana sayfaya ekler."]],
     ingilizce: ["İngilizce", "Kelime, dinleme ve konuşma etkinlikleri.", ["Kelimeleri dinletmek için hoparlör simgesine dokun."]],
-    duygu: ["Duygular ve sınıf kültürü", "Duygumetre, çatışma çözümü, Bump It Up duvarı, Etkinliğim bitti menüsü.", ["Duygumetreyi sabah ya da teneffüs dönüşü aç.", "Bump It Up duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
+    duygu: ["Duygular ve sınıf kültürü", "Duygumetre, çatışma çözümü, Basamak duvarı, Etkinliğim bitti menüsü.", ["Duygumetreyi sabah ya da teneffüs dönüşü aç.", "Basamak duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
     zeka: ["Düşünme soruları", "Gerçek hayattan bir durum ve ona bağlı sorular. Ezber değil, akıl yürütme.", ["Kartı aç, durumu birlikte okuyun, soruları tek tek konuşun."]],
     plan: ["Plan", "Günlük ve yıllık plan, Maarif öğrenme çıktılarıyla.", ["Dersi, sınıfı ve çıktıyı seç; plan hazırlanır.", "Kaydettiğin planı tek dokunuşla ders ekranına dönüştürebilirsin.", "Yapay zekâ için Ayarlar'dan Google ile giriş yapman yeterli, ücret yok."]],
     ayarlar: ["Ayarlar", "Okul takvimi, sınıflar, ses ve giriş.", ["Okul takvimini bir kez gir, \"okulun kaçıncı günü\" buradan hesaplanır."]],
@@ -10478,7 +10524,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       zeka: ["zeka", "Düşünme soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink"],
       duygu: ["duygu", "SDÖ araçlarımız", "Duygumetre, sakinleşme, yansıtma, çatışma çözme.", "heart", "pink"],
       olcme: ["olcme", "Ölçme ve değerlendirme", "Düşünme rutinleri: yansıt, birlikte yaz, A4 yazdır.", "check", "grape"],
-      kultur: ["kultur", "Sınıf düzenimiz", "Bump It Up, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
+      kultur: ["kultur", "Sınıf düzenimiz", "Basamak duvarı, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };
     const ids = g <= 1 ? ["turkce", "matematik", "kesif"] : ["turkce", "matematik", "kesif", "ingilizce"];
     return ids.concat("olcme", "duygu", "kultur", "zeka").map((k) => D[k]);
@@ -10500,10 +10546,13 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     el.classList.toggle("kucuk", kucuk);
     if (kucuk) { el.replaceChildren(h("button.dock-ac", { "aria-label": "Menüyü aç", title: "Menüyü aç", onclick: () => { dockYaz("ta-dock-kucuk", "0"); dock(cur); } }, T.icon("grid"))); return; }
     const atolye = [["ana", "Ana sayfa", "home"], ["sabah", "Sabah rutini", "sun"], ["sinif", "Sınıfım", "class"], "|"]
-      .concat(T.menu().map((m) => [m[0], { zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+      .concat(T.menu().filter((m) => T.bolumGorunur(m[0]) || cur === m[0]).map((m) => [m[0], { zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+    const sade = T.gorunum().mod === "sade";
+    const ARAC_SADE = ["timer", "name", "dice", "groups", "traffic", "noise", "text", "hepsi"];
     const serit = h("div.dock-serit", mod === "arac"
-      ? ARACLAR.filter(([k]) => k === "bg" || k === "hepsi" || T.widgets[k]).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
-      : atolye.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) : h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon3d(d[2]), h("span", d[1]))));
+      ? ARACLAR.filter(([k]) => (k === "bg" || k === "hepsi" || T.widgets[k]) && (!sade || ARAC_SADE.includes(k))).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
+      : atolye.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) : h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon3d(d[2]), h("span", d[1]))),
+      h("button.dock-item.dock-tam", { onclick: () => { T.gorunumYaz((g) => (g.mod = g.mod === "sade" ? "tam" : "sade")); T.toast(T.gorunum().mod === "sade" ? "Sade görünüm: her gün kullanılanlar" : "Tüm araçlar ve bölümler açıldı"); T.route(); }, title: sade ? "Tüm araçları ve bölümleri göster" : "Yalnızca her gün kullanılanları göster" }, T.icon(sade ? "plus" : "minus"), h("span", sade ? "Tümünü göster" : "Sadeleştir")));
     const kay = (yon) => serit.scrollBy({ top: yon * serit.clientHeight * 0.7, behavior: "smooth" });
     const sol = h("button.dock-ok", { "aria-label": "Yukarı kaydır", onclick: () => kay(-1) }, T.icon("up")), sag = h("button.dock-ok", { "aria-label": "Aşağı kaydır", onclick: () => kay(1) }, T.icon("down"));
     const oklar = () => { sol.hidden = serit.scrollTop < 4; sag.hidden = serit.scrollTop + serit.clientHeight >= serit.scrollHeight - 4; };

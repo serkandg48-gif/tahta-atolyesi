@@ -142,7 +142,7 @@
     const wrap = h("div.view-inner"); view.append(wrap);
     wrap.append(h("div.page-head", h("h1", "SDÖ araçlarımız"), h("div.sub", "Sosyal duygusal öğrenme araçları, Maarif Modeli'ndeki sosyal duygusal öğrenme becerilerine göre gruplandı. Öğrencilerin seçimleri yalnızca bu cihazda kalır.")));
     SDB.forEach(([ad, kod, ids]) => wrap.append(grupBas(ad, kod), kartlar(ids.map((id) => ["duygu-" + id, T.tools[id]]), "pink")));
-    wrap.append(h("p.hint", "Sınıf düzeni araçları (Bump It Up, Etkinliğim bitti, YZ düzeyi) artık ", h("a", { href: "#kultur", onclick: (e) => { e.preventDefault(); T.go("kultur"); } }, "Sınıf düzenimiz"), " bölümünde."));
+    wrap.append(h("p.hint", "Sınıf düzeni araçları (Basamak duvarı, Etkinliğim bitti, YZ düzeyi) artık ", h("a", { href: "#kultur", onclick: (e) => { e.preventDefault(); T.go("kultur"); } }, "Sınıf düzenimiz"), " bölümünde."));
   };
   T.sections.kultur = {
     title: "Sınıf düzenimiz", icon: "trophy", tone: "sun", desc: "Bump It Up, Etkinliğim bitti, YZ düzeyi, anlama düzeyi",
@@ -197,6 +197,6 @@
   Object.assign(T.YARDIM, {
     kesif: ["Hayat ve Fen", "Her ünitede kullanılan sorgulama araçları ve sınıf düzeyine uygun etkinlikler.", ["Gör, düşün, merak et ile bir görselden sorgulamayı başlat.", "Sınıflandırma panosunda grupları ve kartları sen yazarsın.", "Gözlem günlüğü her gün bir ölçüm kaydeder, grafiği kendisi çizer."]],
     duygu: ["SDÖ araçlarımız", "Duyguyu tanıma, sakinleşme, yansıtma ve çatışma çözme araçları. Maarif SDÖ becerilerine göre gruplu.", ["Duygumetreyi sabah ya da teneffüs dönüşü aç.", "Sorun ne büyüklükte? aracı şikâyetleri sınıflandırmaya yardım eder.", "Öğrencilerin seçimleri yalnızca bu cihazda kalır."]],
-    kultur: ["Sınıf düzenimiz", "Bump It Up duvarı, Etkinliğim bitti menüsü, YZ düzeyi ve anlama düzeyi panoları.", ["Bump It Up duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
+    kultur: ["Sınıf düzenimiz", "Bump It Up duvarı, Etkinliğim bitti menüsü, YZ düzeyi ve anlama düzeyi panoları.", ["Basamak duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
   });
 })();

@@ -295,9 +295,11 @@
   T.pinDegis = (r, baslik, ikon, ton) => T.store.update((s) => { s.pinler = s.pinler || {}; const l = (s.pinler[cid()] = s.pinler[cid()] || []); const i = l.findIndex((x) => x.r === r); if (i >= 0) l.splice(i, 1); else l.push({ r, b: baslik, i: ikon, t: ton }); });
   /* Etkinlik kartı: köşesinde Ana tahtaya sabitle düğmesi */
   T.aracKart = (route, t, ton) => {
+    if (T.kartGizli(route)) return null;
+    const gizle = h("button.tc-gizle", { "aria-label": "Bu kartı gizle", title: "Bu kartı gizle (Ayarlar'dan geri açılır)", onclick: (e) => { e.stopPropagation(); T.gorunumYaz((g) => g.kart.includes(route) || g.kart.push(route)); const w = e.target.closest(".tc-wrap"); if (w) w.remove(); T.toast("Kart gizlendi. Ayarlar > Görünüm'den geri açabilirsin"); } }, T.icon("eyeoff"));
     const pin = h("button.tc-pin", { "aria-label": "Ana sayfaya kısayol ekle", title: "Ana sayfaya kısayol ekle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana sayfadaki kısayollara eklendi" : "Kısayol kaldırıldı"); } }, T.icon("pin"));
     if (T.pinliMi(route)) pin.classList.add("on");
-    return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon3d(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin);
+    return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon3d(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin, gizle);
   };
   /* Tüm etkinliklerden kısayol seçme */
   T.kisayolSec = function () {

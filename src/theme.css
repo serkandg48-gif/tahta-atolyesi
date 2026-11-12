@@ -1123,3 +1123,11 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .rt-pusula { grid-template-rows: repeat(3, minmax(0, 1fr)); }
 .rt-merkez { grid-template-rows: repeat(3, minmax(0, 1fr)); }
 .rt-gul, .rt-merkez.yuvarlak .rt-cekirdek { height: auto; width: 100%; max-height: 100%; max-width: 100%; align-self: center; }
+.gz-bolumler { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 14px; margin-top: 6px; }
+.tc-wrap { position: relative; }
+.tc-gizle { position: absolute; top: 8px; right: 40px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; color: #8A96AE; cursor: pointer; display: grid; place-items: center; opacity: 0; transition: opacity .15s; }
+.tc-gizle svg { width: 16px; height: 16px; }
+.tc-wrap:hover .tc-gizle, .tc-wrap:focus-within .tc-gizle { opacity: 1; }
+@media (hover: none) { .tc-gizle { opacity: .55; } }
+.dock .dock-item.dock-tam { min-height: 58px; color: var(--navy); font-weight: 700; border-top: 1px dashed var(--line); border-radius: 0 0 14px 14px; }
+.dock .dock-item.dock-tam svg { width: 22px; height: 22px; }

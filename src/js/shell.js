@@ -50,7 +50,7 @@
       zeka: ["zeka", "Düşünme soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink"],
       duygu: ["duygu", "SDÖ araçlarımız", "Duygumetre, sakinleşme, yansıtma, çatışma çözme.", "heart", "pink"],
       olcme: ["olcme", "Ölçme ve değerlendirme", "Düşünme rutinleri: yansıt, birlikte yaz, A4 yazdır.", "check", "grape"],
-      kultur: ["kultur", "Sınıf düzenimiz", "Bump It Up, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
+      kultur: ["kultur", "Sınıf düzenimiz", "Basamak duvarı, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };
     const ids = g <= 1 ? ["turkce", "matematik", "kesif"] : ["turkce", "matematik", "kesif", "ingilizce"];
     return ids.concat("olcme", "duygu", "kultur", "zeka").map((k) => D[k]);
@@ -72,10 +72,13 @@
     el.classList.toggle("kucuk", kucuk);
     if (kucuk) { el.replaceChildren(h("button.dock-ac", { "aria-label": "Menüyü aç", title: "Menüyü aç", onclick: () => { dockYaz("ta-dock-kucuk", "0"); dock(cur); } }, T.icon("grid"))); return; }
     const atolye = [["ana", "Ana sayfa", "home"], ["sabah", "Sabah rutini", "sun"], ["sinif", "Sınıfım", "class"], "|"]
-      .concat(T.menu().map((m) => [m[0], { zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+      .concat(T.menu().filter((m) => T.bolumGorunur(m[0]) || cur === m[0]).map((m) => [m[0], { zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+    const sade = T.gorunum().mod === "sade";
+    const ARAC_SADE = ["timer", "name", "dice", "groups", "traffic", "noise", "text", "hepsi"];
     const serit = h("div.dock-serit", mod === "arac"
-      ? ARACLAR.filter(([k]) => k === "bg" || k === "hepsi" || T.widgets[k]).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
-      : atolye.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) : h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon3d(d[2]), h("span", d[1]))));
+      ? ARACLAR.filter(([k]) => (k === "bg" || k === "hepsi" || T.widgets[k]) && (!sade || ARAC_SADE.includes(k))).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
+      : atolye.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) : h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon3d(d[2]), h("span", d[1]))),
+      h("button.dock-item.dock-tam", { onclick: () => { T.gorunumYaz((g) => (g.mod = g.mod === "sade" ? "tam" : "sade")); T.toast(T.gorunum().mod === "sade" ? "Sade görünüm: her gün kullanılanlar" : "Tüm araçlar ve bölümler açıldı"); T.route(); }, title: sade ? "Tüm araçları ve bölümleri göster" : "Yalnızca her gün kullanılanları göster" }, T.icon(sade ? "plus" : "minus"), h("span", sade ? "Tümünü göster" : "Sadeleştir")));
     const kay = (yon) => serit.scrollBy({ top: yon * serit.clientHeight * 0.7, behavior: "smooth" });
     const sol = h("button.dock-ok", { "aria-label": "Yukarı kaydır", onclick: () => kay(-1) }, T.icon("up")), sag = h("button.dock-ok", { "aria-label": "Aşağı kaydır", onclick: () => kay(1) }, T.icon("down"));
     const oklar = () => { sol.hidden = serit.scrollTop < 4; sag.hidden = serit.scrollTop + serit.clientHeight >= serit.scrollHeight - 4; };

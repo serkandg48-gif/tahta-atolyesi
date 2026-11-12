@@ -10,7 +10,7 @@
     fen: ["Fen Bilimleri", "Deney, gözlem ve modelleme etkinlikleri.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne etkinliği ana sayfaya ekler."]],
     sosyal: ["Hayat Bilgisi ve Sosyal", "Okul, aile, çevre ve zaman konularında sınıf etkinlikleri.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne etkinliği ana sayfaya ekler."]],
     ingilizce: ["İngilizce", "Kelime, dinleme ve konuşma etkinlikleri.", ["Kelimeleri dinletmek için hoparlör simgesine dokun."]],
-    duygu: ["Duygular ve sınıf kültürü", "Duygumetre, çatışma çözümü, Bump It Up duvarı, Etkinliğim bitti menüsü.", ["Duygumetreyi sabah ya da teneffüs dönüşü aç.", "Bump It Up duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
+    duygu: ["Duygular ve sınıf kültürü", "Duygumetre, çatışma çözümü, Basamak duvarı, Etkinliğim bitti menüsü.", ["Duygumetreyi sabah ya da teneffüs dönüşü aç.", "Basamak duvarına kendi örnek fotoğraflarını yükleyebilirsin.", "Etkinliğim bitti menüsünü sınıfla birlikte oylayarak kurun."]],
     zeka: ["Düşünme soruları", "Gerçek hayattan bir durum ve ona bağlı sorular. Ezber değil, akıl yürütme.", ["Kartı aç, durumu birlikte okuyun, soruları tek tek konuşun."]],
     plan: ["Plan", "Günlük ve yıllık plan, Maarif öğrenme çıktılarıyla.", ["Dersi, sınıfı ve çıktıyı seç; plan hazırlanır.", "Kaydettiğin planı tek dokunuşla ders ekranına dönüştürebilirsin.", "Yapay zekâ için Ayarlar'dan Google ile giriş yapman yeterli, ücret yok."]],
     ayarlar: ["Ayarlar", "Okul takvimi, sınıflar, ses ve giriş.", ["Okul takvimini bir kez gir, \"okulun kaçıncı günü\" buradan hesaplanır."]],

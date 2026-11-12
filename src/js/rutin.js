@@ -9,6 +9,22 @@
     "Perspektif Alma": "Bakış açısı alma", "Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma": "Tartışma ve ikilemler", "Olasılıklar ve Benzetmeler Üretmek": "Olasılık ve benzetme",
     "Fikirleri Sentezleme ve Düzenleme": "Sentezleme ve düzenleme", "Sanat, Resim ve Nesneleri Keşfetmek": "Sanat ve nesneler", "Uluslararası Düşünme": "Küresel düşünme" };
   const RENK = ["#2E6FB0", "#D98A1F", "#2E8B57", "#B8456A", "#6B55B5", "#1F8A8A", "#C2453A", "#7A6A2E"];
+  const ONERILEN = ["gor-dusun-merak-et", "dusun-esles-paylas", "eskiden-dusunurdum-simdi-dusunuyorum", "3-2-1-kopru", "dusun-sorgula-kesfet", "baglan-genislet-meydan-oku", "iddia-destek-soru", "pusula", "renk-sembol-gorsel", "basliklar", "gor-hisset-dusun-merak-et", "bakmak-on-kere-iki"];
+  /* Maarif Modeli bağlantıları: rutin kategorisine göre destekleyebileceği kavramsal beceriler ve eğilimler */
+  const MAARIF = {
+    "Temel Düşünme Rutinleri": ["Gözlemleme (KB2.2)", "Sorgulama (KB2.8)", "Merak (E1.1)"],
+    "Fikirleri Tanıtma ve Keşfetme": ["Gözlemleme (KB2.2)", "Merak (E1.1)", "Soru Sorma (E3.8)"],
+    "Fikirlerin Daha Derinlemesine İncelenmesi": ["Yorumlama (KB2.14)", "Muhakeme (KB2.16)", "Gerçeği Arama (E3.4)"],
+    "Nesnelerin ve Sistemlerin Araştırılması": ["Çözümleme (KB2.4)", "Analitiklik (E3.6)", "Sistematiklik (E3.7)"],
+    "Perspektif Alma": ["Empati (E2.1)", "Açık Fikirlilik (E3.5)", "Yorumlama (KB2.14)"],
+    "Tartışmaları, İkilemleri ve Perspektifleri Göz Önünde Bulundurma": ["Tartışma (KB2.18)", "Karar Verme (KB3.1)", "Eleştirel Bakma (E3.10)"],
+    "Olasılıklar ve Benzetmeler Üretmek": ["Yaratıcılık (E3.3)", "Karşılaştırma (KB2.7)", "Problem Çözme (KB3.2)"],
+    "Fikirleri Sentezleme ve Düzenleme": ["Özetleme (KB2.3)", "Sentezleme (KB2.20)", "Yansıtma (KB2.15)"],
+    "Sanat, Resim ve Nesneleri Keşfetmek": ["Gözlemleme (KB2.2)", "Yorumlama (KB2.14)", "Yaratıcılık (E3.3)"],
+    "Uluslararası Düşünme": ["Empati (E2.1)", "Sorumluluk (E2.2)", "Açık Fikirlilik (E3.5)"],
+  };
+  const OZEL_MAARIF = { "eskiden-dusunurdum-simdi-dusunuyorum": ["Yansıtma (KB2.15)"], "3-2-1-kopru": ["Yansıtma (KB2.15)"], "dusun-esles-paylas": ["Muhakeme (KB2.16)"], "iddia-destek-soru": ["Muhakeme (KB2.16)", "Şüphe Duyma (E3.9)"], "ogrenme-icin-alan-yaratma": ["Odaklanma (E3.2)"], "duygular-ve-secenekler": ["Empati (E2.1)"] };
+  T.rutinMaarif = (r) => [...new Set((OZEL_MAARIF[r.id] || []).concat(...r.kat.map((k) => MAARIF[k] || [])))].slice(0, 4);
   const cid = () => T.store.activeClass().id;
   const rutin = (id) => T.RUTINLER.find((r) => r.id === id);
 
@@ -108,6 +124,7 @@
     r.secmeli ? h("p.rt-not", "Kutulardan birini seç ve yalnızca onu doldur.") : null,
     h("ol", adimlar(r).map(([b, q], i) => h("li", { style: { "--c": RENK[i % RENK.length] } }, h("b", b), h("span", q)))));
   const ogretmenYonerge = (r) => h("div.rt-yon.ogretmen", h("h4", "Öğretmene"), h("p", h("b", "Amaç: "), r.amac), h("p", h("b", "Ne zaman, nasıl: "), r.ne),
+    h("p", h("b", "Maarif Modeli'nde destekleyebileceği: "), T.rutinMaarif(r).join(", ")),
     h("p.hint", "Şablon " + (r.yon === "dikey" ? "A4 dikey" : "A4 yatay") + " basılır. Tahtada kutulara dokunup yazabilirsiniz; yazılanlar bu sınıf için saklanır."));
 
   /* ---------- Yazdır ---------- */
@@ -165,7 +182,7 @@
   }
 
   /* ---------- Bölüm: Ölçme ve değerlendirme ---------- */
-  let filtre = null, ara = "";
+  let filtre = "oneri", ara = "";
   T.sections.olcme = {
     title: "Ölçme ve değerlendirme", icon: "check", tone: "grape", desc: "Düşünme rutinleri: yansıt, üzerine yaz, A4 yazdır",
     render(view, sub) {
@@ -177,13 +194,13 @@
       const cipler = h("div.rt-cipler");
       const liste = h("div.rt-liste");
       const ciz = () => {
-        cipler.replaceChildren(h("button" + (!filtre ? ".on" : ""), { onclick: () => { filtre = null; ciz(); } }, "Hepsi (" + T.RUTINLER.length + ")"),
+        cipler.replaceChildren(h("button" + (filtre === "oneri" ? ".on" : ""), { onclick: () => { filtre = "oneri"; ciz(); } }, "İlkokul için önerilen 12"), h("button" + (!filtre ? ".on" : ""), { onclick: () => { filtre = null; ciz(); } }, "Tüm rutinler (" + T.RUTINLER.length + ")"),
           KAT_SIRA.filter((k) => T.RUTINLER.some((r) => r.kat.includes(k))).map((k) => h("button" + (filtre === k ? ".on" : ""), { onclick: () => { filtre = k; ciz(); } }, KAT_KISA[k] || k)));
         const q = ara.trim().toLocaleLowerCase("tr");
-        const l = T.RUTINLER.filter((r) => (!filtre || r.kat.includes(filtre)) && (!q || (r.ad + " " + r.adim.map((a) => a[0]).join(" ")).toLocaleLowerCase("tr").includes(q)));
+        const l = (filtre === "oneri" && !q ? ONERILEN.map(rutin).filter(Boolean) : T.RUTINLER.filter((r) => (!filtre || filtre === "oneri" || r.kat.includes(filtre)))).filter((r) => (!q || (r.ad + " " + r.adim.map((a) => a[0]).join(" ")).toLocaleLowerCase("tr").includes(q)));
         liste.replaceChildren(...l.map((r) => h("button.rt-kart", { onclick: () => T.go("olcme-r-" + r.id) },
           h("div.rt-mini." + (r.yon === "dikey" ? "dikey" : "yatay"), r.adim.slice(0, 6).map((_, i) => h("i", { style: { background: RENK[i % RENK.length] } }))),
-          h("div", h("b", r.ad), h("small", r.adim.map((a) => a[0]).slice(0, 4).join(" · ")), h("span.rt-yontag", r.yon === "dikey" ? "A4 dikey" : "A4 yatay")))));
+          h("div", h("b", r.ad), h("small", r.adim.map((a) => a[0]).slice(0, 4).join(" · ")), h("span.rt-yontag", T.rutinMaarif(r).slice(0, 2).map((x) => x.replace(/ \(.*\)/, "")).join(" · ") + " · " + (r.yon === "dikey" ? "A4 dikey" : "A4 yatay"))))));
         if (!l.length) liste.append(h("p.hint", "Bu adla bir rutin bulunamadı."));
       };
       aramaKutu.addEventListener("input", () => { ara = aramaKutu.value; ciz(); });

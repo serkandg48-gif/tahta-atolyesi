@@ -383,7 +383,7 @@
     },
   });
   tool("bookflix", {
-    title: "Bookflix", icon: "book", tone: "tomato", short: "Sizden gelenler: sınıfın kitap önerileri",
+    title: "Sınıfın kitap önerileri", icon: "book", tone: "tomato", short: "Dizi platformu gibi raflar: arkadaşına kitap öner (Bookflix)",
     render(host) {
       notPanosu(host, { anahtar: "bookflix", raf: true, yerTutucu: "Kitabın adı", alanlar: [["Yazar", "Yazarı"], ["Neden?", "Neden öneriyorsun? (kısa)"]], isimAd: "Öneren (isteğe bağlı)",
         ust: () => h("div.bf-logo", "BOOKFLIX", h("small", "Sizden gelenler")),
@@ -478,7 +478,7 @@
   }
   const CICEK = ["#F29BB8", "#F4CF4B", "#F2994A", "#F5A8D0", "#E8474C", "#5AA9E6"];
   tool("bump-it-up", {
-    title: "Bump It Up duvarı", icon: "stairs", tone: "sun", grades: [1, 8], short: "Gelişim duvarı: örneklerle bir sonraki basamağa çık",
+    title: "Basamak duvarı", icon: "stairs", tone: "sun", grades: [1, 8], short: "Örnek çalışmalarla bir üst basamağa (Bump It Up) çık",
     render(host) {
       let aktif = null, duzen = false, yonerge = false;
       const box = h("div"); host.append(box);

@@ -31,24 +31,24 @@
       function paint() {
         const lv = val(L), rv = val(R), diff = T.clamp(rv - lv, -12, 12), tilt = diff * 1.6;
         svg.replaceChildren();
-        svg.append(S("path", { d: "M440 540h120l-30-40h-60z", fill: "#8c5c2f", stroke: "#2a2a2a", "stroke-width": 4 }));
-        svg.append(S("rect", { x: 488, y: 170, width: 24, height: 340, fill: "#b9834a", stroke: "#2a2a2a", "stroke-width": 4 }));
+        T.m3kur(); svg.append(S("ellipse", { cx: 500, cy: 548, rx: 150, ry: 10, fill: "rgba(40,25,10,.25)" }), S("path", { d: "M420 545h160l-36-48h-88z", fill: "url(#m3-ahsap-koyu)", filter: "url(#m3-golge-k)" }));
+        svg.append(S("rect", { x: 488, y: 170, width: 24, height: 330, fill: T.m3d("#C9A052"), stroke: "rgba(80,55,10,.5)", "stroke-width": 1.5 }));
         const beam = S("g", { transform: `rotate(${tilt} 500 170)` });
-        beam.append(S("rect", { x: 110, y: 160, width: 780, height: 20, rx: 10, fill: "#b9834a", stroke: "#2a2a2a", "stroke-width": 4 }));
-        beam.append(S("circle", { cx: 500, cy: 170, r: 16, fill: "#ffc233", stroke: "#2a2a2a", "stroke-width": 4 }));
+        beam.append(S("rect", { x: 110, y: 160, width: 780, height: 20, rx: 10, fill: T.m3d("#D4AC5A"), stroke: "rgba(80,55,10,.55)", "stroke-width": 1.5, filter: "url(#m3-golge-k)" }));
+        beam.append(S("circle", { cx: 500, cy: 170, r: 16, fill: T.m3("#E8C060") }));
         svg.append(beam);
         const pan = (cx, items, side) => {
           const rad = (tilt * Math.PI) / 180, px = 500 + (cx - 500) * Math.cos(rad), py = 170 + (cx - 500) * Math.sin(rad);
           const gg = S("g", { transform: `translate(${px},${py})` });
-          gg.append(S("path", { d: "M0 0L-120 170M0 0L120 170", stroke: "#2a2a2a", "stroke-width": 3 }));
-          gg.append(S("path", { d: "M-160 170h320a160 40 0 0 1-320 0z", fill: "#dfe3e6", stroke: "#2a2a2a", "stroke-width": 4 }));
+          gg.append(S("path", { d: "M0 0L-120 170M0 0L120 170", stroke: "#8A7A5A", "stroke-width": 2.5, "stroke-dasharray": "5 2" }));
+          gg.append(S("path", { d: "M-160 170h320a160 40 0 0 1-320 0z", fill: T.m3d("#D9B867"), stroke: "rgba(90,60,10,.5)", "stroke-width": 1.5, filter: "url(#m3-golge-k)" }));
           let x = -140, y = 150;
           items.forEach((it, i) => {
             const w = it === "x" ? 62 : it === 10 ? 58 : it === 5 ? 50 : it === 2 ? 42 : 36;
             if (x + w > 150) { x = -140; y -= 62; }
             const box = S("g", { transform: `translate(${x},${y - w})`, style: "cursor:pointer" });
-            if (it === "x") { box.append(S("rect", { width: w, height: w, rx: 8, fill: "#8a5cd0", stroke: "#2a2a2a", "stroke-width": 3 })); box.append(S("text", { x: w / 2, y: w / 2, "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 34, fill: "#fff" }, revealX ? xVal : "x")); }
-            else { box.append(S("path", { d: `M${w * 0.2} 0h${w * 0.6}l${w * 0.2} ${w}h${-w}z`, fill: "#5d6d7a", stroke: "#2a2a2a", "stroke-width": 3 })); box.append(S("text", { x: w / 2, y: w * 0.62, "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 24, fill: "#fff" }, it)); }
+            if (it === "x") { box.append(S("rect", { width: w, height: w, rx: 8, fill: T.m3d("#8a5cd0"), stroke: "rgba(0,0,0,.35)", "stroke-width": 1.5, filter: "url(#m3-golge-k)" })); box.append(S("text", { x: w / 2, y: w / 2, "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 34, fill: "#fff" }, revealX ? xVal : "x")); }
+            else { box.append(S("path", { d: `M${w * 0.2} 0h${w * 0.6}l${w * 0.2} ${w}h${-w}z`, fill: "url(#m3-metal)", stroke: "#4A525C", "stroke-width": 1.5, filter: "url(#m3-golge-k)" })); box.append(S("text", { x: w / 2, y: w * 0.62, "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 24, fill: "#fff" }, it)); }
             box.addEventListener("click", () => { items.splice(i, 1); T.sound.tick(); paint(); });
             gg.append(box); x += w + 8;
           });
@@ -82,9 +82,9 @@
       let budget = g <= 2 ? 50 : g <= 4 ? 200 : 500, cart = {}, round = g <= 3;
       const items = URUNLER.map(([n, p, e]) => ({ n, p: round ? Math.round(p) : p, e }));
       const shelf = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "12px" } });
-      const receipt = h("div.paper", { style: { padding: "16px 18px", display: "grid", gap: "8px", alignContent: "start", fontFamily: "var(--hand)", fontSize: "21px", background: "#fffef8", borderRadius: "6px" } });
+      const receipt = h("div.paper.m-fis", { style: { padding: "16px 18px", display: "grid", gap: "8px", alignContent: "start", fontFamily: "var(--hand)", fontSize: "21px", background: "#fffef8", borderRadius: "6px" } });
       function paint() {
-        shelf.replaceChildren(...items.map((it) => h("button.paper", { style: { border: 0, padding: "14px 10px", display: "grid", justifyItems: "center", gap: "4px", cursor: "pointer" }, onclick: () => { cart[it.n] = (cart[it.n] || 0) + 1; T.sound.pop(); paint(); } },
+        shelf.replaceChildren(...items.map((it) => h("button.paper.m-kart", { style: { border: 0, padding: "14px 10px", display: "grid", justifyItems: "center", gap: "4px", cursor: "pointer" }, onclick: () => { cart[it.n] = (cart[it.n] || 0) + 1; T.sound.pop(); paint(); } },
           h("span", { style: { fontSize: "48px", lineHeight: 1 } }, it.e), h("b", it.n), h("span.readout", { style: { fontSize: "22px" } }, T.money(it.p)))));
         const lines = Object.entries(cart).filter(([, q]) => q > 0);
         const total = lines.reduce((a, [n, q]) => a + q * items.find((i) => i.n === n).p, 0);
@@ -175,7 +175,7 @@
       const base = 4;
       const ing = [["Un", 2, "su bardağı"], ["Süt", 1.5, "su bardağı"], ["Yumurta", 2, "adet"], ["Şeker", 0.5, "su bardağı"], ["Kabartma tozu", 1, "paket"], ["Tereyağı", 0.25, "paket"]];
       let people = 6;
-      const tbl = h("div.paper", { style: { padding: "18px 22px" } });
+      const tbl = h("div.paper.m-defter", { style: { padding: "18px 22px" } });
       const frac = (x) => {
         const w = Math.floor(x + 1e-9), r = x - w;
         const fr = [[0, ""], [0.25, "1/4"], [1 / 3, "1/3"], [0.5, "1/2"], [2 / 3, "2/3"], [0.75, "3/4"], [1, ""]];

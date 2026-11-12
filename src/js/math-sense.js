@@ -169,15 +169,15 @@
       const g = T.store.grade();
       let set = T.pick(STRINGS[g] || STRINGS[3]), i = 0;
       const strategies = [];
-      const big = h("div", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(56px, 9vw, 140px)", textAlign: "center", lineHeight: 1, color: "var(--ink)" } });
-      const prev = h("div.row", { style: { justifyContent: "center", gap: "18px", fontFamily: "var(--display)", fontSize: "28px", color: "var(--ink-soft)" } });
+      const big = h("div.tebesir-yazi", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(56px, 9vw, 140px)", textAlign: "center", lineHeight: 1, color: "#F4F1E6" } });
+      const prev = h("div.row", { style: { justifyContent: "center", gap: "18px", fontFamily: "var(--display)", fontSize: "28px", color: "rgba(244,241,230,.6)" } });
       const notes = h("div", { style: { display: "flex", flexWrap: "wrap", gap: "12px" } });
       const inp = h("input.in", { placeholder: "Bir öğrencinin stratejisini yaz, Enter'a bas. Örnek: Elif: 9'u 10 yaptım, 1 çıkardım", "aria-label": "Strateji" });
       inp.addEventListener("keydown", (e) => { if (e.key === "Enter" && inp.value.trim()) { strategies.push({ t: inp.value.trim(), p: set[i] }); inp.value = ""; paintNotes(); } });
       function paint() { big.textContent = set[i]; prev.replaceChildren(...set.slice(0, i).map((x) => h("span", x))); }
       function paintNotes() { notes.replaceChildren(...strategies.filter((s) => s.p === set[i]).map((s, k) => h("div", { style: { background: ["#fff6b8", "#d7f0ff", "#ffe0d6", "#e3f7d9"][k % 4], color: "#2a2a2a", padding: "10px 14px", borderRadius: "6px", fontFamily: "var(--hand)", fontSize: "22px", boxShadow: "0 3px 0 rgba(0,0,0,.2)", transform: `rotate(${(k % 3) - 1}deg)` } }, s.t))); }
       host.append(
-        h("div.mat.mat-pad", { style: { minHeight: "auto", display: "grid", gap: "18px" } },
+        h("div.mat.mat-pad.m-kara", { style: { minHeight: "auto", display: "grid", gap: "18px" } },
           prev, big,
           h("div.row", { style: { justifyContent: "center" } },
             h("button.btn.c-chalk", { onclick: () => { if (i > 0) { i--; paint(); paintNotes(); } } }, T.icon("back"), "Önceki"),
@@ -205,18 +205,18 @@
         { kind: "num", items: ["−4", "0", "4", "−0,5"], hint: "Tam sayı olmayan, pozitif olan, işaretsiz olan..." },
       ];
       let k = 0;
-      const box = h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", background: "var(--ink)", borderRadius: "var(--r-lg)", overflow: "hidden", height: "var(--stage-h)", boxShadow: "var(--lift)" } });
+      const box = h("div.m-mantar.hf-pano", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px", height: "var(--stage-h)" } });
       const hint = h("p.hint");
       const shapeSVG = (n) => {
         const s = S("svg", { viewBox: "0 0 200 200", style: "width:60%;height:60%" });
-        const st = { fill: "#2e9bd6", stroke: "#2a2a2a", "stroke-width": 5, "stroke-linejoin": "round" };
+        const st = { fill: T.m3d("#2e9bd6"), stroke: "rgba(0,0,0,.35)", "stroke-width": 2, "stroke-linejoin": "round" };
         const P = { kare: "40,40 160,40 160,160 40,160", dikdortgen: "20,60 180,60 180,140 20,140", esk: "100,20 175,100 100,180 25,100", ucgen: "100,25 180,170 20,170", altigen: "60,30 140,30 180,100 140,170 60,170 20,100" }[n];
         s.append(n === "daire" ? S("circle", Object.assign({ cx: 100, cy: 100, r: 72 }, st)) : S("polygon", Object.assign({ points: P }, st)));
         return s;
       };
       function paint() {
         const s = sets[k];
-        box.replaceChildren(...T.shuffle(s.items).map((it) => h("div", { style: { background: "var(--paper)", display: "grid", placeItems: "center", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(42px,6vw,96px)", color: "var(--ink)" } }, s.kind === "shape" ? shapeSVG(it) : it)));
+        box.replaceChildren(...T.shuffle(s.items).map((it, j) => h("div.m-kart.hf-kart", { style: { "--r": (j % 2 ? 1 : -1) * (0.6 + j * 0.3) + "deg", background: "var(--paper)", display: "grid", placeItems: "center", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(42px,6vw,96px)", color: "var(--ink)" } }, s.kind === "shape" ? shapeSVG(it) : it)));
         hint.textContent = "Öğretmen için olası gerekçeler: " + s.hint;
         hint.style.visibility = "hidden";
       }

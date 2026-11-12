@@ -233,11 +233,11 @@
     title: "Yüzlük tablo", icon: "grid100", tone: "leaf", grades: [1, 5], short: "Örüntüler, katlar, gizli sayı",
     render(host) {
       let start = 1, col = "#ffc233", marks = {}, hide = false, hidden = {};
-      const grid = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: "3px", background: "#2a2a2a", padding: "3px", borderRadius: "12px", boxShadow: "var(--lift)" } });
+      const grid = h("div.m-cep", { style: { display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: "6px 4px" } });
       function paint() {
         grid.replaceChildren(...Array.from({ length: 100 }, (_, i) => {
           const n = start + i;
-          return h("button", { style: { aspectRatio: "1.6", border: 0, background: marks[n] || "#fff", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(14px, 2vw, 28px)", color: "#2a2a2a", borderRadius: "4px" },
+          return h("button.m-cep-kart", { style: { aspectRatio: "1.6", "--k": marks[n] || "#FFFDF7", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(14px, 2vw, 28px)", color: "#2a2a2a", borderRadius: "4px" },
             onclick: () => { if (hide) { hidden[n] = !hidden[n]; } else { marks[n] = marks[n] === col ? null : col; T.sound.tick(); } paint(); } },
             hidden[n] ? "?" : n);
         }));

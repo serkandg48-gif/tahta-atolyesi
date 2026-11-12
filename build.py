@@ -34,6 +34,7 @@ JS_ORDER = [
     "math-talks.js",
     "subjects.js",
     "birinci.js",
+    "duygu.js",
     "zeka.js",
     "plan.js",
     "settings.js",

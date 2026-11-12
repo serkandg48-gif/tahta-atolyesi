@@ -49,17 +49,18 @@
       fen: ["fen", "Fen Bilimleri", "Maddenin halleri, besin zinciri, vücudumuz, ışık ve kuvvet.", "fen", "leaf"],
       ingilizce: ["ingilizce", "İngilizce", "Resimli kartlar, dinle ve seç.", "ingilizce", "grape"],
       zeka: ["zeka", "Bağlam soruları", "Gerçek hayat durumu, akıl yürütme.", "zeka", "pink"],
+      duygu: ["duygu", "Sosyal duygusal öğrenme", "Duygumetre, çatışma çözme, sakinleşme, sorunun büyüklüğü.", "heart", "pink"],
     };
     const ids = g <= 1 ? ["turkce1", "matematik", "hayat"]
       : g === 2 ? ["turkce", "matematik", "hayat", "ingilizce"]
       : g === 3 ? ["turkce", "matematik", "hayat", "fen", "ingilizce"]
       : g === 4 ? ["turkce", "matematik", "fen", "sosyal", "ingilizce"]
       : ["turkce", "matematik", "fen", "sosyal", "ingilizce"];
-    return ids.concat("zeka").map((k) => D[k]);
+    return ids.concat("duygu", "zeka").map((k) => D[k]);
   };
   function dock(cur) {
     const items = [["ana", "Ana sayfa", "home"], ["sabah", "Sabah rutini", "sun"], ["ekran", "Ders ekranı", "board"], ["sinif", "Sınıfım", "class"], "|"]
-      .concat(T.menu().map((m) => [m[0], m[0] === "zeka" ? "Bağlam" : m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
+      .concat(T.menu().map((m) => [m[0], { zeka: "Bağlam", duygu: "Duygular" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
     T.$("#dock").replaceChildren(...items.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) :
       h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon(d[2]), d[1])));
   }

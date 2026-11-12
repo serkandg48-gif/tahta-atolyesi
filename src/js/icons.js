@@ -100,6 +100,11 @@ T.ICONS = {
   square: '<rect class="f" x="8" y="10" width="32" height="28" rx="2"/><rect x="8" y="10" width="32" height="28" rx="2"/>',
   textT: '<path d="M10 12h28M24 12v26M18 38h12"/>',
   undo: '<path d="M16 12 8 20l8 8M8 20h20a11 11 0 0 1 0 22h-6"/>',
+  heart: '<path class="f" d="M24 41S7 30 7 18a9 9 0 0 1 17-4 9 9 0 0 1 17 4c0 12-17 23-17 23z"/><path d="M24 41S7 30 7 18a9 9 0 0 1 17-4 9 9 0 0 1 17 4c0 12-17 23-17 23z"/>',
+  turn: '<path d="M38 18a15 15 0 0 0-27 3M10 30a15 15 0 0 0 27-3M38 9v9h-9M10 39v-9h9"/>',
+  share: '<circle class="f" cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="16"/><path d="M24 8v32M8 24h32"/>',
+  teacher: '<circle class="f" cx="17" cy="14" r="6"/><circle cx="17" cy="14" r="6"/><path d="M6 40c0-9 5-14 11-14s11 5 11 14M26 10h16v14H30M30 18l6-4"/>',
+  hands: '<path class="f" d="M8 28l10-10 8 6 8-6 6 6-14 14z"/><path d="M4 24l8-8 6 4M44 24l-8-8-8 6-6-4-8 8M14 30l4 4M19 26l6 6M24 22l6 6M20 36l4 4 10-10"/>',
   bolt: '<path class="f" d="M27 4 9 27h13l-3 17 20-25H26z"/><path d="M27 4 9 27h13l-3 17 20-25H26z"/>',
 };
 T.icon = function (name, cls = "") {

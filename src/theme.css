@@ -320,3 +320,80 @@ input[type="range"], input[type="checkbox"], input[type="radio"] { accent-color:
 .sb-genrow label { display: grid; gap: 4px; font-size: 14px; color: var(--ink-soft); }
 .sb-gen summary { cursor: pointer; font-weight: 700; }
 .modal { max-height: calc(100vh - 40px); overflow: auto; }
+
+/* ---------- Sosyal duygusal öğrenme ---------- */
+.dy-main { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+@media (max-width: 1000px) { .dy-main { grid-template-columns: 1fr; } }
+.dy-faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+.dy-faces.sm { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); margin-top: 14px; }
+.dy-face { display: grid; justify-items: center; gap: 6px; padding: 12px 6px; border-radius: 16px; border: 2px solid var(--line); background: #fff; font: 700 17px var(--body); color: var(--ink); cursor: pointer; }
+.dy-face.mini { cursor: default; font-size: 13px; padding: 6px; border-width: 1px; }
+.dy-face[aria-pressed="true"] { border-color: var(--navy); background: var(--navy-soft); transform: translateY(-2px); }
+.dy-side { display: grid; gap: 14px; }
+.dy-termo { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+.dy-tlabel { font-weight: 700; margin-bottom: 8px; }
+.dy-tbar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.dy-tbar button { height: 54px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font: 700 18px var(--display); cursor: pointer; color: var(--ink-soft); }
+.dy-tbar button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+.dy-tends { display: flex; justify-content: space-between; color: var(--ink-soft); font-size: 14px; margin-top: 4px; }
+.dy-cumle { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; font-size: 22px; line-height: 1.35; }
+.dy-tip { font-size: 18px; color: var(--navy); font-weight: 600; }
+.dy-names { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.dy-names button { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 5px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font: 600 15px var(--body); cursor: pointer; color: var(--ink); }
+.dy-names button.done { background: var(--green-soft); border-color: transparent; }
+.dy-names button.on { border: 2px solid var(--navy); }
+.dy-class { margin-top: 16px; display: grid; gap: 12px; }
+.dy-chart { display: grid; gap: 6px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+.dy-crow { display: grid; grid-template-columns: 34px 110px 1fr 30px; gap: 10px; align-items: center; }
+.dy-cbar { height: 14px; background: var(--bg); border-radius: 8px; overflow: hidden; }
+.dy-cbar i { display: block; height: 100%; border-radius: 8px; }
+.dy-card { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: grid; gap: 18px; justify-items: center; text-align: center; max-width: 900px; margin: 0 auto; }
+.dy-durum { font: 700 clamp(24px, 3vw, 38px)/1.3 var(--display); color: var(--navy); }
+.dy-reveal { display: grid; justify-items: center; gap: 6px; font-size: 28px; }
+.dy-qs { display: grid; gap: 4px; font-size: 20px; }
+.dy-qs p { margin: 0; }
+.dy-calm { display: grid; justify-items: center; gap: 16px; padding: 24px; text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 20px; margin-top: 16px; min-height: 460px; align-content: center; }
+.dy-ballwrap { position: relative; width: 300px; height: 300px; display: grid; place-items: center; }
+.dy-ballwrap.sm { width: 140px; height: 140px; }
+.dy-ball { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #CFE0F7, #6E95D1 70%); box-shadow: 0 20px 50px rgba(43,63,107,.25); }
+.dy-ball.pulse { animation: dyPulse 8s ease-in-out infinite; }
+@keyframes dyPulse { 0%, 100% { transform: scale(.55); } 50% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .dy-ball.pulse { animation: none; } }
+.dy-count { position: absolute; font: 800 64px var(--display); color: #fff; }
+.dy-breath { font: 700 30px var(--display); color: var(--navy); }
+.dy-big { font: 800 clamp(90px, 12vw, 160px)/1 var(--display); color: var(--navy); }
+.dy-bigicon svg { width: 120px; height: 120px; color: var(--green); }
+.dy-sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .dy-sizes { grid-template-columns: 1fr; } }
+.dy-size { background: #fff; border: 1px solid var(--line); border-top: 8px solid var(--c); border-radius: 18px; padding: 18px 20px; text-align: left; }
+.dy-sizehead { display: flex; align-items: center; gap: 10px; font-size: 24px; }
+.dy-sizehead i { width: 22px; height: 22px; border-radius: 50%; background: var(--c); }
+.dy-ana { font-size: 20px; font-weight: 600; margin: 10px 0; }
+.dy-size ul { margin: 0; padding-left: 22px; font-size: 18px; display: grid; gap: 4px; }
+.dy-pick { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.dy-pick button { display: flex; align-items: center; gap: 10px; padding: 16px 24px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 20px var(--body); cursor: pointer; color: var(--ink); }
+.dy-pick button i { width: 20px; height: 20px; border-radius: 50%; background: var(--c); }
+.dy-pick button.right { border-color: var(--green); background: var(--green-soft); }
+.dy-pick button.wrong { border-color: var(--red); background: var(--red-soft); }
+.dy-scale { display: grid; gap: 8px; margin-bottom: 18px; font-size: 20px; }
+.dy-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dy-steps button { padding: 18px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 18px var(--body); cursor: pointer; color: var(--ink); }
+.dy-steps button[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 16%, #fff); }
+.dy-step { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 26px; display: grid; gap: 14px; justify-items: center; text-align: center; min-height: 380px; align-content: start; }
+.dy-step h3 { font-size: 28px; margin: 0; }
+.dy-pair { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.dy-pair label { display: grid; gap: 4px; font-weight: 600; }
+.dy-ben { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+.dy-ben > div { background: var(--bg); border-radius: 16px; padding: 18px; text-align: left; }
+.dy-ben b { font-size: 22px; }
+.dy-ben p { font-size: 22px; margin: 8px 0 0; color: var(--navy); }
+.dy-sol { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; width: 100%; }
+.dy-sol button { display: flex; align-items: center; gap: 10px; padding: 16px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 18px var(--body); cursor: pointer; text-align: left; color: var(--ink); }
+.dy-sol button svg { width: 28px; height: 28px; color: var(--navy); flex: none; }
+.dy-sol button[aria-pressed="true"] { border-color: var(--navy); background: var(--navy-soft); }
+.dy-star { display: flex; align-items: center; gap: 18px; background: var(--navy); color: #fff; border-radius: 20px; padding: 20px 26px; margin-bottom: 14px; }
+.dy-star small { display: block; opacity: .75; font-size: 16px; }
+.dy-star b { font: 800 44px var(--display); }
+.dy-hint { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; color: var(--ink-soft); }
+.dy-bubbles { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.dy-bubble { background: #fff; border: 1px solid var(--line); border-radius: 18px 18px 18px 4px; padding: 14px 18px; font-size: 22px; color: var(--navy); font-weight: 600; box-shadow: var(--lift); }

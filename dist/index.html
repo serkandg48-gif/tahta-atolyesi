@@ -1919,6 +1919,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .oa-yildiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; font-size: 12px; } .oa-yildiz > div { display: grid; gap: 4px; } .oa-yildiz small { color: #555; } .oa-yildiz i { display: block; border-bottom: 1px solid #000; height: 18px; }
 .oa-fisler { display: grid; grid-template-columns: 1fr 1fr; gap: 0; } .oa-fis { border: 1px dashed #888; padding: 10px 12px; min-height: 30mm; break-inside: avoid; } .oa-fis b { font-size: 15px; } .oa-fis small { display: block; color: #555; } .oa-fis p { margin: 4px 0 0; font-size: 13px; }
 .oa-baski .oa-f.oa-oz { page-break-after: auto; break-after: auto; height: 132mm; } .oa-baski .oa-oz:first-child { border-bottom: 1px dashed #888; margin-bottom: 6mm; padding-bottom: 4mm; }
+.tk-grid span.dg { position: relative; } .tk-grid span.dg i { position: absolute; top: -4px; right: -2px; font-size: 12px; font-style: normal; line-height: 1; }
 
 </style>
 </head>
@@ -1933,7 +1934,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="5581607cff";
+window.SURUM="0fa00844cb";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -4749,7 +4750,8 @@ T.yuzen = TahtaYap("ana");
         const g = h("div.tk-grid", ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"].map((x) => h("b", x)));
         for (let i = 0; i < (d0.getDay() + 6) % 7; i++) g.append(h("span"));
         for (let d = 1; d <= gun; d++) { const dt = new Date(y, m, d), kapali = T.cal.closedReason(dt), hs = dt.getDay() === 0 || dt.getDay() === 6;
-          g.append(h("span" + (dt.toDateString() === now.toDateString() ? ".bugun" : "") + (hs || kapali ? ".tatil" : ""), { title: kapali || "" }, d)); }
+          const dg = T.dogumGunuOlanlar ? T.dogumGunuOlanlar(T.store.activeClass(), dt) : [];
+          g.append(h("span" + (dt.toDateString() === now.toDateString() ? ".bugun" : "") + (hs || kapali ? ".tatil" : "") + (dg.length ? ".dg" : ""), { title: [kapali, dg.length ? "Doğum günü: " + dg.map((x) => x.name).join(", ") : ""].filter(Boolean).join(" · ") }, d, dg.length ? h("i", "🎂") : null)); }
         body.replaceChildren(h("div.tk-ust", h("button.btn.sm.icon.c-chalk", { "aria-label": "Önceki ay", onclick: () => { w.data.kay--; ciz(); } }, T.icon("back")), h("b", AY[m] + " " + y), h("button.btn.sm.icon.c-chalk", { "aria-label": "Sonraki ay", onclick: () => { w.data.kay++; ciz(); } }, T.icon("next"))), g);
       };
       ciz();

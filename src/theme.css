@@ -1361,3 +1361,4 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .oa-yildiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; font-size: 12px; } .oa-yildiz > div { display: grid; gap: 4px; } .oa-yildiz small { color: #555; } .oa-yildiz i { display: block; border-bottom: 1px solid #000; height: 18px; }
 .oa-fisler { display: grid; grid-template-columns: 1fr 1fr; gap: 0; } .oa-fis { border: 1px dashed #888; padding: 10px 12px; min-height: 30mm; break-inside: avoid; } .oa-fis b { font-size: 15px; } .oa-fis small { display: block; color: #555; } .oa-fis p { margin: 4px 0 0; font-size: 13px; }
 .oa-baski .oa-f.oa-oz { page-break-after: auto; break-after: auto; height: 132mm; } .oa-baski .oa-oz:first-child { border-bottom: 1px dashed #888; margin-bottom: 6mm; padding-bottom: 4mm; }
+.tk-grid span.dg { position: relative; } .tk-grid span.dg i { position: absolute; top: -4px; right: -2px; font-size: 12px; font-style: normal; line-height: 1; }

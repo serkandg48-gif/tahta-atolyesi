@@ -470,7 +470,8 @@
         const g = h("div.tk-grid", ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"].map((x) => h("b", x)));
         for (let i = 0; i < (d0.getDay() + 6) % 7; i++) g.append(h("span"));
         for (let d = 1; d <= gun; d++) { const dt = new Date(y, m, d), kapali = T.cal.closedReason(dt), hs = dt.getDay() === 0 || dt.getDay() === 6;
-          g.append(h("span" + (dt.toDateString() === now.toDateString() ? ".bugun" : "") + (hs || kapali ? ".tatil" : ""), { title: kapali || "" }, d)); }
+          const dg = T.dogumGunuOlanlar ? T.dogumGunuOlanlar(T.store.activeClass(), dt) : [];
+          g.append(h("span" + (dt.toDateString() === now.toDateString() ? ".bugun" : "") + (hs || kapali ? ".tatil" : "") + (dg.length ? ".dg" : ""), { title: [kapali, dg.length ? "Doğum günü: " + dg.map((x) => x.name).join(", ") : ""].filter(Boolean).join(" · ") }, d, dg.length ? h("i", "🎂") : null)); }
         body.replaceChildren(h("div.tk-ust", h("button.btn.sm.icon.c-chalk", { "aria-label": "Önceki ay", onclick: () => { w.data.kay--; ciz(); } }, T.icon("back")), h("b", AY[m] + " " + y), h("button.btn.sm.icon.c-chalk", { "aria-label": "Sonraki ay", onclick: () => { w.data.kay++; ciz(); } }, T.icon("next"))), g);
       };
       ciz();

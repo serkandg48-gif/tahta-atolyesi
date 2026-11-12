@@ -119,6 +119,7 @@ T.ICONS = {
   magnet: '<path class="f" d="M10 8h10v18a4 4 0 0 0 8 0V8h10v18a14 14 0 0 1-28 0z"/><path d="M10 8h10v18a4 4 0 0 0 8 0V8h10v18a14 14 0 0 1-28 0zM10 15h10M28 15h10"/>',
   grid: '<rect x="8" y="8" width="32" height="32" rx="3"/><path d="M8 19h32M8 29h32M19 8v32M29 8v32"/>',
   leaf: '<path class="f" d="M40 8C20 8 8 18 8 32c0 4 1 6 2 8 14 0 30-6 30-32z"/><path d="M40 8C20 8 8 18 8 32c0 4 1 6 2 8 14 0 30-6 30-32zM10 40C18 30 26 22 34 15"/>',
+  pin: '<path class="f" d="M16 6h16l-3 12 7 7H12l7-7z"/><path d="M16 6h16l-3 12 7 7H12l7-7zM24 25v17"/>',
   bolt: '<path class="f" d="M27 4 9 27h13l-3 17 20-25H26z"/><path d="M27 4 9 27h13l-3 17 20-25H26z"/>',
 };
 T.icon = function (name, cls = "") {

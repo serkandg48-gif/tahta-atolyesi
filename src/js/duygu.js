@@ -46,7 +46,7 @@
       wrap.append(h("div.page-head", h("h1", "Sosyal duygusal öğrenme"), h("div.sub", "Duyguyu adlandırmak, sakinleşmek, sorunu büyüklüğüne göre ele almak, arkadaşla anlaşmak ve hatadan öğrenmek için sınıf araçları. Öğrencilerin seçimleri ve yüklenen fotoğraflar yalnızca bu cihazda kalır.")));
       GRUPLAR.forEach(([g, ids]) => {
         wrap.append(h("div.section-title", h("h2", g)));
-        wrap.append(h("div.tool-grid", { style: { marginBottom: "18px" } }, ids.filter((id) => T.tools[id]).map((id) => { const t = T.tools[id]; return h("button.tool-card.c-" + (t.tone || "pink"), { onclick: () => T.go("duygu-" + id) }, T.icon(t.icon), h("span", t.title, h("small", t.short || ""))); })));
+        wrap.append(h("div.tool-grid", { style: { marginBottom: "18px" } }, ids.filter((id) => T.tools[id]).map((id) => { const t = T.tools[id]; return T.aracKart("duygu-" + id, t, "pink"); })));
       });
     },
   };

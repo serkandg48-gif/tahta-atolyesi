@@ -41,6 +41,7 @@ JS_ORDER = [
     "zeka.js",
     "plan.js",
     "settings.js",
+    "kokpit.js",
     "shell.js",
 ]
 

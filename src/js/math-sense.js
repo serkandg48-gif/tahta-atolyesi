@@ -45,8 +45,7 @@
         h("div.tabs", { role: "tablist" }, CATS.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l))));
       const list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
         .sort((a, b) => fitScore(b[1], g) - fitScore(a[1], g));
-      wrap.append(h("div.tool-grid", list.map(([k, t]) => h("button.tool-card.c-" + (t.tone || "sun"), { onclick: () => T.go("matematik-" + k) },
-        T.icon(t.icon), h("span", t.title, h("small", t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "")))))));
+      wrap.append(h("div.tool-grid", list.map(([k, t]) => T.aracKart("matematik-" + k, Object.assign({}, t, { short: t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "") }), "sun"))));
     },
   };
   const fitScore = (t, g) => (t.grades && g >= t.grades[0] && g <= t.grades[1] ? 1 : 0);

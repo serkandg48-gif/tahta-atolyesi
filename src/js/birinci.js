@@ -38,7 +38,7 @@
         wrap.append(h("div.tool-grid", { style: { marginBottom: "18px" } }, ids.map((id) => {
           const [sec, key] = id.includes("-") && T.sections[id.split("-")[0]] && !T.tools[id] ? [id.split("-")[0], id.slice(id.indexOf("-") + 1)] : ["birinci", id];
           const t = T.tools[key]; if (!t) return null;
-          return h("button.tool-card.c-" + (t.tone || "tomato"), { onclick: () => T.go(sec + "-" + key) }, T.icon(t.icon), h("span", t.title, h("small", t.short || "")));
+          return T.aracKart(sec + "-" + key, t, "tomato");
         })));
       });
     },

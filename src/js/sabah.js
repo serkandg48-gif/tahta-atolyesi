@@ -183,6 +183,9 @@
     return rows;
   }
 
+  T.gunAkisi = (d = new Date()) => { const a = akisAl() || varsayilanAkis(); const wd = d.getDay(); return wd >= 1 && wd <= 5 ? a[wd] || [] : []; };
+  T.akisDk = (t) => dk(t);
+
   /* ---------- Bölüm ---------- */
   const ADIMLAR = [["gunaydin", "Günaydın"], ["takvim", "Takvim"], ["gunler", "Özel günler ve söz"], ["sayi", "Günün sayısı"], ["akis", "Günün akışı"]];
   let adim = 0;

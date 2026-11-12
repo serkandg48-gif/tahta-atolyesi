@@ -1,0 +1,256 @@
+/* Ana sayfa kokpiti: tam ekran arka plan, cam kartlar (günün özeti, merak kıvılcımı, günün akışı, hızlı not),
+   sınıf atmosferi ve müzik istasyonu (Web Audio ile üretilen sesler). Araçlar şeridinden açılan araçlar bu tuvalin üstünde yüzer. */
+(function () {
+  const { h } = T;
+  const cid = () => T.store.activeClass().id;
+  const ayar = () => { const s = T.store.get(); s.kokpit = s.kokpit || {}; return s.kokpit; };
+  const ayarYaz = (fn) => T.store.update((s) => { s.kokpit = s.kokpit || {}; fn(s.kokpit); });
+
+  /* ---------- Arka planlar (çizilmiş sahneler; yerel dosya ya da bağlantı da olur) ---------- */
+  const svgUrl = (svg) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+  const TEMA = [
+    ["doga", "Doğa", svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FD3F2"/><stop offset=".6" stop-color="#E6F4F1"/><stop offset="1" stop-color="#F6EDD6"/></linearGradient></defs><rect width="1600" height="900" fill="url(#g)"/><circle cx="1220" cy="230" r="90" fill="#FFE6A3"/><circle cx="1220" cy="230" r="150" fill="#FFE6A3" opacity=".3"/><path d="M0 560 C260 470 420 520 640 480 S1040 420 1260 470 1500 520 1600 500 V900 H0Z" fill="#A9CFA0"/><path d="M0 650 C300 580 520 640 800 600 S1240 560 1600 620 V900 H0Z" fill="#7FB37E"/><path d="M0 760 C360 700 700 760 1000 720 S1400 690 1600 730 V900 H0Z" fill="#5E9A64"/><g fill="#3F7A4A"><path d="M180 660 l40 -120 40 120z"/><path d="M240 680 l32 -95 32 95z"/><path d="M1380 650 l44 -130 44 130z"/></g></svg>`)],
+    ["deniz", "Deniz", svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9D8B6"/><stop offset=".55" stop-color="#FCEBD8"/></linearGradient><linearGradient id="d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5BA3C9"/><stop offset="1" stop-color="#2E6F96"/></linearGradient></defs><rect width="1600" height="900" fill="url(#s)"/><circle cx="800" cy="520" r="120" fill="#FFC98A"/><rect y="520" width="1600" height="380" fill="url(#d)"/><g stroke="#ffffff" stroke-opacity=".35" stroke-width="4" stroke-linecap="round"><path d="M640 560h320M560 600h200M840 600h240M700 650h200"/></g><path d="M0 800 C400 760 900 820 1600 780 V900 H0Z" fill="#EBD6B0"/></svg>`)],
+    ["uzay", "Uzay", (() => { let st = ""; for (let i = 0; i < 160; i++) st += `<circle cx="${(i * 397) % 1600}" cy="${(i * 233) % 900}" r="${(i % 5) * 0.5 + 0.6}" fill="#fff" opacity="${0.3 + (i % 7) / 10}"/>`; return svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="u" cx=".7" cy=".3" r="1"><stop offset="0" stop-color="#3B3F7A"/><stop offset=".5" stop-color="#1B1E40"/><stop offset="1" stop-color="#0B0D22"/></radialGradient><radialGradient id="p" cx=".35" cy=".35"><stop offset="0" stop-color="#F2B880"/><stop offset="1" stop-color="#B5603A"/></radialGradient></defs><rect width="1600" height="900" fill="url(#u)"/>${st}<circle cx="1260" cy="640" r="120" fill="url(#p)"/><ellipse cx="1260" cy="640" rx="210" ry="38" fill="none" stroke="#E9C9A3" stroke-width="10" opacity=".7"/></svg>`); })()],
+    ["sonbahar", "Sonbahar", (() => { let l = ""; for (let i = 0; i < 26; i++) l += `<ellipse cx="${(i * 613) % 1600}" cy="${(i * 347) % 900}" rx="16" ry="8" fill="${["#E07B3C", "#C9542E", "#E9A23B", "#B5402A"][i % 4]}" transform="rotate(${(i * 47) % 180} ${(i * 613) % 1600} ${(i * 347) % 900})" opacity=".8"/>`; return svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6D7A7"/><stop offset="1" stop-color="#F2E6D0"/></linearGradient></defs><rect width="1600" height="900" fill="url(#g)"/><path d="M0 640 C320 560 640 640 960 590 S1400 560 1600 600 V900 H0Z" fill="#D9925A"/><path d="M0 740 C400 690 800 760 1200 710 S1500 700 1600 720 V900 H0Z" fill="#B86B3A"/><g fill="#7A4A2A"><rect x="300" y="380" width="22" height="280"/><rect x="1240" y="400" width="20" height="240"/></g><circle cx="311" cy="360" r="120" fill="#D9672E"/><circle cx="1250" cy="380" r="110" fill="#E9A23B"/>${l}</svg>`); })()],
+    ["atolye", "Sıcak ahşap atölye", "repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 2px, transparent 2px 180px), repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px), linear-gradient(180deg, #C89462, #A8733F)"],
+    ["karatahta", "Kara tahta", "radial-gradient(ellipse 60% 40% at 25% 30%, rgba(255,255,255,.07), transparent 70%), radial-gradient(ellipse 50% 35% at 75% 70%, rgba(255,255,255,.05), transparent 70%), linear-gradient(#2F4F3E, #253F32)"],
+    ["izgara", "Noktalı ızgara", "radial-gradient(circle, #C9CFDB 1.6px, transparent 1.8px) 0 0 / 28px 28px, #F7F8FB"],
+    ["dingin", "Dingin renkler", "radial-gradient(at 15% 20%, #DCE9F7 0, transparent 50%), radial-gradient(at 85% 15%, #F7E3EC 0, transparent 50%), radial-gradient(at 70% 85%, #E2F2E4 0, transparent 50%), radial-gradient(at 20% 85%, #FBF0D9 0, transparent 50%), #F4F5F8"],
+  ];
+  let bgUrl = null;
+  async function arkaPlanUygula(el = T.$("#tuval")) {
+    if (!el) return;
+    const a = ayar().bg || { tip: "tema", id: "doga" };
+    el.style.background = "";
+    if (a.tip === "tema") { const t = TEMA.find((x) => x[0] === a.id) || TEMA[0]; el.style.background = t[2]; el.style.backgroundSize = t[2].startsWith("url") ? "cover" : ""; el.style.backgroundPosition = "center"; }
+    else if (a.tip === "url") { el.style.background = `#222 url("${a.url.replace(/"/g, "%22")}") center / cover no-repeat`; }
+    else if (a.tip === "dosya") { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg")); if (b) { if (bgUrl) URL.revokeObjectURL(bgUrl); bgUrl = URL.createObjectURL(b); el.style.background = `#222 url("${bgUrl}") center / cover no-repeat`; } }
+  }
+  T.arkaPlanSec = function () {
+    const el = T.$("#tuval");
+    const url = h("input.in", { placeholder: "https://... görsel bağlantısı", value: (ayar().bg || {}).tip === "url" ? ayar().bg.url : "" });
+    let m;
+    const sec = (bg) => { ayarYaz((k) => (k.bg = bg)); if (el) arkaPlanUygula(el); };
+    m = T.modal({ title: "Arka planı değiştir", wide: true, body: h("div", { style: { display: "grid", gap: "16px" } },
+      h("div.kp-temalar", TEMA.map(([id, ad, css]) => h("button.kp-tema" + ((ayar().bg || { id: "doga" }).id === id ? ".on" : ""), { onclick: () => { sec({ tip: "tema", id }); m.close(); } }, h("span", { style: { background: css, backgroundSize: "cover", backgroundPosition: "center" } }), ad))),
+      h("div.sb-card", { style: { display: "grid", gap: "10px" } }, h("b", "Kendi fotoğrafın"),
+        h("label.btn.c-chalk", { style: { cursor: "pointer", justifySelf: "start" } }, T.icon("download"), "Bilgisayarımdan yükle", h("input", { type: "file", accept: "image/*", style: { display: "none" }, onchange: async (e) => { const f = e.target.files[0]; if (!f) return; const ok = T.gorselDepo && (await T.gorselDepo.put("kokpit:bg", f)); if (!ok) { T.toast("Fotoğraf kaydedilemedi"); return; } sec({ tip: "dosya" }); m.close(); } })),
+        h("div.row", url, h("button.btn.c-leaf", { onclick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return; } sec({ tip: "url", url: u }); m.close(); } }, "Kullan")),
+        h("p.hint", "Fotoğraf yalnızca bu cihazda saklanır. Bağlantıdaki görselin kullanım hakkının sende olduğundan emin ol."))),
+      actions: [{ label: "Kapat" }] });
+  };
+
+  /* ---------- Müzik ve atmosfer (Web Audio) ---------- */
+  const Muzik = (function () {
+    let ozelUrl = null, ctx, master, analyser, reverb, timer, mod = null, adim = 0, sonraki = 0, kaynaklar = [], audioEl = null, hacim = 0.5, gurultuBuf = null;
+    const nota = (n) => 261.63 * Math.pow(2, n / 12); // n: C4'ten yarım ses
+    const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];
+    function kur() {
+      if (ctx) return;
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain(); master.gain.value = hacim * 0.5;
+      analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
+      reverb = ctx.createConvolver();
+      const len = ctx.sampleRate * 2.6, ir = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4); }
+      reverb.buffer = ir;
+      const rg = ctx.createGain(); rg.gain.value = 0.35; reverb.connect(rg); rg.connect(master);
+      master.connect(analyser); analyser.connect(ctx.destination);
+      gurultuBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const g = gurultuBuf.getChannelData(0); for (let i = 0; i < g.length; i++) g[i] = Math.random() * 2 - 1;
+    }
+    const cikis = (node, yank = 0.4) => { node.connect(master); const s = ctx.createGain(); s.gain.value = yank; node.connect(s); s.connect(reverb); };
+    function ton(f, t, sure, { tip = "sine", vol = 0.2, atak = 0.005, filtre = null, yank = 0.4 } = {}) {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = tip; o.frequency.value = f;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + atak); g.gain.exponentialRampToValueAtTime(0.0001, t + sure);
+      let son = g; if (filtre) { const fl = ctx.createBiquadFilter(); fl.type = "lowpass"; fl.frequency.value = filtre; g.connect(fl); son = fl; }
+      o.connect(g); cikis(son, yank); o.start(t); o.stop(t + sure + 0.05);
+    }
+    function marimba(f, t, vol = 0.18) { ton(f, t, 0.9, { vol }); ton(f * 4, t, 0.25, { vol: vol * 0.18 }); ton(f * 10, t, 0.06, { vol: vol * 0.05 }); }
+    function piyano(f, t, vol = 0.12) { ton(f, t, 2.4, { tip: "triangle", vol, atak: 0.01, filtre: 2200, yank: 0.6 }); ton(f * 2, t, 1.2, { vol: vol * 0.25, yank: 0.6 }); }
+    function ped(fs, t, sure, vol = 0.035) { fs.forEach((f) => [-4, 4].forEach((d) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = f; o.detune.value = d; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + sure * 0.4); g.gain.linearRampToValueAtTime(0, t + sure); o.connect(g); cikis(g, 0.7); o.start(t); o.stop(t + sure + 0.1); })); }
+    function gurultu(t, sure, { tip = "highpass", f = 7000, vol = 0.05, q = 0.7 } = {}) { const s = ctx.createBufferSource(); s.buffer = gurultuBuf; const fl = ctx.createBiquadFilter(); fl.type = tip; fl.frequency.value = f; fl.Q.value = q; const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + sure); s.connect(fl); fl.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + sure + 0.05); }
+    const AKOR = [[0, 4, 7], [-3, 0, 4], [-7, -3, 0], [-5, -1, 2]]; // C, Am, F, G
+    const MODLAR = {
+      sabah: { tempo: 108, adim(t, i) { const bar = Math.floor(i / 8) % 4; if (i % 8 === 0) ton(nota(AKOR[bar][0] - 12), t, 1.6, { vol: 0.12 }); if (Math.random() < 0.8) marimba(nota(PENTA[(i * 3 + bar * 2 + (Math.random() < 0.3 ? 2 : 0)) % PENTA.length]), t); } },
+      odak: { tempo: 56, adim(t, i) { const bar = Math.floor(i / 4) % 4; if (i % 4 === 0) ped(AKOR[bar].map((n) => nota(n - 12)), t, (60 / 56) * 4.2); if (Math.random() < 0.38) piyano(nota(PENTA[Math.floor(Math.random() * 7)]), t); } },
+      atolye: { tempo: 92, adim(t, i) { const bar = Math.floor(i / 8) % 4; if (i % 4 === 0) ton(nota(AKOR[bar][0] - 24), t, 0.5, { tip: "sawtooth", vol: 0.09, filtre: 380, yank: 0.1 }); if (i % 2 === 1) gurultu(t, 0.05, { vol: 0.03 }); if (i % 8 === 2 || i % 8 === 6) AKOR[bar].forEach((n) => ton(nota(n), t, 0.35, { tip: "triangle", vol: 0.04, filtre: 1500 })); if (i % 8 === 4 && Math.random() < 0.6) marimba(nota(PENTA[(i + bar) % 8] + 12), t, 0.08); } },
+      doga: { tempo: 60, baslat() { const s = ctx.createBufferSource(); s.buffer = gurultuBuf; s.loop = true; const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1100; bp.Q.value = 0.4; const g = ctx.createGain(); g.gain.value = 0.09; s.connect(bp); bp.connect(g); g.connect(master); s.start(); kaynaklar.push(s); },
+        adim(t) { for (let k = 0; k < 3; k++) if (Math.random() < 0.5) ton(1500 + Math.random() * 1800, t + Math.random() * 0.9, 0.04, { vol: 0.03, yank: 0.2 }); if (Math.random() < 0.12) { const b = 2600 + Math.random() * 900; for (let k = 0; k < 3; k++) { const o = ctx.createOscillator(), g = ctx.createGain(), tt = t + k * 0.14; o.frequency.setValueAtTime(b, tt); o.frequency.exponentialRampToValueAtTime(b * 1.5, tt + 0.08); g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(0.05, tt + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, tt + 0.12); o.connect(g); cikis(g, 0.5); o.start(tt); o.stop(tt + 0.15); } } } },
+    };
+    function durdur() { clearInterval(timer); timer = null; kaynaklar.forEach((s) => { try { s.stop(); } catch (e) {} }); kaynaklar = []; if (audioEl) { audioEl.pause(); } mod = null; }
+    function cal(m) {
+      kur(); ctx.resume(); durdur(); mod = m;
+      if (m === "ozel") { const k = ozelUrl || ayar().muzikUrl; if (!k) return false; if (!audioEl) { audioEl = new Audio(); audioEl.loop = true; audioEl.crossOrigin = "anonymous"; try { ctx.createMediaElementSource(audioEl).connect(master); } catch (e) {} } audioEl.src = k; audioEl.play().catch(() => T.toast("Ses dosyası çalınamadı")); return true; }
+      const M = MODLAR[m]; if (M.baslat) M.baslat();
+      adim = 0; sonraki = ctx.currentTime + 0.1; const aralik = 60 / M.tempo / 2;
+      timer = setInterval(() => { while (sonraki < ctx.currentTime + 0.25) { M.adim(sonraki, adim++); sonraki += m === "doga" ? 1 : aralik; } }, 60);
+      return true;
+    }
+    return { cal, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (master) master.gain.value = v * 0.5; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
+  })();
+  T.muzik = Muzik;
+
+  /* ---------- Kıvılcımlar ---------- */
+  const KIVILCIM = [
+    ["Merak sorusu", "Bulutlar neden düşmez?", "Bulutlar çok küçük su damlacıklarından oluşur. Damlacıklar o kadar hafiftir ki yükselen hava onları taşır. Damlacıklar birleşip ağırlaşınca yağmur olarak düşer."],
+    ["Merak sorusu", "Ay neden bazen yarım görünür?", "Ay kendisi ışık üretmez. Güneş'in aydınlattığı yüzünü her gün biraz farklı açıdan görürüz."],
+    ["Merak sorusu", "Bir ağacın kaç yaşında olduğunu nasıl anlarız?", "Kesilmiş bir gövdedeki halkaları sayarak. Ağaç genellikle her yıl bir halka ekler."],
+    ["Merak sorusu", "Bir karınca kendi ağırlığının kaç katını taşıyabilir?", "Önce tahmin edin. Karıncalar kendi ağırlıklarının çok katını taşıyabilir. Bunu birlikte araştırın."],
+    ["Merak sorusu", "Kediler karanlıkta nasıl görür?", "Gözlerinin arkasındaki özel bir tabaka az ışığı yansıtır. Ama tamamen karanlıkta onlar da göremez."],
+    ["Merak sorusu", "Arılar balı nasıl yapar?", "Çiçeklerden topladıkları nektarı kovanda işleyip suyunu azaltırlar. Böylece nektar yavaş yavaş bala dönüşür."],
+    ["Felsefi soru", "Bir arkadaşın sana bir kez yalan söylerse yine de arkadaşın olur mu?", "Doğru ya da yanlış cevap yok. Fikrini söyle, sonra 'Neden böyle düşünüyorsun?' diye arkadaşına sor."],
+    ["Felsefi soru", "Bir şeyin adil olduğunu nasıl anlarız?", "Herkesin aynı şeyi alması mı adil, herkesin ihtiyacı kadar alması mı? Örnekle konuşun."],
+    ["Felsefi soru", "Hiç konuşmadan bir arkadaşına teşekkür edebilir misin?", "Yollarını bulun, bugün en az birini deneyin."],
+    ["Felsefi soru", "Hayvanlar da bizim gibi düşünür mü?", "Gözlemlerinizden örnek verin. Hangi davranış düşündüklerini gösteriyor olabilir?"],
+    ["Felsefi soru", "Mutluluk bir kutuda saklanabilir mi?", "Seni mutlu eden bir anı hatırla. O anı nasıl 'saklıyorsun'?"],
+    ["Günün kelimesi", "merak", "Bir şeyi öğrenme, bilme isteği. Bugün neyi merak ediyorsun?"],
+    ["Günün kelimesi", "sabır", "Bir şeyin olmasını kızmadan, sakin bekleyebilmek. Bugün nerede sabırlı olabilirsin?"],
+    ["Günün kelimesi", "cesaret", "Korkulu bir durumda da doğru olanı yapabilme gücü. Cesaret gösterdiğin bir anı anlat."],
+    ["Günün kelimesi", "empati", "Kendini başkasının yerine koyup onun duygusunu anlamak. Bugün kimi anlamaya çalışacaksın?"],
+  ];
+
+  /* ---------- Kartlar ---------- */
+  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Merak kıvılcımı"], ["akis", "Günün akışı"], ["pin", "Sabitlenen etkinlikler"], ["not", "Hızlı not"], ["muzik", "Atmosfer ve müzik"]];
+  const gizli = () => ayar().gizli || {};
+  function ozetKart() {
+    const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
+    const day = (s.attendance[c.id] || {})[T.isoDate()] || {}; const taken = Object.keys(day).length > 0; const came = c.students.filter((x) => day[x.id] !== "yok").length;
+    const nobId = (s.duties[c.id] || {})["Nöbetçi"]; const nob = nobId && c.students.find((x) => x.id === nobId);
+    const tally = h("div.kp-tally", { "aria-hidden": "true" });
+    for (let i = 0; i < Math.floor(Math.min(n, 100) / 5); i++) { const g = T.svg("svg", { viewBox: "0 0 40 30" }); g.innerHTML = '<path d="M5 3v24M12 3v24M19 3v24M26 3v24M1 24 32 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>'; tally.append(g); }
+    for (let i = 0; i < n % 5 && n <= 100; i++) { const g = T.svg("svg", { viewBox: "0 0 8 30" }); g.innerHTML = '<path d="M4 3v24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'; tally.append(g); }
+    const saat = h("b.kp-saat.num");
+    const tick = () => { const d = new Date(); saat.textContent = `${T.pad(d.getHours())}:${T.pad(d.getMinutes())}`; }; tick(); const iv = setInterval(tick, 10000); T.onLeave(() => clearInterval(iv));
+    const sp = T.cal.specialDay();
+    return h("section.kp-kart.kp-ozet", { "aria-label": "Günün özeti" },
+      h("div.kp-ust", h("button.kp-sinif", { onclick: () => T.pickClass(), "aria-label": "Sınıf değiştir" }, T.icon("class"), c.name), saat),
+      st.kind === "okul" ? h("div.kp-gun", h("b", n), h("span", "Okulun " + n + ". günü", h("small", T.longDate()))) : h("div.kp-gun", h("span", st.text, h("small", T.longDate()))),
+      st.kind === "okul" ? tally : null,
+      h("div.kp-satirlar",
+        h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
+        nob ? h("div.kp-satir", T.avatar(nob.name, 26), "Nöbetçi", h("b", nob.name)) : null,
+        (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
+        st.kind === "okul" ? h("button.kp-satir", { onclick: () => T.go("sabah-sayi") }, T.icon("spark"), "Bugünün sayısı", h("b", n)) : null,
+        sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));
+  }
+  function kivilcimKart() {
+    const k = ayar(); const ozel = (k.ozelKivilcim || {})[cid()];
+    let i = k.kivilcimI != null ? k.kivilcimI : Math.floor(Date.now() / 864e5) % KIVILCIM.length;
+    const item = () => (ozel && i === -1 ? ["Öğretmenin sorusu", ozel, "Birlikte düşünelim."] : KIVILCIM[((i % KIVILCIM.length) + KIVILCIM.length) % KIVILCIM.length]);
+    const kart = h("div.kp-flip"); let dondu = false;
+    const ciz = () => { const [tur, on, arka] = item(); kart.replaceChildren(h("div.kp-flip-ic" + (dondu ? ".dondu" : ""), h("div.kp-yuz.on", h("small", tur), h("b", on), h("span.kp-ipucu", "Çevirmek için dokun")), h("div.kp-yuz.arka", h("small", tur), h("p", arka)))); };
+    kart.addEventListener("click", () => { dondu = !dondu; ciz(); });
+    ciz();
+    return h("section.kp-kart.kp-kivilcim", { "aria-label": "Merak kıvılcımı" }, h("div.kp-baslik", T.icon("spark"), "Günün kıvılcımı"), kart,
+      h("div.row", { style: { gap: "6px" } },
+        h("button.btn.sm", { onclick: () => { i = i < 0 ? 0 : i + 1; dondu = false; ayarYaz((x) => (x.kivilcimI = i)); ciz(); } }, T.icon("next"), "Yeni kıvılcım"),
+        h("button.btn.sm.c-chalk", { onclick: () => { const inp = h("input.in", { placeholder: "Bugünün sorusu", value: ozel || "" }); T.modal({ title: "Kendi sorun", body: inp, actions: [{ label: "Vazgeç" }, { label: "Kaydet", tone: "c-leaf", onClick: () => { const v = inp.value.trim(); ayarYaz((x) => { x.ozelKivilcim = x.ozelKivilcim || {}; x.ozelKivilcim[cid()] = v; x.kivilcimI = v ? -1 : 0; }); T.route(); } }] }); } }, T.icon("edit"), "Kendi sorum")));
+  }
+  function akisKart() {
+    const rows = T.gunAkisi ? T.gunAkisi() : [];
+    const box = h("section.kp-kart.kp-akis", { "aria-label": "Günün akışı" });
+    const ciz = () => {
+      const m = new Date().getHours() * 60 + new Date().getMinutes(); const dk = T.akisDk;
+      const dersler = rows.filter((r) => r.tur === "ders"); const kalan = dersler.filter((r) => dk(r.s) > m).length;
+      const son = rows.length ? dk(rows[rows.length - 1].s) : 0;
+      box.replaceChildren(
+        h("div.kp-baslik", T.icon("clock"), "Şimdi ne yapıyoruz?", h("span.kp-kalan", !rows.length ? "Bugün ders yok" : m >= son ? "Dersler bitti" : "Eve " + kalan + " ders"), h("button.kp-mini", { onclick: () => T.go("sabah-akis"), "aria-label": "Akışı düzenle" }, T.icon("edit"))),
+        rows.length ? h("div.kp-serit", rows.map((r) => { const su = dk(r.b) <= m && m < dk(r.s), gecti = dk(r.s) <= m; return h("div.kp-slot." + r.tur + (su ? ".su" : gecti ? ".gecti" : ""), h("small", r.b), h("b", r.ad)); })) : h("p.hint", "Günün akışını Sabah rutininden yazabilirsin."));
+      const su = box.querySelector(".kp-slot.su"); if (su) su.scrollIntoView({ block: "nearest", inline: "center" });
+    };
+    ciz(); const iv = setInterval(ciz, 30000); T.onLeave(() => clearInterval(iv));
+    return box;
+  }
+  function notKart() {
+    const k = ayar(); const metin = (k.not || {})[cid()] || "";
+    const alan = h("div.kp-not-ic", { contenteditable: "true", "aria-label": "Hızlı not", "data-yer": "Bugünün hedefi ya da hatırlatma..." }); alan.textContent = metin;
+    alan.addEventListener("input", () => ayarYaz((x) => { x.not = x.not || {}; x.not[cid()] = alan.innerText; }));
+    return h("section.kp-kart.kp-not", { "aria-label": "Hızlı not" }, alan);
+  }
+  function muzikKart() {
+    const MOD = [["sabah", "Sabah karşılama"], ["odak", "Odak ve okuma"], ["atolye", "Atölye ve üretim"], ["doga", "Doğa ambiyansı"], ["ozel", "Kendi sesim"]];
+    const box = h("section.kp-kart.kp-muzik", { "aria-label": "Sınıf atmosferi ve müzik" });
+    const cv = h("canvas.kp-dalga", { width: 280, height: 44 });
+    let raf;
+    const ciz = () => {
+      const a = Muzik.aktif();
+      box.replaceChildren(h("div.kp-baslik", T.icon("music"), "Sınıf atmosferi", a ? h("button.kp-mini", { onclick: () => { Muzik.durdur(); ciz(); }, "aria-label": "Durdur" }, T.icon("pause")) : null),
+        h("div.kp-modlar", MOD.map(([k, l]) => h("button" + (a === k ? ".on" : ""), { onclick: () => {
+          if (a === k) { Muzik.durdur(); ciz(); return; }
+          if (k === "ozel" && !Muzik.ozelVar()) { ozelSes(); return; }
+          Muzik.cal(k); ciz();
+        } }, l))),
+        a ? cv : null,
+        h("div.row", { style: { gap: "8px" } }, h("span.hint", "Ses"), h("input", { type: "range", min: 0, max: 1, step: 0.05, value: Muzik.hacimV, style: { flex: 1 }, oninput: (e) => Muzik.hacim(+e.target.value), "aria-label": "Ses düzeyi" }), h("button.kp-mini", { onclick: ozelSes, title: "Kendi sesini ekle", "aria-label": "Kendi sesini ekle" }, T.icon("plus"))));
+      cancelAnimationFrame(raf); if (a) dalga();
+    };
+    function dalga() {
+      const an = Muzik.analyser(); if (!an) return; const d = new Uint8Array(an.fftSize); const g = cv.getContext("2d");
+      const f = () => { an.getByteTimeDomainData(d); g.clearRect(0, 0, 280, 44); g.strokeStyle = "#1B2A4A"; g.lineWidth = 2; g.beginPath(); for (let i = 0; i < 280; i++) { const v = d[Math.floor((i / 280) * d.length)] / 128 - 1; g[i ? "lineTo" : "moveTo"](i, 22 + v * 40); } g.stroke(); raf = requestAnimationFrame(f); };
+      f();
+    }
+    function ozelSes() {
+      const url = h("input.in", { placeholder: "https://... .mp3 bağlantısı" });
+      T.modal({ title: "Kendi sesini ekle", body: h("div", { style: { display: "grid", gap: "10px" } }, h("label.btn.c-chalk", { style: { cursor: "pointer", justifySelf: "start" } }, T.icon("download"), "Ses dosyası seç", h("input", { type: "file", accept: "audio/*", style: { display: "none" }, onchange: (e) => { const f = e.target.files[0]; if (f) { Muzik.dosya(f); Muzik.cal("ozel"); ciz(); T.$$("#layer > .scrim").forEach((x) => x.remove()); } } })), url, h("p.hint", "Seçtiğin dosya bu oturum boyunca çalar. Bağlantı verirsen kaydedilir.")),
+        actions: [{ label: "Vazgeç" }, { label: "Çal", tone: "c-leaf", onClick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return false; } ayarYaz((x) => (x.muzikUrl = u)); Muzik.cal("ozel"); ciz(); } }] });
+    }
+    ciz(); T.onLeave(() => cancelAnimationFrame(raf));
+    return box;
+  }
+
+  /* ---------- Ana sayfa ---------- */
+  T.kokpit = {
+    render(view) {
+      const sade = !!ayar().sade, g = gizli();
+      const kok = h("div.kokpit" + (sade ? ".sade" : ""));
+      view.append(kok);
+      const kontroller = h("div.kp-kontrol",
+        h("button.kp-dugme", { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Kartları göster" : "Görünümü sadeleştir" }, T.icon(sade ? "eye" : "eyeoff"), sade ? "Kartları göster" : "Sadeleştir"),
+        !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
+        h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
+        h("button.kp-dugme", { onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} }, title: "Tam ekran", "aria-label": "Tam ekran" }, T.icon("full")));
+      kok.append(kontroller);
+      if (!sade) {
+        kok.append(h("div.kp-izgara",
+          h("div.kp-sol", g.ozet ? null : ozetKart(), g.not ? null : notKart()),
+          h("div.kp-orta", g.akis ? null : akisKart(), g.pin ? null : pinKart()),
+          h("div.kp-sag", g.muzik ? null : muzikKart(), g.kivilcim ? null : kivilcimKart())));
+      } else if (Muzik.aktif()) kok.append(h("div.kp-calan", T.icon("music"), "Atmosfer açık", h("button.kp-mini", { onclick: () => { Muzik.durdur(); T.route(); } }, T.icon("pause"))));
+    },
+  };
+  T.arkaPlanUygula = () => arkaPlanUygula();
+
+  /* ---------- Sabitlenen (pinlenen) etkinlikler ---------- */
+  T.pinler = () => ((T.store.get().pinler || {})[cid()] || []);
+  T.pinliMi = (r) => T.pinler().some((x) => x.r === r);
+  T.pinDegis = (r, baslik, ikon, ton) => T.store.update((s) => { s.pinler = s.pinler || {}; const l = (s.pinler[cid()] = s.pinler[cid()] || []); const i = l.findIndex((x) => x.r === r); if (i >= 0) l.splice(i, 1); else l.push({ r, b: baslik, i: ikon, t: ton }); });
+  /* Etkinlik kartı: köşesinde Ana tahtaya sabitle düğmesi */
+  T.aracKart = (route, t, ton) => {
+    const pin = h("button.tc-pin", { "aria-label": "Ana tahtaya sabitle", title: "Ana tahtaya sabitle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana tahtaya sabitlendi" : "Sabitleme kaldırıldı"); } }, T.icon("pin"));
+    if (T.pinliMi(route)) pin.classList.add("on");
+    return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin);
+  };
+  function pinKart() {
+    const l = T.pinler();
+    return h("section.kp-kart.kp-pin", { "aria-label": "Sabitlenen etkinlikler" }, h("div.kp-baslik", T.icon("pin"), "Bugün için sabitlediklerim"),
+      l.length ? h("div.kp-pinler", l.map((p) => h("div.kp-pinw", h("button.kp-pinb.c-" + (p.t || "sun"), { onclick: () => T.go(p.r) }, T.icon(p.i || "star"), h("span", p.b)), h("button.kp-pinx", { "aria-label": "Kaldır", onclick: () => { T.pinDegis(p.r); T.route(); } }, T.icon("close")))))
+        : h("p.hint", "Türkçe, Matematik, Duygular gibi bölümlerde bir etkinlik kartının köşesindeki iğneye dokun; burada hızlı başlatma kartı olarak görünür."));
+  }
+
+  /* ---------- Her yerden müzik: üst bar düğmesi ---------- */
+  T.muzikPanel = function () {
+    const MOD = [["sabah", "Sabah karşılama"], ["odak", "Odak ve okuma"], ["atolye", "Atölye ve üretim"], ["doga", "Doğa ambiyansı"]];
+    let m;
+    const govde = () => h("div", { style: { display: "grid", gap: "10px" } }, h("div.kp-modlar", MOD.map(([k, l]) => h("button" + (Muzik.aktif() === k ? ".on" : ""), { onclick: () => { Muzik.aktif() === k ? Muzik.durdur() : Muzik.cal(k); m.close(); T.muzikDurum && T.muzikDurum(); } }, l))),
+      h("div.row", h("span.hint", "Ses"), h("input", { type: "range", min: 0, max: 1, step: 0.05, value: Muzik.hacimV, style: { flex: 1 }, oninput: (e) => Muzik.hacim(+e.target.value) })),
+      Muzik.aktif() ? h("button.btn.c-tomato", { onclick: () => { Muzik.durdur(); m.close(); T.muzikDurum && T.muzikDurum(); } }, T.icon("pause"), "Durdur") : null,
+      h("p.hint", "Müzik bölümler arasında geçerken çalmaya devam eder. Kendi sesini ana sayfadaki atmosfer kartından ekleyebilirsin."));
+    m = T.modal({ title: "Sınıf atmosferi", body: govde(), actions: [{ label: "Kapat" }] });
+  };
+  function kartSec() {
+    const g = Object.assign({}, gizli());
+    T.modal({ title: "Ana sayfa kartları", body: h("div", { style: { display: "grid", gap: "8px" } }, KARTLAR.map(([k, l]) => h("label.bt-madde", h("input", { type: "checkbox", checked: g[k] ? null : true, onchange: (e) => (g[k] = !e.target.checked) }), h("span", l)))),
+      actions: [{ label: "Vazgeç" }, { label: "Uygula", tone: "c-leaf", onClick: () => { ayarYaz((x) => (x.gizli = g)); T.route(); } }] });
+  }
+})();

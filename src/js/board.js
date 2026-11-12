@@ -1,30 +1,31 @@
 /* Ders Ekranı: araçlar tahtaya serbestçe yerleştirilir, sürüklenir, boyutlandırılır.
    Düzen her sınıf için ayrı saklanır. */
-T.board = (function () {
+function TahtaYap(MOD) {
   const BGS = [
     ["tahta", "Tebeşir tahtası"], ["kareli", "Kareli kağıt"], ["mantar", "Mantar pano"],
     ["gece", "Gece gökyüzü"], ["kis", "Kış"], ["cumhuriyet", "Bayrak kırmızısı"],
   ];
-  let root = null, cleanup = [];
+  let root = null, cleanup = []; const mode = MOD;
   function data() {
     const s = T.store.get(), cid = s.activeClassId;
+    if (mode === "ana") { s.homeBoards = s.homeBoards || {}; if (!s.homeBoards[cid]) s.homeBoards[cid] = { widgets: [] }; return s.homeBoards[cid]; }
     if (!s.boards[cid]) s.boards[cid] = { bg: "tahta", widgets: [] };
     return s.boards[cid];
   }
   function save() { T.store.save(); }
 
-  function render(view) {
+  function render(view, opts = {}) {
     cleanup.forEach((f) => f()); cleanup = [];
     const d = data();
-    root = T.h("div.board.board-bg-" + d.bg);
+    root = T.h(mode === "ana" ? "div.board.home-board" : "div.board.board-bg-" + d.bg);
     view.append(root);
-    if (!d.widgets.length) root.append(T.h("div.board-empty", T.h("div", "Tahta boş.", T.h("br"), "Aşağıdan bir araç ekle.")));
+    if (mode === "ekran" && !d.widgets.length) root.append(T.h("div.board-empty", T.h("div", "Tahta boş.", T.h("br"), "Aşağıdaki Araçlar şeridinden ya da Araç ekle ile başla.")));
     d.widgets.forEach((w) => mount(w));
-    root.append(toolbar());
+    if (mode === "ekran") root.append(toolbar());
     const onResize = () => d.widgets.forEach((w) => clampInto(w));
     window.addEventListener("resize", onResize);
     cleanup.push(() => window.removeEventListener("resize", onResize));
-    T.onLeave(() => { cleanup.forEach((f) => f()); cleanup = []; });
+    if (mode === "ekran") T.onLeave(() => { cleanup.forEach((f) => f()); cleanup = []; });
   }
 
   function toolbar() {
@@ -76,13 +77,14 @@ T.board = (function () {
     const w = Object.assign({ id: T.uid(), type, w: ww, h: wh, x: best.x, y: best.y, data: def.init ? def.init() : {} }, init);
     d.widgets.push(w); save();
     if (root && T.$(".board-empty", root)) T.$(".board-empty", root).remove();
-    if (root && root.isConnected) mount(w); else T.go("ekran");
+    if (root && root.isConnected) mount(w); else if (mode === "ekran") T.go("ekran");
     return w;
   }
   /* En az çakışan boş yeri bul */
   function place(list, ww, wh, bw, bh) {
-    let best = { x: 16, y: 16, o: Infinity };
-    outer: for (let y = 16; y <= Math.max(16, bh - wh - 96); y += 24) for (let x = 16; x <= Math.max(16, bw - ww - 16); x += 24) {
+    const x0 = mode === "ana" ? Math.min(380, Math.max(16, bw - ww - 16)) : 16, y0 = mode === "ana" ? 80 : 16;
+    let best = { x: x0, y: y0, o: Infinity };
+    outer: for (let y = y0; y <= Math.max(y0, bh - wh - 96); y += 24) for (let x = x0; x <= Math.max(x0, bw - ww - 16); x += 24) {
       let o = 0; for (const q of list) { const ix = Math.max(0, Math.min(x + ww, q.x + q.w) - Math.max(x, q.x)), iy = Math.max(0, Math.min(y + wh, q.y + q.h) - Math.max(y, q.y)); o += ix * iy; }
       if (o < best.o - 1) best = { x, y, o }; if (o === 0) break outer;
     }
@@ -153,5 +155,7 @@ T.board = (function () {
     });
     save(); T.go("ekran");
   }
-  return { render, add, setup, BGS };
-})();
+  return { render, add, setup, BGS, openTray: () => openTray(), aktif: () => !!(root && root.isConnected) };
+}
+T.board = TahtaYap("ekran");
+T.yuzen = TahtaYap("ana");

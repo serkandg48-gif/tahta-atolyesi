@@ -161,6 +161,7 @@
           T.toast("Görevler bir sonraki öğrencilere geçti"); T.route();
         } }, T.icon("rotate"), "Haftalık devret"),
         inp, h("button.btn.c-chalk", { onclick: () => { const v = inp.value.trim(); if (!v) return; T.store.update(() => (dt[v] = c.students[0].id)); T.route(); } }, T.icon("plus"), "Ekle"),
+        h("button.btn.c-chalk", { onclick: () => T.gorevliPenceresi(c) }, T.icon("edit"), "Görev adlarını düzenle"),
         h("button.btn.c-chalk", { onclick: () => T.board.add("duties") }, T.icon("board"), "Tahtaya koy")),
       list);
   }

@@ -73,41 +73,14 @@
   /* Klasik çalma listesi: Pixabay lisanslı parçalar, dist/muzik içinde. Yalnızca çalınca indirilir. */
   const KLASIK = [["piyano-vals", "Piyano valsi", "Tunetank"], ["keman", "Keman", "Nastelbom"], ["sakin-klasik", "Sakin klasik", "AtlasAudio"], ["modern-klasik", "Modern klasik", "AtlasAudio"], ["yaylilar", "Yaylılar", "Nastelbom"], ["klasik-esinti", "Klasik esinti", "Starostin"], ["dag-klasik", "Dağ esintisi", "The Mountain"], ["kraliyet-ingiliz", "Kraliyet marşı", "Alex Morgan"], ["saray-bahcesi", "Saray bahçesi", "Mondamusic"], ["sinematik", "Sinematik", "Lexin Music"]];
   const Muzik = (function () {
-    let ozelUrl = null, ctx, master, analyser, reverb, timer, mod = null, adim = 0, sonraki = 0, kaynaklar = [], audioEl = null, hacim = 0.5, gurultuBuf = null;
-    const nota = (n) => 261.63 * Math.pow(2, n / 12); // n: C4'ten yarım ses
-    const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];
+    let ozelUrl = null, ctx, master, analyser, mod = null, audioEl = null, hacim = 0.5;
     function kur() {
       if (ctx) return;
       ctx = new (window.AudioContext || window.webkitAudioContext)();
-      master = ctx.createGain(); master.gain.value = hacim * 0.5;
+      master = ctx.createGain(); master.gain.value = 1;
       analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
-      reverb = ctx.createConvolver();
-      const len = ctx.sampleRate * 2.6, ir = ctx.createBuffer(2, len, ctx.sampleRate);
-      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4); }
-      reverb.buffer = ir;
-      const rg = ctx.createGain(); rg.gain.value = 0.35; reverb.connect(rg); rg.connect(master);
       master.connect(analyser); analyser.connect(ctx.destination);
-      gurultuBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const g = gurultuBuf.getChannelData(0); for (let i = 0; i < g.length; i++) g[i] = Math.random() * 2 - 1;
     }
-    const cikis = (node, yank = 0.4) => { node.connect(master); const s = ctx.createGain(); s.gain.value = yank; node.connect(s); s.connect(reverb); };
-    function ton(f, t, sure, { tip = "sine", vol = 0.2, atak = 0.005, filtre = null, yank = 0.4 } = {}) {
-      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = tip; o.frequency.value = f;
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + atak); g.gain.exponentialRampToValueAtTime(0.0001, t + sure);
-      let son = g; if (filtre) { const fl = ctx.createBiquadFilter(); fl.type = "lowpass"; fl.frequency.value = filtre; g.connect(fl); son = fl; }
-      o.connect(g); cikis(son, yank); o.start(t); o.stop(t + sure + 0.05);
-    }
-    function marimba(f, t, vol = 0.18) { ton(f, t, 0.9, { vol }); ton(f * 4, t, 0.25, { vol: vol * 0.18 }); ton(f * 10, t, 0.06, { vol: vol * 0.05 }); }
-    function piyano(f, t, vol = 0.12) { ton(f, t, 2.4, { tip: "triangle", vol, atak: 0.01, filtre: 2200, yank: 0.6 }); ton(f * 2, t, 1.2, { vol: vol * 0.25, yank: 0.6 }); }
-    function ped(fs, t, sure, vol = 0.035) { fs.forEach((f) => [-4, 4].forEach((d) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = f; o.detune.value = d; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + sure * 0.4); g.gain.linearRampToValueAtTime(0, t + sure); o.connect(g); cikis(g, 0.7); o.start(t); o.stop(t + sure + 0.1); })); }
-    function gurultu(t, sure, { tip = "highpass", f = 7000, vol = 0.05, q = 0.7 } = {}) { const s = ctx.createBufferSource(); s.buffer = gurultuBuf; const fl = ctx.createBiquadFilter(); fl.type = tip; fl.frequency.value = f; fl.Q.value = q; const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + sure); s.connect(fl); fl.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + sure + 0.05); }
-    const AKOR = [[0, 4, 7], [-3, 0, 4], [-7, -3, 0], [-5, -1, 2]]; // C, Am, F, G
-    const MODLAR = {
-      sabah: { tempo: 108, adim(t, i) { const bar = Math.floor(i / 8) % 4; if (i % 8 === 0) ton(nota(AKOR[bar][0] - 12), t, 1.6, { vol: 0.12 }); if (Math.random() < 0.8) marimba(nota(PENTA[(i * 3 + bar * 2 + (Math.random() < 0.3 ? 2 : 0)) % PENTA.length]), t); } },
-      odak: { tempo: 56, adim(t, i) { const bar = Math.floor(i / 4) % 4; if (i % 4 === 0) ped(AKOR[bar].map((n) => nota(n - 12)), t, (60 / 56) * 4.2); if (Math.random() < 0.38) piyano(nota(PENTA[Math.floor(Math.random() * 7)]), t); } },
-      atolye: { tempo: 92, adim(t, i) { const bar = Math.floor(i / 8) % 4; if (i % 4 === 0) ton(nota(AKOR[bar][0] - 24), t, 0.5, { tip: "sawtooth", vol: 0.09, filtre: 380, yank: 0.1 }); if (i % 2 === 1) gurultu(t, 0.05, { vol: 0.03 }); if (i % 8 === 2 || i % 8 === 6) AKOR[bar].forEach((n) => ton(nota(n), t, 0.35, { tip: "triangle", vol: 0.04, filtre: 1500 })); if (i % 8 === 4 && Math.random() < 0.6) marimba(nota(PENTA[(i + bar) % 8] + 12), t, 0.08); } },
-      doga: { tempo: 60, baslat() { const s = ctx.createBufferSource(); s.buffer = gurultuBuf; s.loop = true; const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1100; bp.Q.value = 0.4; const g = ctx.createGain(); g.gain.value = 0.09; s.connect(bp); bp.connect(g); g.connect(master); s.start(); kaynaklar.push(s); },
-        adim(t) { for (let k = 0; k < 3; k++) if (Math.random() < 0.5) ton(1500 + Math.random() * 1800, t + Math.random() * 0.9, 0.04, { vol: 0.03, yank: 0.2 }); if (Math.random() < 0.12) { const b = 2600 + Math.random() * 900; for (let k = 0; k < 3; k++) { const o = ctx.createOscillator(), g = ctx.createGain(), tt = t + k * 0.14; o.frequency.setValueAtTime(b, tt); o.frequency.exponentialRampToValueAtTime(b * 1.5, tt + 0.08); g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(0.05, tt + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, tt + 0.12); o.connect(g); cikis(g, 0.5); o.start(tt); o.stop(tt + 0.15); } } } },
-    };
     let sira = [], siraI = 0;
     function elKur() { if (!audioEl) { audioEl = new Audio(); audioEl.crossOrigin = "anonymous"; audioEl.volume = Math.min(1, hacim); audioEl.addEventListener("ended", () => { if (mod === "klasik") parca(1); }); try { ctx.createMediaElementSource(audioEl).connect(master); } catch (e) {} } }
     function parca(d) {
@@ -115,17 +88,14 @@
       const k = KLASIK[sira[siraI]]; audioEl.loop = false; audioEl.src = "muzik/" + k[0] + ".mp3";
       audioEl.play().catch(() => T.toast("Müzik çalınamadı")); T.muzikDurum && T.muzikDurum(); T.$$(".kp-parca").forEach((x) => (x.textContent = k[1] + " · " + k[2]));
     }
-    function durdur() { clearInterval(timer); timer = null; kaynaklar.forEach((s) => { try { s.stop(); } catch (e) {} }); kaynaklar = []; if (audioEl) { audioEl.pause(); } mod = null; }
+    function durdur() { if (audioEl) audioEl.pause(); mod = null; }
     function cal(m) {
       kur(); ctx.resume(); durdur(); mod = m;
       if (m === "klasik") { elKur(); sira = []; parca(0); return true; }
       if (m === "ozel") { const k = ozelUrl || ayar().muzikUrl; if (!k) return false; elKur(); audioEl.loop = true; audioEl.src = k; audioEl.play().catch(() => T.toast("Ses dosyası çalınamadı")); return true; }
-      const M = MODLAR[m]; if (M.baslat) M.baslat();
-      adim = 0; sonraki = ctx.currentTime + 0.1; const aralik = 60 / M.tempo / 2;
-      timer = setInterval(() => { while (sonraki < ctx.currentTime + 0.25) { M.adim(sonraki, adim++); sonraki += m === "doga" ? 1 : aralik; } }, 60);
-      return true;
+      return false;
     }
-    return { sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (master) master.gain.value = v * 0.5; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
+    return { sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
   })();
   T.muzik = Muzik;
 
@@ -181,7 +151,7 @@
   function ozetKart() {
     const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
     const day = (s.attendance[c.id] || {})[T.isoDate()] || {}; const taken = Object.keys(day).length > 0; const came = c.students.filter((x) => day[x.id] !== "yok").length;
-    const nob = T.nobetci(c);
+    const gv = T.gorevliler(c);
     const tally = h("div.kp-tally", { "aria-hidden": "true" });
     for (let i = 0; i < Math.floor(Math.min(n, 100) / 5); i++) { const g = T.svg("svg", { viewBox: "0 0 40 30" }); g.innerHTML = '<path d="M5 3v24M12 3v24M19 3v24M26 3v24M1 24 32 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>'; tally.append(g); }
     for (let i = 0; i < n % 5 && n <= 100; i++) { const g = T.svg("svg", { viewBox: "0 0 8 30" }); g.innerHTML = '<path d="M4 3v24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'; tally.append(g); }
@@ -194,7 +164,7 @@
       st.kind === "okul" ? tally : null,
       h("div.kp-satirlar",
         h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
-        nob ? h("button.kp-satir", { onclick: () => T.go("sinif"), title: T.nobetciOto(c) ? "Her okul günü sıradaki öğrenciye geçer" : "Sınıfım'dan değiştir" }, T.avatar(nob.name, 26), "Nöbetçi", h("b", nob.name)) : null,
+        h("button.kp-satir", { onclick: () => T.gorevliPenceresi(c), title: "Görevlileri gör ve düzenle" }, T.icon("trophy"), "Görevliler", gv.length ? h("span.kp-yuzler", gv.slice(0, 4).map(([, st]) => T.avatar(st.name, 26))) : h("b", "Ekle")),
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
         st.kind === "okul" ? h("button.kp-satir", { onclick: () => T.go("sabah-sayi") }, T.icon("spark"), "Bugünün sayısı", h("b", n)) : null,
         sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));
@@ -234,7 +204,7 @@
     return h("section.kp-kart.kp-not", { "aria-label": "Hızlı not" }, alan);
   }
   function muzikKart() {
-    const MOD = [["klasik", "Klasik müzik"], ["sabah", "Sabah karşılama"], ["odak", "Odak ve okuma"], ["atolye", "Atölye ve üretim"], ["doga", "Doğa ambiyansı"], ["spotify", "Spotify"], ["ozel", "Kendi sesim"]];
+    const MOD = [["klasik", "Klasik müzik"], ["spotify", "Spotify"], ["ozel", "Kendi sesim"]];
     const box = h("section.kp-kart.kp-muzik", { "aria-label": "Sınıf atmosferi ve müzik" });
     const cv = h("canvas.kp-dalga", { width: 280, height: 44 });
     let raf;
@@ -309,7 +279,7 @@
 
   /* ---------- Her yerden müzik: üst bar düğmesi ---------- */
   T.muzikPanel = function () {
-    const MOD = [["klasik", "Klasik müzik"], ["sabah", "Sabah karşılama"], ["odak", "Odak ve okuma"], ["atolye", "Atölye ve üretim"], ["doga", "Doğa ambiyansı"]];
+    const MOD = [["klasik", "Klasik müzik"]];
     let m;
     const govde = () => h("div", { style: { display: "grid", gap: "10px" } }, h("div.kp-modlar", MOD.map(([k, l]) => h("button" + (Muzik.aktif() === k ? ".on" : ""), { onclick: () => { if (Muzik.aktif() === k) Muzik.durdur(); else { T.spotify.kapat(); Muzik.cal(k); } m.close(); T.muzikDurum && T.muzikDurum(); } }, l)),
         h("button" + (T.spotify.acik() ? ".on" : ""), { onclick: () => { m.close(); if (T.spotify.acik()) T.spotify.kapat(); else if (!T.spotify.ac()) T.spotify.baglantiSor(); T.muzikDurum && T.muzikDurum(); } }, "Spotify")),

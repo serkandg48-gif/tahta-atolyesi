@@ -20,12 +20,12 @@
       const s = T.store.get(), c = T.store.activeClass();
       const wrap = h("div.view-inner");
       view.append(wrap);
-      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["dogum", "Doğum günleri", "star"], ["liste", "Sınıf listesi", "edit"]];
+      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["dogum", "Doğum günleri", "star"], ["getirdi", "Kim getirdi?", "check"], ["liste", "Sınıf listesi", "edit"]];
       wrap.append(
         h("div.page-head", h("h1", c.name + " sınıfı"), h("div.sub", c.students.length + " öğrenci. Kayıtlar bu cihazda tutulur; Google ile giriş açılınca bütün cihazlarında görünecek."), h("div.grow"), classPicker()),
         h("div.tabs", { role: "tablist" }, tabs.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(tab === k), onclick: () => { tab = k; T.route(); } }, T.icon(ic), l))));
       const area = h("div"); wrap.append(area);
-      ({ yoklama, puan, oturma, gorev, gecmis, dogum, liste })[tab](area, s, c);
+      ({ yoklama, puan, oturma, gorev, gecmis, dogum, liste, getirdi: T.kimGetirdi })[tab](area, s, c);
     },
   };
 

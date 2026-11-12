@@ -43,6 +43,7 @@ JS_ORDER = [
     "rutin-veri.js",
     "rutin.js",
     "kitap-rapor.js",
+    "sinif-araclari.js",
     "zeka.js",
     "plan.js",
     "settings.js",

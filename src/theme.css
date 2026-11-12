@@ -1270,3 +1270,18 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .sr-liste li { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 10px; font-weight: 700; } .sr-liste li:nth-child(odd) { background: #F5F7FB; }
 .sr-liste li.bas { background: #FFE9A8; font-size: 18px; } .sr-liste li.son { background: #E6EEFA; } .sr-liste em { margin-left: auto; font-style: normal; font-size: 13px; color: var(--ink-soft); }
 .sr-no { width: 24px; text-align: right; color: var(--ink-soft); }
+/* Ders kitapları */
+.dk-duzen { display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .dk-duzen { grid-template-columns: 1fr; } }
+.dk-sol { display: grid; gap: 12px; position: sticky; top: 8px; max-height: calc(100vh - 140px); overflow: auto; padding-right: 2px; }
+.seg.dk-sinif { display: grid; grid-template-columns: repeat(4, 1fr); } .seg.dk-sinif button { padding-left: 4px; padding-right: 4px; }
+.dk-grup { display: grid; gap: 4px; } .dk-grup-bas { display: flex; align-items: center; gap: 8px; font: 800 16px var(--display); } .dk-grup-bas .ikon3d { width: 28px; height: 28px; }
+.dk-satir { display: flex; align-items: center; gap: 4px; }
+.dk-kitap { flex: 1; text-align: left; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font: 600 15px var(--body); color: var(--ink); cursor: pointer; }
+.dk-kitap.on { background: #1B2A4A; color: #fff; border-color: #1B2A4A; }
+.dk-sil { width: 30px; height: 30px; border: 0; background: none; color: #8A96AE; font-size: 18px; cursor: pointer; }
+.dk-alt { display: flex; gap: 6px; flex-wrap: wrap; }
+.dk-okuyucu { display: grid; grid-template-rows: auto 1fr; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 10px; height: calc(100vh - 170px); min-height: 460px; }
+.dk-okuyucu:fullscreen { height: 100vh; border-radius: 0; }
+.dk-okuyucu-ust { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .dk-okuyucu-ust b { font: 800 18px var(--display); }
+.dk-cerceve { width: 100%; height: 100%; border: 1px solid var(--line); border-radius: 12px; background: #F4F6FA; }

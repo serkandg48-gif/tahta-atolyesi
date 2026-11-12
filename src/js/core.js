@@ -280,3 +280,26 @@ T.sayiOku = function (n) {
   // Boşluklu okunuş
   return s.replace(/(yüz|bin|on|yirmi|otuz|kırk|elli|altmış|yetmiş|seksen|doksan)(?=[a-zçğışöü])/g, "$1 ").trim();
 };
+
+/* ---------- Yeni sürüm uyarısı: açık kalan sekme eski sürümde takılı kalmasın ---------- */
+(function () {
+  if (!/^https?:/.test(location.protocol)) return;
+  let uyarildi = false;
+  const bak = async () => {
+    if (uyarildi || document.hidden) return;
+    try {
+      const t = await (await fetch(location.pathname, { cache: "no-store" })).text();
+      const m = /window\.SURUM="([0-9a-f]+)"/.exec(t);
+      if (m && window.SURUM && m[1] !== window.SURUM) {
+        uyarildi = true;
+        const bar = document.createElement("div");
+        bar.className = "surum-bar";
+        bar.innerHTML = 'Sitenin yeni sürümü hazır. <button type="button">Şimdi yenile</button>';
+        bar.querySelector("button").onclick = () => location.reload();
+        document.body.append(bar);
+      }
+    } catch (e) {}
+  };
+  setTimeout(bak, 20000); setInterval(bak, 5 * 60000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) bak(); });
+})();

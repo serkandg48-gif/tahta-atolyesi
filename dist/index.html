@@ -791,6 +791,9 @@ input[type="range"], input[type="checkbox"], input[type="radio"] { accent-color:
 .quick .btn.big.c-tomato { background: var(--navy); color: #fff; border-color: var(--navy); }
 .quick .btn.big.c-tomato svg { color: var(--amber); }
 
+.surum-bar { position: fixed; left: 50%; top: 76px; transform: translateX(-50%); z-index: 9999; background: var(--navy); color: #fff; padding: 12px 14px 12px 20px; border-radius: 14px; display: flex; gap: 14px; align-items: center; font-weight: 600; box-shadow: 0 10px 30px rgba(27,42,74,.25); }
+.surum-bar button { background: var(--amber); color: var(--ink); border: 0; border-radius: 10px; padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+
 </style>
 </head>
 <body>
@@ -802,6 +805,7 @@ input[type="range"], input[type="checkbox"], input[type="radio"] { accent-color:
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+window.SURUM="9ccf12c347";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -1085,6 +1089,29 @@ T.sayiOku = function (n) {
   // Boşluklu okunuş
   return s.replace(/(yüz|bin|on|yirmi|otuz|kırk|elli|altmış|yetmiş|seksen|doksan)(?=[a-zçğışöü])/g, "$1 ").trim();
 };
+
+/* ---------- Yeni sürüm uyarısı: açık kalan sekme eski sürümde takılı kalmasın ---------- */
+(function () {
+  if (!/^https?:/.test(location.protocol)) return;
+  let uyarildi = false;
+  const bak = async () => {
+    if (uyarildi || document.hidden) return;
+    try {
+      const t = await (await fetch(location.pathname, { cache: "no-store" })).text();
+      const m = /window\.SURUM="([0-9a-f]+)"/.exec(t);
+      if (m && window.SURUM && m[1] !== window.SURUM) {
+        uyarildi = true;
+        const bar = document.createElement("div");
+        bar.className = "surum-bar";
+        bar.innerHTML = 'Sitenin yeni sürümü hazır. <button type="button">Şimdi yenile</button>';
+        bar.querySelector("button").onclick = () => location.reload();
+        document.body.append(bar);
+      }
+    } catch (e) {}
+  };
+  setTimeout(bak, 20000); setInterval(bak, 5 * 60000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) bak(); });
+})();
 
 /* ---- calendar.js ---- */
 /* MEB 2026-2027 çalışma takvimi.

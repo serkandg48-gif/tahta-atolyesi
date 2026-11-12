@@ -48,7 +48,9 @@ def main():
         p = SRC / "js" / name
         parts.append(f"/* ---- {name} ---- */\n" + p.read_text(encoding="utf-8"))
     js = "\n".join(parts)
-    out = html.replace("/*__CSS__*/", css).replace("/*__JS__*/", js)
+    import hashlib
+    surum = hashlib.sha1((css + js).encode("utf-8")).hexdigest()[:10]
+    out = html.replace("/*__CSS__*/", css).replace("/*__JS__*/", 'window.SURUM="' + surum + '";\n' + js)
     (ROOT / "dist").mkdir(exist_ok=True)
     (ROOT / "dist" / "index.html").write_text(out, encoding="utf-8")
     # Ayrı statik sayfalar (gizlilik politikası vb.) olduğu gibi kopyalanır.

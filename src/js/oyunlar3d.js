@@ -65,7 +65,7 @@
           const o = grup.userData.ortu; if (o) { if (durum !== "soru" && durum !== "yanlis") o.position.y += (5 - o.position.y) * Math.min(1, dt * 6); else o.position.y += (0.75 - o.position.y) * Math.min(1, dt * 8); } } }; } });
 
   /* ---------- Sayı bağı ---------- */
-  T.oyun3B("sayi-bagi", { ortam: "masa", seviyeler: ["5'e kadar", "10'a kadar", "20'ye kadar"], kamera: { poz: [0, 6, 10], bak: [0, 2.2, 0], fov: 38 },
+  T.oyun3B("sayi-bagi", { ortam: "masa", seviyeler: ["5'e kadar", "10'a kadar", "20'ye kadar"], kamera: { poz: [0, 5.4, 13], bak: [0, 3.4, 0], fov: 38 },
     tur(L, c) { const w = R(L ? 6 : 3, [5, 10, 20][L]), a = R(0, w), butun = L === 2 && Math.random() < 0.3, ans = butun ? w : w - a;
       return { soru: butun ? "Parçaları birleştir: bütün kaç?" : "Bütün ve bir parça belli. Eksik parça kaç?", cevap: ans, secenekler: yakin(ans, 4, 3, 0), aciklama: w + ", " + a + " ve " + (w - a) + " parçalarına ayrılır.",
         goster(c, grup) { const { THREE } = c; const ust = PARCA.disk(c, butun ? "?" : String(w), 0xe9a23b), s1 = PARCA.disk(c, String(a), 0x3e86d6), s2 = PARCA.disk(c, butun ? String(w - a) : "?", 0x3e86d6, true);
@@ -216,16 +216,31 @@
   /* ---------- Ayıyı besle: ahşap geometrik şekiller ---------- */
   const SEKIL = { "Kare": 4, "Dikdörtgen": -4, "Üçgen": 3, "Daire": 0, "Beşgen": 5, "Altıgen": 6 };
   sarmalaSekil();
-  function sarmalaSekil() { T.oyun3B("ayiyi-besle", { ortam: "masa", kamera: { poz: [0, 7, 9], bak: [0, 0.5, 0.3], fov: 40 },
+  function ayi(c) { const { THREE } = c, g = new THREE.Group(), kurk = new THREE.MeshPhysicalMaterial({ color: 0x8a5a33, roughness: 0.95, sheen: 1, sheenRoughness: 0.6, sheenColor: new THREE.Color(0xd9b48a) }), acik = new THREE.MeshPhysicalMaterial({ color: 0xd9b48a, roughness: 0.9, sheen: 1, sheenColor: new THREE.Color(0xfff0d8) }), kara = new THREE.MeshStandardMaterial({ color: 0x1a1008, roughness: 0.3 });
+    const k = (geo, m, x, y, z, sx = 1, sy = 1, sz = 1) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.scale.set(sx, sy, sz); g.add(o); return o; };
+    k(new THREE.SphereGeometry(1.25, 48, 32), kurk, 0, 1.25, 0, 1, 1.05, 0.9); k(new THREE.SphereGeometry(0.75, 40, 28), acik, 0, 1.15, 0.72, 1, 1.1, 0.5);
+    const bas = new THREE.Group(); bas.position.set(0, 3.05, 0.1); g.add(bas); const kb = (geo, m, x, y, z, sx = 1, sy = 1, sz = 1) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.scale.set(sx, sy, sz); bas.add(o); return o; };
+    kb(new THREE.SphereGeometry(0.95, 48, 32), kurk, 0, 0, 0); [-0.72, 0.72].forEach((x) => { kb(new THREE.SphereGeometry(0.34, 24, 16), kurk, x, 0.72, -0.05); kb(new THREE.SphereGeometry(0.2, 20, 12), acik, x, 0.72, 0.12, 1, 1, 0.5); kb(new THREE.SphereGeometry(0.11, 20, 12), kara, x * 0.48, 0.18, 0.84); kb(new THREE.SphereGeometry(0.035, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffffff }), x * 0.48 + 0.03, 0.22, 0.94); });
+    kb(new THREE.SphereGeometry(0.44, 32, 20), acik, 0, -0.28, 0.72, 1, 0.8, 0.8); kb(new THREE.SphereGeometry(0.14, 20, 12), kara, 0, -0.12, 1.08, 1.3, 0.9, 0.8);
+    const agiz = kb(new THREE.SphereGeometry(0.16, 20, 12), new THREE.MeshStandardMaterial({ color: 0x6a1f1f }), 0, -0.48, 1.02, 1.4, 0.4, 0.6);
+    [-1.25, 1.25].forEach((x) => { k(new THREE.SphereGeometry(0.42, 28, 20), kurk, x, 1.6, 0.35, 0.8, 1.4, 0.8); k(new THREE.SphereGeometry(0.5, 28, 20), kurk, x * 0.6, 0.35, 0.75, 0.9, 0.7, 1.2); k(new THREE.SphereGeometry(0.28, 20, 14), acik, x * 0.6, 0.35, 1.32, 1, 1, 0.4); });
+    c.golge(g); g.userData = { bas, agiz }; return g; }
+  function sarmalaSekil() { T.oyun3B("ayiyi-besle", { ortam: "masa", kamera: { poz: [0, 6.5, 11], bak: [0, 1.6, 0], fov: 40 },
     tur(L, c) { const r = T.games["ayiyi-besle"].round(L);
       return { soru: r.prompt, cevap: r.answer, secenekler: r.options, aciklama: r.explain,
         goster(c, grup) { const { THREE } = c, RN = [0x2e9bd6, 0xf2b51b, 0x6cc04a, 0xf27ba9];
           r.options.forEach((ad, i) => { const k = SEKIL[ad], sh = new THREE.Shape();
             if (k === 0) sh.absarc(0, 0, 1, 0, Math.PI * 2); else if (k === 4) { sh.moveTo(-0.95, -0.95); sh.lineTo(0.95, -0.95); sh.lineTo(0.95, 0.95); sh.lineTo(-0.95, 0.95); } else if (k === -4) { sh.moveTo(-1.3, -0.7); sh.lineTo(1.3, -0.7); sh.lineTo(1.3, 0.7); sh.lineTo(-1.3, 0.7); } else for (let j = 0; j < k; j++) { const a = Math.PI / 2 + (j / k) * Math.PI * 2 + (k === 4 ? Math.PI / 4 : 0), rr = k === 4 ? 1.25 : 1.1; j ? sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : sh.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
             const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.3, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 3, curveSegments: 48 }), new THREE.MeshPhysicalMaterial({ color: RN[i], roughness: 0.35, clearcoat: 0.6 }));
-            m.rotation.x = -Math.PI / 2; m.position.set((i - 1.5) * 3, 0.05, 0); c.golge(m); m.userData.dus = 2 + i * 0.2; m.userData.y0 = 0.05; m.position.y += m.userData.dus; grup.add(m);
-            const et = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.55), new THREE.MeshBasicMaterial({ map: c.doku(512, 128, (x, w, h) => { x.fillStyle = "#FFF8EC"; x.fillRect(0, 0, w, h); x.font = "800 70px Nunito, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillStyle = "#2A1A08"; x.fillText(ad, w / 2, h / 2); }) })); et.rotation.x = -Math.PI / 2.6; et.position.set((i - 1.5) * 3, 0.06, 1.7); grup.add(et); }); },
-        adim(c, grup, dt) { PARCA.dusur(grup, dt); } }; } }); }
+            m.rotation.x = -Math.PI / 2; m.scale.setScalar(0.8); m.position.set((i - 1.5) * 2.6, 0.05, 1.3); c.golge(m); m.userData.dus = 2 + i * 0.2; m.userData.y0 = 0.05; m.position.y += m.userData.dus; grup.add(m); (grup.userData.sekil = grup.userData.sekil || {})[ad] = m;
+            const et = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.55), new THREE.MeshBasicMaterial({ map: c.doku(512, 128, (x, w, h) => { x.fillStyle = "#FFF8EC"; x.fillRect(0, 0, w, h); x.font = "800 70px Nunito, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillStyle = "#2A1A08"; x.fillText(ad, w / 2, h / 2); }) })); et.rotation.x = -Math.PI / 2.6; et.position.set((i - 1.5) * 2.6, 0.06, 2.5); grup.add(et); });
+          const a = ayi(c); a.position.set(0, 0, -1.6); grup.add(a); grup.userData.ayi = a; },
+        dogru(c, grup) { const m = grup.userData.sekil[r.answer]; m.userData.dus = 0; grup.userData.uc = { m, t: 0, x0: m.position.x, y0: m.position.y, z0: m.position.z }; },
+        yanlis(c, grup) { grup.userData.hayir = 0.8; },
+        adim(c, grup, dt) { PARCA.dusur(grup, dt); const u = grup.userData, a = u.ayi; if (!a) return; const t = c.zaman; a.userData.bas.rotation.z = Math.sin(t * 1.2) * 0.06; a.position.y = Math.abs(Math.sin(t * 1.5)) * 0.04;
+          if (u.hayir > 0) { u.hayir -= dt; a.userData.bas.rotation.y = Math.sin(t * 22) * 0.3; } else a.userData.bas.rotation.y *= 0.9;
+          if (u.uc) { const q2 = u.uc; q2.t = Math.min(1, q2.t + dt / 1.1); const e = T.Sahne.ease(q2.t); q2.m.position.set(q2.x0 + (0 - q2.x0) * e, q2.y0 + (2.8 - q2.y0) * e + Math.sin(e * Math.PI) * 2, q2.z0 + (-0.4 - q2.z0) * e); q2.m.scale.setScalar(0.8 * (1 - e * 0.8)); a.userData.agiz.scale.y = 0.4 + Math.sin(t * 14) * 0.25; if (q2.t >= 1) { q2.m.visible = false; u.uc = null; u.mutlu = 1.2; a.userData.agiz.scale.y = 0.4; } }
+          if (u.mutlu > 0) { u.mutlu -= dt; a.position.y = Math.abs(Math.sin(t * 9)) * 0.5; } } }; } }); }
 
   /* ---------- Adil paylaşım: kurabiyeler ve tabaklar ---------- */
   const kurabiye = (c) => { const { THREE } = c, m = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.34, 0.12, 32), new THREE.MeshStandardMaterial({ roughness: 0.85, map: c.doku(128, 128, (x, w, h) => { x.fillStyle = "#D99A4E"; x.fillRect(0, 0, w, h); for (let i = 0; i < 10; i++) { x.fillStyle = "#4A2A12"; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 6 + Math.random() * 4, 0, Math.PI * 2); x.fill(); } }) })); m.castShadow = true; return m; };

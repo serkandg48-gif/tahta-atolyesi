@@ -85,7 +85,7 @@
         const ciz = () => {
           afis.replaceChildren(T.h("div.tv-soru", durum === "soru" ? R.soru : durum === "dogru" ? (R.tebrik || "Doğru! ") + (R.aciklama || "") : durum === "yanlis" ? (R.ipucu || "Bir daha dene.") : "Doğrusu " + R.cevap + ". " + (R.aciklama || "")));
           Sh.skor(skor, D);
-          alt.replaceChildren(...(durum === "soru" || durum === "yanlis" ? R.secenekler.map((v) => T.h("button.btn.big.c-chalk.d3-sec", { style: String(v).length > 6 ? { fontSize: "clamp(16px, 1.8vw, 26px)", minWidth: "0" } : null, disabled: R._elendi && R._elendi.includes(v) ? true : null, onclick: () => sec(v) }, String(v))) : [T.h("button.btn.c-leaf.tv-sonraki", { onclick: () => { if (D.takim) D.sira = 1 - D.sira; yeni(); } }, "Sonraki")]));
+          alt.replaceChildren(...(durum === "soru" || durum === "yanlis" ? R.secenekler.map((v) => T.h("button.btn.big.c-chalk.d3-sec" + (String(v).length > 6 ? ".uzun" : ""), { disabled: R._elendi && R._elendi.includes(v) ? true : null, onclick: () => sec(v) }, String(v))) : [T.h("button.btn.c-leaf.tv-sonraki", { onclick: () => { if (D.takim) D.sira = 1 - D.sira; yeni(); } }, "Sonraki")]));
           ayar.replaceChildren(T.h("div.seg", (def.seviyeler || ["Kolay", "Orta", "Zor"]).map((l, kk) => T.h("button", { "aria-pressed": String(L === kk), onclick: () => { L = kk; yeni(); } }, l))),
             T.h("div.seg", [[true, "İki takım"], [false, "Tek sınıf"]].map(([kk, l]) => T.h("button", { "aria-pressed": String(D.takim === kk), onclick: () => { D.takim = kk; ciz(); } }, l))),
             T.h("div.spacer"), T.h("button.btn.sm.c-chalk", { onclick: () => { D.puan = [0, 0]; ciz(); } }, T.icon("reset"), "Skoru sıfırla"),

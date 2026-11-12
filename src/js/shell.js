@@ -26,7 +26,7 @@
         st.kind === "okul" ? [h("span", "Okulun"), h("b", n + "."), h("span", "günü")] : h("span", st.text),
         h("span.opt", "· " + T.longDate()), sp ? h("span.opt", "· " + sp) : null),
       h("div.tb-right",
-        h("button.chip-btn" + (T.muzik && T.muzik.aktif() ? ".caliyor" : ""), { onclick: () => T.muzikPanel(), "aria-label": "Sınıf atmosferi ve müzik", title: "Sınıf atmosferi ve müzik" }, T.icon("music"), h("span.lbl", T.muzik && T.muzik.aktif() ? "Çalıyor" : "Atmosfer")),
+        h("button.chip-btn" + (T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())) ? ".caliyor" : ""), { onclick: () => T.muzikPanel(), "aria-label": "Sınıf atmosferi ve müzik", title: "Sınıf atmosferi ve müzik" }, T.icon("music"), h("span.lbl", T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())) ? "Çalıyor" : "Atmosfer")),
         h("button.chip-btn", { onclick: pickClass, "aria-label": "Sınıf değiştir" }, T.icon("class"), h("span.lbl", c.name)),
         clock));
     const tick = () => { const d = new Date(); clock.textContent = `${T.pad(d.getHours())}:${T.pad(d.getMinutes())}`; };

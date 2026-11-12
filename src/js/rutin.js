@@ -65,7 +65,7 @@
       const yer = ["1 / 2 / 2 / 3", "2 / 3 / 3 / 4", "3 / 2 / 4 / 3", "2 / 1 / 3 / 2", "1 / 1 / 2 / 2", "1 / 3 / 2 / 4", "3 / 1 / 4 / 2", "3 / 3 / 4 / 4"];
       const kutular = tip === "patlama" ? [0, 1, 2, 3, 4, 5, 6, 7].map((j) => bos("p" + j, j < 3 ? "Açık seçenek" : "Gizli seçenek", j < 3 ? RENK[0] : RENK[1], { style: { gridArea: yer[j] }, cls: ".kucuk" })) : cevre.map((_, i) => kutu(i, { style: { gridArea: yer[i] } }));
       govde = h("div", { style: { display: "grid", gap: "1.2cqw", height: "100%", gridTemplateRows: tip === "patlama" ? "1fr auto" : "1fr" } },
-        h("div.rt-merkez" + (tip === "cember" ? ".yuvarlak" : ""), kutular, h("div.rt-cekirdek", { style: { gridArea: "2 / 2 / 3 / 3" } }, h("small", "Konu"), alan("konu", "Konu", ".orta"))),
+        h("div.rt-merkez" + (tip === "cember" ? ".yuvarlak" : ""), kutular, h("div.rt-cekirdek", { style: { gridArea: "2 / 2 / 3 / 3" } }, h("small", r.merkezAd || "Konu"), alan("konu", r.merkezAd || "Konu", ".orta"))),
         tip === "patlama" ? kutu(2, { cls: ".ince" }) : null);
     } else if (tip === "pusula") {
       govde = h("div.rt-pusula", kutu(2, { style: { gridArea: "1 / 2" } }), kutu(1, { style: { gridArea: "2 / 1" } }), h("div.rt-gul", { style: { gridArea: "2 / 2" } }, h("span.k", "K"), h("span.d", "D"), h("span.g", "G"), h("span.b", "B"), alan("konu", "Fikir ya da öneri", ".orta")), kutu(0, { style: { gridArea: "2 / 3" } }), kutu(3, { style: { gridArea: "3 / 2" } }));
@@ -94,6 +94,14 @@
       govde = h("div.rt-daire-sar", h("div.rt-kenar", kutu(2)), h("div.rt-daire", h("div.rt-kb", h("b", "Aklımda ve kalbimde")), alan("d", "Aklımda ve kalbimde", ".orta"), h("div.rt-cekirdek.kucuk", h("small", "Merkezde tutuyorum"), alan("m", "Merkezde tut", ".orta"))), h("div.rt-kenar", kutu(0, { cls: ".ince" }), kutu(1, { cls: ".ince" }), kutu(3, { cls: ".ince" })));
     } else if (tip === "gazete") {
       govde = h("div.rt-gazete", h("div.rt-gz-ust", h("b", "SINIFIMIZIN GAZETESİ"), h("span", T.fmtDate ? T.fmtDate(new Date()) : new Date().toLocaleDateString("tr-TR"))), kutu(0, { cls: ".manset", alanCls: ".manset-yazi" }), h("div.rt-kolon", { style: { gridTemplateColumns: "1.4fr 1fr" } }, bos("haber", "Haberin ayrıntısı", "#333"), kutu(1)));
+    } else if (tip === "afis") {
+      govde = h("div.rt-satir.rt-afis", kutu(0, { cls: ".manset", alanCls: ".manset-yazi" }), bos("resim", "Afişin resmi", RENK[3], { cls: ".buyuk.rt-resim" }), h("div.rt-kolon", { style: { gridTemplateColumns: "repeat(" + (n - 1) + ", 1fr)" } }, A.slice(1).map((_, i) => kutu(i + 1, { cls: ".ince" }))));
+    } else if (tip === "kimlik") {
+      govde = h("div.rt-kimlik", h("div.rt-kimlik-sol", bos("resim", "Resmi", RENK[4], { cls: ".rt-resim" }), kutu(0, { cls: ".ince" })), h("div.rt-izgara", { style: { gridTemplateColumns: "1fr 1fr" } }, A.slice(1).map((_, i) => kutu(i + 1))));
+    } else if (tip === "yildiz") {
+      const puan = +(v.puan || 0);
+      const yildizlar = h("div.rt-yildizlar", [1, 2, 3, 4, 5].map((j) => h("button" + (j <= puan ? ".on" : ""), { "aria-label": j + " yıldız", onclick: (e) => { yaz(r.id, (x) => { x.v = x.v || {}; x.v.puan = j; }); [...e.currentTarget.parentNode.children].forEach((b, k) => b.classList.toggle("on", k < j)); } }, "★")));
+      govde = h("div.rt-satir", h("div.rt-kutu.ince", { style: { "--c": RENK[1] } }, h("div.rt-kb", h("b", "Bu kitaba kaç yıldız veriyorum?")), yildizlar), A.map((_, i) => kutu(i)));
     } else if (tip === "hikaye") {
       govde = h("div.rt-kolon.rt-cizgi-roman", { style: { gridTemplateColumns: "repeat(3, 1fr)" } }, A.map((_, i) => kutu(i, { cls: ".pano" })));
     } else if (tip === "zincir") {
@@ -114,9 +122,9 @@
     } else govde = h("div.rt-satir", A.map((_, i) => kutu(i)));
 
     return h("div.rt-sayfa." + (r.yon === "dikey" ? "dikey" : "yatay"), { "data-rutin": r.id },
-      h("div.rt-ust", h("div", h("h3", r.ad), h("small", (r.kat || []).map((k) => KAT_KISA[k] || k).join(", "))), h("div.rt-kim", h("span", "Ad:"), alan("ad", "Ad", ".tek"), h("span", "Konu:"), alan("konuust", "Konu", ".tek"))),
+      h("div.rt-ust", h("div", h("h3", r.ad), h("small", (r.kat || []).map((k) => KAT_KISA[k] || k).join(", "))), h("div.rt-kim", h("span", "Ad:"), alan("ad", "Ad", ".tek"), h("span", (r.konuAd || "Konu") + ":"), alan("konuust", r.konuAd || "Konu", ".tek"))),
       h("div.rt-govde", govde),
-      h("div.rt-alt", "Project Zero (Harvard) düşünme rutininden uyarlanmıştır. Tahta Atölyesi"));
+      h("div.rt-alt", r.alt || "Project Zero (Harvard) düşünme rutininden uyarlanmıştır. Tahta Atölyesi"));
   }
 
   /* ---------- Yönergeler ---------- */
@@ -210,6 +218,8 @@
     },
   };
   T.rutinYazdir = (id, bos) => yazdir(rutin(id), bos);
+  /* Başka bölümler (ör. kitap raporları) aynı şablon motorunu kullanır */
+  Object.assign(T, { rutinSablon: sablon, rutinCocukYonerge: cocukYonerge, rutinYazdirR: yazdir, rutinYansitR: yansit, rutinTemizle: (rid) => yaz(rid, (x) => (x.v = {})) });
   T.YARDIM = T.YARDIM || {};
   T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Düşünme rutinleri: her biri A4 şablon olarak çizili, tahtada yansıtılır, birlikte yazılır, basılır.", ["Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
 })();

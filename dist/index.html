@@ -1783,6 +1783,25 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .gr-ct { font: 800 26px var(--display); letter-spacing: 2px; } .gr-5 { text-decoration: line-through; margin-right: 10px; } .gr-1 { margin-right: 2px; }
 .gr-oku { margin-top: 16px; background: #FFFBEF; border-radius: 16px; padding: 14px 16px; display: grid; gap: 8px; } .gr-oku h3 { margin: 0; }
 .gr-oku-s { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 18px; }
+/* Kitap raporu seçenekleri */
+.kr-ust { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; } .kr-ust h2 { margin: 0; font: 800 26px var(--display); } .kr-ust p { margin: 4px 0 0; }
+.kr-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.kr-kart { display: grid; gap: 4px; justify-items: start; text-align: left; padding: 14px 16px; border-radius: 18px; border: 2px solid var(--line); background: #fff; cursor: pointer; font: inherit; color: var(--ink); transition: transform .15s, border-color .15s; }
+.kr-kart:hover, .kr-kart:focus-visible { border-color: var(--tomato, #E0574B); transform: translateY(-2px); }
+.kr-kart.kr-sans { border-color: #E9A23B; background: #FFF5DC; transform: scale(1.04); }
+.kr-emo { font-size: 40px; line-height: 1; } .kr-kart b { font: 800 19px var(--display); } .kr-kisa { font-size: 15px; color: var(--ink-soft); } .kr-tur { font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-top: 4px; }
+.kr-tahta-sar { margin-top: 18px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 12px 16px; } .kr-tahta-sar summary { font-weight: 800; cursor: pointer; font-size: 17px; }
+.kr-tahta { display: grid; grid-template-columns: repeat(3, minmax(0, 150px)); gap: 8px; margin: 10px 0; }
+.kr-hucre { aspect-ratio: 1; display: grid; place-content: center; gap: 4px; text-align: center; border-radius: 14px; border: 2px solid var(--line); background: #FAFBFE; font: 700 14px var(--body); cursor: pointer; color: var(--ink); } .kr-hucre span { font-size: 34px; }
+.kr-hucre.on { background: #E6F5EA; border-color: #3FA35B; position: relative; } .kr-hucre.on::after { content: "✓"; position: absolute; top: 4px; right: 8px; color: #3FA35B; font: 900 20px var(--display); }
+.kr-tamam { font: 800 20px var(--display); color: #2E8B57; }
+@media (prefers-reduced-motion: reduce) { .kr-kart { transition: none; } }
+/* şablon motoruna eklenen düzenler */
+.rt-resim { flex: 1 1 auto; } .rt-resim .rt-yazi { min-height: 18cqw; }
+.rt-kimlik { display: grid; grid-template-columns: 30% 1fr; gap: 1.2cqw; height: 100%; } .rt-kimlik-sol { display: grid; grid-template-rows: 1fr auto; gap: 1.2cqw; }
+.rt-yildizlar { display: flex; gap: 1cqw; justify-content: center; padding: .6cqw 0; } .rt-yildizlar button { border: 0; background: none; font-size: 6cqw; line-height: 1; color: #D6DCE8; cursor: pointer; padding: 0; } .rt-yildizlar button.on { color: #F0B429; }
+.rt-satir > .rt-kutu.manset { flex: 0 0 auto; }
+.rt-afis > .rt-resim { flex: 3 1 0; min-height: 0; } .rt-afis > .rt-kolon { flex: 1.2 1 0; min-height: 0; } .rt-afis > .rt-resim .rt-yazi { min-height: 0; height: 100%; }
 
 </style>
 </head>
@@ -1797,7 +1816,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="d4190ec4b7";
+window.SURUM="35b4aef5e6";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -9805,7 +9824,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       const yer = ["1 / 2 / 2 / 3", "2 / 3 / 3 / 4", "3 / 2 / 4 / 3", "2 / 1 / 3 / 2", "1 / 1 / 2 / 2", "1 / 3 / 2 / 4", "3 / 1 / 4 / 2", "3 / 3 / 4 / 4"];
       const kutular = tip === "patlama" ? [0, 1, 2, 3, 4, 5, 6, 7].map((j) => bos("p" + j, j < 3 ? "Açık seçenek" : "Gizli seçenek", j < 3 ? RENK[0] : RENK[1], { style: { gridArea: yer[j] }, cls: ".kucuk" })) : cevre.map((_, i) => kutu(i, { style: { gridArea: yer[i] } }));
       govde = h("div", { style: { display: "grid", gap: "1.2cqw", height: "100%", gridTemplateRows: tip === "patlama" ? "1fr auto" : "1fr" } },
-        h("div.rt-merkez" + (tip === "cember" ? ".yuvarlak" : ""), kutular, h("div.rt-cekirdek", { style: { gridArea: "2 / 2 / 3 / 3" } }, h("small", "Konu"), alan("konu", "Konu", ".orta"))),
+        h("div.rt-merkez" + (tip === "cember" ? ".yuvarlak" : ""), kutular, h("div.rt-cekirdek", { style: { gridArea: "2 / 2 / 3 / 3" } }, h("small", r.merkezAd || "Konu"), alan("konu", r.merkezAd || "Konu", ".orta"))),
         tip === "patlama" ? kutu(2, { cls: ".ince" }) : null);
     } else if (tip === "pusula") {
       govde = h("div.rt-pusula", kutu(2, { style: { gridArea: "1 / 2" } }), kutu(1, { style: { gridArea: "2 / 1" } }), h("div.rt-gul", { style: { gridArea: "2 / 2" } }, h("span.k", "K"), h("span.d", "D"), h("span.g", "G"), h("span.b", "B"), alan("konu", "Fikir ya da öneri", ".orta")), kutu(0, { style: { gridArea: "2 / 3" } }), kutu(3, { style: { gridArea: "3 / 2" } }));
@@ -9834,6 +9853,14 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       govde = h("div.rt-daire-sar", h("div.rt-kenar", kutu(2)), h("div.rt-daire", h("div.rt-kb", h("b", "Aklımda ve kalbimde")), alan("d", "Aklımda ve kalbimde", ".orta"), h("div.rt-cekirdek.kucuk", h("small", "Merkezde tutuyorum"), alan("m", "Merkezde tut", ".orta"))), h("div.rt-kenar", kutu(0, { cls: ".ince" }), kutu(1, { cls: ".ince" }), kutu(3, { cls: ".ince" })));
     } else if (tip === "gazete") {
       govde = h("div.rt-gazete", h("div.rt-gz-ust", h("b", "SINIFIMIZIN GAZETESİ"), h("span", T.fmtDate ? T.fmtDate(new Date()) : new Date().toLocaleDateString("tr-TR"))), kutu(0, { cls: ".manset", alanCls: ".manset-yazi" }), h("div.rt-kolon", { style: { gridTemplateColumns: "1.4fr 1fr" } }, bos("haber", "Haberin ayrıntısı", "#333"), kutu(1)));
+    } else if (tip === "afis") {
+      govde = h("div.rt-satir.rt-afis", kutu(0, { cls: ".manset", alanCls: ".manset-yazi" }), bos("resim", "Afişin resmi", RENK[3], { cls: ".buyuk.rt-resim" }), h("div.rt-kolon", { style: { gridTemplateColumns: "repeat(" + (n - 1) + ", 1fr)" } }, A.slice(1).map((_, i) => kutu(i + 1, { cls: ".ince" }))));
+    } else if (tip === "kimlik") {
+      govde = h("div.rt-kimlik", h("div.rt-kimlik-sol", bos("resim", "Resmi", RENK[4], { cls: ".rt-resim" }), kutu(0, { cls: ".ince" })), h("div.rt-izgara", { style: { gridTemplateColumns: "1fr 1fr" } }, A.slice(1).map((_, i) => kutu(i + 1))));
+    } else if (tip === "yildiz") {
+      const puan = +(v.puan || 0);
+      const yildizlar = h("div.rt-yildizlar", [1, 2, 3, 4, 5].map((j) => h("button" + (j <= puan ? ".on" : ""), { "aria-label": j + " yıldız", onclick: (e) => { yaz(r.id, (x) => { x.v = x.v || {}; x.v.puan = j; }); [...e.currentTarget.parentNode.children].forEach((b, k) => b.classList.toggle("on", k < j)); } }, "★")));
+      govde = h("div.rt-satir", h("div.rt-kutu.ince", { style: { "--c": RENK[1] } }, h("div.rt-kb", h("b", "Bu kitaba kaç yıldız veriyorum?")), yildizlar), A.map((_, i) => kutu(i)));
     } else if (tip === "hikaye") {
       govde = h("div.rt-kolon.rt-cizgi-roman", { style: { gridTemplateColumns: "repeat(3, 1fr)" } }, A.map((_, i) => kutu(i, { cls: ".pano" })));
     } else if (tip === "zincir") {
@@ -9854,9 +9881,9 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     } else govde = h("div.rt-satir", A.map((_, i) => kutu(i)));
 
     return h("div.rt-sayfa." + (r.yon === "dikey" ? "dikey" : "yatay"), { "data-rutin": r.id },
-      h("div.rt-ust", h("div", h("h3", r.ad), h("small", (r.kat || []).map((k) => KAT_KISA[k] || k).join(", "))), h("div.rt-kim", h("span", "Ad:"), alan("ad", "Ad", ".tek"), h("span", "Konu:"), alan("konuust", "Konu", ".tek"))),
+      h("div.rt-ust", h("div", h("h3", r.ad), h("small", (r.kat || []).map((k) => KAT_KISA[k] || k).join(", "))), h("div.rt-kim", h("span", "Ad:"), alan("ad", "Ad", ".tek"), h("span", (r.konuAd || "Konu") + ":"), alan("konuust", r.konuAd || "Konu", ".tek"))),
       h("div.rt-govde", govde),
-      h("div.rt-alt", "Project Zero (Harvard) düşünme rutininden uyarlanmıştır. Tahta Atölyesi"));
+      h("div.rt-alt", r.alt || "Project Zero (Harvard) düşünme rutininden uyarlanmıştır. Tahta Atölyesi"));
   }
 
   /* ---------- Yönergeler ---------- */
@@ -9950,8 +9977,101 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     },
   };
   T.rutinYazdir = (id, bos) => yazdir(rutin(id), bos);
+  /* Başka bölümler (ör. kitap raporları) aynı şablon motorunu kullanır */
+  Object.assign(T, { rutinSablon: sablon, rutinCocukYonerge: cocukYonerge, rutinYazdirR: yazdir, rutinYansitR: yansit, rutinTemizle: (rid) => yaz(rid, (x) => (x.v = {})) });
   T.YARDIM = T.YARDIM || {};
   T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Düşünme rutinleri: her biri A4 şablon olarak çizili, tahtada yansıtılır, birlikte yazılır, basılır.", ["Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
+})();
+
+/* ---- kitap-rapor.js ---- */
+/* Türkçe, okuma sevgisi: Kitap raporu seçenekleri. Çocuk okuduğu kitabı nasıl anlatacağını kendisi seçer.
+   Her seçenek A4 şablon: tahtada yansıtılır, üzerine yazılır, boş ya da dolu yazdırılır (rutin şablon motoru). */
+(function () {
+  const { h } = T;
+  const ALT = "Kitap raporu seçenekleri. Tahta Atölyesi";
+  const K = (id, emo, ad, kisa, tur, tip, yon, adim, ogretmen, ek) => Object.assign({ id: "kr-" + id, emo, ad, kisa, tur, tip, yon, adim, ogretmen, kat: [], konuAd: "Kitap", alt: ALT }, ek || {});
+  const RAPORLAR = [
+    K("mektup", "💌", "Kahramana mektup", "Kitabın kahramanına bir mektup yaz.", ["yaz"], "gunluk", "dikey",
+      [["Sevgili ...", "Kahramana ne söylemek istersin? Ona neler sormak istersin? Kitapta en çok hangi davranışını sevdin?"], ["Ben olsaydım", "Senin yerinde olsaydım şunu yapardım..."], ["Sevgilerimle", "Adını yaz, bir de küçük bir resim çiz."]],
+      "Karakterle bağ kurmayı ve duygu dilini destekler. Mektup biçimini (hitap, gövde, kapanış) birlikte hatırlayın."),
+    K("afis", "🎬", "Film afişi", "Kitap film olsaydı afişini sen tasarla.", ["ciz"], "afis", "dikey",
+      [["Filmin adı", "Kitabın adını afiş gibi büyük yaz ya da yeni bir ad bul."], ["Oyuncular", "Hangi karakterler var?"], ["Tek cümle", "Bu film ne anlatıyor? Sonunu söyleme!"], ["Yıldız", "Kaç yıldız verirsin?"]],
+      "Ana fikri tek cümleye sığdırmayı ve görsel anlatımı birleştirir. Afişleri sınıf koridorunda sergileyebilirsiniz."),
+    K("kimlik", "🪪", "Karakter kimlik kartı", "En sevdiğin karakterin kimlik kartını hazırla.", ["yaz", "ciz"], "kimlik", "yatay",
+      [["Adı", "Karakterin adı ne?"], ["Görünüşü", "Neye benziyor? Nasıl giyiniyor?"], ["Özellikleri", "Nasıl biri? Üç sözcükle anlat."], ["Sevdiği şeyler", "Neyi seviyor, neyden hoşlanmıyor?"], ["En önemli anı", "Kitapta başına gelen en önemli olay ne?"]],
+      "Karakter özelliklerini kanıta dayalı betimlemeye yöneltir. Sözcükleri kitaptan bulmasını isteyin."),
+    K("harita", "🗺️", "Hikâye haritası", "Hikâyenin yolculuğunu adım adım çiz.", ["yaz"], "izgara", "yatay",
+      [["Kahramanlar", "Kimler var?"], ["Yer ve zaman", "Nerede, ne zaman geçiyor?"], ["Sorun", "Kahramanın karşılaştığı sorun ne?"], ["Olaylar", "Sonra neler oldu?"], ["Çözüm", "Sorun nasıl çözüldü?"], ["Bence", "Sence nasıl bitti? Beğendin mi?"]],
+      "Hikâye unsurlarını (5N1K, giriş-gelişme-sonuç) düzenler. Anlama becerisinde temel bir yapı iskelesidir."),
+    K("cizgi", "💥", "Çizgi roman", "En sevdiğin bölümü altı karede çiz.", ["ciz"], "hikaye", "yatay",
+      [["1. kare", "Başlangıç"], ["2. kare", "Sonra"], ["3. kare", "Sonra"], ["4. kare", "Heyecanlı an"], ["5. kare", "Çözüm"], ["6. kare", "Son"]],
+      "Olay sıralamasını görselleştirir; yazmakta zorlanan çocuklar için güçlü bir seçenektir. Konuşma balonu eklemelerini isteyin."),
+    K("yeni-son", "🔀", "Yeni son yazıyorum", "Kitabın sonunu değiştir, kendi sonunu yaz.", ["yaz"], "oncesonra", "dikey",
+      [["Kitabın sonu", "Kitap nasıl bitiyordu? Kısaca yaz."], ["Benim sonum", "Sen olsan nasıl bitirirdin?"], ["Neden?", "Neden bu sonu seçtin?"]],
+      "Yaratıcı yazma ve neden-sonuç ilişkisi kurmayı destekler. Yeni sonun hikâyeyle uyumlu olmasına dikkat çekin."),
+    K("kutu", "🎁", "Kitap kutusu", "Kitabı anlatan beş nesne seç, kutuya koy.", ["ciz", "anlat"], "izgara", "yatay",
+      [["1. nesne", "Ne? Neden?"], ["2. nesne", "Ne? Neden?"], ["3. nesne", "Ne? Neden?"], ["4. nesne", "Ne? Neden?"], ["5. nesne", "Ne? Neden?"], ["Kutumun üstü", "Kutunun üstüne ne çizerdin?"]],
+      "Sembolik düşünmeyi destekler. İsteyen çocuk gerçek bir kutu hazırlayıp sınıfa anlatabilir; şablon plan olarak kullanılır."),
+    K("pizza", "🍕", "Kitap pizzası", "Her dilime kitaptan bir parça koy.", ["yaz"], "cember", "yatay",
+      [["Kahraman", "Kim?"], ["Yer", "Nerede?"], ["Sorun", "Ne oldu?"], ["Çözüm", "Nasıl çözüldü?"], ["Sevdiğim bölüm", "Hangisi, neden?"], ["Önerim", "Kime önerirsin?"]],
+      "Kısa yanıtlarla bütün kitabı özetletir; 1. ve 2. sınıflar için uygundur. Pizzayı birlikte tahtada doldurup örnek gösterin.", { merkezAd: "Kitabın adı" }),
+    K("gazete", "📰", "Kitap gazetesi", "Kitaptaki en büyük olayı haber yap.", ["yaz"], "gazete", "dikey",
+      [["Manşet", "Olayı anlatan kısa ve çarpıcı bir başlık."], ["Röportaj", "Kahramana bir soru sor, cevabını o yazmış gibi yaz."]],
+      "Olayı nesnel aktarmayı ve 5N1K sorularını kullanmayı öğretir. Haberin ayrıntısında 'kim, ne, nerede, ne zaman' olsun."),
+    K("kelime", "🔎", "Kelime avcısı", "Kitapta yeni öğrendiğin kelimeleri avla.", ["yaz"], "tablo", "dikey",
+      [["Kelime", ""], ["Anlamı", ""], ["Benim cümlem", ""]],
+      "Söz varlığını geliştirir. Anlamı önce bağlamdan tahmin etmesini, sonra sözlükten kontrol etmesini isteyin.", { sutun: ["Kelime", "Anlamı", "Benim cümlem"], satirlar: ["1", "2", "3", "4", "5"], satir_adi: "#" }),
+    K("yildiz", "⭐", "Yıldızlarla puanla", "Kitaba puan ver ve nedenini anlat.", ["yaz"], "yildiz", "dikey",
+      [["En sevdiğim", "Kitapta en çok neyi sevdim?"], ["Sevmediğim", "Neyi değiştirmek isterdim?"], ["Kime öneririm?", "Bu kitabı kime, neden öneririm?"]],
+      "Gerekçeli görüş bildirmeyi destekler. Puanlar Sınıfın kitap önerileri panosuna taşınabilir."),
+    K("reklam", "🎤", "30 saniyelik tanıtım", "Kitabı arkadaşlarına sunarak tanıt.", ["anlat"], "satir", "dikey",
+      [["Dikkat çek", "Bir soruyla ya da ilginç bir cümleyle başla."], ["Ne anlatıyor?", "Kitabı iki cümleyle anlat. Sonunu söyleme!"], ["Kime göre?", "Kimler bu kitabı sever?"], ["Sloganım", "Sunumu bitiren kısa bir cümle."]],
+      "Sözlü anlatım ve topluluk önünde konuşmayı destekler. Kum saatini 30 saniyeye kurup sunum yaptırın."),
+  ];
+  T.KITAP_RAPOR = RAPORLAR;
+  const TUR = { yaz: ["✏️", "Yazarak"], ciz: ["🎨", "Çizerek"], anlat: ["🎤", "Anlatarak"] };
+  const cid = () => T.store.activeClass().id;
+  const yerel = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
+
+  function detay(box, r, geri) {
+    const yon = h("div.rt-yon-kap", T.rutinCocukYonerge(r), h("div.rt-yon.ogretmen", h("h4", "Öğretmene"), h("p", r.ogretmen), h("p.hint", "A4 " + (r.yon === "dikey" ? "dikey" : "yatay") + " basılır. Tahtada kutulara dokunup yazabilirsiniz; yazılanlar bu sınıf için saklanır.")));
+    box.replaceChildren(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Seçeneklere dön", onclick: geri }, T.icon("back")), h("h2", r.emo + " " + r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
+      h("button.btn.c-sky", { onclick: () => T.rutinYansitR(r) }, T.icon("board"), "Yansıt"),
+      h("button.btn.c-chalk", { onclick: () => T.rutinYazdirR(r, true) }, T.icon("plan"), "Boş yazdır"),
+      h("button.btn.c-chalk", { onclick: () => T.rutinYazdirR(r, false) }, T.icon("plan"), "Yazılarla yazdır"),
+      h("button.btn.c-chalk", { onclick: async () => { if (await T.confirm("Bu şablondaki yazılar silinsin mi?")) { T.rutinTemizle(r.id); detay(box, r, geri); } } }, T.icon("reset"), "Temizle")),
+      h("div.rt-duzen", h("div.rt-sayfa-kap", T.rutinSablon(r, {})), yon));
+    let sk = box.parentElement; while (sk && sk.scrollHeight <= sk.clientHeight + 2) sk = sk.parentElement; sk && sk.scrollTo && sk.scrollTo({ top: 0 });
+  }
+
+  T.tools["kitap-raporu"] = {
+    title: "Kitap raporu seçenekleri", icon: "book", tone: "tomato", back: "turkce", grup: "Okuma", grades: [1, 4],
+    short: "Okuduğu kitabı nasıl anlatacağını çocuk seçsin: afiş, mektup, çizgi roman...",
+    render(host) {
+      let filtre = "hepsi", secim = yerel("ta-kr-tahta:" + cid()) || [];
+      const box = h("div"); host.append(box);
+      const ciz = () => {
+        const liste = RAPORLAR.filter((r) => filtre === "hepsi" || r.tur.includes(filtre));
+        const kart = (r, ekst) => h("button.kr-kart" + (ekst || ""), { onclick: () => detay(box, r, ciz) }, h("span.kr-emo", r.emo), h("b", r.ad), h("span.kr-kisa", r.kisa), h("span.kr-tur", r.tur.map((t) => TUR[t][0] + " " + TUR[t][1]).join("  ")));
+        /* 3x3 seçim tahtası: sınıfın bu ayki tahtası, öğretmen dokuz seçeneği sabitleyebilir */
+        const tahta = RAPORLAR.slice(0, 9).map((r, i) => h("button.kr-hucre" + (secim.includes(i) ? ".on" : ""), { "aria-pressed": String(secim.includes(i)), onclick: () => { secim = secim.includes(i) ? secim.filter((x) => x !== i) : secim.concat(i); yerel("ta-kr-tahta:" + cid(), secim); ciz(); } }, h("span", r.emo), r.ad));
+        const cizgiVar = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]].some((l) => l.every((x) => secim.includes(x)));
+        box.replaceChildren(
+          h("div.kr-ust", h("div", h("h2", "Bu kitabı nasıl anlatmak istersin?"), h("p.hint", "Kitabını bitiren çocuk bir seçenek seçer. Şablon tahtada yansıtılabilir ya da A4 basılabilir.")),
+            h("button.btn.c-sun", { onclick: () => { const el = [...box.querySelectorAll(".kr-izgara .kr-kart")]; if (!el.length) return; let i = 0, tur = 14 + Math.floor(Math.random() * el.length); const adim = () => { el.forEach((e) => e.classList.remove("kr-sans")); el[i % el.length].classList.add("kr-sans"); if (tur-- > 0) { i++; setTimeout(adim, 90 + (14 - Math.min(tur, 14)) * 12); } else { T.sound && T.sound.ding && T.sound.ding(); setTimeout(() => detay(box, liste[i % el.length], ciz), 500); } }; adim(); } }, "🎲 Şansıma ne çıkacak?")),
+          h("div.seg", { style: { margin: "6px 0 12px" } }, [["hepsi", "Hepsi"], ["yaz", "✏️ Yazarak"], ["ciz", "🎨 Çizerek"], ["anlat", "🎤 Anlatarak"]].map(([k, l]) => h("button", { "aria-pressed": String(filtre === k), onclick: () => { filtre = k; ciz(); } }, l))),
+          h("div.kr-izgara", liste.map((r) => kart(r))),
+          h("details.kr-tahta-sar", h("summary", "Seçim tahtası (3×3): üç seçeneği yan yana getiren tahtayı tamamlar"),
+            h("p.hint", "Dönem boyunca çocuk okuduğu her kitap için bir kare seçer. Yan yana, alt alta ya da çapraz üç kare tamamlanınca kutlarız. Tahtada birlikte işaretleyebilirsiniz."),
+            h("div.kr-tahta", tahta),
+            cizgiVar ? h("p.kr-tamam", "🎉 Üç kare tamam! Tebrikler.") : null,
+            h("button.btn.sm.c-chalk", { onclick: () => { secim = []; yerel("ta-kr-tahta:" + cid(), secim); ciz(); } }, T.icon("reset"), "Tahtayı temizle")));
+        if (cizgiVar && T.konfeti && !ciz.kutlandi) { ciz.kutlandi = true; T.konfeti(); } if (!cizgiVar) ciz.kutlandi = false;
+      };
+      ciz();
+    },
+  };
+  T.YARDIM = T.YARDIM || {};
 })();
 
 /* ---- zeka.js ---- */
@@ -10746,7 +10866,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   T.YARDIM = Object.assign({
     sabah: ["Sabah rutini", "Güne başlarken sırayla aç: günaydın, takvim, özel gün, günün sayısı, günün akışı.", ["Sıradaki adıma geçmek için üstteki numaralara dokun.", "Günün sayısında \"Kendi sayım\" ile sayıyı elle değiştirebilirsin.", "Günün akışına ders programını bir kez yaz, ana sayfa her gün onu gösterir."]],
     sinif: ["Sınıfım", "Yoklama, davranış puanı, oturma planı ve görevliler burada.", ["Öğrenci adlarını Sınıf listesi sekmesinden yaz ya da yapıştır.", "Adlar yalnızca bu cihazda kalır, yapay zekâya gönderilmez.", "Görevlileri ana sayfadaki Görevliler satırından da düzenleyebilirsin."]],
-    turkce: ["Türkçe", "Okuma, anlama, yazma ve söz varlığı için sınıfta açılan etkinlikler.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne o etkinliği ana sayfadaki kısayollara ekler.", "Metin uyarlayıcı bir konudan sınıfına uygun okuma metni hazırlar."]],
+    turkce: ["Türkçe", "Okuma, anlama, yazma ve söz varlığı için sınıfta açılan etkinlikler.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kitap raporu seçenekleri: kitabını bitiren çocuk kitabı nasıl anlatacağını (afiş, mektup, çizgi roman...) kendisi seçer.", "Kartın köşesindeki iğne o etkinliği ana sayfadaki kısayollara ekler.", "Metin uyarlayıcı bir konudan sınıfına uygun okuma metni hazırlar."]],
     birinci: ["Türkçe (1. sınıf)", "İlk okuma yazma için ses, hece ve kelime etkinlikleri.", ["Ses grubunu seç, etkinlikler o seslerle çalışır.", "Kartın köşesindeki iğne etkinliği ana sayfaya ekler."]],
     matematik: ["Matematik", "Sayı hissi, somut materyaller, oyunlar ve simülasyonlar.", ["Üstteki sekmelerden konu seç.", "Kartlar sınıf seviyene göre sıralanır, hepsi her sınıfta açılır.", "Kartın köşesindeki iğne etkinliği ana sayfaya ekler."]],
     fen: ["Fen Bilimleri", "Deney, gözlem ve modelleme etkinlikleri.", ["Bir karta dokun, etkinlik tahtada açılır.", "Kartın köşesindeki iğne etkinliği ana sayfaya ekler."]],

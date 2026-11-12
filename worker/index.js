@@ -136,7 +136,7 @@ async function ses(env, metin) {
   const rate = parseInt((/rate=(\d+)/.exec(d.mimeType || d.mime_type || "") || [])[1], 10) || 24000;
   return { wav: wav(unb64u(d.data.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")), rate) };
 }
-const SES_MAX = 120;
+const SES_MAX = 240;
 
 const kota = (env, email) => env.KOTA.get(env.KOTA.idFromName("ogretmen:" + email));
 const limitOf = (env) => Math.max(1, parseInt(env.DAILY_LIMIT, 10) || 10);

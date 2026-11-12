@@ -105,6 +105,7 @@
   /* ---------- Yönlendirme ---------- */
   T.route = function () {
     T.cleanups.splice(0).forEach((f) => { try { f(); } catch (e) {} });
+    if (T.sesCaliyor && T.sesCaliyor()) T.sesDur();
     T.$$("#layer > .scrim").forEach((x) => x.remove());
     const raw = (location.hash || "#ana").slice(1);
     const i = raw.indexOf("-");

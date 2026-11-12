@@ -234,39 +234,72 @@ T.pickVoice = function (lang = "tr") {
 try { speechSynthesis.addEventListener("voiceschanged", () => { T._voice = T.pickVoice("tr"); }); } catch (e) {}
 T._sesOnbellek = new Map();
 T._calan = null;
-T.speak = async function (text, lang = "tr") {
+/* Sesli okuma. Uzun metin cümle cümle okunur; okurken ekranda "Sesi durdur" düğmesi çıkar.
+   Google ile giriş yapılmışsa doğal Türkçe ses (sunucu), yoksa cihazın en iyi Türkçe sesi. */
+T._sesNo = 0;
+const sesPill = (acik) => {
+  let p = document.getElementById("ses-dur");
+  if (!acik) { if (p) p.remove(); return; }
+  if (!p) { p = T.h("button#ses-dur", { onclick: () => T.sesDur(), "aria-label": "Sesi durdur" }, T.icon("pause"), T.h("span", "Sesi durdur")); document.body.append(p); }
+};
+T.sesDur = function () {
+  T._sesNo++;
+  try { if (T._calan) { T._calan.pause(); T._calan = null; } } catch (e) {}
+  try { speechSynthesis.cancel(); } catch (e) {}
+  try { T.cap.tts && T.cap.tts.stop && T.cap.tts.stop(); } catch (e) {}
+  sesPill(false); document.dispatchEvent(new Event("ses-durdu"));
+};
+T.sesCaliyor = () => !!document.getElementById("ses-dur");
+const cumleler = (t, max) => {
+  const out = []; String(t).replace(/\s+/g, " ").trim().split(/(?<=[.!?…:;])\s+/).forEach((c) => {
+    if (c.length <= max) { out.push(c); return; }
+    let parca = ""; c.split(/(?<=,)\s+|\s+/).forEach((w) => { if ((parca + " " + w).trim().length > max) { if (parca) out.push(parca.trim()); parca = w; } else parca = (parca + " " + w).trim(); });
+    if (parca) out.push(parca);
+  });
+  return out.filter(Boolean);
+};
+const sunucuSes = async (text) => {
+  let url = T._sesOnbellek.get(text);
+  if (!url) {
+    const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + (JSON.parse(localStorage.getItem("tahta-atolyesi-oturum") || "{}").token || "") }, body: JSON.stringify({ metin: text }) });
+    if (!r.ok) throw 0;
+    url = URL.createObjectURL(await r.blob()); T._sesOnbellek.set(text, url);
+  }
+  return url;
+};
+const cihazSesi = (text, lang, hiz) => new Promise((res) => {
+  let v = lang === "tr" ? (T._voice || (T._voice = T.pickVoice("tr"))) : T.pickVoice("en");
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang === "en" ? "en-US" : "tr-TR"; if (v) u.voice = v;
+  u.rate = hiz || 0.9; u.pitch = 1.02;
+  u.onend = () => res(); u.onerror = () => res();
+  speechSynthesis.speak(u);
+});
+T.speak = async function (text, lang = "tr", opt = {}) {
   text = String(text || "").trim(); if (!text) return;
+  T.sesDur(); const no = T._sesNo; sesPill(true);
   try {
     const tts = T.cap.tts;
-    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); return; }
+    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); if (no === T._sesNo) sesPill(false); return; }
   } catch (e) { /* devam */ }
-  if (lang === "tr" && T.auth && T.auth.user() && text.length <= 120) {
-    try {
-      let url = T._sesOnbellek.get(text);
-      if (!url) {
-        const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + (JSON.parse(localStorage.getItem("tahta-atolyesi-oturum") || "{}").token || "") }, body: JSON.stringify({ metin: text }) });
-        if (!r.ok) throw 0;
-        url = URL.createObjectURL(await r.blob()); T._sesOnbellek.set(text, url);
-      }
-      if (T._calan) T._calan.pause();
-      try { speechSynthesis.cancel(); } catch (e) {}
-      T._calan = new Audio(url); await T._calan.play(); return;
-    } catch (e) { /* cihaz sesine düş */ }
-  }
-  try {
-    /* Sesler geç yüklenir; Türkçe ses gelmeden okursak tarayıcı İngilizce sesle okur. */
-    let v = lang === "tr" ? (T._voice || (T._voice = T.pickVoice("tr"))) : T.pickVoice("en");
-    if (!v) {
-      await new Promise((res) => { let n = 0; const t = setInterval(() => { v = T.pickVoice(lang === "en" ? "en" : "tr"); if (v || ++n > 15) { clearInterval(t); res(); } }, 100); });
-      if (lang === "tr" && v) T._voice = v;
+  if (lang === "tr" && !T.pickVoice("tr")) await new Promise((res) => { let n = 0; const t = setInterval(() => { if (T.pickVoice("tr") || ++n > 15) { clearInterval(t); res(); } }, 100); });
+  if (lang === "tr" && !T.pickVoice("tr") && !(T.auth && T.auth.user()) && !T._sesUyari) { T._sesUyari = true; T.toast("Bu cihazda Türkçe ses yok. Doğal Türkçe ses için Ayarlar'dan Google ile giriş yap."); }
+  const parcalar = cumleler(text, 230);
+  const dogal = lang === "tr" && T.auth && T.auth.user() && !T._dogalYok;
+  let sonraki = dogal ? sunucuSes(parcalar[0]).catch(() => null) : null;
+  for (let i = 0; i < parcalar.length; i++) {
+    if (no !== T._sesNo) return;
+    opt.onCumle && opt.onCumle(i, parcalar[i]);
+    let url = null;
+    if (dogal) { url = await sonraki; sonraki = i + 1 < parcalar.length ? sunucuSes(parcalar[i + 1]).catch(() => null) : null; }
+    if (no !== T._sesNo) return;
+    if (url) {
+      await new Promise((res) => { const a = new Audio(url); T._calan = a; a.playbackRate = opt.hiz || 1; a.onended = res; a.onerror = res; a.play().catch(res); });
+    } else {
+      try { await cihazSesi(parcalar[i], lang, opt.hiz ? 0.9 * opt.hiz : 0.9); } catch (e) { T.toast("Bu cihazda sesli okuma yok"); break; }
     }
-    if (!v && lang === "tr" && !T._sesUyari) { T._sesUyari = true; T.toast("Bu cihazda Türkçe ses yok. Doğal Türkçe ses için Ayarlar'dan Google ile giriş yap."); }
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === "en" ? "en-US" : "tr-TR";
-    if (v) u.voice = v;
-    u.rate = 0.92;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  } catch (e) { T.toast("Bu cihazda sesli okuma yok"); }
+  }
+  if (no === T._sesNo) { sesPill(false); opt.onBitti && opt.onBitti(); }
 };
 
 /* ---------- Claude yetenekleri (yalnızca Claude içinde açıksa) ---------- */

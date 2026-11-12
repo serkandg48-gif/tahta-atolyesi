@@ -1689,6 +1689,19 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 @media (hover: none) { .tc-gizle { opacity: .55; } }
 .dock .dock-item.dock-tam { min-height: 58px; color: var(--navy); font-weight: 700; border-top: 1px dashed var(--line); border-radius: 0 0 14px 14px; }
 .dock .dock-item.dock-tam svg { width: 22px; height: 22px; }
+#ses-dur { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 130; display: flex; align-items: center; gap: 10px; padding: 12px 22px; border: 0; border-radius: 99px; background: #1B2A4A; color: #fff; font: 700 18px var(--body); box-shadow: 0 10px 28px rgba(20,30,50,.3); cursor: pointer; }
+#ses-dur svg { width: 22px; height: 22px; }
+.ok-w.ornek { background: #FFE7A3; border-radius: 6px; }
+.ok-rehber { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.ok-rehber > div { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #fff; border: 1px solid var(--line); color: var(--ink-soft); font-size: 15px; }
+.ok-rehber b { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #E3E8F2; color: var(--navy); }
+.ok-rehber > .on { border-color: var(--navy); color: var(--ink); font-weight: 700; box-shadow: 0 0 0 3px rgba(27,42,74,.12); }
+.ok-rehber > .on b { background: var(--navy); color: #fff; }
+.ok-rehber > .gecti b { background: #3FA35B; color: #fff; }
+.ok-bekle { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ok-canli { display: grid; justify-items: center; } .ok-canli b { font: 800 40px var(--display); color: #C2453A; }
+.ok-ozet { grid-column: 1 / -1; margin: 0; font-size: 16px; font-weight: 600; }
+@media (max-width: 800px) { .ok-rehber { grid-template-columns: 1fr; } }
 
 </style>
 </head>
@@ -1703,7 +1716,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="cdfac0ad93";
+window.SURUM="31c290f3db";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -1941,39 +1954,72 @@ T.pickVoice = function (lang = "tr") {
 try { speechSynthesis.addEventListener("voiceschanged", () => { T._voice = T.pickVoice("tr"); }); } catch (e) {}
 T._sesOnbellek = new Map();
 T._calan = null;
-T.speak = async function (text, lang = "tr") {
+/* Sesli okuma. Uzun metin cümle cümle okunur; okurken ekranda "Sesi durdur" düğmesi çıkar.
+   Google ile giriş yapılmışsa doğal Türkçe ses (sunucu), yoksa cihazın en iyi Türkçe sesi. */
+T._sesNo = 0;
+const sesPill = (acik) => {
+  let p = document.getElementById("ses-dur");
+  if (!acik) { if (p) p.remove(); return; }
+  if (!p) { p = T.h("button#ses-dur", { onclick: () => T.sesDur(), "aria-label": "Sesi durdur" }, T.icon("pause"), T.h("span", "Sesi durdur")); document.body.append(p); }
+};
+T.sesDur = function () {
+  T._sesNo++;
+  try { if (T._calan) { T._calan.pause(); T._calan = null; } } catch (e) {}
+  try { speechSynthesis.cancel(); } catch (e) {}
+  try { T.cap.tts && T.cap.tts.stop && T.cap.tts.stop(); } catch (e) {}
+  sesPill(false); document.dispatchEvent(new Event("ses-durdu"));
+};
+T.sesCaliyor = () => !!document.getElementById("ses-dur");
+const cumleler = (t, max) => {
+  const out = []; String(t).replace(/\s+/g, " ").trim().split(/(?<=[.!?…:;])\s+/).forEach((c) => {
+    if (c.length <= max) { out.push(c); return; }
+    let parca = ""; c.split(/(?<=,)\s+|\s+/).forEach((w) => { if ((parca + " " + w).trim().length > max) { if (parca) out.push(parca.trim()); parca = w; } else parca = (parca + " " + w).trim(); });
+    if (parca) out.push(parca);
+  });
+  return out.filter(Boolean);
+};
+const sunucuSes = async (text) => {
+  let url = T._sesOnbellek.get(text);
+  if (!url) {
+    const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + (JSON.parse(localStorage.getItem("tahta-atolyesi-oturum") || "{}").token || "") }, body: JSON.stringify({ metin: text }) });
+    if (!r.ok) throw 0;
+    url = URL.createObjectURL(await r.blob()); T._sesOnbellek.set(text, url);
+  }
+  return url;
+};
+const cihazSesi = (text, lang, hiz) => new Promise((res) => {
+  let v = lang === "tr" ? (T._voice || (T._voice = T.pickVoice("tr"))) : T.pickVoice("en");
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang === "en" ? "en-US" : "tr-TR"; if (v) u.voice = v;
+  u.rate = hiz || 0.9; u.pitch = 1.02;
+  u.onend = () => res(); u.onerror = () => res();
+  speechSynthesis.speak(u);
+});
+T.speak = async function (text, lang = "tr", opt = {}) {
   text = String(text || "").trim(); if (!text) return;
+  T.sesDur(); const no = T._sesNo; sesPill(true);
   try {
     const tts = T.cap.tts;
-    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); return; }
+    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); if (no === T._sesNo) sesPill(false); return; }
   } catch (e) { /* devam */ }
-  if (lang === "tr" && T.auth && T.auth.user() && text.length <= 120) {
-    try {
-      let url = T._sesOnbellek.get(text);
-      if (!url) {
-        const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + (JSON.parse(localStorage.getItem("tahta-atolyesi-oturum") || "{}").token || "") }, body: JSON.stringify({ metin: text }) });
-        if (!r.ok) throw 0;
-        url = URL.createObjectURL(await r.blob()); T._sesOnbellek.set(text, url);
-      }
-      if (T._calan) T._calan.pause();
-      try { speechSynthesis.cancel(); } catch (e) {}
-      T._calan = new Audio(url); await T._calan.play(); return;
-    } catch (e) { /* cihaz sesine düş */ }
-  }
-  try {
-    /* Sesler geç yüklenir; Türkçe ses gelmeden okursak tarayıcı İngilizce sesle okur. */
-    let v = lang === "tr" ? (T._voice || (T._voice = T.pickVoice("tr"))) : T.pickVoice("en");
-    if (!v) {
-      await new Promise((res) => { let n = 0; const t = setInterval(() => { v = T.pickVoice(lang === "en" ? "en" : "tr"); if (v || ++n > 15) { clearInterval(t); res(); } }, 100); });
-      if (lang === "tr" && v) T._voice = v;
+  if (lang === "tr" && !T.pickVoice("tr")) await new Promise((res) => { let n = 0; const t = setInterval(() => { if (T.pickVoice("tr") || ++n > 15) { clearInterval(t); res(); } }, 100); });
+  if (lang === "tr" && !T.pickVoice("tr") && !(T.auth && T.auth.user()) && !T._sesUyari) { T._sesUyari = true; T.toast("Bu cihazda Türkçe ses yok. Doğal Türkçe ses için Ayarlar'dan Google ile giriş yap."); }
+  const parcalar = cumleler(text, 230);
+  const dogal = lang === "tr" && T.auth && T.auth.user() && !T._dogalYok;
+  let sonraki = dogal ? sunucuSes(parcalar[0]).catch(() => null) : null;
+  for (let i = 0; i < parcalar.length; i++) {
+    if (no !== T._sesNo) return;
+    opt.onCumle && opt.onCumle(i, parcalar[i]);
+    let url = null;
+    if (dogal) { url = await sonraki; sonraki = i + 1 < parcalar.length ? sunucuSes(parcalar[i + 1]).catch(() => null) : null; }
+    if (no !== T._sesNo) return;
+    if (url) {
+      await new Promise((res) => { const a = new Audio(url); T._calan = a; a.playbackRate = opt.hiz || 1; a.onended = res; a.onerror = res; a.play().catch(res); });
+    } else {
+      try { await cihazSesi(parcalar[i], lang, opt.hiz ? 0.9 * opt.hiz : 0.9); } catch (e) { T.toast("Bu cihazda sesli okuma yok"); break; }
     }
-    if (!v && lang === "tr" && !T._sesUyari) { T._sesUyari = true; T.toast("Bu cihazda Türkçe ses yok. Doğal Türkçe ses için Ayarlar'dan Google ile giriş yap."); }
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === "en" ? "en-US" : "tr-TR";
-    if (v) u.voice = v;
-    u.rate = 0.92;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  } catch (e) { T.toast("Bu cihazda sesli okuma yok"); }
+  }
+  if (no === T._sesNo) { sesPill(false); opt.onBitti && opt.onBitti(); }
 };
 
 /* ---------- Claude yetenekleri (yalnızca Claude içinde açıksa) ---------- */
@@ -7471,7 +7517,22 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
       let mod = "sayac", ogr = "", boyut = g <= 2 ? 40 : 32, hece = g <= 2, hiz = g <= 1 ? 30 : g === 2 ? 50 : g === 3 ? 70 : 90;
       let calisiyor = false, bas = 0, gecen = 0, iv = null, hatalar = new Set(), sonKelime = null, bitti = false, bekliyor = false;
       const box = h("div"); host.append(box);
-      T.onLeave(() => { clearInterval(iv); cancelAnimationFrame(T._kyRaf); });
+      T.onLeave(() => { clearInterval(iv); cancelAnimationFrame(T._kyRaf); T.sesDur(); });
+      /* Örnek okuma: cümle cümle okunur, okunan cümle metinde vurgulanır, düğme Durdur'a döner */
+      let ornekCaliyor = false;
+      const ornekDugme = (metinEl) => {
+        const b = h("button.btn.c-chalk", { onclick: () => {
+          if (ornekCaliyor) { T.sesDur(); return; }
+          ornekCaliyor = true; b.replaceChildren(T.icon("pause"), "Okumayı durdur");
+          const ws = kelimeler(); let kelimeNo = 0;
+          const isaretle = (bas, adet) => { const sp = (metinEl || box).querySelectorAll(".ok-w"); sp.forEach((x, j) => x.classList.toggle("ornek", j >= bas && j < bas + adet)); };
+          const bitir = () => { ornekCaliyor = false; isaretle(-1, 0); b.replaceChildren(T.icon("speaker"), "Örnek okumayı dinle"); document.removeEventListener("ses-durdu", bitir); };
+          document.addEventListener("ses-durdu", bitir);
+          T.speak(ws.join(" "), "tr", { onCumle: (i, c) => { const n = c.split(/\s+/).filter(Boolean).length; isaretle(kelimeNo, n); kelimeNo += n; }, onBitti: bitir });
+        } }, T.icon("speaker"), "Örnek okumayı dinle");
+        return b;
+      };
+      const sesNotu = () => T.auth && T.auth.user() ? null : h("span.hint", "Daha doğal ses için Ayarlar'dan Google ile giriş yap.");
       const kelimeler = () => metin.trim().split(/\s+/).filter(Boolean);
       function kaynakSec() {
         const list = h("div", { style: { display: "grid", gap: "8px" } }, [1, 2, 3, 4].map((s) => h("div", h("b", s + ". sınıf"), h("div.row", { style: { gap: "6px", marginTop: "4px" } }, METIN[s].map(([ad, t]) => h("button.btn.sm.c-chalk", { onclick: () => { metin = t; sifirla(); m.close(); } }, ad))))));
@@ -7513,16 +7574,19 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
           const metinEl = h("div.ok-metin", { style: { fontSize: boyut + "px" } }, ws.map((w, i) => [kelimeSpan(w, i), " "]));
           metinEl.addEventListener("click", (e) => { const sp = e.target.closest(".ok-w"); if (!sp) return; const i = +sp.dataset.i; if (bekliyor) { sonKelime = i; bekliyor = false; bitti = true; ciz(); return; } if (!calisiyor && !bitti) return; hatalar.has(i) ? hatalar.delete(i) : hatalar.add(i); T.sound.tick && T.sound.tick(); ciz(); });
           const r = sonuc();
-          govde = h("div.ok-grid",
-            h("div", metinEl, bekliyor ? h("p.dy-tip", "Öğrencinin son okuduğu kelimeye dokun.") : calisiyor ? h("p.hint", "Öğrenci okurken takıldığı ya da yanlış okuduğu kelimeye dokun. Bir daha dokunursan işaret kalkar.") : null),
+          const adim = bitti ? 3 : bekliyor ? 3 : calisiyor ? 2 : 1;
+          const rehber = h("div.ok-rehber", [["1", "Metni ve öğrenciyi seç, Başlat'a bas"], ["2", "Öğrenci okurken yanlış okunan kelimeye dokun"], ["3", "Süre bitince son okunan kelimeye dokun"]].map(([n, t]) => h("div" + (+n === adim ? ".on" : +n < adim ? ".gecti" : ""), h("b", n), h("span", t))));
+          govde = h("div", rehber, h("div.ok-grid",
+            h("div", metinEl, bekliyor ? h("div.dy-tip.ok-bekle", "Öğrencinin okuduğu son kelimeye dokun.", h("button.btn.sm.c-leaf", { onclick: () => { sonKelime = ws.length - 1; bekliyor = false; bitti = true; ciz(); } }, "Metnin sonuna kadar okudu")) : calisiyor ? h("p.hint", "Yanlış okunan kelimeye dokun, kırmızı olur. Yanlışlıkla dokunduysan bir daha dokun.") : !bitti ? h("div.row", { style: { marginTop: "10px", gap: "8px" } }, ornekDugme(metinEl), sesNotu()) : null),
             h("div.ok-yan",
               h("div.ok-sure", `${Math.floor(s / 60)}:${T.pad(s % 60)}`),
+              calisiyor ? h("div.ok-canli", h("b", hatalar.size), h("small", "hata işaretlendi")) : !bitti && !bekliyor ? h("small.hint", ws.length + " kelimelik metin") : null,
               !calisiyor && !bitti && !bekliyor ? h("button.btn.big", { onclick: () => { calisiyor = true; bas = Date.now() - gecen; iv = setInterval(() => { gecen = Date.now() - bas; const el = box.querySelector(".ok-sure"); if (el) { const k = Math.floor(gecen / 1000); el.textContent = `${Math.floor(k / 60)}:${T.pad(k % 60)}`; } if (bir && gecen >= 60000) dur(true); }, 200); ciz(); } }, T.icon("play"), gecen ? "Devam" : "Başlat") : null,
               calisiyor ? h("button.btn.big.c-tomato", { onclick: () => dur(false) }, T.icon("check"), "Bitir") : null,
               h("label.ok-bir", h("input", { type: "checkbox", checked: bir ? true : null, onchange: (e) => (bir = e.target.checked) }), "1 dakikada dur"),
-              bitti ? h("div.ok-sonuc", h("div", h("b", r.ddk), h("small", "doğru kelime / dakika")), h("div", h("b", "%" + r.dog), h("small", "doğruluk")), h("div", h("b", r.okunan), h("small", "okunan kelime")), h("div", h("b", r.hata), h("small", "hata")),
+              bitti ? h("div.ok-sonuc", h("p.ok-ozet", r.sn + " saniyede " + r.okunan + " kelime okudu, " + r.hata + " kelimede hata yaptı."), r.sn < 20 ? h("p.dy-tip", { style: { gridColumn: "1 / -1", margin: 0 } }, "Ölçüm çok kısa sürdü; dakikadaki kelime sayısı yanıltıcı olabilir. 1 dakikalık okuma en güvenilir sonucu verir.") : null, h("div", h("b", r.ddk), h("small", "doğru kelime / dakika")), h("div", h("b", "%" + r.dog), h("small", "doğruluk")), h("div", h("b", r.okunan), h("small", "okunan kelime")), h("div", h("b", r.hata), h("small", "hata")),
                 ogr ? h("button.btn.c-leaf", { onclick: () => { T.store.update((s2) => { s2.okuma = s2.okuma || {}; s2.okuma[cid()] = s2.okuma[cid()] || {}; (s2.okuma[cid()][ogr] = s2.okuma[cid()][ogr] || []).push({ d: T.isoDate(), ddk: r.ddk, dog: r.dog, k: r.okunan }); }); T.toast("Kaydedildi"); ciz(); } }, T.icon("check"), "Öğrenciye kaydet") : h("p.hint", "Kaydetmek için yukarıdan öğrenci seç.")) : null,
-              gecen || bitti ? h("button.btn.sm.c-chalk", { onclick: sifirla }, T.icon("reset"), "Sıfırla") : null));
+              gecen || bitti ? h("button.btn.sm.c-chalk", { onclick: sifirla }, T.icon("reset"), "Yeniden ölç") : null)));
         } else if (mod === "kayan") {
           const ic = h("div.ky-ic", { style: { fontSize: boyut + "px" } }, ws.map((w, i) => [kelimeSpan(w, i), " "]));
           const pencere = h("div.ky-pencere", h("div.ky-cizgi"), ic);
@@ -7537,11 +7601,11 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
           const ilerle = () => { const sp = metinEl.querySelectorAll(".ok-w"); sp.forEach((x, j) => { x.classList.toggle("aktif", j === i); x.classList.toggle("gecti", j < i); }); };
           const oynat = () => { if (calisiyor) { calisiyor = false; clearInterval(iv); btn.replaceChildren(T.icon("play"), "Devam"); return; } calisiyor = true; btn.replaceChildren(T.icon("pause"), "Durdur"); iv = setInterval(() => { i++; if (i >= ws.length) { clearInterval(iv); calisiyor = false; btn.replaceChildren(T.icon("play"), "Baştan"); i = -1; } ilerle(); }, 60000 / hiz); };
           const btn = h("button.btn.big", { onclick: oynat }, T.icon("play"), "Başlat");
-          govde = h("div", metinEl, h("div.row", { style: { marginTop: "12px" } }, btn, hizKontrol(), h("button.btn.c-chalk", { onclick: () => T.speak(metin.slice(0, 400)) }, T.icon("speaker"), "Örnek okuma dinle"), h("span.hint", "Vurgu seçtiğin hızda kelime kelime ilerler. Koro okuma ve izleyerek okuma için.")));
+          govde = h("div", metinEl, h("div.row", { style: { marginTop: "12px" } }, btn, hizKontrol(), ornekDugme(metinEl), h("span.hint", "Vurgu seçtiğin hızda kelime kelime ilerler. Koro okuma ve izleyerek okuma için.")));
         }
         box.replaceChildren(ustBar, govde, gecmisCiz());
       }
-      let bir = false;
+      let bir = true;
       function dur(otomatik) { clearInterval(iv); calisiyor = false; gecen = otomatik ? 60000 : Date.now() - bas; bekliyor = true; T.sound.ok(); ciz(); }
       function hizKontrol() {
         const out = h("b", hiz + " kelime/dk");
@@ -10579,6 +10643,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   /* ---------- Yönlendirme ---------- */
   T.route = function () {
     T.cleanups.splice(0).forEach((f) => { try { f(); } catch (e) {} });
+    if (T.sesCaliyor && T.sesCaliyor()) T.sesDur();
     T.$$("#layer > .scrim").forEach((x) => x.remove());
     const raw = (location.hash || "#ana").slice(1);
     const i = raw.indexOf("-");

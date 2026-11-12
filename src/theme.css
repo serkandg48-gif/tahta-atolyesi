@@ -1131,3 +1131,16 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 @media (hover: none) { .tc-gizle { opacity: .55; } }
 .dock .dock-item.dock-tam { min-height: 58px; color: var(--navy); font-weight: 700; border-top: 1px dashed var(--line); border-radius: 0 0 14px 14px; }
 .dock .dock-item.dock-tam svg { width: 22px; height: 22px; }
+#ses-dur { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 130; display: flex; align-items: center; gap: 10px; padding: 12px 22px; border: 0; border-radius: 99px; background: #1B2A4A; color: #fff; font: 700 18px var(--body); box-shadow: 0 10px 28px rgba(20,30,50,.3); cursor: pointer; }
+#ses-dur svg { width: 22px; height: 22px; }
+.ok-w.ornek { background: #FFE7A3; border-radius: 6px; }
+.ok-rehber { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.ok-rehber > div { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #fff; border: 1px solid var(--line); color: var(--ink-soft); font-size: 15px; }
+.ok-rehber b { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #E3E8F2; color: var(--navy); }
+.ok-rehber > .on { border-color: var(--navy); color: var(--ink); font-weight: 700; box-shadow: 0 0 0 3px rgba(27,42,74,.12); }
+.ok-rehber > .on b { background: var(--navy); color: #fff; }
+.ok-rehber > .gecti b { background: #3FA35B; color: #fff; }
+.ok-bekle { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ok-canli { display: grid; justify-items: center; } .ok-canli b { font: 800 40px var(--display); color: #C2453A; }
+.ok-ozet { grid-column: 1 / -1; margin: 0; font-size: 16px; font-weight: 600; }
+@media (max-width: 800px) { .ok-rehber { grid-template-columns: 1fr; } }

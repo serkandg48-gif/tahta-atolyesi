@@ -2063,7 +2063,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="4672e70bdf";
+window.SURUM="8f303b71ef";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -2745,6 +2745,54 @@ T.icon3d = function (name, cls = "") {
   if (!T.IKON3D.has(name)) return T.icon(name, cls);
   return T.h("img.ikon3d" + (cls ? "." + cls : ""), { src: "ikon3d/" + name + ".webp", alt: "", "aria-hidden": "true", draggable: "false", width: 48, height: 48, decoding: "async" });
 };
+
+/* ---- malzeme.js ---- */
+/* SVG için gerçek malzeme: parlak boncuk ve pul degradeleri, ahşap, metal, cam, gölge. Tanımlar belgede bir kez durur, her SVG kullanabilir. */
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  let defs = null; const yapilan = new Set();
+  const el = (tag, a = {}, ...k) => { const e = document.createElementNS(NS, tag); Object.entries(a).forEach(([x, v]) => e.setAttribute(x, v)); k.forEach((c) => e.append(c)); return e; };
+  const karistir = (hex, hedef, t) => { const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); const a = p(hex), b = p(hedef); return "#" + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, "0")).join(""); };
+  const tam = (c) => { if (c[0] !== "#") return "#888888"; return c.length === 4 ? "#" + [...c.slice(1)].map((x) => x + x).join("") : c.slice(0, 7); };
+  function kur() {
+    if (defs && defs.isConnected) return defs;
+    const svg = el("svg", { width: 0, height: 0, "aria-hidden": "true", style: "position:absolute;width:0;height:0;overflow:hidden" });
+    defs = el("defs"); svg.append(defs); document.body.append(svg); yapilan.clear();
+    defs.append(
+      el("filter", { id: "m3-golge", filterUnits: "userSpaceOnUse", x: -3000, y: -3000, width: 8000, height: 8000 }, el("feDropShadow", { dx: 0, dy: 5, stdDeviation: 4, "flood-color": "#2a1a08", "flood-opacity": 0.35 })),
+      el("filter", { id: "m3-golge-k", filterUnits: "userSpaceOnUse", x: -3000, y: -3000, width: 8000, height: 8000 }, el("feDropShadow", { dx: 0, dy: 2, stdDeviation: 1.6, "flood-color": "#2a1a08", "flood-opacity": 0.35 })),
+      el("filter", { id: "m3-ic", x: "-10%", y: "-10%", width: "120%", height: "120%" }, el("feOffset", { dx: 0, dy: 3 }), el("feGaussianBlur", { stdDeviation: 3, result: "b" }), el("feComposite", { operator: "out", in: "SourceGraphic", in2: "b", result: "o" }), el("feFlood", { "flood-color": "#000", "flood-opacity": 0.28 }), el("feComposite", { operator: "in", in2: "o" }), el("feComposite", { operator: "over", in2: "SourceGraphic" })),
+      el("linearGradient", { id: "m3-metal", x1: 0, y1: 0, x2: 0, y2: 1 }, el("stop", { offset: 0, "stop-color": "#F4F6F8" }), el("stop", { offset: 0.45, "stop-color": "#9AA3AD" }), el("stop", { offset: 0.55, "stop-color": "#7C858F" }), el("stop", { offset: 1, "stop-color": "#C9CFD6" })),
+      el("radialGradient", { id: "m3-halka", cx: 0.5, cy: 0.5, r: 0.5 }, el("stop", { offset: 0.86, "stop-color": "#5E6670" }), el("stop", { offset: 0.92, "stop-color": "#E9EDF1" }), el("stop", { offset: 0.97, "stop-color": "#8C949D" }), el("stop", { offset: 1, "stop-color": "#454B52" })),
+      el("radialGradient", { id: "m3-kadran", cx: 0.45, cy: 0.4, r: 0.65 }, el("stop", { offset: 0, "stop-color": "#FFFFFF" }), el("stop", { offset: 1, "stop-color": "#EDE6D6" })),
+      el("linearGradient", { id: "m3-cam", x1: 0, y1: 0, x2: 1, y2: 1 }, el("stop", { offset: 0, "stop-color": "#fff", "stop-opacity": 0.55 }), el("stop", { offset: 0.45, "stop-color": "#fff", "stop-opacity": 0.08 }), el("stop", { offset: 1, "stop-color": "#fff", "stop-opacity": 0 })),
+      el("linearGradient", { id: "m3-kagit", x1: 0, y1: 0, x2: 0, y2: 1 }, el("stop", { offset: 0, "stop-color": "#FFFDF7" }), el("stop", { offset: 1, "stop-color": "#F3EBDA" })),
+    );
+    [["m3-ahsap", "#C99A5E", "#A87843"], ["m3-ahsap-koyu", "#8A5A32", "#6B4224"], ["m3-ahsap-acik", "#EBCB98", "#D7B07A"]].forEach(([id, a, b]) => {
+      const p = el("pattern", { id, width: 220, height: 60, patternUnits: "userSpaceOnUse" });
+      p.append(el("rect", { width: 220, height: 60, fill: a }));
+      for (let i = 0; i < 9; i++) { const y = 4 + i * 6.5 + Math.sin(i) * 2; p.append(el("path", { d: `M0 ${y} C 60 ${y + 3}, 120 ${y - 3}, 220 ${y + 1}`, stroke: i % 3 ? b : "rgba(255,240,210,.35)", "stroke-width": i % 2 ? 1.2 : 2.2, fill: "none", opacity: 0.55 })); }
+      defs.append(p);
+    });
+    return defs;
+  }
+  /* parlak plastik/boncuk degradesi */
+  T.m3 = (renk) => {
+    const c = tam(String(renk || "#888")), id = "m3-p" + c.slice(1); kur();
+    if (!yapilan.has(id) || !document.getElementById(id)) {
+      yapilan.add(id);
+      defs.append(el("radialGradient", { id, cx: 0.36, cy: 0.3, r: 0.75 }, el("stop", { offset: 0, "stop-color": karistir(c, "#ffffff", 0.75) }), el("stop", { offset: 0.18, "stop-color": karistir(c, "#ffffff", 0.25) }), el("stop", { offset: 0.65, "stop-color": c }), el("stop", { offset: 1, "stop-color": karistir(c, "#000000", 0.45) })));
+    }
+    return `url(#${id})`;
+  };
+  /* boyanmış ahşap/karton yüzey (doğrusal) */
+  T.m3d = (renk) => {
+    const c = tam(String(renk || "#888")), id = "m3-d" + c.slice(1); kur();
+    if (!yapilan.has(id) || !document.getElementById(id)) { yapilan.add(id); defs.append(el("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, el("stop", { offset: 0, "stop-color": karistir(c, "#ffffff", 0.35) }), el("stop", { offset: 0.5, "stop-color": c }), el("stop", { offset: 1, "stop-color": karistir(c, "#000000", 0.22) }))); }
+    return `url(#${id})`;
+  };
+  T.m3kur = kur;
+})();
 
 /* ---- store.js ---- */
 /* Veri katmanı. Şimdilik cihazda (localStorage) tutar.
@@ -5903,13 +5951,15 @@ T.yuzen = TahtaYap("ana");
       function paint() {
         svg.replaceChildren();
         const frames = type === 20 ? 2 : 1, cols = type === 5 ? 5 : 5, rows = type === 5 ? 1 : 2, cw = 150;
+        T.m3kur && T.m3kur();
         for (let f = 0; f < frames; f++) {
           const ox = 500 - (cols * cw) / 2, oy = (frames === 1 ? (rows === 1 ? 185 : 110) : 20 + f * 260);
+          svg.append(S("rect", { x: ox - 18, y: oy - 18, width: cols * cw + 36, height: rows * cw + 36, rx: 16, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
           for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
             const i = f * 10 + r * cols + c;
             const g = S("g", { style: "cursor:pointer" });
-            g.append(S("rect", { x: ox + c * cw, y: oy + r * cw, width: cw, height: cw, fill: "#fff", stroke: "#2a2a2a", "stroke-width": 5 }));
-            if (cells[i]) g.append(S("circle", { cx: ox + c * cw + cw / 2, cy: oy + r * cw + cw / 2, r: 54, fill: COLS[cells[i]], stroke: "#2a2a2a", "stroke-width": 4 }));
+            g.append(S("rect", { x: ox + c * cw + 5, y: oy + r * cw + 5, width: cw - 10, height: cw - 10, rx: 8, fill: "#F7EFDF", stroke: "#8A6238", "stroke-width": 2, filter: "url(#m3-ic)" }));
+            if (cells[i]) g.append(S("circle", { cx: ox + c * cw + cw / 2, cy: oy + r * cw + cw / 2, r: 54, fill: T.m3 ? T.m3(COLS[cells[i]]) : COLS[cells[i]], filter: "url(#m3-golge)" }));
             g.addEventListener("click", () => { cells[i] = cells[i] === pen ? 0 : pen; T.sound.pop(); paint(); });
             svg.append(g);
           }
@@ -5987,16 +6037,17 @@ T.yuzen = TahtaYap("ana");
       function setRows(n) { rowsN = n; left = Array(n).fill(0); paint(); }
       function paint() {
         svg.replaceChildren();
-        svg.append(S("rect", { x: 40, y: 20, width: 920, height: 520, rx: 18, fill: "#c99a5e", stroke: "#2a2a2a", "stroke-width": 5 }));
-        svg.append(S("rect", { x: 70, y: 46, width: 860, height: 468, rx: 8, fill: "#fff8ea", stroke: "#2a2a2a", "stroke-width": 3 }));
+        T.m3kur && T.m3kur();
+        svg.append(S("rect", { x: 40, y: 20, width: 920, height: 520, rx: 18, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
+        svg.append(S("rect", { x: 70, y: 46, width: 860, height: 468, rx: 8, fill: "#FBF3E2", filter: "url(#m3-ic)" }));
         const gap = 468 / rowsN, r = Math.min(30, gap * 0.36);
         for (let row = 0; row < rowsN; row++) {
           const y = 46 + gap * (row + 0.5);
-          svg.append(S("line", { x1: 70, y1: y, x2: 930, y2: y, stroke: "#6b5a43", "stroke-width": 4 }));
+          svg.append(S("rect", { x: 66, y: y - 4, width: 868, height: 8, rx: 4, fill: "url(#m3-metal)" }));
           for (let k = 0; k < 10; k++) {
             const isLeft = k < left[row];
             const x = isLeft ? 110 + k * r * 2.1 + (k >= 5 ? 6 : 0) : 890 - (9 - k) * r * 2.1 - (k < 5 ? 6 : 0);
-            const c = S("circle", { cx: x, cy: y, r, fill: k < 5 ? "#e2473b" : "#fff", stroke: "#2a2a2a", "stroke-width": 3, style: "cursor:pointer" });
+            const c = S("circle", { cx: x, cy: y, r, fill: T.m3(k < 5 ? "#e2473b" : "#f4f1ea"), filter: "url(#m3-golge-k)", style: "cursor:pointer" });
             c.addEventListener("click", () => { left[row] = isLeft ? k : k + 1; T.sound.tick(); paint(); });
             svg.append(c);
           }
@@ -6236,14 +6287,14 @@ T.yuzen = TahtaYap("ana");
       mat.append(h("div", { style: { height: "var(--stage-h)", minHeight: 0 } }, svg), side);
       function paint() {
         const hh = Math.floor(t / 60) % 24, mm = t % 60;
-        svg.replaceChildren(S("circle", { cx: 260, cy: 260, r: 240, fill: "#fff", stroke: "#2a2a2a", "stroke-width": 10 }));
+        T.m3kur && T.m3kur(); svg.replaceChildren(S("circle", { cx: 260, cy: 266, r: 250, fill: "rgba(40,25,10,.25)", filter: "url(#m3-golge)" }), S("circle", { cx: 260, cy: 260, r: 252, fill: "url(#m3-halka)" }), S("circle", { cx: 260, cy: 260, r: 232, fill: "url(#m3-kadran)", filter: "url(#m3-ic)" }));
         for (let i = 0; i < 60; i++) { const a = (i * Math.PI) / 30; svg.append(S("line", { x1: 260 + 222 * Math.sin(a), y1: 260 - 222 * Math.cos(a), x2: 260 + (i % 5 ? 210 : 196) * Math.sin(a), y2: 260 - (i % 5 ? 210 : 196) * Math.cos(a), stroke: "#2a2a2a", "stroke-width": i % 5 ? 2 : 5 })); }
         for (let i = 1; i <= 12; i++) { const a = (i * Math.PI) / 6; svg.append(S("text", { x: 260 + 165 * Math.sin(a), y: 262 - 165 * Math.cos(a), "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 44, fill: "#2a2a2a" }, i));
           if (h24) svg.append(S("text", { x: 260 + 122 * Math.sin(a), y: 262 - 122 * Math.cos(a), "text-anchor": "middle", "dominant-baseline": "central", "font-family": "Lexend, sans-serif", "font-size": 18, fill: "#2e9bd6" }, i + 12 === 24 ? "00" : i + 12)); }
         const ma = (mm * Math.PI) / 30, ha = (((hh % 12) + mm / 60) * Math.PI) / 6;
-        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 120 * Math.sin(ha), y2: 260 - 120 * Math.cos(ha), stroke: "#ef5b3b", "stroke-width": 16, "stroke-linecap": "round", "data-hand": "h", style: "cursor:grab" }));
-        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 190 * Math.sin(ma), y2: 260 - 190 * Math.cos(ma), stroke: "#2e9bd6", "stroke-width": 11, "stroke-linecap": "round", "data-hand": "m", style: "cursor:grab" }));
-        svg.append(S("circle", { cx: 260, cy: 260, r: 14, fill: "#2a2a2a" }));
+        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 120 * Math.sin(ha), y2: 260 - 120 * Math.cos(ha), stroke: "#ef5b3b", "stroke-width": 16, "stroke-linecap": "round", "data-hand": "h", filter: "url(#m3-golge-k)", style: "cursor:grab" }));
+        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 190 * Math.sin(ma), y2: 260 - 190 * Math.cos(ma), stroke: "#2e9bd6", "stroke-width": 11, "stroke-linecap": "round", "data-hand": "m", filter: "url(#m3-golge-k)", style: "cursor:grab" }));
+        svg.append(S("circle", { cx: 260, cy: 260, r: 16, fill: "url(#m3-metal)", stroke: "#3a3a3a", "stroke-width": 2 }), S("path", { d: "M 70 200 A 200 200 0 0 1 330 50 A 230 230 0 0 0 90 260 Z", fill: "url(#m3-cam)", "pointer-events": "none" }));
         side.replaceChildren(
           showDig ? h("div", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "72px", lineHeight: 1 } }, `${T.pad(h24 ? hh : hh % 12 || 12)}:${T.pad(mm)}`) : null,
           showRead ? h("div", { style: { fontSize: "26px", fontWeight: 600 } }, T.saatOku(hh, mm)) : null,

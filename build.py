@@ -16,6 +16,7 @@ JS_ORDER = [
     "core.js",
     "calendar.js",
     "icons.js",
+    "malzeme.js",
     "store.js",
     "ai.js",
     "ciktilar.js",

@@ -18,13 +18,15 @@
       function paint() {
         svg.replaceChildren();
         const frames = type === 20 ? 2 : 1, cols = type === 5 ? 5 : 5, rows = type === 5 ? 1 : 2, cw = 150;
+        T.m3kur && T.m3kur();
         for (let f = 0; f < frames; f++) {
           const ox = 500 - (cols * cw) / 2, oy = (frames === 1 ? (rows === 1 ? 185 : 110) : 20 + f * 260);
+          svg.append(S("rect", { x: ox - 18, y: oy - 18, width: cols * cw + 36, height: rows * cw + 36, rx: 16, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
           for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
             const i = f * 10 + r * cols + c;
             const g = S("g", { style: "cursor:pointer" });
-            g.append(S("rect", { x: ox + c * cw, y: oy + r * cw, width: cw, height: cw, fill: "#fff", stroke: "#2a2a2a", "stroke-width": 5 }));
-            if (cells[i]) g.append(S("circle", { cx: ox + c * cw + cw / 2, cy: oy + r * cw + cw / 2, r: 54, fill: COLS[cells[i]], stroke: "#2a2a2a", "stroke-width": 4 }));
+            g.append(S("rect", { x: ox + c * cw + 5, y: oy + r * cw + 5, width: cw - 10, height: cw - 10, rx: 8, fill: "#F7EFDF", stroke: "#8A6238", "stroke-width": 2, filter: "url(#m3-ic)" }));
+            if (cells[i]) g.append(S("circle", { cx: ox + c * cw + cw / 2, cy: oy + r * cw + cw / 2, r: 54, fill: T.m3 ? T.m3(COLS[cells[i]]) : COLS[cells[i]], filter: "url(#m3-golge)" }));
             g.addEventListener("click", () => { cells[i] = cells[i] === pen ? 0 : pen; T.sound.pop(); paint(); });
             svg.append(g);
           }
@@ -102,16 +104,17 @@
       function setRows(n) { rowsN = n; left = Array(n).fill(0); paint(); }
       function paint() {
         svg.replaceChildren();
-        svg.append(S("rect", { x: 40, y: 20, width: 920, height: 520, rx: 18, fill: "#c99a5e", stroke: "#2a2a2a", "stroke-width": 5 }));
-        svg.append(S("rect", { x: 70, y: 46, width: 860, height: 468, rx: 8, fill: "#fff8ea", stroke: "#2a2a2a", "stroke-width": 3 }));
+        T.m3kur && T.m3kur();
+        svg.append(S("rect", { x: 40, y: 20, width: 920, height: 520, rx: 18, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
+        svg.append(S("rect", { x: 70, y: 46, width: 860, height: 468, rx: 8, fill: "#FBF3E2", filter: "url(#m3-ic)" }));
         const gap = 468 / rowsN, r = Math.min(30, gap * 0.36);
         for (let row = 0; row < rowsN; row++) {
           const y = 46 + gap * (row + 0.5);
-          svg.append(S("line", { x1: 70, y1: y, x2: 930, y2: y, stroke: "#6b5a43", "stroke-width": 4 }));
+          svg.append(S("rect", { x: 66, y: y - 4, width: 868, height: 8, rx: 4, fill: "url(#m3-metal)" }));
           for (let k = 0; k < 10; k++) {
             const isLeft = k < left[row];
             const x = isLeft ? 110 + k * r * 2.1 + (k >= 5 ? 6 : 0) : 890 - (9 - k) * r * 2.1 - (k < 5 ? 6 : 0);
-            const c = S("circle", { cx: x, cy: y, r, fill: k < 5 ? "#e2473b" : "#fff", stroke: "#2a2a2a", "stroke-width": 3, style: "cursor:pointer" });
+            const c = S("circle", { cx: x, cy: y, r, fill: T.m3(k < 5 ? "#e2473b" : "#f4f1ea"), filter: "url(#m3-golge-k)", style: "cursor:pointer" });
             c.addEventListener("click", () => { left[row] = isLeft ? k : k + 1; T.sound.tick(); paint(); });
             svg.append(c);
           }
@@ -351,14 +354,14 @@
       mat.append(h("div", { style: { height: "var(--stage-h)", minHeight: 0 } }, svg), side);
       function paint() {
         const hh = Math.floor(t / 60) % 24, mm = t % 60;
-        svg.replaceChildren(S("circle", { cx: 260, cy: 260, r: 240, fill: "#fff", stroke: "#2a2a2a", "stroke-width": 10 }));
+        T.m3kur && T.m3kur(); svg.replaceChildren(S("circle", { cx: 260, cy: 266, r: 250, fill: "rgba(40,25,10,.25)", filter: "url(#m3-golge)" }), S("circle", { cx: 260, cy: 260, r: 252, fill: "url(#m3-halka)" }), S("circle", { cx: 260, cy: 260, r: 232, fill: "url(#m3-kadran)", filter: "url(#m3-ic)" }));
         for (let i = 0; i < 60; i++) { const a = (i * Math.PI) / 30; svg.append(S("line", { x1: 260 + 222 * Math.sin(a), y1: 260 - 222 * Math.cos(a), x2: 260 + (i % 5 ? 210 : 196) * Math.sin(a), y2: 260 - (i % 5 ? 210 : 196) * Math.cos(a), stroke: "#2a2a2a", "stroke-width": i % 5 ? 2 : 5 })); }
         for (let i = 1; i <= 12; i++) { const a = (i * Math.PI) / 6; svg.append(S("text", { x: 260 + 165 * Math.sin(a), y: 262 - 165 * Math.cos(a), "text-anchor": "middle", "dominant-baseline": "central", "font-family": "'Baloo 2', sans-serif", "font-weight": 800, "font-size": 44, fill: "#2a2a2a" }, i));
           if (h24) svg.append(S("text", { x: 260 + 122 * Math.sin(a), y: 262 - 122 * Math.cos(a), "text-anchor": "middle", "dominant-baseline": "central", "font-family": "Lexend, sans-serif", "font-size": 18, fill: "#2e9bd6" }, i + 12 === 24 ? "00" : i + 12)); }
         const ma = (mm * Math.PI) / 30, ha = (((hh % 12) + mm / 60) * Math.PI) / 6;
-        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 120 * Math.sin(ha), y2: 260 - 120 * Math.cos(ha), stroke: "#ef5b3b", "stroke-width": 16, "stroke-linecap": "round", "data-hand": "h", style: "cursor:grab" }));
-        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 190 * Math.sin(ma), y2: 260 - 190 * Math.cos(ma), stroke: "#2e9bd6", "stroke-width": 11, "stroke-linecap": "round", "data-hand": "m", style: "cursor:grab" }));
-        svg.append(S("circle", { cx: 260, cy: 260, r: 14, fill: "#2a2a2a" }));
+        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 120 * Math.sin(ha), y2: 260 - 120 * Math.cos(ha), stroke: "#ef5b3b", "stroke-width": 16, "stroke-linecap": "round", "data-hand": "h", filter: "url(#m3-golge-k)", style: "cursor:grab" }));
+        svg.append(S("line", { x1: 260, y1: 260, x2: 260 + 190 * Math.sin(ma), y2: 260 - 190 * Math.cos(ma), stroke: "#2e9bd6", "stroke-width": 11, "stroke-linecap": "round", "data-hand": "m", filter: "url(#m3-golge-k)", style: "cursor:grab" }));
+        svg.append(S("circle", { cx: 260, cy: 260, r: 16, fill: "url(#m3-metal)", stroke: "#3a3a3a", "stroke-width": 2 }), S("path", { d: "M 70 200 A 200 200 0 0 1 330 50 A 230 230 0 0 0 90 260 Z", fill: "url(#m3-cam)", "pointer-events": "none" }));
         side.replaceChildren(
           showDig ? h("div", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "72px", lineHeight: 1 } }, `${T.pad(h24 ? hh : hh % 12 || 12)}:${T.pad(mm)}`) : null,
           showRead ? h("div", { style: { fontSize: "26px", fontWeight: 600 } }, T.saatOku(hh, mm)) : null,

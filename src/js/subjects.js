@@ -283,7 +283,7 @@
       const s = T.store.get();
       s.timeline = s.timeline || [[1919, "Atatürk Samsun'a çıktı"], [1920, "TBMM açıldı"], [1923, "Cumhuriyet ilan edildi"], [1928, "Harf Devrimi"], [1934, "Soyadı Kanunu"]];
       const svg = S("svg", { viewBox: "0 0 1100 360", style: "width:100%;height:100%" });
-      const mat = h("div.mat", { style: { height: "380px" } }, svg);
+      const mat = h("div.mat.m-kart", { style: { height: "380px" } }, svg);
       const yi = h("input.in", { type: "number", placeholder: "Yıl", style: { width: "110px" }, "aria-label": "Yıl" });
       const ti = h("input.in", { placeholder: "Olay", style: { maxWidth: "340px" }, "aria-label": "Olay" });
       function paint() {
@@ -319,7 +319,7 @@
       };
       const lines = S("svg", { viewBox: "0 0 100 100", preserveAspectRatio: "none", style: "position:absolute;inset:0;width:100%;height:100%" });
       lines.innerHTML = '<path d="M14 18v10h22V18M64 18v10h22V18M25 28v12h50V28M50 40v22M50 62v10M38 72h24" fill="none" stroke="#2a2a2a" stroke-width=".5"/>';
-      const mat = h("div.mat", { style: { height: "560px" } }, lines,
+      const mat = h("div.mat.m-mantar", { style: { height: "560px" } }, lines,
         box("Büyükanne (anne tarafı)", 14, 6, "#f9d7e4"), box("Büyükbaba (anne tarafı)", 36, 6, "#d7ecfb"), box("Büyükanne (baba tarafı)", 64, 6, "#f9d7e4"), box("Büyükbaba (baba tarafı)", 86, 6, "#d7ecfb"),
         box("Anne", 25, 36, "#ffe5a8"), box("Baba", 75, 36, "#ffe5a8"), box("Ben", 38, 72, "#c9efb9"), box("Kardeş", 62, 72, "#c9efb9"));
       host.append(mat, h("p.hint", "Tahtada boş şablonla örnek yapın. Öğrenci adları ya da aile bilgileri buraya kaydedilmek zorunda değil; ders sonunda Temizle ile silin."),
@@ -335,7 +335,7 @@
       let map = [], q = null;
       function gen() { map = []; const cells = T.shuffle(Array.from({ length: C * R }, (_, i) => i)).slice(0, 12); cells.forEach((c, i) => map.push({ c: c % C, r: Math.floor(c / C), s: SYMS[i % SYMS.length] })); q = null; paint(); }
       const svg = S("svg", { viewBox: "0 0 900 620", style: "width:100%;height:100%" });
-      const mat = h("div.mat", { style: { height: "var(--stage-h)", background: "#eef4e6" } }, svg);
+      const mat = h("div.mat.m-harita", { style: { height: "var(--stage-h)", background: "#eef4e6" } }, svg);
       const qbox = h("div.readout", { style: { color: "var(--chalk)", fontSize: "24px" } });
       const L = "ABCDEFGH";
       function paint() {
@@ -379,7 +379,7 @@
     title: "Kelime kartları", icon: "ingilizce", tone: "grape", grades: [2, 8], short: "Resimli kart, sesli okuma",
     render(host) {
       let set = "Animals", i = 0, showTr = false;
-      const card = h("div.mat.flash");
+      const card = h("div.mat.flash.m-kart");
       function paint() {
         const [en, tr, pic] = VOCAB[set][i];
         card.replaceChildren(h("div.pic", pic), h("div.word", en), showTr ? h("div.tr", tr) : null, h("div.hint", `${i + 1} / ${VOCAB[set].length}`));
@@ -400,7 +400,7 @@
       const info = h("div.readout", { style: { color: "var(--chalk)" } });
       function next() {
         const opts = T.shuffle(VOCAB[set]).slice(0, 4); ans = T.pick(opts);
-        grid.replaceChildren(...opts.map((o) => h("button.paper", { style: { border: 0, fontSize: "clamp(70px,10vw,130px)", padding: "18px", cursor: "pointer", lineHeight: 1 }, onclick: (e) => {
+        grid.replaceChildren(...opts.map((o) => h("button.paper.m-kart", { style: { border: 0, fontSize: "clamp(70px,10vw,130px)", padding: "18px", cursor: "pointer", lineHeight: 1 }, onclick: (e) => {
           tries++; if (o === ans) { score++; T.sound.ok(); e.currentTarget.style.outline = "6px solid var(--ok)"; setTimeout(next, 900); } else { T.sound.no(); e.currentTarget.style.opacity = ".35"; }
           info.textContent = `Puan: ${score} / ${tries}`;
         } }, o[2])));

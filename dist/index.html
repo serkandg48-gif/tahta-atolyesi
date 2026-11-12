@@ -2075,6 +2075,25 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .sr-yuva { border: 2px dashed rgba(120,90,50,.5) !important; background: rgba(255,250,238,.8) !important; }
 .sr-yuva.dolu { border: 0 !important; background: linear-gradient(170deg, #FFFEFA, #F3ECDC) !important; box-shadow: 0 6px 10px rgba(50,30,10,.22) !important; }
 .ay-kutu { border: 0 !important; border-radius: 8px !important; background: linear-gradient(170deg, #FFFEFA, #F3ECDC) !important; border-top: 8px solid var(--c) !important; box-shadow: 0 8px 14px rgba(50,30,10,.2) !important; }
+/* Not panoları: mantar pano, kâğıt sütun başlıkları, gerçek yapışkan notlar */
+.np-pano:not(.raf) { padding: 16px; border-radius: 10px; border: 10px solid #8A5A32;
+  background: radial-gradient(rgba(90,50,20,.35) 1px, transparent 1.6px) 0 0 / 7px 7px, radial-gradient(rgba(255,235,200,.3) 1px, transparent 1.6px) 3px 4px / 9px 9px, #C49560; box-shadow: inset 0 3px 10px rgba(0,0,0,.4), 0 2px 0 #5E3A1E; }
+.np-pano:not(.raf) .np-col { background: rgba(255,253,246,.22) !important; border: 2px dashed rgba(90,55,25,.35) !important; border-radius: 8px !important; }
+.np-pano:not(.raf) .np-head { position: relative; background: linear-gradient(170deg, #FFFEFA, #F3ECDC); border-top: 6px solid var(--c); border-radius: 3px; padding: 10px 10px 8px; box-shadow: 0 4px 8px rgba(40,25,10,.25); }
+.np-pano:not(.raf) .np-head::before { content: ""; position: absolute; top: -12px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), var(--c) 45%, rgba(0,0,0,.45)); box-shadow: 2px 4px 3px rgba(0,0,0,.4); }
+.np-note { border-radius: 2px 2px 12px 2px !important; background: linear-gradient(175deg, rgba(255,255,255,.35), rgba(255,255,255,0) 30%, rgba(0,0,0,.04)), var(--r) !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 10px 14px -6px rgba(40,25,10,.45), inset 0 -18px 18px -16px rgba(0,0,0,.12) !important; }
+.np-pano:not(.raf) .np-note:nth-child(odd) { transform: rotate(-1.4deg); } .np-pano:not(.raf) .np-note:nth-child(even) { transform: rotate(1.1deg); }
+.np-note::before { content: ""; position: absolute; top: -8px; left: 50%; width: 54px; height: 16px; margin-left: -27px; background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.12); transform: rotate(-2deg); }
+.np-pano.raf .np-note::before { display: none; }
+/* Sınıflandırma panosu grupları */
+.sn-grup { border: 0 !important; border-radius: 10px 10px 16px 16px !important; background: linear-gradient(180deg, #EAF1F8, #D3E0EE) !important; box-shadow: inset 0 8px 0 #A9BED6, inset 0 12px 10px rgba(0,0,0,.18), 0 12px 18px rgba(30,40,60,.2) !important; padding-top: 18px !important; }
+/* Rutin sayfası: kâğıt */
+.rt-sayfa { background: linear-gradient(180deg, #FFFFFF, #FCFAF4) !important; border: 0 !important; box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 12px 30px rgba(30,30,40,.18), 0 30px 50px -20px rgba(30,30,40,.22) !important; }
+/* Hava takvimi düğmeleri ve günleri */
+.sb-hava button { border: 0 !important; background: linear-gradient(170deg, #FFFEFA, #F3ECDC) !important; box-shadow: 0 5px 10px rgba(50,30,10,.2) !important; }
+.sb-hava button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--navy), 0 8px 14px rgba(50,30,10,.25) !important; transform: translateY(-2px); }
+.m-harita { border: 0 !important; border-radius: 4px !important; background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0) 55%, rgba(120,80,30,.22)), linear-gradient(180deg, #F4EAD2, #E9DAB8) !important; box-shadow: 0 2px 2px rgba(0,0,0,.12), 0 14px 26px rgba(50,35,15,.22) !important; }
 
 </style>
 </head>
@@ -2089,7 +2108,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="1330af7793";
+window.SURUM="1d99cfb9cf";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -10343,7 +10362,7 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
       const s = T.store.get();
       s.timeline = s.timeline || [[1919, "Atatürk Samsun'a çıktı"], [1920, "TBMM açıldı"], [1923, "Cumhuriyet ilan edildi"], [1928, "Harf Devrimi"], [1934, "Soyadı Kanunu"]];
       const svg = S("svg", { viewBox: "0 0 1100 360", style: "width:100%;height:100%" });
-      const mat = h("div.mat", { style: { height: "380px" } }, svg);
+      const mat = h("div.mat.m-kart", { style: { height: "380px" } }, svg);
       const yi = h("input.in", { type: "number", placeholder: "Yıl", style: { width: "110px" }, "aria-label": "Yıl" });
       const ti = h("input.in", { placeholder: "Olay", style: { maxWidth: "340px" }, "aria-label": "Olay" });
       function paint() {
@@ -10379,7 +10398,7 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
       };
       const lines = S("svg", { viewBox: "0 0 100 100", preserveAspectRatio: "none", style: "position:absolute;inset:0;width:100%;height:100%" });
       lines.innerHTML = '<path d="M14 18v10h22V18M64 18v10h22V18M25 28v12h50V28M50 40v22M50 62v10M38 72h24" fill="none" stroke="#2a2a2a" stroke-width=".5"/>';
-      const mat = h("div.mat", { style: { height: "560px" } }, lines,
+      const mat = h("div.mat.m-mantar", { style: { height: "560px" } }, lines,
         box("Büyükanne (anne tarafı)", 14, 6, "#f9d7e4"), box("Büyükbaba (anne tarafı)", 36, 6, "#d7ecfb"), box("Büyükanne (baba tarafı)", 64, 6, "#f9d7e4"), box("Büyükbaba (baba tarafı)", 86, 6, "#d7ecfb"),
         box("Anne", 25, 36, "#ffe5a8"), box("Baba", 75, 36, "#ffe5a8"), box("Ben", 38, 72, "#c9efb9"), box("Kardeş", 62, 72, "#c9efb9"));
       host.append(mat, h("p.hint", "Tahtada boş şablonla örnek yapın. Öğrenci adları ya da aile bilgileri buraya kaydedilmek zorunda değil; ders sonunda Temizle ile silin."),
@@ -10395,7 +10414,7 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
       let map = [], q = null;
       function gen() { map = []; const cells = T.shuffle(Array.from({ length: C * R }, (_, i) => i)).slice(0, 12); cells.forEach((c, i) => map.push({ c: c % C, r: Math.floor(c / C), s: SYMS[i % SYMS.length] })); q = null; paint(); }
       const svg = S("svg", { viewBox: "0 0 900 620", style: "width:100%;height:100%" });
-      const mat = h("div.mat", { style: { height: "var(--stage-h)", background: "#eef4e6" } }, svg);
+      const mat = h("div.mat.m-harita", { style: { height: "var(--stage-h)", background: "#eef4e6" } }, svg);
       const qbox = h("div.readout", { style: { color: "var(--chalk)", fontSize: "24px" } });
       const L = "ABCDEFGH";
       function paint() {
@@ -10439,7 +10458,7 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
     title: "Kelime kartları", icon: "ingilizce", tone: "grape", grades: [2, 8], short: "Resimli kart, sesli okuma",
     render(host) {
       let set = "Animals", i = 0, showTr = false;
-      const card = h("div.mat.flash");
+      const card = h("div.mat.flash.m-kart");
       function paint() {
         const [en, tr, pic] = VOCAB[set][i];
         card.replaceChildren(h("div.pic", pic), h("div.word", en), showTr ? h("div.tr", tr) : null, h("div.hint", `${i + 1} / ${VOCAB[set].length}`));
@@ -10460,7 +10479,7 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
       const info = h("div.readout", { style: { color: "var(--chalk)" } });
       function next() {
         const opts = T.shuffle(VOCAB[set]).slice(0, 4); ans = T.pick(opts);
-        grid.replaceChildren(...opts.map((o) => h("button.paper", { style: { border: 0, fontSize: "clamp(70px,10vw,130px)", padding: "18px", cursor: "pointer", lineHeight: 1 }, onclick: (e) => {
+        grid.replaceChildren(...opts.map((o) => h("button.paper.m-kart", { style: { border: 0, fontSize: "clamp(70px,10vw,130px)", padding: "18px", cursor: "pointer", lineHeight: 1 }, onclick: (e) => {
           tries++; if (o === ans) { score++; T.sound.ok(); e.currentTarget.style.outline = "6px solid var(--ok)"; setTimeout(next, 900); } else { T.sound.no(); e.currentTarget.style.opacity = ".35"; }
           info.textContent = `Puan: ${score} / ${tries}`;
         } }, o[2])));

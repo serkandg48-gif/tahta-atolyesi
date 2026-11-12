@@ -1517,3 +1517,22 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .sr-yuva { border: 2px dashed rgba(120,90,50,.5) !important; background: rgba(255,250,238,.8) !important; }
 .sr-yuva.dolu { border: 0 !important; background: linear-gradient(170deg, #FFFEFA, #F3ECDC) !important; box-shadow: 0 6px 10px rgba(50,30,10,.22) !important; }
 .ay-kutu { border: 0 !important; border-radius: 8px !important; background: linear-gradient(170deg, #FFFEFA, #F3ECDC) !important; border-top: 8px solid var(--c) !important; box-shadow: 0 8px 14px rgba(50,30,10,.2) !important; }
+/* Not panoları: mantar pano, kâğıt sütun başlıkları, gerçek yapışkan notlar */
+.np-pano:not(.raf) { padding: 16px; border-radius: 10px; border: 10px solid #8A5A32;
+  background: radial-gradient(rgba(90,50,20,.35) 1px, transparent 1.6px) 0 0 / 7px 7px, radial-gradient(rgba(255,235,200,.3) 1px, transparent 1.6px) 3px 4px / 9px 9px, #C49560; box-shadow: inset 0 3px 10px rgba(0,0,0,.4), 0 2px 0 #5E3A1E; }
+.np-pano:not(.raf) .np-col { background: rgba(255,253,246,.22) !important; border: 2px dashed rgba(90,55,25,.35) !important; border-radius: 8px !important; }
+.np-pano:not(.raf) .np-head { position: relative; background: linear-gradient(170deg, #FFFEFA, #F3ECDC); border-top: 6px solid var(--c); border-radius: 3px; padding: 10px 10px 8px; box-shadow: 0 4px 8px rgba(40,25,10,.25); }
+.np-pano:not(.raf) .np-head::before { content: ""; position: absolute; top: -12px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), var(--c) 45%, rgba(0,0,0,.45)); box-shadow: 2px 4px 3px rgba(0,0,0,.4); }
+.np-note { border-radius: 2px 2px 12px 2px !important; background: linear-gradient(175deg, rgba(255,255,255,.35), rgba(255,255,255,0) 30%, rgba(0,0,0,.04)), var(--r) !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.15), 0 10px 14px -6px rgba(40,25,10,.45), inset 0 -18px 18px -16px rgba(0,0,0,.12) !important; }
+.np-pano:not(.raf) .np-note:nth-child(odd) { transform: rotate(-1.4deg); } .np-pano:not(.raf) .np-note:nth-child(even) { transform: rotate(1.1deg); }
+.np-note::before { content: ""; position: absolute; top: -8px; left: 50%; width: 54px; height: 16px; margin-left: -27px; background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.12); transform: rotate(-2deg); }
+.np-pano.raf .np-note::before { display: none; }
+/* Sınıflandırma panosu grupları */
+.sn-grup { border: 0 !important; border-radius: 10px 10px 16px 16px !important; background: linear-gradient(180deg, #EAF1F8, #D3E0EE) !important; box-shadow: inset 0 8px 0 #A9BED6, inset 0 12px 10px rgba(0,0,0,.18), 0 12px 18px rgba(30,40,60,.2) !important; padding-top: 18px !important; }
+/* Rutin sayfası: kâğıt */
+.rt-sayfa { background: linear-gradient(180deg, #FFFFFF, #FCFAF4) !important; border: 0 !important; box-shadow: 0 1px 1px rgba(0,0,0,.12), 0 12px 30px rgba(30,30,40,.18), 0 30px 50px -20px rgba(30,30,40,.22) !important; }
+/* Hava takvimi düğmeleri ve günleri */
+.sb-hava button { border: 0 !important; background: linear-gradient(170deg, #FFFEFA, #F3ECDC) !important; box-shadow: 0 5px 10px rgba(50,30,10,.2) !important; }
+.sb-hava button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--navy), 0 8px 14px rgba(50,30,10,.25) !important; transform: translateY(-2px); }
+.m-harita { border: 0 !important; border-radius: 4px !important; background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0) 55%, rgba(120,80,30,.22)), linear-gradient(180deg, #F4EAD2, #E9DAB8) !important; box-shadow: 0 2px 2px rgba(0,0,0,.12), 0 14px 26px rgba(50,35,15,.22) !important; }

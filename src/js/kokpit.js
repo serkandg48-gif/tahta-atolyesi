@@ -146,7 +146,7 @@
   ];
 
   /* ---------- Kartlar ---------- */
-  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Merak kıvılcımı"], ["akis", "Günün akışı"], ["pin", "Kısayollarım"], ["not", "Hızlı not"], ["muzik", "Atmosfer ve müzik"]];
+  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Günün sorusu"], ["akis", "Okul günü şeridi"], ["pin", "Kısayollarım"], ["not", "Hızlı not"], ["muzik", "Müzik"]];
   const gizli = () => ayar().gizli || {};
   function ozetKart() {
     const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
@@ -177,10 +177,36 @@
     const ciz = () => { const [tur, on, arka] = item(); kart.replaceChildren(h("div.kp-flip-ic" + (dondu ? ".dondu" : ""), h("div.kp-yuz.on", h("small", tur), h("b", on), h("span.kp-ipucu", "Çevirmek için dokun")), h("div.kp-yuz.arka", h("small", tur), h("p", arka)))); };
     kart.addEventListener("click", () => { dondu = !dondu; ciz(); });
     ciz();
-    return h("section.kp-kart.kp-kivilcim", { "aria-label": "Merak kıvılcımı" }, h("div.kp-baslik", T.icon("spark"), "Günün kıvılcımı"), kart,
+    return h("section.kp-kart.kp-kivilcim", { "aria-label": "Günün sorusu" }, h("div.kp-baslik", T.icon("spark"), "Günün sorusu"), kart,
       h("div.row", { style: { gap: "6px" } },
-        h("button.btn.sm", { onclick: () => { i = i < 0 ? 0 : i + 1; dondu = false; ayarYaz((x) => (x.kivilcimI = i)); ciz(); } }, T.icon("next"), "Yeni kıvılcım"),
+        h("button.btn.sm", { onclick: () => { i = i < 0 ? 0 : i + 1; dondu = false; ayarYaz((x) => (x.kivilcimI = i)); ciz(); } }, T.icon("next"), "Yeni soru"),
         h("button.btn.sm.c-chalk", { onclick: () => { const inp = h("input.in", { placeholder: "Bugünün sorusu", value: ozel || "" }); T.modal({ title: "Kendi sorun", body: inp, actions: [{ label: "Vazgeç" }, { label: "Kaydet", tone: "c-leaf", onClick: () => { const v = inp.value.trim(); ayarYaz((x) => { x.ozelKivilcim = x.ozelKivilcim || {}; x.ozelKivilcim[cid()] = v; x.kivilcimI = v ? -1 : 0; }); T.route(); } }] }); } }, T.icon("edit"), "Kendi sorum")));
+  }
+  /* Okul günü şeridi: ana sayfanın omurgası. Şimdi hangi ders, zile kaç dakika, sırada ne var. */
+  function gunDurumu() {
+    const rows = T.gunAkisi ? T.gunAkisi() : [], dk = T.akisDk, d = new Date(), m = d.getHours() * 60 + d.getMinutes();
+    if (!rows.length) return { rows, metin: "Bugün ders yok", alt: "İyi dinlenmeler", oran: 0 };
+    const su = rows.find((r) => dk(r.b) <= m && m < dk(r.s)), ilk = rows[0], son = rows[rows.length - 1];
+    if (su) { const kalan = dk(su.s) - m, oran = (m - dk(su.b)) / Math.max(1, dk(su.s) - dk(su.b)); const sonra = rows[rows.indexOf(su) + 1];
+      return { rows, su, metin: su.ad, alt: (su.tur === "ders" ? "Zile " : "Bitmesine ") + kalan + " dakika" + (sonra ? " · Sırada " + sonra.ad : ""), oran, ders: su.tur === "ders" }; }
+    if (m < dk(ilk.b)) return { rows, metin: "Günaydın", alt: "İlk ders " + ilk.ad + ", " + ilk.b + "'te başlıyor", oran: 0 };
+    if (m >= dk(son.s)) return { rows, metin: "Dersler bitti", alt: "Yarın görüşmek üzere", oran: 1 };
+    const sonraki = rows.find((r) => dk(r.b) > m); return { rows, metin: "Ara", alt: sonraki ? sonraki.ad + " " + (dk(sonraki.b) - m) + " dakika sonra" : "", oran: 0 };
+  }
+  function gunSeridi(kucuk) {
+    const box = h("section.kp-kart.kp-gun-seridi" + (kucuk ? ".kucuk" : ""), { "aria-label": "Okul günü" });
+    const ciz = () => {
+      const g = gunDurumu(), dk = T.akisDk, m = new Date().getHours() * 60 + new Date().getMinutes();
+      const kalanDers = g.rows.filter((r) => r.tur === "ders" && dk(r.s) > m).length;
+      box.replaceChildren(
+        h("div.gs-simdi", h("small", g.su ? "Şimdi" : "Okul günü"), h("b", g.metin), h("span", g.alt), h("div.gs-bar", h("i", { style: { width: Math.round(g.oran * 100) + "%" } }))),
+        kucuk ? null : h("div.gs-zaman",
+          h("div.gs-ust", h("span", g.rows.length ? (kalanDers ? "Eve " + kalanDers + " ders kaldı" : "") : "Ders programını Sabah rutininden yaz"), h("button.kp-mini", { onclick: () => T.go("sabah-akis"), "aria-label": "Ders programını düzenle", title: "Ders programını düzenle" }, T.icon("edit"))),
+          g.rows.length ? h("div.kp-serit", g.rows.map((r) => { const su = dk(r.b) <= m && m < dk(r.s), gecti = dk(r.s) <= m; return h("div.kp-slot." + r.tur + (su ? ".su" : gecti ? ".gecti" : ""), h("small", r.b), h("b", r.ad)); })) : null));
+      const su = box.querySelector(".kp-slot.su"); if (su) su.scrollIntoView({ block: "nearest", inline: "center" });
+    };
+    ciz(); const iv = setInterval(ciz, 20000); T.onLeave(() => clearInterval(iv));
+    return box;
   }
   function akisKart() {
     const rows = T.gunAkisi ? T.gunAkisi() : [];
@@ -205,12 +231,12 @@
   }
   function muzikKart() {
     const MOD = [["klasik", "Klasik müzik"], ["spotify", "Spotify"], ["ozel", "Kendi sesim"]];
-    const box = h("section.kp-kart.kp-muzik", { "aria-label": "Sınıf atmosferi ve müzik" });
+    const box = h("section.kp-kart.kp-muzik", { "aria-label": "Müzik" });
     const cv = h("canvas.kp-dalga", { width: 280, height: 44 });
     let raf;
     const ciz = () => {
       const a = Muzik.aktif();
-      box.replaceChildren(h("div.kp-baslik", T.icon("music"), "Sınıf atmosferi", a ? h("button.kp-mini", { onclick: () => { Muzik.durdur(); ciz(); }, "aria-label": "Durdur" }, T.icon("pause")) : null),
+      box.replaceChildren(h("div.kp-baslik", T.icon("music"), "Müzik", a ? h("button.kp-mini", { onclick: () => { Muzik.durdur(); ciz(); }, "aria-label": "Durdur" }, T.icon("pause")) : null),
         h("div.kp-modlar", MOD.map(([k, l]) => h("button" + (a === k || (k === "spotify" && T.spotify.acik()) ? ".on" : ""), { onclick: () => {
           if (k === "spotify") { if (T.spotify.acik()) T.spotify.kapat(); else if (!T.spotify.ac()) T.spotify.baglantiSor(ciz); ciz(); return; }
           if (a === k) { Muzik.durdur(); ciz(); return; }
@@ -245,17 +271,20 @@
       const kok = h("div.kokpit" + (sade ? ".sade" : ""));
       view.append(kok);
       const kontroller = h("div.kp-kontrol",
-        h("button.kp-dugme", { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Kartları göster" : "Görünümü sadeleştir" }, T.icon(sade ? "eye" : "eyeoff"), sade ? "Kartları göster" : "Sadeleştir"),
+        h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Kartları geri getir" : "Kartları gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Kartları aç" : "Ders modu"),
         !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
         h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
+        h("button.kp-dugme", { onclick: () => T.hosgeldin(true), title: "Nasıl kullanılır?", "aria-label": "Nasıl kullanılır?" }, "?"),
         h("button.kp-dugme", { onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} }, title: "Tam ekran", "aria-label": "Tam ekran" }, T.icon("full")));
       kok.append(kontroller);
       if (!sade) {
         kok.append(h("div.kp-izgara",
+          g.akis ? null : gunSeridi(false),
           h("div.kp-sol", g.ozet ? null : ozetKart(), g.not ? null : notKart()),
-          h("div.kp-orta", g.akis ? null : akisKart(), g.pin ? null : pinKart()),
+          h("div.kp-orta", g.pin ? null : pinKart()),
           h("div.kp-sag", g.muzik ? null : muzikKart(), g.kivilcim ? null : kivilcimKart())));
-      } else if (Muzik.aktif()) kok.append(h("div.kp-calan", T.icon("music"), "Atmosfer açık", h("button.kp-mini", { onclick: () => { Muzik.durdur(); T.route(); } }, T.icon("pause"))));
+      } else { kok.append(h("div.kp-ders-ust", gunSeridi(true))); }
+      if (sade && Muzik.aktif()) kok.append(h("div.kp-calan", T.icon("music"), "Müzik çalıyor", h("button.kp-mini", { onclick: () => { Muzik.durdur(); T.route(); } }, T.icon("pause"))));
     },
   };
   T.arkaPlanUygula = () => arkaPlanUygula();
@@ -268,7 +297,7 @@
   T.aracKart = (route, t, ton) => {
     const pin = h("button.tc-pin", { "aria-label": "Ana sayfaya kısayol ekle", title: "Ana sayfaya kısayol ekle", onclick: (e) => { e.stopPropagation(); T.pinDegis(route, t.title, t.icon, t.tone || ton); const on = T.pinliMi(route); pin.classList.toggle("on", on); T.toast(on ? "Ana sayfadaki kısayollara eklendi" : "Kısayol kaldırıldı"); } }, T.icon("pin"));
     if (T.pinliMi(route)) pin.classList.add("on");
-    return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin);
+    return h("div.tc-wrap", h("button.tool-card.c-" + (t.tone || ton), { onclick: () => T.go(route) }, T.icon3d(t.icon), h("span", t.title, h("small", t.short || t.desc || ""))), pin);
   };
   /* Tüm etkinliklerden kısayol seçme */
   T.kisayolSec = function () {
@@ -278,7 +307,7 @@
     const ciz = () => {
       const q = ara.value.trim().toLocaleLowerCase("tr");
       const gr = {}; kat.filter((x) => !q || (x.t.title + " " + (x.t.short || "") + " " + x.sec).toLocaleLowerCase("tr").includes(q)).forEach((x) => (gr[x.sec] = gr[x.sec] || []).push(x));
-      liste.replaceChildren(...Object.entries(gr).map(([sec, l]) => h("div", h("h3.ks-bas", sec), h("div.ks-grid", l.map((x) => h("button.ks-oge" + (T.pinliMi(x.r) ? ".on" : ""), { onclick: () => { T.pinDegis(x.r, x.t.title, x.t.icon, x.t.tone); ciz(); } }, T.icon(x.t.icon || "star"), h("span", x.t.title), h("i", T.pinliMi(x.r) ? "Eklendi" : "Ekle")))))));
+      liste.replaceChildren(...Object.entries(gr).map(([sec, l]) => h("div", h("h3.ks-bas", sec), h("div.ks-grid", l.map((x) => h("button.ks-oge" + (T.pinliMi(x.r) ? ".on" : ""), { onclick: () => { T.pinDegis(x.r, x.t.title, x.t.icon, x.t.tone); ciz(); } }, T.icon3d(x.t.icon || "star"), h("span", x.t.title), h("i", T.pinliMi(x.r) ? "Eklendi" : "Ekle")))))));
       if (!liste.children.length) liste.append(h("p.hint", "Bu adla bir etkinlik bulunamadı."));
     };
     ara.addEventListener("input", ciz); ciz();
@@ -288,7 +317,7 @@
   function pinKart() {
     const l = T.pinler();
     return h("section.kp-kart.kp-pin", { "aria-label": "Kısayollarım" }, h("div.kp-baslik", T.icon("pin"), "Kısayollarım", h("button.kp-mini.kp-ekle", { onclick: () => T.kisayolSec(), title: "Kısayol ekle", "aria-label": "Kısayol ekle" }, T.icon("plus"))),
-      l.length ? h("div.kp-pinler", l.map((p) => h("div.kp-pinw", h("button.kp-pinb.c-" + (p.t || "sun"), { onclick: () => T.go(p.r) }, T.icon(p.i || "star"), h("span", p.b)), h("button.kp-pinx", { "aria-label": "Kaldır", onclick: () => { T.pinDegis(p.r); T.route(); } }, T.icon("close")))))
+      l.length ? h("div.kp-pinler", l.map((p) => h("div.kp-pinw", h("button.kp-pinb.c-" + (p.t || "sun"), { onclick: () => T.go(p.r) }, T.icon3d(p.i || "star"), h("span", p.b)), h("button.kp-pinx", { "aria-label": "Kaldır", onclick: () => { T.pinDegis(p.r); T.route(); } }, T.icon("close")))))
         : h("div.kp-pinbos", h("p", "Sık kullandığın etkinlikleri buraya koy, tek dokunuşla açılsın."), h("button.btn.c-chalk", { onclick: () => T.kisayolSec() }, T.icon("plus"), "Kısayol ekle")));
   }
 
@@ -302,7 +331,7 @@
       h("div.row", h("span.hint", "Ses"), h("input", { type: "range", min: 0, max: 1, step: 0.05, value: Muzik.hacimV, style: { flex: 1 }, oninput: (e) => Muzik.hacim(+e.target.value) })),
       Muzik.aktif() ? h("button.btn.c-tomato", { onclick: () => { Muzik.durdur(); m.close(); T.muzikDurum && T.muzikDurum(); } }, T.icon("pause"), "Durdur") : null,
       h("p.hint", "Müzik bölümler arasında geçerken çalmaya devam eder. Spotify bağlantını değiştirmek ya da kendi sesini eklemek için ana sayfadaki atmosfer kartını kullan."));
-    m = T.modal({ title: "Sınıf atmosferi", body: govde(), actions: [{ label: "Kapat" }] });
+    m = T.modal({ title: "Müzik", body: govde(), actions: [{ label: "Kapat" }] });
   };
   function kartSec() {
     const g = Object.assign({}, gizli());

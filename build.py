@@ -42,6 +42,7 @@ JS_ORDER = [
     "plan.js",
     "settings.js",
     "kokpit.js",
+    "yardim.js",
     "shell.js",
 ]
 
@@ -66,6 +67,8 @@ def main():
     import shutil
     if (SRC / "vendor").exists():
         shutil.copytree(SRC / "vendor", ROOT / "dist" / "vendor", dirs_exist_ok=True)
+    if (SRC / "ikon3d").exists():
+        shutil.copytree(SRC / "ikon3d", ROOT / "dist" / "ikon3d", dirs_exist_ok=True)
     if (SRC / "muzik").exists():
         shutil.copytree(SRC / "muzik", ROOT / "dist" / "muzik", dirs_exist_ok=True)
     if (SRC / "arka").exists():

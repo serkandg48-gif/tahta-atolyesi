@@ -44,7 +44,7 @@
   ];
 
   T.sections.zeka = {
-    title: "Bağlam soruları", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
+    title: "Düşünme soruları", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
     render(view) {
       const g = T.store.grade();
       const wrap = h("div.view-inner"); view.append(wrap);
@@ -52,7 +52,7 @@
       const rest = BANK.filter((b) => !list.includes(b));
       let cur = (list[0] || BANK[0]);
       const holder = h("div");
-      wrap.append(h("div.page-head", h("h1", "Bağlam soruları"), h("div.sub", "Her kart bir gerçek hayat durumu anlatır. Sorular o duruma bağlıdır; ezber değil, akıl yürütme ister.")));
+      wrap.append(h("div.page-head", h("h1", "Düşünme soruları"), h("div.sub", "Her kart bir gerçek hayat durumu anlatır. Sorular o duruma bağlıdır; ezber değil, akıl yürütme ister.")));
       const pickRow = h("div.row", { style: { marginBottom: "16px" } });
       wrap.append(pickRow, holder);
       function picks() {

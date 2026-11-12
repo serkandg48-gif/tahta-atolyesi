@@ -36,6 +36,8 @@ T.ICONS = {
   spark: '<path class="f" d="M24 6l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M24 6l4 12 12 4-12 4-4 12-4-12-12-4 12-4zM38 34l1 4 4 1-4 1-1 4-1-4-4-1 4-1z"/>',
   back: '<path d="M28 10 14 24l14 14"/>',
   next: '<path d="M20 10l14 14-14 14"/>',
+  up: '<path d="M10 30l14-14 14 14"/>',
+  down: '<path d="M10 18l14 14 14-14"/>',
   star: '<path class="f" d="M24 6l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/><path d="M24 6l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/>',
   speaker: '<path class="f" d="M8 19h8l10-8v26l-10-8H8z"/><path d="M8 19h8l10-8v26l-10-8H8zM32 18c2 2 3 4 3 6s-1 4-3 6M37 13c3 3 5 7 5 11s-2 8-5 11"/>',
   trash: '<path class="f" d="M12 14h24l-2 27H14z"/><path d="M8 14h32M12 14l2 27h20l2-27M19 14V8h10v6M20 21v13M28 21v13"/>',
@@ -162,4 +164,11 @@ T.avatar = function (seed, size = 64) {
   s.setAttribute("class", "av"); s.setAttribute("aria-hidden", "true");
   s.innerHTML = `<circle cx="32" cy="32" r="31" fill="${bg}"/>${ears}<circle cx="32" cy="35" r="19" fill="${face}" stroke="#2a2a2a" stroke-width="2.5"/>${eyes}${mouth}`;
   return s;
+};
+
+/* 3B ikonlar: Microsoft Fluent Emoji 3D (MIT lisansı, dist/ikon3d). Yoksa çizgi ikona düşer. */
+T.IKON3D = new Set(["abc", "algebra", "area", "beads", "bg", "blocks", "board", "bolt", "book", "brain", "calendar", "canvas", "car", "cart", "chart", "check", "circuit", "class", "clock", "coinflip", "coord", "dice", "dots", "eye", "fen", "filter", "flower", "fraction", "frame", "geoboard", "graph", "grid100", "groups", "hand", "hands", "heart", "hece", "help", "home", "ingilizce", "integer", "jar", "leaf", "letters", "line", "lock", "magnet", "map", "math", "money", "moon", "music", "name", "noise", "odd", "pattern", "pen", "percent", "piggy", "pit", "plan", "plus", "qr", "recipe", "ruler", "scale", "settings", "snow", "sosyal", "spark", "speaker", "speed", "spell", "stairs", "star", "stopwatch", "sun", "talk", "tangram", "teacher", "telescope", "text", "thermo", "ticket", "timeline", "timer", "traffic", "train", "tree", "trophy", "turkce", "turn", "wall", "zeka"]);
+T.icon3d = function (name, cls = "") {
+  if (!T.IKON3D.has(name)) return T.icon(name, cls);
+  return T.h("img.ikon3d" + (cls ? "." + cls : ""), { src: "ikon3d/" + name + ".webp", alt: "", "aria-hidden": "true", draggable: "false", width: 48, height: 48, decoding: "async" });
 };

@@ -19,7 +19,7 @@ function TahtaYap(MOD) {
     const d = data();
     root = T.h(mode === "ana" ? "div.board.home-board" : "div.board.board-bg-" + d.bg);
     view.append(root);
-    if (mode === "ekran" && !d.widgets.length) root.append(T.h("div.board-empty", T.h("div", "Tahta boş.", T.h("br"), "Aşağıdaki Araçlar şeridinden ya da Araç ekle ile başla.")));
+    if (mode === "ekran" && !d.widgets.length) root.append(T.h("div.board-empty", T.h("div", "Tahta boş.", T.h("br"), "Soldaki çantadan ya da Araç ekle ile başla.")));
     d.widgets.forEach((w) => mount(w));
     if (mode === "ekran") root.append(toolbar());
     const onResize = () => d.widgets.forEach((w) => clampInto(w));

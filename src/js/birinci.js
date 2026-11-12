@@ -44,7 +44,7 @@
     },
   };
   const tool = (id, def) => (T.tools[id] = Object.assign({ back: "birinci", grades: [1, 1] }, def));
-  const letterPicker = (cur, on, list = learned()) => h("div.row", { style: { gap: "6px" } }, list.map((l) => h("button.btn.sm" + (l === cur ? ".c-sun" : ".c-chalk"), { style: { minWidth: "46px", fontSize: "22px", fontFamily: "var(--display)" }, onclick: () => on(l) }, l)));
+  const letterPicker = (cur, on, list = learned()) => h("div.row", { style: { gap: "6px" } }, list.map((l) => h("button.btn.sm.m-harf" + (l === cur ? ".on" : ""), { style: { minWidth: "46px", fontSize: "22px", fontFamily: "var(--display)" }, onclick: () => on(l) }, l)));
 
   /* ---------- Ses avı ---------- */
   tool("ses-avi", { title: "Ses avı", icon: "eye", tone: "tomato", short: "Adında bu ses olan resimleri bul",
@@ -56,7 +56,7 @@
       function gen() { const yes = T.shuffle(PICS.filter((p) => has(p[0]))).slice(0, 3); const no = T.shuffle(PICS.filter((p) => !has(p[0]))).slice(0, 8 - yes.length); items = T.shuffle(yes.concat(no)); found = new Set(); checked = false; paint(); }
       function paint() {
         grid.replaceChildren(...items.map(([w, e]) => { const on = found.has(w), ok = has(w);
-          return h("button.paper", { style: { border: 0, padding: "14px 8px", display: "grid", justifyItems: "center", gap: "4px", cursor: "pointer", outline: on ? `6px solid ${checked ? (ok ? "var(--ok)" : "var(--bad)") : "var(--sky)"}` : checked && ok ? "6px dashed var(--ok)" : "none" },
+          return h("button.paper.m-kart", { style: { border: 0, padding: "14px 8px", display: "grid", justifyItems: "center", gap: "4px", cursor: "pointer", outline: on ? `6px solid ${checked ? (ok ? "var(--ok)" : "var(--bad)") : "var(--sky)"}` : checked && ok ? "6px dashed var(--ok)" : "none" },
             onclick: () => { T.speak(w); if (checked) return; on ? found.delete(w) : found.add(w); paint(); } },
             h("span", { style: { fontSize: "clamp(56px,7vw,96px)", lineHeight: 1 } }, e), checked || on ? h("b", { style: { fontSize: "22px" } }, [...w].map((c) => c === target ? h("span", { style: { color: "#e2473b" } }, c) : c)) : h("b", { style: { fontSize: "22px", opacity: 0 } }, "."));
         }));
@@ -73,7 +73,7 @@
   tool("ses-nerede", { title: "Ses nerede?", icon: "speaker", tone: "sky", short: "Ses kelimenin başında mı, ortasında mı, sonunda mı?",
     render(host) {
       let target = learned()[learned().length - 1], cur = null, score = 0, n = 0;
-      const box = h("div.mat.mat-pad", { style: { minHeight: "auto", display: "grid", gap: "18px", justifyItems: "center" } });
+      const box = h("div.mat.mat-pad.m-kart", { style: { minHeight: "auto", display: "grid", gap: "18px", justifyItems: "center" } });
       const pos = (w) => { const i = T.trLower(w).indexOf(target); return i === 0 ? "bas" : i === w.length - 1 ? "son" : "orta"; };
       function next() {
         const pool = PICS.filter(([w]) => T.trLower(w).includes(target)); if (!pool.length) { box.replaceChildren(h("p", "Bu ses için resim yok, başka bir ses seç.")); return; }
@@ -91,7 +91,7 @@
   /* ---------- Yazma tuvali (harf, rakam, çizgi) ---------- */
   function writingPad(host, { guide, extra }) {
     const cv = h("canvas", { style: { width: "100%", height: "100%", display: "block", touchAction: "none" } });
-    const mat = h("div.mat", { style: { height: "calc(var(--stage-h) - 70px)", minHeight: "260px" } }, cv);
+    const mat = h("div.mat.m-kart.m-yazi", { style: { height: "calc(var(--stage-h) - 70px)", minHeight: "260px" } }, cv);
     const ctx = cv.getContext("2d");
     let strokes = [], color = "#2e9bd6", guideMask = null;
     function fit() { const r = mat.getBoundingClientRect(); cv.width = r.width * devicePixelRatio; cv.height = r.height * devicePixelRatio; paint(); }
@@ -163,7 +163,7 @@
       let d = 1;
       const bar = h("div.row"); const objs = h("div", { style: { fontSize: "54px", lineHeight: 1.1, minHeight: "64px" } });
       const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(String(d))(ctx, W, H, m) });
-      function paintBar() { bar.replaceChildren(...[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((x) => h("button.btn.sm" + (x === d ? ".c-sun" : ".c-chalk"), { style: { minWidth: "48px", fontSize: "24px", fontFamily: "var(--display)" }, onclick: () => { d = x; paintBar(); pad.repaint(); } }, x)), h("button.btn.c-sky", { onclick: () => T.speak(T.sayiOku(d)) }, T.icon("speaker"), "Oku")); objs.textContent = d ? "🍎".repeat(d) : "Hiç elma yok: sıfır"; }
+      function paintBar() { bar.replaceChildren(...[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((x) => h("button.btn.sm.m-harf" + (x === d ? ".on" : ""), { style: { minWidth: "48px", fontSize: "24px", fontFamily: "var(--display)" }, onclick: () => { d = x; paintBar(); pad.repaint(); } }, x)), h("button.btn.c-sky", { onclick: () => T.speak(T.sayiOku(d)) }, T.icon("speaker"), "Oku")); objs.textContent = d ? "🍎".repeat(d) : "Hiç elma yok: sıfır"; }
       host.prepend(bar, objs); paintBar();
     } });
   const LINES = [
@@ -190,10 +190,10 @@
     render(host) {
       const L = learned(), vs = L.filter((c) => VOW.includes(c)), cs = L.filter((c) => !VOW.includes(c));
       let order = "uu"; // ünsüz+ünlü
-      const tbl = h("div.paper", { style: { padding: "14px", overflowX: "auto" } });
+      const tbl = h("div.paper.m-masa", { style: { padding: "14px", overflowX: "auto" } });
       function paint() {
         if (!vs.length || !cs.length) { tbl.replaceChildren(h("p", "Hece kurmak için en az bir ünlü ve bir ünsüz ses öğrenilmiş olmalı.")); return; }
-        const cell = (t) => h("button", { onclick: () => T.speak(t), style: { border: 0, background: "#fff", borderRadius: "10px", boxShadow: "0 3px 0 rgba(0,0,0,.2)", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(26px,3vw,40px)", padding: "8px 14px", minWidth: "84px" } }, t);
+        const cell = (t) => h("button.m-blok", { onclick: () => T.speak(t), style: { "--c": "#F6E4C0", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(26px,3vw,40px)", padding: "8px 14px", minWidth: "84px" } }, t);
         tbl.replaceChildren(h("table", { style: { borderCollapse: "separate", borderSpacing: "8px" } },
           h("tr", h("td"), vs.map((v) => h("th", { style: { fontFamily: "var(--display)", fontSize: "28px", color: "#e2473b" } }, v))),
           cs.map((c) => h("tr", h("th", { style: { fontFamily: "var(--display)", fontSize: "28px", color: "#2e9bd6", paddingRight: "8px" } }, c), vs.map((v) => h("td", cell(order === "uu" ? c + v : order === "uu2" ? v + c : c + v + c)))))));
@@ -207,7 +207,7 @@
   tool("kelime-kur", { title: "Kelime kuralım", icon: "hece", tone: "pink", short: "Karışık heceleri sıraya diz",
     render(host) {
       const L = learned(); const pool = WORDS.filter((w) => okWord(w, L) && T.heceler(w).length > 1);
-      const box = h("div.mat.mat-pad", { style: { minHeight: "auto", display: "grid", gap: "20px", justifyItems: "center" } });
+      const box = h("div.mat.mat-pad.m-masa", { style: { minHeight: "auto", display: "grid", gap: "20px", justifyItems: "center" } });
       let score = 0;
       function next() {
         if (!pool.length) { box.replaceChildren(h("p", { style: { fontSize: "20px" } }, "Bu seslerle iki heceli kelime çıkmıyor. Birkaç ses daha öğrenince oyun açılacak.")); return; }
@@ -217,7 +217,7 @@
         const cards = h("div.row", { style: { justifyContent: "center", gap: "10px" } });
         const paintC = () => {
           slot.replaceChildren(...hs.map((_, i) => h("div", { style: { minWidth: "110px", height: "84px", borderRadius: "14px", border: picked[i] ? "0" : "4px dashed #c9c2b2", background: picked[i] ? "#ffc233" : "transparent", display: "grid", placeItems: "center", fontFamily: "var(--display)", fontWeight: 800, fontSize: "44px" } }, picked[i] ? picked[i].x : "")));
-          cards.replaceChildren(...mixed.map((m) => h("button.btn.big.c-sky", { style: { fontSize: "44px", minWidth: "110px", fontFamily: "var(--display)", visibility: picked.includes(m) ? "hidden" : "visible" }, onclick: () => {
+          cards.replaceChildren(...mixed.map((m) => h("button.btn.big.m-blok", { style: { "--c": "#5DADE2", fontSize: "44px", minWidth: "110px", fontFamily: "var(--display)", visibility: picked.includes(m) ? "hidden" : "visible" }, onclick: () => {
             T.speak(m.x); picked.push(m); paintC();
             if (picked.length === hs.length) { const ok = picked.map((p) => p.x).join("") === w; if (ok) { score++; T.sound.ok(); setTimeout(() => T.speak(w), 400); setTimeout(next, 2000); } else { T.sound.no(); setTimeout(() => { picked = []; paintC(); }, 900); } }
           } }, m.x)));
@@ -234,7 +234,7 @@
   tool("cumle-kur", { title: "Cümle kuralım", icon: "text", tone: "leaf", short: "Karışık kelimeleri sıraya diz",
     render(host) {
       const L = learned(); const pool = SENTENCES.filter((s) => okWord(s, L));
-      const box = h("div.mat.mat-pad", { style: { minHeight: "auto", display: "grid", gap: "20px", justifyItems: "center" } });
+      const box = h("div.mat.mat-pad.m-masa", { style: { minHeight: "auto", display: "grid", gap: "20px", justifyItems: "center" } });
       function next() {
         if (!pool.length) { box.replaceChildren(h("p", { style: { fontSize: "20px" } }, "Bu seslerle henüz cümle kurulamıyor. Kelime kuralım oyunuyla devam edin; birkaç ses sonra cümleler açılacak.")); return; }
         const sent = T.pick(pool), words = sent.split(" "); let picked = [];
@@ -243,7 +243,7 @@
         const cards = h("div.row", { style: { justifyContent: "center", gap: "10px" } });
         const paintC = () => {
           line.textContent = picked.map((p) => p.x).join(" ") || " ";
-          cards.replaceChildren(...mixed.map((m) => h("button.btn.big.c-sun", { style: { fontSize: "34px", fontFamily: "var(--display)", visibility: picked.includes(m) ? "hidden" : "visible" }, onclick: () => {
+          cards.replaceChildren(...mixed.map((m) => h("button.btn.big.m-blok", { style: { "--c": "#F2B33D", fontSize: "34px", fontFamily: "var(--display)", visibility: picked.includes(m) ? "hidden" : "visible" }, onclick: () => {
             picked.push(m); T.speak(m.x.replace(/[.,]/g, "")); paintC();
             if (picked.length === words.length) { if (picked.map((p) => p.x).join(" ") === sent) { T.sound.ok(); setTimeout(() => T.speak(sent), 300); line.style.color = "#1e6b33"; } else { T.sound.no(); setTimeout(() => { picked = []; line.style.color = ""; paintC(); }, 1000); } }
           } }, m.x)));
@@ -259,7 +259,7 @@
     render(host) {
       const L = learned(); const pool = T.shuffle(WORDS.filter((w) => okWord(w, L)).concat(NAMES.filter((w) => okWord(w, L))));
       let i = 0, split = false;
-      const card = h("div.mat.flash");
+      const card = h("div.mat.flash.m-kart");
       function paint() {
         if (!pool.length) { card.replaceChildren(h("p", "Önce birkaç ses işaretleyin.")); return; }
         const w = pool[i % pool.length];

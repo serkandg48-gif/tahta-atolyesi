@@ -21,7 +21,7 @@
   const tool = (sec, id, def) => (T.tools[id] = Object.assign({ back: sec }, def));
 
   /* ===================== TÜRKÇE ===================== */
-  subjectSection("turkce", "Türkçe", "turkce", "tomato", "Hece, ses, okuma hızı, yazım", "İlk okuma yazmadan yazım kurallarına sınıf içi araçlar.");
+  subjectSection("turkce", "Türkçe", "turkce", "tomato", "Okuma hızı, metin uyarlayıcı, yazım", "Okuma hızı, yapay zekâ ile metin uyarlama, anlama, söz varlığı ve yazım için sınıf araçları.");
   const VOW = "aeıioöuüâîû";
   T.heceler = function (word) {
     const w = word.toLocaleLowerCase("tr-TR");
@@ -80,33 +80,6 @@
       host.append(card, strip, h("div.row", btn("chalk", "back", "Önceki", () => { i = (i + SES.length - 1) % SES.length; paint(); }), btn("sun", "next", "Sonraki", () => { i = (i + 1) % SES.length; paint(); }), btn("chalk", "letters", "Büyük / küçük harf", () => { upper = !upper; paint(); }),
         h("span.hint", "Sıralama Maarif Modeli 1. sınıf ilk okuma yazma kitabını izler: a, n, e, t, i, l, o, k, u, r, ı, m...")));
       paint();
-    },
-  });
-
-  tool("turkce", "okuma-hizi", {
-    title: "Okuma hızı", icon: "speed", tone: "sky", grades: [1, 8], short: "Dakikadaki doğru kelime sayısı",
-    render(host) {
-      const ta = h("textarea.in", { style: { minHeight: "220px", fontSize: "22px", lineHeight: "1.6" }, "aria-label": "Okuma metni" });
-      ta.value = "Sabah erkenden bahçeye çıktık. Dedem fidanların dibini çapalıyordu. Bana küçük bir kürek verdi. Birlikte domatesleri suladık. Toprak ıslandıkça mis gibi koktu. Bir uğur böceği yaprağın üstünde yürüyordu. Ona dokunmadan uzun uzun izledim. Dedem, her canlının bahçede bir görevi olduğunu söyledi. O gün bahçeye bambaşka bir gözle baktım.";
-      let start = 0, el = 0, run = false, err = 0, iv = 0;
-      const time = h("div.readout", { style: { fontSize: "54px" } }, "0:00");
-      const res = h("div.paper", { style: { padding: "16px 18px", display: "grid", gap: "6px" } });
-      const words = () => ta.value.trim().split(/\s+/).filter(Boolean).length;
-      function paint() {
-        const s = Math.floor(el / 1000);
-        time.textContent = `${Math.floor(s / 60)}:${T.pad(s % 60)}`;
-        const w = words(), dk = el / 60000, wpm = dk ? Math.round((w - err) / dk) : 0;
-        res.replaceChildren(h("div", `Metindeki kelime: ${w}`), h("div", `Hatalı okunan: ${err}`), h("div.readout", { style: { fontSize: "28px" } }, el ? `${wpm} doğru kelime / dakika` : "Süre başlamadı"),
-          h("div", `Doğruluk: ${w ? Math.round(((w - err) / w) * 100) : 0}%`));
-      }
-      const tick = () => { el = Date.now() - start; paint(); };
-      const startB = btn("leaf", "play", "Başlat", () => { if (run) { run = false; clearInterval(iv); startB.lastChild.textContent = "Devam"; } else { start = Date.now() - el; run = true; iv = setInterval(tick, 200); startB.lastChild.textContent = "Bitir"; } });
-      host.append(h("div", { style: { display: "grid", gridTemplateColumns: "minmax(0,2fr) minmax(240px,1fr)", gap: "16px" } }, ta,
-        h("div.stack", h("div.paper", { style: { padding: "14px 18px", textAlign: "center" } }, time), res)),
-        h("div.row", startB, btn("tomato", "plus", "Hata +1", () => { err++; T.sound.tick(); paint(); }), btn("chalk", "minus", "Hata −1", () => { err = Math.max(0, err - 1); paint(); }),
-          btn("chalk", "reset", "Sıfırla", () => { run = false; clearInterval(iv); el = 0; err = 0; startB.lastChild.textContent = "Başlat"; paint(); }),
-          h("span.hint", "Öğrenci okurken her takıldığı ya da yanlış okuduğu kelimede Hata +1'e bas. Sonucu öğrencinin kendi önceki ölçümüyle karşılaştır.")));
-      paint(); T.onLeave(() => clearInterval(iv));
     },
   });
 

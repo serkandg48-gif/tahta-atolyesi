@@ -299,7 +299,10 @@
     const stage = h("div.mat.mat-pad", { style: { minHeight: "auto", display: "grid", gap: "14px", justifyItems: "center", alignContent: "start" } });
     const scoreEl = h("div.row", { style: { gap: "10px" } });
     const seg = (opts, curV, on) => h("div.seg", opts.map(([v, l]) => h("button", { "aria-pressed": String(v === curV), onclick: (e) => { e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); on(v); } }, l)));
-    host.append(h("div.row", seg([[0, "Kolay"], [1, "Orta"], [2, "Zor"]], L, (v) => { L = v; restart(); }), seg(MODES, mode, (v) => { mode = v; restart(); }), h("div.spacer"), scoreEl), track, stage);
+    const sahneKap = h("div.oy-sahne", stage);
+    host.append(h("div.row", seg([[0, "Kolay"], [1, "Orta"], [2, "Zor"]], L, (v) => { L = v; restart(); }), seg(MODES, mode, (v) => { mode = v; restart(); }), h("div.spacer"), scoreEl), track, sahneKap);
+    const arka = T.Sahne && T.Sahne.arkaPlan ? T.Sahne.arkaPlan(sahneKap, T.Sahne.oyunTemasi(id)) : null;
+    sahneKap.classList.add("tema-" + (T.Sahne ? T.Sahne.oyunTemasi(id) : "cayir"));
     function paintTrack() {
       const pct = (n / ROUNDS) * 100;
       track.replaceChildren(h("div", { style: { position: "absolute", inset: "0", width: pct + "%", background: "linear-gradient(90deg, var(--leaf), var(--sun))", transition: "width .4s" } }),
@@ -315,23 +318,23 @@
       tries = 0; locked = false;
       let r = null; for (let k = 0; k < 6 && !r; k++) { try { r = g.round(L); if (!r || !r.options || r.options.length < 2 || !r.options.some((o) => String(o) === String(r.answer))) r = r && r.options ? Object.assign(r, { options: T.shuffle([...new Set([r.answer, ...r.options])]).slice(0, 4) }) : null; } catch (e) { console.error(e); r = null; } }
       cur = r; paintTrack();
-      const opts = h("div", { style: { display: "grid", gridTemplateColumns: `repeat(${Math.min(4, r.options.length)}, minmax(0, 1fr))`, gap: "14px", width: "100%", maxWidth: "1000px" } });
+      const opts = h("div.oy-secenekler", { style: { display: "grid", gridTemplateColumns: `repeat(${Math.min(4, r.options.length)}, minmax(0, 1fr))`, gap: "14px", width: "100%", maxWidth: "1000px" } });
       r.options.forEach((o) => {
         const b = h("button.btn.big.c-chalk", { style: { minHeight: g.visualOptions ? "140px" : "72px", fontSize: String(o).length > 8 ? "22px" : "36px", fontFamily: "var(--display)" }, onclick: () => pick(o, b) },
           r.render ? h("div", { style: { width: "120px", height: "120px" } }, r.render(o)) : String(o));
         opts.append(b);
       });
-      const vis = r.visual ? h("div", { style: { width: "100%", maxWidth: "1000px", height: "min(30vh, 300px)", display: "grid", placeItems: "center" } }, r.visual) : null;
+      const vis = r.visual ? h("div.oy-gorsel", { style: { width: "100%", maxWidth: "1000px", height: "min(30vh, 300px)", display: "grid", placeItems: "center" } }, r.visual) : null;
       const who = mode === "takim" ? h("div.pill", { style: { fontSize: "18px", background: turn ? "#d6e9f8" : "#f9d8d3" } }, (turn ? "Mavi" : "Kırmızı") + " takımın sırası") : null;
       const timerEl = g.timed ? h("div.readout", { style: { fontSize: "22px", color: "var(--ink-soft)" } }) : null;
-      stage.replaceChildren(h("div.row", { style: { justifyContent: "center" } }, who, timerEl), r.prompt ? h("div", { style: { fontSize: "clamp(22px, 2.4vw, 32px)", fontWeight: 700, textAlign: "center", maxWidth: "60ch" } }, r.prompt) : null, vis, opts, h("div.fb", { style: { minHeight: "34px", fontSize: "19px", textAlign: "center" } }));
+      stage.replaceChildren(h("div.row", { style: { justifyContent: "center" } }, who, timerEl), r.prompt ? h("div.oy-soru", { style: { fontSize: "clamp(22px, 2.4vw, 32px)", fontWeight: 700, textAlign: "center", maxWidth: "60ch" } }, r.prompt) : null, vis, opts, h("div.fb", { style: { minHeight: "34px", fontSize: "19px", textAlign: "center" } }));
       if (g.flash && vis) setTimeout(() => { if (cur === r && !locked) vis.style.visibility = "hidden"; }, g.flash);
       if (g.timed) { tLeft = [12, 9, 7][L]; timerEl.textContent = tLeft + " sn"; timer = setInterval(() => { tLeft--; timerEl.textContent = tLeft + " sn"; if (tLeft <= 0) { clearInterval(timer); reveal(false); } }, 1000); }
     }
     function pick(o, b) {
       if (locked) return;
-      if (String(o) === String(cur.answer)) { b.className = "btn big c-leaf"; T.sound.ok(); reveal(true); }
-      else { tries++; b.className = "btn big c-tomato"; b.disabled = true; T.sound.no(); b.animate([{ transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "none" }], { duration: 260 });
+      if (String(o) === String(cur.answer)) { b.className = "btn big c-leaf"; arka ? arka.tepki(true) : T.sound.ok(); reveal(true); }
+      else { tries++; b.className = "btn big c-tomato"; b.disabled = true; arka ? arka.tepki(false) : T.sound.no(); b.animate([{ transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "none" }], { duration: 260 });
         if (tries >= (mode === "takim" ? 1 : 2)) reveal(false); }
     }
     function reveal(ok) {

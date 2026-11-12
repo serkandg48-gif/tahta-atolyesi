@@ -99,6 +99,8 @@
     ctx.restore();
   }
 
+  T.Sahne.tavsan = tavsan; T.Sahne.havuc = havuc;
+
   /* Sayıya Türkçe ek: okunuşunun son sözcüğüne göre ünlü uyumu ve sertleşme */
   const BIR = ["sıfır", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"], ON = ["", "on", "yirmi", "otuz", "kırk", "elli", "altmış", "yetmiş", "seksen", "doksan"];
   const sonSoz = (n) => (n === 0 ? "sıfır" : n % 10 ? BIR[n % 10] : n % 100 ? ON[(n % 100) / 10] : n % 1000 ? "yüz" : "bin");

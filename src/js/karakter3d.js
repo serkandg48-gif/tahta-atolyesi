@@ -1,7 +1,7 @@
 /* 3B karakterler: Meshy'de üretilip iskelet takılan modelleri sahneye koyar, animasyonları yumuşak geçişle oynatır.
    Her klip için ayaklar yere bassın diye zemin farkı ölçülür; dört ayaklılardaki ölçek ve konum izleri ayıklanır. */
 (function () {
-  const KLIP = { bekle: ["Happy_Sway_Standing", "Listening_Gesture"], yuru: ["Walking", "Armature|Unreal Take|baselayer"], kos: ["Running"], salla: ["Wave_One_Hand"], sevin: ["Cheer_with_Both_Hands", "Victory_Cheer"], zipla: ["happy_jump_m"], konus: ["Talk_with_Hands_Open"], cagir: ["Call_Gesture"], saskin: ["Look_Around_Dumbfounded"], hayir: ["Finger_Wag_No"], dans: ["FunnyDancing_01"], dinle: ["Listening_Gesture"], begen: ["Sit_Thumbs_Up_Right"] };
+  const KLIP = { bekle: ["Idle_3", "Idle_9", "Happy_Sway_Standing", "Listening_Gesture"], yuru: ["Walking", "Armature|Unreal Take|baselayer"], kos: ["Running"], salla: ["Wave_One_Hand"], sevin: ["Cheer_with_Both_Hands", "Cheer_with_Both_Hands_Up", "Victory_Cheer"], zipla: ["happy_jump_m", "Happy_jump_f"], konus: ["Talk_with_Hands_Open", "Discuss_While_Moving"], cagir: ["Call_Gesture"], saskin: ["Look_Around_Dumbfounded"], hayir: ["Finger_Wag_No"], dans: ["FunnyDancing_01", "FunnyDancing_02"], dinle: ["Listening_Gesture"], begen: ["Sit_Thumbs_Up_Right", "Half_Squat_with_Thumb_Up"], alkis: ["Clapping", "Clapping_Run"] };
   T.karakter3B = async function (c, ad, ops = {}) {
     const { THREE } = c, { g, m } = await T.modelYukle(ad);
     const kok = new THREE.Group(), ic = new THREE.Group(); kok.add(ic);

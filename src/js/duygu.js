@@ -124,19 +124,42 @@
     endiseli: ["Yarın sınıfın önünde sunum yapacaksın.", "Annen seni okuldan almaya geç kaldı."], uzgun: ["En yakın arkadaşın başka bir şehre taşınıyor.", "Çok sevdiğin kalemin kırıldı."],
     korkmus: ["Gece büyük bir gök gürültüsü duydun.", "Kalabalık bir yerde ailene bir an göremedin."], kizgin: ["Biri sıranı almadan öne geçti.", "Arkadaşın yaptığın kuleyi izin almadan yıktı."],
   };
+  [["mutlu", "Teneffüste yeni bir arkadaşla oyun kurdunuz.", "Bütün gün beklediğin yağmur dindi, dışarı çıktın."], ["sakin", "Okuldan eve döndün, en sevdiğin köşende dinleniyorsun.", "Ders bitti, sınıf sessizce kitap okuyor."],
+   ["heyecanli", "Bugün sınıfa yeni bir öğrenci gelecek.", "Okul gösterisinde sıra sana gelmek üzere."], ["gururlu", "Bisiklete kimse tutmadan binebildin.", "Kardeşine okumayı öğrettin."],
+   ["saskin", "Sabah uyandın, her yer karla kaplanmıştı.", "Arkadaşın senin doğum gününü hatırlayıp hediye getirdi."], ["yorgun", "Uzun bir yolculuktan yeni döndün.", "Beden eğitimi dersinde çok koştun."],
+   ["endiseli", "Evcil hayvanın bugün biraz hasta.", "Yeni bir okula başlayacaksın."], ["uzgun", "Oyunda seni aralarına almadılar.", "Çok sevdiğin çiçeğin kurudu."],
+   ["korkmus", "Köpek bir anda havlayarak sana doğru koştu.", "Elektrikler kesildi, her yer karardı."], ["kizgin", "Kardeşin resmini karaladı.", "Oyunda biri kuralı bozdu ve kazandı."]].forEach(([k, ...l]) => DURUMLAR[k].push(...l));
+  const kartVeri = () => { const s = T.store.get(); return ((s.duyguKart || {})[cid()]) || []; };
+  const kartYaz = (fn) => T.store.update((s) => { s.duyguKart = s.duyguKart || {}; s.duyguKart[cid()] = fn(s.duyguKart[cid()] || []); });
   tool("duygu-kartlari", {
-    title: "Duygu kartları", icon: "heart", tone: "pink", short: "Durumu oku, duyguyu bul, ne yapardın konuş",
+    title: "Duygu kartları", icon: "heart", tone: "pink", short: "Durumu oku, duyguyu bul, ne yapardın konuş. Sınıf kendi kartını ekler",
     render(host) {
-      let k = T.pick(DUYGU)[0], durum = T.pick(DURUMLAR[k]), acik = false;
+      /* deste: bütün kartlar karışır, bitmeden hiçbiri tekrar gelmez, aynı duygu art arda gelmez */
+      let deste = [], son = null, kart = null, acik = false;
+      const hepsi = () => Object.entries(DURUMLAR).flatMap(([k, l]) => l.map((t) => ({ k, t }))).concat(kartVeri().map((x) => ({ k: x.k, t: x.t, sinif: true })));
+      const cek = () => { if (!deste.length) deste = T.shuffle(hepsi()); let i = deste.findIndex((x) => !son || x.k !== son.k); if (i < 0) i = 0; kart = son = deste.splice(i, 1)[0]; acik = false; };
       const box = h("div"); host.append(box);
+      function ekle() {
+        const ta = h("textarea.in", { placeholder: "Bir durum yaz. Örnek: Teneffüste topun çatıya kaçtı.", style: { minHeight: "90px", fontSize: "19px" } });
+        let dk = "mutlu"; const sec = h("div.dy-faces.kucuk", DUYGU.map(([k, l]) => h("button.dy-face", { "aria-pressed": String(k === dk), onclick: (e) => { dk = k; sec.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.currentTarget))); } }, T.yuz(k, 46), h("span", l))));
+        T.modal({ title: "Sınıfın kartı", wide: true, body: h("div", { style: { display: "grid", gap: "10px" } }, ta, h("b", "Bu durumda nasıl hissederiz?"), sec), actions: [{ label: "Vazgeç" }, { label: "Kartı ekle", tone: "c-leaf", onClick: () => { const t = ta.value.trim(); if (!t) return false; kartYaz((l) => l.concat({ id: T.uid(), k: dk, t })); deste = []; ciz(); } }] });
+      }
+      function liste() {
+        const l = kartVeri();
+        T.modal({ title: "Sınıfın eklediği kartlar", wide: true, body: l.length ? h("div.dy-kliste", l.map((x) => h("div", T.yuz(x.k, 34), h("span", x.t), h("button.btn.sm.c-chalk", { onclick: (e) => { kartYaz((y) => y.filter((z) => z.id !== x.id)); e.currentTarget.parentNode.remove(); deste = []; } }, T.icon("trash"), "Sil")))) : h("p", "Henüz sınıfın eklediği kart yok."), actions: [{ label: "Kapat" }] });
+      }
       const ciz = () => {
-        const d = DUYGU.find((x) => x[0] === k);
-        box.replaceChildren(h("div.dy-card",
-          h("div.dy-durum", durum),
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(durum) }, T.icon("speaker"), "Dinle")),
-          acik ? h("div.dy-reveal", T.yuz(k, 120), h("b", d[1])) : h("button.btn.big", { onclick: () => { acik = true; T.speak(d[1]); ciz(); } }, "Bu durumda nasıl hissederiz?"),
+        if (!kart) cek();
+        const d = DUYGU.find((x) => x[0] === kart.k), n = hepsi().length;
+        box.replaceChildren(h("div.row", { style: { marginBottom: "10px" } }, h("span.hint", n + " kart, " + (n - deste.length) + ". kart"), h("div.spacer"),
+            h("button.btn.sm.c-chalk", { onclick: ekle }, T.icon("plus"), "Kart ekle"), kartVeri().length ? h("button.btn.sm.c-chalk", { onclick: liste }, T.icon("text"), "Sınıfın kartları (" + kartVeri().length + ")") : null),
+          h("div.dy-card",
+          kart.sinif ? h("span.pill", "Sınıfımızın kartı") : null,
+          h("div.dy-durum", kart.t),
+          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(kart.t) }, T.icon("speaker"), "Dinle")),
+          acik ? h("div.dy-reveal", T.yuz(kart.k, 120), h("b", d[1])) : h("button.btn.big", { onclick: () => { acik = true; ciz(); } }, "Bu durumda nasıl hissederiz?"),
           acik ? h("div.dy-qs", h("p", "Sen de hiç böyle hissettin mi? Ne oldu?"), h("p", "Arkadaşın böyle hissetse ona ne söylerdin?"), h("p", "Bu duyguyla baş etmek için ne yapabiliriz?")) : null,
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { k = T.pick(DUYGU.filter((x) => x[0] !== k))[0]; durum = T.pick(DURUMLAR[k]); acik = false; ciz(); } }, T.icon("next"), "Sıradaki kart"))));
+          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { cek(); ciz(); } }, T.icon("next"), "Sıradaki kart"))));
       };
       ciz();
     },
@@ -201,22 +224,41 @@
   });
 
   /* 6. İltifat çemberi */
-  const ILTIFAT = ["Bana yardım ettiğin için teşekkür ederim.", "Çok güzel gülüyorsun.", "Oyunlarda herkesi düşünüyorsun.", "Fikirlerin çok yaratıcı.", "Arkadaşlarına karşı naziksin.", "Çok güzel resim yapıyorsun.", "Zor bir işte vazgeçmiyorsun.", "Seninle oynamak çok eğlenceli.", "Sınıfımızı güzelleştiriyorsun.", "Dikkatli dinliyorsun."];
+  const ILTIFAT = ["Bana yardım ettiğin için teşekkür ederim.", "Oyunlarda herkesi düşünüyorsun.", "Fikirlerin çok yaratıcı.", "Arkadaşlarına karşı naziksin.", "Zor bir işte vazgeçmiyorsun.", "Seninle oynamak çok eğlenceli.", "Dikkatli dinliyorsun.", "Sıranı sabırla bekliyorsun.", "Malzemelerini paylaşıyorsun.", "Yeni gelenlere arkadaşlık ediyorsun."];
+  const BASLAT = ["Bugün bana ... yardım ettin.", "... yaptığında çok mutlu oldum.", "Senden ... öğrendim.", "Oyunda ... yaptığın için teşekkür ederim.", "... konusunda çok emek veriyorsun."];
   tool("iltifat", {
-    title: "İltifat çemberi", icon: "star", tone: "sun", short: "Günün arkadaşına sınıfça güzel sözler",
+    title: "İltifat çemberi", icon: "star", tone: "sun", short: "Günün arkadaşı çarkla seçilir, sınıf davranışa yönelik güzel sözler söyler",
     render(host) {
-      let st = null; const sozler = []; const box = h("div"); host.append(box);
+      let st = null; const sozler = []; const box = h("div.dy-iltifat"); host.append(box);
+      const kap3 = h("div.dy-ilt-cark"); let ck = null, sira = [];
       const inp = h("input.in", { placeholder: "Arkadaşımız söylesin, sen yaz", style: { flex: 1, fontSize: "20px" } });
+      const ekle = (x) => { if (!x) return; sozler.push(x); T.sound.pop(); ciz(); };
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { ekle(inp.value.trim()); inp.value = ""; } });
+      async function cevir() {
+        const ps = present(); if (!ps.length) { T.toast("Sınıf listesi boş"); return; }
+        if (!sira.some((x) => ps.find((y) => y.id === x.id))) sira = ps.slice();
+        sira = sira.filter((x) => ps.find((y) => y.id === x.id));
+        if (!ck) { st = T.pick(sira); sira = sira.filter((x) => x !== st); sozler.length = 0; ciz(); return; }
+        if (ck.donuyor()) return;
+        ck.kur(sira.map((x) => ({ ad: x.name })));
+        const i = Math.floor(Math.random() * sira.length);
+        ck.cevir(i, () => { st = sira[i]; sira = sira.filter((x) => x !== st); sozler.length = 0; T.sound.ok(); ciz(); });
+      }
       function ciz() {
         box.replaceChildren(
-          st ? h("div.dy-star", T.avatar(st.name, 96), h("div", h("small", "Günün arkadaşı"), h("b", st.name))) : h("p.sb-line", "Günün arkadaşını seçerek başla."),
-          h("div.row", h("button.btn", { onclick: () => { const ps = present(); st = T.pick(ps.filter((x) => !st || x.id !== st.id)) || st; sozler.length = 0; if (st) T.speak(st.name); ciz(); } }, T.icon("class"), st ? "Başka arkadaş" : "Günün arkadaşını seç")),
-          st ? h("div.row", { style: { marginTop: "14px" } }, inp, h("button.btn.c-leaf", { onclick: () => { if (inp.value.trim()) { sozler.push(inp.value.trim()); inp.value = ""; T.sound.pop(); ciz(); } } }, T.icon("plus"), "Ekle")) : null,
-          st ? h("div.dy-hint", "Fikir: ", ILTIFAT.slice(0, 5).map((x) => h("button.btn.sm.c-chalk", { onclick: () => { sozler.push(x); ciz(); } }, x))) : null,
+          h("div.dy-ilt-ust", kap3, h("div.dy-ilt-sag",
+            st ? h("div.dy-star", T.avatar(st.name, 96), h("div", h("small", "Günün arkadaşı"), h("b", st.name))) : h("p.sb-line", "Çarkı çevirip günün arkadaşını seçelim."),
+            h("button.btn", { onclick: cevir }, T.icon("turn"), st ? "Çarkı yeniden çevir" : "Çarkı çevir"),
+            h("p.hint", "Seçilen arkadaş, herkes seçilene kadar çarktan çıkar."))),
+          st ? h("div.row", { style: { marginTop: "14px" } }, inp, h("button.btn.c-leaf", { onclick: () => { ekle(inp.value.trim()); inp.value = ""; } }, T.icon("plus"), "Ekle")) : null,
+          st ? h("div.dy-hint", h("b", "Cümleye böyle başlayabilirsin: "), BASLAT.map((x) => h("button.btn.sm.c-chalk", { onclick: () => { inp.value = x; inp.focus(); } }, x))) : null,
+          st ? h("div.dy-hint", h("b", "Hazır sözler: "), ILTIFAT.map((x) => h("button.btn.sm.c-chalk", { onclick: () => ekle(x) }, x))) : null,
+          st ? h("p.hint", "Görünüşe değil, yaptığı şeylere ve davranışına bakalım.") : null,
           h("div.dy-bubbles", sozler.map((x) => h("div.dy-bubble", x))));
         if (st) setTimeout(() => inp.focus(), 30);
       }
       ciz();
+      const ps0 = present(); if (ps0.length) T.cark3B(kap3, null, { sure: 3.2, arka: ["#FFFFFF", "#FFF6DE"] }).then((c) => { if (!c) return; ck = ck || c; sira = ps0.slice(); ck.kur(sira.map((x) => ({ ad: x.name }))); });
     },
   });
 })();

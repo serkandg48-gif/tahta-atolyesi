@@ -2,7 +2,7 @@
    Ses sırası Maarif Modeli 1. sınıf ilk okuma yazma kitabını izler. Oyun içerikleri bu uygulama için yazılmıştır. */
 (function () {
   const { h } = T; const S = T.svg;
-  const ORDER = ["a", "n", "e", "t", "i", "l", "o", "k", "u", "r", "ı", "m", "ü", "s", "ö", "y", "d", "z", "ç", "b", "g", "ş", "c", "p", "h", "ğ", "v", "f", "j"];
+  const ORDER = ["a", "n", "e", "t", "i", "l", "o", "k", "u", "r", "ı", "m", "ü", "s", "ö", "y", "d", "z", "ç", "b", "g", "c", "ş", "p", "h", "v", "ğ", "f", "j"];
   const VOW = "aeıioöuü";
   // 1. kitapta seslerin başladığı PDF sayfaları (246 sayfalık 1. kitap)
   const BOOK1 = { pages: 246, start: { a: 54, n: 66, e: 82, t: 100, i: 122, l: 136, o: 154, k: 166, u: 182, r: 200, ı: 212, m: 226 } };
@@ -141,7 +141,7 @@
     return (ctx, W, H, mask) => {
       const { top, base } = mask ? { top: H * 0.18, base: H * 0.78 } : linedGuide(ctx, W, H);
       const size = (base - top) * 1.32;
-      ctx.font = `600 ${size}px Lexend, "Segoe UI", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.font = `400 ${size}px Andika, Lexend, "Segoe UI", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
       const n = text.length, gap = W / (n + 1);
       [...text].forEach((ch, i) => {
         const x = gap * (i + 1);
@@ -155,8 +155,8 @@
       let L = learned(), ch = L[L.length - 1], mode = "kucuk", text = ch;
       const bar = h("div.row");
       const update = () => { text = mode === "kucuk" ? ch : mode === "buyuk" ? T.trUpper(ch) : (T.trUpper(ch) + ch); paintBar(); pad.repaint(); };
-      const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(text)(ctx, W, H, m) });
-      function paintBar() { bar.replaceChildren(letterPicker(ch, (l) => { ch = l; update(); }, ORDER), h("div.seg", [["kucuk", "Küçük"], ["buyuk", "Büyük"], ["ikisi", "İkisi"]].map(([v, l]) => h("button", { "aria-pressed": String(v === mode), onclick: () => { mode = v; update(); } }, l))), h("button.btn.c-sky", { onclick: () => T.speak(ch) }, T.icon("speaker"), "Sesini dinle")); }
+      const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(text)(ctx, W, H, m) }); document.fonts && document.fonts.load("400 100px Andika", "aAğĞşŞ").then(() => pad.repaint()).catch(() => {});
+      function paintBar() { bar.replaceChildren(letterPicker(ch, (l) => { ch = l; update(); }, ORDER), h("div.seg", [["kucuk", "Küçük"], ["buyuk", "Büyük"], ["ikisi", "İkisi"]].map(([v, l]) => h("button", { "aria-pressed": String(v === mode), onclick: () => { mode = v; update(); } }, l))), h("button.btn.c-sky", { onclick: () => T.harfSesi(ch) }, T.icon("speaker"), "Sesini dinle"), h("button.btn.c-grape", { onclick: () => { const v = host.querySelector(".yz-kart"); if (v) { v.remove(); return; } bar.after(T.harfYazilis(ch, { kucuk: true })); } }, T.icon("pen"), "Yazılış yönü")); const v = host.querySelector(".yz-kart"); if (v) v.replaceWith(T.harfYazilis(ch, { kucuk: true })); }
       host.prepend(bar); paintBar();
     } });
   tool("rakam-yaz", { title: "Rakam yazalım", icon: "math", tone: "sun", short: "Rakamı say, yaz",

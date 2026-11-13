@@ -13,10 +13,11 @@
     g: ["Gözlemevi", "#DDE5ED", "#3A506B", "kubbe"], "ş": ["Şekerci", "#FFD6E0", "#D1495B", "ucgen"], c: ["Cevizci", "#D4A373", "#6F4E37", "ucgen"], p: ["Pastane", "#FFF1E6", "#E07A5F", "kubbe"],
     h: ["Hastane", "#FFFFFF", "#E63946", "duz"], "ğ": ["Dağ evi", "#B7B7A4", "#6B705C", "ucgen"], v: ["Veteriner", "#CDEAC0", "#4F772D", "duz"], f: ["Fırın", "#E9B872", "#8C4A2F", "kubbe"], j: ["Jimnastik salonu", "#BDE0FE", "#3A86FF", "duz"],
   };
-  const MAHALLE = [["Çınar Mahallesi", "anetil"], ["Lale Mahallesi", "okurım"], ["Deniz Mahallesi", "üsöydz"], ["Güneş Mahallesi", "çbgşcp"], ["Yıldız Mahallesi", "hğvfj"]];
+  const MAHALLE = [["Çınar Mahallesi", "anetil"], ["Lale Mahallesi", "okurım"], ["Deniz Mahallesi", "üsöydz"], ["Güneş Mahallesi", "çbgcş"], ["Yıldız Mahallesi", "phvğfj"]];
   const ASAMA = [["ses", "Ses"], ["hece", "Hece"], ["kelime", "Kelime"], ["cumle", "Cümle"]];
   const MUSTERI_SAY = { ses: 4, hece: 4, kelime: 4, cumle: 3 };
   const BUYUK = (l) => l.toLocaleUpperCase("tr-TR");
+  const adOf = (l) => BUYUK(l) + " dükkânı";
   const dep = () => { const s = T.store.get(); const id = T.store.activeClass().id; s.kasaba2 = s.kasaba2 || {}; return s.kasaba2[id] || { asama: {} }; };
   const depYaz = (fn) => T.store.update((s) => { const id = T.store.activeClass().id; s.kasaba2 = s.kasaba2 || {}; const k = (s.kasaba2[id] = s.kasaba2[id] || { asama: {} }); fn(k); });
   const asamaOf = (l) => dep().asama[l] || 0; /* 0-4, 4 = dükkân açıldı */
@@ -84,12 +85,12 @@
         const gunes = new THREE.DirectionalLight(0xfff0d6, 3.0); gunes.position.set(-12, 20, 16); gunes.castShadow = true; gunes.shadow.mapSize.set(2048, 2048); const sc = gunes.shadow.camera; sc.left = -20; sc.right = 20; sc.top = 14; sc.bottom = -10; sc.near = 4; sc.far = 60; gunes.shadow.bias = -0.0005; gunes.shadow.normalBias = 0.03; sahne.add(gunes);
 
         /* dükkânlar */
-        const tabelaDoku = (l, ad, kilitli) => c.doku(512, 256, (x, w, hh) => { x.fillStyle = kilitli ? "#E6E6E6" : "#FFF8EC"; x.beginPath(); x.roundRect(6, 6, w - 12, hh - 12, 36); x.fill(); x.lineWidth = 10; x.strokeStyle = kilitli ? "#9A9A9A" : "#5B3A29"; x.stroke(); x.fillStyle = kilitli ? "#A0A0A0" : "#D1495B"; x.font = "900 150px 'Baloo 2', sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(BUYUK(l) + l, w / 2, hh * 0.42); x.fillStyle = kilitli ? "#8A8A8A" : "#3A2A20"; x.font = "800 42px 'Baloo 2', sans-serif"; x.fillText(kilitli ? "Yakında" : ad, w / 2, hh * 0.82); });
+        const tabelaDoku = (l, ad, kilitli) => c.doku(512, 256, (x, w, hh) => { x.fillStyle = kilitli ? "#E6E6E6" : "#FFF8EC"; x.beginPath(); x.roundRect(6, 6, w - 12, hh - 12, 36); x.fill(); x.lineWidth = 10; x.strokeStyle = kilitli ? "#9A9A9A" : "#5B3A29"; x.stroke(); x.fillStyle = kilitli ? "#A0A0A0" : "#D1495B"; x.font = "700 150px Andika, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(BUYUK(l) + l, w / 2, hh * 0.42); x.fillStyle = kilitli ? "#8A8A8A" : "#3A2A20"; x.font = "700 46px Andika, sans-serif"; x.fillText(kilitli ? "Yakında" : ad, w / 2, hh * 0.82); });
         const tenteD = (renk) => c.doku(256, 64, (x, w, hh) => { for (let i = 0; i < 8; i++) { x.fillStyle = i % 2 ? "#FFFFFF" : renk; x.fillRect((i * w) / 8, 0, w / 8 + 1, hh); } });
         let dukkanlar = [], mahalleGrup = null;
         const acikMi = (l) => { const i = ORDER.indexOf(l); return i === 0 || asamaOf(l) > 0 || asamaOf(ORDER[i - 1]) >= 4 || IO.learned().includes(l); };
         function dukkan(l, i) {
-          const [ad, govde, cati, tip] = YER[l], kilit = !acikMi(l);
+          const [, govde, cati, tip] = YER[l], ad = BUYUK(l) + " sesi", kilit = !acikMi(l);
           const x = -11 + i * 4.4, z = yolEgri(x) - 4.6, g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = Math.sin(x * 0.12) * -0.12; mahalleGrup.add(g);
           const gm = M({ color: kilit ? 0xcfcfcf : govde, roughness: 0.75 }), cm = M({ color: kilit ? 0x9e9e9e : cati, roughness: 0.6 });
           const camM = new THREE.MeshStandardMaterial({ color: 0xbfe7ff, roughness: 0.1, metalness: 0.2, emissive: 0xffc45c, emissiveIntensity: asamaOf(l) >= 4 ? 0.9 : 0.05 }), kapM = M({ color: 0x6b4226, roughness: 0.6 }), beyaz = M({ color: 0xffffff, roughness: 0.6 });
@@ -118,6 +119,7 @@
         const [rehber, kedi, kopek, robot, baykus] = await Promise.all([T.karakter3B(c, "sincap", { boy: 1.75 }), T.karakter3B(c, "kedi", { boy: 0.95 }), T.karakter3B(c, "kopek", { boy: 1.05 }), T.karakter3B(c, "robot", { boy: 1.6 }), T.karakter3B(c, "baykus", { boy: 1.45 })]);
         const musteriler = [kedi, robot, kopek, baykus];
         [rehber, ...musteriler].forEach((k) => { sahne.add(k.kok); k.kok.visible = false; });
+        try { await document.fonts.load("700 100px Andika", "AaÇçĞğ"); } catch (e) {}
         mahalleKur(mahalleI);
         /* kamera */
         const kam = { p: new THREE.Vector3(0, 5.2, 15.5), b: new THREE.Vector3(0, 1.4, -2.6), hp: null, hb: null };
@@ -139,8 +141,8 @@
         function altCiz() {
           fis.classList.remove("acik"); basamak.classList.remove("acik");
           const sira = dukkanlar.find((d) => asamaOf(d.l) < 4);
-          alt.replaceChildren(h("div.ks-ipucu", sira ? (sira.kilit ? "Bu mahallenin dükkânları, önceki mahalle bitince açılır." : `Bir dükkâna dokun. Sıradaki dükkân: ${YER[sira.l][0]} (${BUYUK(sira.l)}${sira.l})`) : "Bu mahallenin bütün dükkânları açıldı. Harika!"),
-            sira && !sira.kilit ? h("button.ks-yeni", { onclick: () => dukkanGir(sira) }, T.icon("next"), YER[sira.l][0] + " dükkânına gir") : null);
+          alt.replaceChildren(h("div.ks-ipucu", sira ? (sira.kilit ? "Bu mahallenin dükkânları, önceki mahalle bitince açılır." : `Her dükkânda o sesin olduğu şeyler satılır. Sıradaki: ${adOf(sira.l)}`) : "Bu mahallenin bütün dükkânları açıldı. Harika!"),
+            sira && !sira.kilit ? h("button.ks-yeni", { onclick: () => dukkanGir(sira) }, T.icon("next"), adOf(sira.l) + "na gir") : null);
         }
         /* dükkân içi oyun */
         let aktif = null, mi_ = 0, sayac = 0, kilitSec = false, sonFis = "";
@@ -152,9 +154,20 @@
           rehber.kok.position.copy(w); rehber.kok.rotation.y = d.g.rotation.y + 0.55; rehber.kok.visible = true; rehber.oynat("salla");
           if (!IO.learned().includes(d.l)) IO.setLearned(IO.learned().concat(d.l));
           setTimeout(() => aktif === d && rehber.oynat("bekle"), 2400);
-          alt.replaceChildren(); oyunTuru();
+          if (asamaOf(d.l) === 0 && sayac === 0) yazilisGoster(d, true); else { alt.replaceChildren(); oyunTuru(); }
+        }
+        /* Dükkâna ilk girişte: harfin yazılış yönü ve sesi. Oyun sırasında da açılabilir. */
+        function yazilisGoster(d, ilk) {
+          dinlemeDur(); fis.classList.remove("acik");
+          const kart = T.harfYazilis(d.l);
+          const kapat = () => { pano.remove(); if (ilk) { alt.replaceChildren(); oyunTuru(); } };
+          const pano = h("div.ks-yazilis", h("div.ks-yz-bas", h("b", adOf(d.l)), h("span", "Önce harfimizin yazılışına bakalım. Numaralı noktadan başla, ok yönünde yaz.")), kart,
+            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => kart._goster() }, T.icon("reset"), "Tekrar göster"), h("button.ot-b.dinle", { onclick: () => T.harfSesi(d.l) }, T.icon("speaker"), "Sesi dinle"),
+              h("button.ks-yeni", { onclick: kapat }, T.icon(ilk ? "next" : "check"), ilk ? "Müşterileri al" : "Tamam")));
+          kap.parentNode.append(pano);
         }
         function dukkandanCik() {
+          dinlemeDur(); const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove();
           aktif = null; rehber.kok.visible = false; musteriler.forEach((k) => { k.kok.visible = false; k.hedef = null; });
           genelKam(); mahalleKur(mahalleI); ustCiz(); altCiz();
         }
@@ -192,7 +205,7 @@
           if (asama === "cumle") {
             const isim = IO.NAMES.filter((n) => okur(n, L)), nesne = IO.PICS.filter(([w2]) => okur(w2, L)).map(([w2]) => w2);
             if (!isim.length || !nesne.length || !L.includes("a") || !L.includes("l")) return null;
-            const ciftler = []; isim.forEach((n) => nesne.forEach((w2) => { if ((T.trLower(n) + w2).includes(l)) ciftler.push([n, w2]); }));
+            let ciftler = []; isim.forEach((n) => nesne.forEach((w2) => { if (w2.includes(l)) ciftler.push([n, w2]); })); if (!ciftler.length) isim.forEach((n) => nesne.forEach((w2) => { if (T.trLower(n).includes(l)) ciftler.push([n, w2]); }));
             if (!ciftler.length) return null;
             const [n2, hedef] = T.pick(ciftler), dis = T.shuffle(IO.PICS.map(([w2]) => w2).filter((w2) => w2 !== hedef)).slice(0, 2);
             return { fis: `${n2}, ${hedef} al.`, soz: "Fişimi oku, istediğimi ver:", fisTur: "cumle", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, resim: PIC.get(x) })), dogru: hedef };
@@ -217,12 +230,49 @@
           fis.classList.add("acik"); fis._k = k;
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),
-            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => T.speak(q.dinle || (asama === "ses" ? T.trLower(q.fis) : q.fis)) }, T.icon("speaker"), "Dinle"), h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))));
+            h("div.ks-yan",
+              asama !== "ses" && SR ? (okuBtn = h("button.ks-oku" + (otoDinle ? ".dinliyor" : ""), { onclick: () => (dinleyici ? dinlemeDur() : dinlemeBasla(q, k, d)) }, T.icon("mic"), "Oku")) : null,
+              h("button.ot-b.dinle", { onclick: () => (asama === "ses" ? T.harfSesi(d.l) : T.speak(q.dinle || q.fis)) }, T.icon("speaker"), "Dinle"),
+              h("button.ot-b.dinle", { onclick: () => yazilisGoster(d, false), "aria-label": "Harfin yazılışı" }, T.icon("pen"), "Yazılış"),
+              h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))),
+            duyulan = h("div.ks-duyulan"));
+          if (asama !== "ses" && SR && otoDinle) dinlemeBasla(q, k, d);
+        }
+        /* Sesli okuma: çocuk fişi okur, tarayıcının konuşma tanıması duyduğunu seçeneklerle eşler.
+           Ses tanıma tarayıcının kendi hizmetidir; öğrenci adı ya da kaydı sitede tutulmaz. */
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let dinleyici = null, otoDinle = false, okuBtn = null, duyulan = null;
+        const norm = (x) => T.trLower(x).replace(/[^a-zçğıöşü ]/g, " ").replace(/\s+/g, " ").trim();
+        const mesafe = (a, b) => { const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, (_, i) => [i]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; };
+        const eslesir = (kelimeler, hedef) => kelimeler.some((w) => w === hedef || (hedef.length >= 4 && mesafe(w, hedef) <= 1));
+        function dinlemeDur() { otoDinle = false; if (dinleyici) { try { dinleyici.abort(); } catch (e) {} dinleyici = null; } okuBtn && okuBtn.classList.remove("dinliyor"); }
+        function dinlemeBasla(q, k, d) {
+          if (!SR || dinleyici) return;
+          const r = new SR(); dinleyici = r; otoDinle = true;
+          r.lang = "tr-TR"; r.interimResults = true; r.maxAlternatives = 5; r.continuous = false;
+          okuBtn && okuBtn.classList.add("dinliyor"); duyulan && (duyulan.textContent = "Dinliyorum. Fişi yüksek sesle oku.");
+          let bitti = false;
+          r.onresult = (e) => {
+            const metinler = []; for (let i = 0; i < e.results.length; i++) for (let j = 0; j < e.results[i].length; j++) metinler.push(norm(e.results[i][j].transcript));
+            const kelimeler = [...new Set(metinler.join(" ").split(" ").filter(Boolean))];
+            duyulan && (duyulan.textContent = "Duyduğum: " + (metinler[0] || ""));
+            const sira = [q.secenek.find((x) => x.id === q.dogru), ...q.secenek.filter((x) => x.id !== q.dogru)];
+            const bulunan = sira.find((x) => eslesir(kelimeler, norm(x.id)));
+            const sonMu = e.results[e.results.length - 1].isFinal;
+            if (bulunan && (bulunan.id === q.dogru || sonMu)) {
+              bitti = true; try { r.abort(); } catch (er) {} dinleyici = null; okuBtn && okuBtn.classList.remove("dinliyor");
+              const btn = [...alt.querySelectorAll(".ks-urun")][q.secenek.indexOf(bulunan)];
+              if (btn) sec(btn, bulunan.id === q.dogru, k, d).then(() => { if (bulunan.id !== q.dogru && aktif === d) { otoDinle = true; setTimeout(() => aktif === d && !dinleyici && fis.classList.contains("acik") && dinlemeBasla(q, k, d), 900); } });
+            }
+          };
+          r.onerror = (e) => { if (e.error === "not-allowed" || e.error === "service-not-allowed") { otoDinle = false; T.toast("Mikrofon izni verilmedi. Seçenekler dokunarak da seçilebilir."); } };
+          r.onend = () => { if (dinleyici === r) dinleyici = null; okuBtn && okuBtn.classList.remove("dinliyor"); if (!bitti && duyulan && otoDinle) duyulan.textContent = (duyulan.textContent.startsWith("Duyduğum") ? duyulan.textContent + ". " : "") + "Bir daha okumak için Oku'ya bas."; };
+          try { r.start(); } catch (e) { dinleyici = null; }
         }
         async function sec(btn, dogru, k, d) {
           if (kilitSec) return;
           if (!dogru) { btn.classList.add("kotu"); T.sound.no(); setTimeout(() => btn.classList.remove("kotu"), 500); if (k.var("hayir")) k.oynat("hayir", { dongu: false }).then(() => k.oynat("bekle")); else { const y0 = k.kok.rotation.y; tw(600, (t) => (k.kok.rotation.y = y0 + Math.sin(t * Math.PI * 4) * 0.35)); } return; }
-          kilitSec = true; btn.classList.add("iyi"); T.sound.ok();
+          kilitSec = true; btn.classList.add("iyi"); T.sound.ok(); if (dinleyici) { try { dinleyici.abort(); } catch (e) {} dinleyici = null; }
           fis.classList.remove("acik");
           rehber.oynat("sevin", { dongu: false }).then(() => aktif && rehber.oynat("bekle"));
           if (k.var("sevin")) { k.oynat("sevin", { dongu: false }); await bekle(1400); } else { await tw(600, (t) => (k.kok.position.y = Math.abs(Math.sin(t * Math.PI * 2)) * 0.35)); k.kok.position.y = 0; }
@@ -236,7 +286,7 @@
           if (aktif === d) oyunTuru();
         }
         function basamakCiz(d, ai, kutla) {
-          basamak.replaceChildren(h("div.ks-dk", h("span.ks-harf", BUYUK(d.l) + d.l), h("b", YER[d.l][0])),
+          basamak.replaceChildren(h("div.ks-dk", h("span.ks-harf", BUYUK(d.l) + d.l), h("b", adOf(d.l))),
             h("div.ks-adimlar", ASAMA.map(([, ad], i) => h("div.ks-adim" + (i < ai ? ".bitti" : i === ai ? ".simdi" : ""), h("i", i < ai ? "✓" : String(i + 1)), ad))),
             ai < 4 ? h("div.ks-sayac", Array.from({ length: MUSTERI_SAY[ASAMA[ai][0]] }, (_, i) => h("i" + (i < sayac ? ".ok" : "")))) : null);
           basamak.classList.add("acik"); if (kutla) { basamak.classList.remove("kutla"); void basamak.offsetWidth; basamak.classList.add("kutla"); }
@@ -247,10 +297,10 @@
           if (!zaten) { T.sound.ok(); T.konfeti && T.konfeti(); }
           rehber.oynat("sevin");
           const sonraki = ORDER[ORDER.indexOf(d.l) + 1];
-          alt.replaceChildren(h("div.ks-acildi", h("b", YER[d.l][0] + " açıldı!"), h("span", "Ses, hece, kelime ve cümle basamaklarını bitirdiniz.")),
+          alt.replaceChildren(h("div.ks-acildi", h("b", adOf(d.l) + " açıldı!"), h("span", "Ses, hece, kelime ve cümle basamaklarını bitirdiniz.")),
             h("div.ks-yan",
               h("button.ot-b.dinle", { onclick: () => { depYaz((k) => (k.asama[d.l] = 0)); sayac = 0; oyunTuru(); } }, T.icon("reset"), "Baştan oyna"),
-              sonraki ? h("button.ks-yeni", { onclick: () => { const mi = MAHALLE.findIndex(([, ls]) => ls.includes(sonraki)); if (mi !== mahalleI) { mahalleI = mi; mahalleKur(mi); ustCiz(); } else mahalleKur(mi); const d2 = dukkanlar.find((x) => x.l === sonraki); d2.kilit = false; rehber.oynat("bekle"); dukkanGir(d2); } }, T.icon("next"), "Sıradaki dükkân: " + YER[sonraki][0]) : null,
+              sonraki ? h("button.ks-yeni", { onclick: () => { const mi = MAHALLE.findIndex(([, ls]) => ls.includes(sonraki)); if (mi !== mahalleI) { mahalleI = mi; mahalleKur(mi); ustCiz(); } else mahalleKur(mi); const d2 = dukkanlar.find((x) => x.l === sonraki); d2.kilit = false; rehber.oynat("bekle"); dukkanGir(d2); } }, T.icon("next"), "Sıradaki: " + adOf(sonraki)) : null,
               h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))));
           setTimeout(() => aktif === d && rehber.oynat("bekle"), 2600);
         }

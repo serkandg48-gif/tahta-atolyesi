@@ -1,3 +1,10 @@
+/* Andika (SIL OFL): tek katlı a, kuyruklu l ve t; ilk okumada harf biçimi dik temel harfe en yakın yazı tipi */
+@font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url(vendor/andika/andika-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url(vendor/andika/andika-latin-700-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url(vendor/andika/andika-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url(vendor/andika/andika-latin-ext-700-normal.woff2) format("woff2"); unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+:root { --okuma: "Andika", "Onest", system-ui, sans-serif; }
+.ks-fis b, .ks-urun, .ks-harf, .ks-mah i, .yz-harf, .ok-yazi { font-family: var(--okuma) !important; }
 /* =====================================================================
    Yeni görünüm (vitrin onaylı): açık zemin, lacivert, Onest yazı tipi.
    Eski tebeşir tahtası stilinin üstüne yazar; bileşen yapısı aynı kalır.
@@ -1680,3 +1687,23 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-acildi span { font: 600 15px var(--body); color: #4B5E40; }
 .ks-ust .ks-mahalleler { pointer-events: auto; }
 @media (max-width: 760px) { .ks-alt { flex-wrap: wrap; } .ks-urun { min-height: 70px; } .ks-basamak { top: auto; bottom: 150px; } }
+/* Harf yazılış kartı */
+.yz-kart { display: grid; gap: 10px; padding: 14px; border-radius: 22px; background: #fff; box-shadow: 0 10px 28px rgba(0,0,0,.16); }
+.yz-ikili { display: flex; gap: 14px; justify-content: center; align-items: flex-end; }
+.yz-fig { margin: 0; display: grid; justify-items: center; gap: 4px; }
+.yz-fig figcaption { font: 700 15px var(--body); color: #4a5878; }
+.yz-svg { height: clamp(180px, 30vh, 300px); width: auto; display: block; }
+.yz-kart.kucuk .yz-svg { height: clamp(120px, 20vh, 200px); }
+.yz-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.ks-yazilis { position: absolute; inset: 0; z-index: 5; display: grid; place-content: center; gap: 14px; justify-items: center; background: rgba(240,248,255,.55); backdrop-filter: blur(6px); padding: 20px; }
+.ks-yz-bas { display: grid; justify-items: center; gap: 4px; text-align: center; }
+.ks-yz-bas b { font: 800 28px var(--display); color: #2D4A22; }
+.ks-yz-bas span { font: 600 17px var(--body); color: #33402c; max-width: 560px; }
+.ks-yazilis .yz-svg { height: clamp(170px, 34vh, 320px); }
+.ks-oku { display: flex; align-items: center; gap: 8px; height: 52px; padding: 0 18px; border: 0; border-radius: 999px; background: linear-gradient(#5BC27A, #2E9E5B); color: #fff; font: 800 18px var(--display); box-shadow: 0 5px 0 #1F7A3A; cursor: pointer; }
+.ks-oku svg { width: 22px; height: 22px; }
+.ks-oku.dinliyor { animation: ks-nabiz 1.1s infinite; background: linear-gradient(#FF7A7A, #E04848); box-shadow: 0 5px 0 #A02828; }
+@keyframes ks-nabiz { 50% { transform: scale(1.06); } }
+.ks-duyulan { position: absolute; left: 18px; bottom: calc(100% + 8px); padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,.92); font: 600 15px var(--body); color: #33402c; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+.ks-duyulan:empty { display: none; }
+.ks-alt { flex-wrap: nowrap; }

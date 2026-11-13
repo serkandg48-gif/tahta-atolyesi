@@ -114,19 +114,26 @@ function wav(pcm, rate = 24000) {
   v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, "data"); v.setUint32(40, n, true);
   const out = new Uint8Array(44 + n); out.set(new Uint8Array(h), 0); out.set(pcm, 44); return out;
 }
-async function ses(env, metin) {
+async function ses(env, metin, istem) {
   const modeller = (env.TTS_MODEL ? [env.TTS_MODEL] : []).concat(["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts"]);
   let son = { fail: "upstream" };
-  for (const model of modeller) { const r = await sesModel(env, metin, model); if (!r.fail) return r; son = r; if (r.fail === "busy") continue; }
+  for (const model of modeller) { const r = await sesModel(env, metin, model, istem); if (!r.fail) return r; son = r; if (r.fail === "busy") continue; }
   return son;
 }
-async function sesModel(env, metin, model) {
+/* Harf sesi: harfin adı ("ne") değil, sesin kendisi ("nnn"). Sonuç önbelleğe girer, her seferinde aynı ses çalar. */
+const SUREKLI = "nmlrsşzfvyhğj", PATLAMALI = "bcçdgkpt", SESLI = "aeıioöuü";
+function harfIstemi(l) {
+  if (SESLI.includes(l)) return `Bir ilkokul öğretmeni gibi Türkçedeki "${l}" ünlüsünü tek başına, net ve biraz uzatarak söyle: «${l.repeat(3)}». Başka hiçbir şey söyleme.`;
+  if (SUREKLI.includes(l)) return `Bir ilkokul öğretmeni harfleri çocuklara ses olarak öğretiyor. Türkçedeki "${l}" sesini çıkar. Harfin adını söyleme (örneğin "${l}e" deme). Önüne ya da arkasına ünlü ekleme. Yalnızca ünsüz sesi yaklaşık bir saniye kesintisiz uzat: «${l.repeat(5)}». Başka hiçbir şey söyleme.`;
+  return `Bir ilkokul öğretmeni harfleri çocuklara ses olarak öğretiyor. Türkçedeki "${l}" sesini çıkar. Harfin adını söyleme (örneğin "${l}e" deme). Bu patlamalı bir ünsüz: tek, kısa ve hafif bir patlama olarak söyle, arkasına neredeyse hiç ünlü gelmesin. Başka hiçbir şey söyleme.`;
+}
+async function sesModel(env, metin, model, istem) {
   /* Dil açıkça Türkçe verilir; "fare", "su", "pide" gibi kelimeler İngilizce okunmasın. */
   const istek = (dilKodu) => fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: "Aşağıdaki metin Türkçedir. İngilizce kelimeye benzese bile Türkçe harf sesleriyle, Türkiye Türkçesi telaffuzuyla oku. Sıcak ve net bir sesle, ilkokul öğretmeninin çocuklara okuması gibi, doğal hızda söyle. Metin: «" + metin + "»" }] }],
+      contents: [{ parts: [{ text: istem || "Aşağıdaki metin Türkçedir. İngilizce kelimeye benzese bile Türkçe harf sesleriyle, Türkiye Türkçesi telaffuzuyla oku. Sıcak ve net bir sesle, ilkokul öğretmeninin çocuklara okuması gibi, doğal hızda söyle. Metin: «" + metin + "»" }] }],
       generationConfig: { responseModalities: ["AUDIO"], speechConfig: Object.assign({ voiceConfig: { prebuiltVoiceConfig: { voiceName: env.TTS_VOICE || "Kore" } } }, dilKodu ? { languageCode: "tr-TR" } : {}) },
     }),
   });
@@ -191,7 +198,10 @@ async function api(request, env, path) {
     let b; try { b = await request.json(); } catch { return err("bad_request", "İstek okunamadı.", 400); }
     const metin = String(b.metin || "").replace(/\s+/g, " ").trim().slice(0, SES_MAX);
     if (!metin) return err("bad_request", "Okunacak metin yok.", 400);
-    const anahtar = await sha("v2|" + (env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
+    const harf = b.tur === "harf" ? metin.toLocaleLowerCase("tr") : "";
+    if (harf && !(SUREKLI + PATLAMALI + SESLI).includes(harf)) return err("bad_request", "Harf tanınmadı.", 400);
+    const istem = harf ? harfIstemi(harf) : null;
+    const anahtar = await sha((harf ? "harf1|" : "v2|") + (env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
     const depo = env.SES.get(env.SES.idFromName("ses:" + anahtar.slice(0, 2)));
     const varolan = await depo.al(anahtar);
     const ses_h = { "content-type": "audio/wav", "cache-control": "public, max-age=31536000, immutable" };
@@ -201,7 +211,7 @@ async function api(request, env, path) {
     if (!iq.ok) return err("tts_limit", "Doğal ses bugünlük doldu, cihazın sesi kullanılıyor.", 429);
     const gq = await genel(env).kullan(today() + ":ses", Math.max(1, parseInt(env.TTS_LIMIT, 10) || 300));
     if (!gq.ok) return err("tts_limit", "Doğal ses bugünlük doldu, cihazın sesi kullanılıyor.", 429);
-    let g; try { g = await ses(env, metin); } catch { g = { fail: "network" }; }
+    let g; try { g = await ses(env, metin, istem); } catch { g = { fail: "network" }; }
     if (g.fail) { await genel(env).iade(today() + ":ses"); return err("tts_" + g.fail, "Doğal ses şu an üretilemedi.", 503); }
     if (g.wav.length < 120000) await depo.koy(anahtar, b64u(g.wav));
     return new Response(g.wav, { headers: ses_h });

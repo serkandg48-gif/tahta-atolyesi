@@ -556,6 +556,13 @@ input[type="range"] { accent-color: var(--sky); width: 100%; }
 .oc-item details { margin: 4px 0 0 28px; font-size: 14px; color: var(--ink-soft, #555); }
 .oc-item details ul { margin: 4px 0 0; padding-left: 18px; }
 
+/* Andika (SIL OFL): tek katlı a, kuyruklu l ve t; ilk okumada harf biçimi dik temel harfe en yakın yazı tipi */
+@font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url(vendor/andika/andika-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url(vendor/andika/andika-latin-700-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url(vendor/andika/andika-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url(vendor/andika/andika-latin-ext-700-normal.woff2) format("woff2"); unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+:root { --okuma: "Andika", "Onest", system-ui, sans-serif; }
+.ks-fis b, .ks-urun, .ks-harf, .ks-mah i, .yz-harf, .ok-yazi { font-family: var(--okuma) !important; }
 /* =====================================================================
    Yeni görünüm (vitrin onaylı): açık zemin, lacivert, Onest yazı tipi.
    Eski tebeşir tahtası stilinin üstüne yazar; bileşen yapısı aynı kalır.
@@ -2238,6 +2245,26 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-acildi span { font: 600 15px var(--body); color: #4B5E40; }
 .ks-ust .ks-mahalleler { pointer-events: auto; }
 @media (max-width: 760px) { .ks-alt { flex-wrap: wrap; } .ks-urun { min-height: 70px; } .ks-basamak { top: auto; bottom: 150px; } }
+/* Harf yazılış kartı */
+.yz-kart { display: grid; gap: 10px; padding: 14px; border-radius: 22px; background: #fff; box-shadow: 0 10px 28px rgba(0,0,0,.16); }
+.yz-ikili { display: flex; gap: 14px; justify-content: center; align-items: flex-end; }
+.yz-fig { margin: 0; display: grid; justify-items: center; gap: 4px; }
+.yz-fig figcaption { font: 700 15px var(--body); color: #4a5878; }
+.yz-svg { height: clamp(180px, 30vh, 300px); width: auto; display: block; }
+.yz-kart.kucuk .yz-svg { height: clamp(120px, 20vh, 200px); }
+.yz-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.ks-yazilis { position: absolute; inset: 0; z-index: 5; display: grid; place-content: center; gap: 14px; justify-items: center; background: rgba(240,248,255,.55); backdrop-filter: blur(6px); padding: 20px; }
+.ks-yz-bas { display: grid; justify-items: center; gap: 4px; text-align: center; }
+.ks-yz-bas b { font: 800 28px var(--display); color: #2D4A22; }
+.ks-yz-bas span { font: 600 17px var(--body); color: #33402c; max-width: 560px; }
+.ks-yazilis .yz-svg { height: clamp(170px, 34vh, 320px); }
+.ks-oku { display: flex; align-items: center; gap: 8px; height: 52px; padding: 0 18px; border: 0; border-radius: 999px; background: linear-gradient(#5BC27A, #2E9E5B); color: #fff; font: 800 18px var(--display); box-shadow: 0 5px 0 #1F7A3A; cursor: pointer; }
+.ks-oku svg { width: 22px; height: 22px; }
+.ks-oku.dinliyor { animation: ks-nabiz 1.1s infinite; background: linear-gradient(#FF7A7A, #E04848); box-shadow: 0 5px 0 #A02828; }
+@keyframes ks-nabiz { 50% { transform: scale(1.06); } }
+.ks-duyulan { position: absolute; left: 18px; bottom: calc(100% + 8px); padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,.92); font: 600 15px var(--body); color: #33402c; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+.ks-duyulan:empty { display: none; }
+.ks-alt { flex-wrap: nowrap; }
 
 </style>
 </head>
@@ -2252,7 +2279,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="66cfaf859f";
+window.SURUM="f5357d112b";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -2802,6 +2829,7 @@ T.ICONS = {
   down: '<path d="M10 18l14 14 14-14"/>',
   star: '<path class="f" d="M24 6l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/><path d="M24 6l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/>',
   speaker: '<path class="f" d="M8 19h8l10-8v26l-10-8H8z"/><path d="M8 19h8l10-8v26l-10-8H8zM32 18c2 2 3 4 3 6s-1 4-3 6M37 13c3 3 5 7 5 11s-2 8-5 11"/>',
+  mic: '<path d="M24 6a6 6 0 0 1 6 6v12a6 6 0 0 1-12 0V12a6 6 0 0 1 6-6zM12 22a12 12 0 0 0 24 0M24 34v8M17 42h14"/>',
   trash: '<path class="f" d="M12 14h24l-2 27H14z"/><path d="M8 14h32M12 14l2 27h20l2-27M19 14V8h10v6M20 21v13M28 21v13"/>',
   rotate: '<path d="M38 24a14 14 0 1 1-4-10M38 8v8h-8"/>',
   eye: '<path class="f" d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24z"/><path d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24z"/><circle cx="24" cy="24" r="5"/>',
@@ -11627,6 +11655,192 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
   };
 })();
 
+/* ---- yazilis.js ---- */
+/* Harflerin yazılış yönü (dik temel harf) ve harf sesi.
+   Her harf numaralı çizgilerden oluşur. Çizgiler sırayla, yazılış yönünde canlandırılır; başlangıç noktasında numara durur.
+   Koordinatlar: üst çizgi y=20, orta çizgi y=60, taban y=100, alt çizgi y=140. */
+(function () {
+  const h = T.h;
+  const P = (a) => (Math.PI / 180) * a;
+  /* saat yönünün tersine tam daire: (cx,cy) merkez, bas: başlangıç açısı (matematik açısı, 0 = sağ, 90 = üst) */
+  const daire = (cx, cy, rx, ry, bas = 40) => { const n = (a) => `${(cx + rx * Math.cos(P(a))).toFixed(2)} ${(cy - ry * Math.sin(P(a))).toFixed(2)}`; return `M${n(bas)} A${rx} ${ry} 0 0 0 ${n(bas + 180)} A${rx} ${ry} 0 0 0 ${n(bas + 352)}`; };
+  const nokta = (x, y) => ({ nokta: [x, y] });
+  const cubuk = (x, y1, y2) => `M${x} ${y1} L${x} ${y2}`;
+  const yatay = (x1, x2, y) => `M${x1} ${y} L${x2} ${y}`;
+  const cKucuk = "M44 68 C40 61 33 58 26 58 C13 58 5 68 5 80 C5 92 13 100 26 100 C33 100 40 97 44 91";
+  const cBuyuk = "M54 32 C48 24 40 20 32 20 C15 20 5 38 5 60 C5 82 15 100 32 100 C40 100 48 96 54 88";
+  const sKucuk = "M42 64 C38 59 32 58 25 58 C14 58 7 63 7 70 C7 78 15 80 25 80 C36 80 44 83 44 90 C44 97 36 100 25 100 C16 100 9 98 5 93";
+  const sBuyuk = "M50 30 C45 22 38 20 30 20 C17 20 8 27 8 39 C8 52 20 57 31 60 C44 63 53 68 53 80 C53 93 43 100 30 100 C19 100 10 96 5 88";
+  const cengel = (x) => `M${x} 100 L${x} 106 C${x + 7} 106 ${x + 10} 109 ${x + 10} 113 C${x + 10} 118 ${x + 5} 121 ${x - 3} 120`;
+  const kemer = "M5 75 C5 63 14 58 25 58 C37 58 45 64 45 76 L45 100";
+  const gobek = "M5 76 C9 64 16 58 26 58 C38 58 45 68 45 80 C45 92 38 100 26 100 C16 100 9 96 5 88";
+  const uKucuk = "M5 60 L5 82 C5 94 13 100 25 100 C37 100 45 94 45 82 L45 60 L45 100";
+  const uBuyuk = "M5 20 L5 72 C5 90 15 100 30 100 C45 100 55 90 55 72 L55 20";
+  const kanca = (x) => `M${x} 60 L${x} 126 C${x} 136 ${x - 8} 142 ${x - 20} 142 C${x - 28} 142 ${x - 35} 139 ${x - 39} 134`;
+  const gBuyuk = "M54 32 C48 24 40 20 32 20 C15 20 5 38 5 60 C5 82 15 100 32 100 C44 100 54 92 54 76 L54 64 L34 64";
+  const K = {
+    a: { g: 50, c: [daire(25, 80, 20, 20, 35), cubuk(45, 60, 100)] },
+    n: { g: 50, c: [cubuk(5, 60, 100), kemer] },
+    e: { g: 50, c: ["M5 80 L45 80 C45 66 37 58 25 58 C12 58 5 68 5 80 C5 93 14 100 26 100 C34 100 40 97 44 92"] },
+    t: { g: 42, c: ["M18 30 L18 90 C18 97 23 100 30 100 C34 100 38 99 40 97", yatay(4, 36, 60)] },
+    i: { g: 20, c: [cubuk(10, 60, 100), nokta(10, 44)] },
+    l: { g: 30, c: ["M10 20 L10 90 C10 97 15 100 22 100 C25 100 28 99 30 97"] },
+    o: { g: 50, c: [daire(25, 80, 20, 20, 40)] },
+    k: { g: 46, c: [cubuk(5, 20, 100), "M40 60 L6 82 L42 100"] },
+    u: { g: 50, c: [uKucuk] },
+    r: { g: 42, c: [cubuk(5, 60, 100), "M5 76 C8 64 16 58 26 58 C32 58 36 60 40 63"] },
+    "ı": { g: 20, c: [cubuk(10, 60, 100)] },
+    m: { g: 64, c: [cubuk(5, 60, 100), "M5 74 C5 63 11 58 19 58 C27 58 32 63 32 72 L32 100", "M32 72 C32 63 38 58 46 58 C54 58 59 63 59 72 L59 100"] },
+    "ü": { g: 50, c: [uKucuk, nokta(15, 45), nokta(35, 45)] },
+    s: { g: 48, c: [sKucuk] },
+    "ö": { g: 50, c: [daire(25, 80, 20, 20, 40), nokta(15, 45), nokta(35, 45)] },
+    y: { g: 50, c: ["M5 60 L5 80 C5 92 13 98 24 98 C36 98 45 92 45 80", "M45 60 L45 128 C45 137 37 142 26 142 C18 142 11 139 7 134"] },
+    d: { g: 50, c: [daire(25, 80, 20, 20, 35), cubuk(45, 20, 100)] },
+    z: { g: 50, c: ["M6 60 L44 60 L6 100 L44 100"] },
+    "ç": { g: 50, c: [cKucuk, cengel(26)] },
+    b: { g: 50, c: [cubuk(5, 20, 100), gobek] },
+    g: { g: 50, c: [daire(25, 80, 20, 20, 35), kanca(45)] },
+    c: { g: 50, c: [cKucuk] },
+    "ş": { g: 48, c: [sKucuk, cengel(25)] },
+    p: { g: 50, c: [cubuk(5, 60, 140), gobek] },
+    h: { g: 50, c: [cubuk(5, 20, 100), kemer] },
+    v: { g: 50, c: ["M5 60 L25 100 L45 60"] },
+    "ğ": { g: 50, c: [daire(25, 80, 20, 20, 35), kanca(45), "M15 38 C17 46 21 49 25 49 C29 49 33 46 35 38"] },
+    f: { g: 42, c: ["M40 26 C37 21 33 20 29 20 C20 20 17 27 17 36 L17 100", yatay(5, 36, 60)] },
+    j: { g: 34, c: [kanca(30).replace("M30 60", "M30 60"), nokta(30, 44)] },
+  };
+  const B = {
+    A: { g: 60, c: ["M30 20 L5 100", "M30 20 L55 100", yatay(14, 46, 72)] },
+    N: { g: 55, c: [cubuk(5, 20, 100), "M5 20 L50 100", cubuk(50, 20, 100)] },
+    E: { g: 48, c: [cubuk(5, 20, 100), yatay(5, 45, 20), yatay(5, 40, 60), yatay(5, 45, 100)] },
+    T: { g: 60, c: [yatay(5, 55, 20), cubuk(30, 20, 100)] },
+    "İ": { g: 20, c: [cubuk(10, 20, 100), nokta(10, 6)] },
+    L: { g: 48, c: [cubuk(5, 20, 100), yatay(5, 45, 100)] },
+    O: { g: 64, c: [daire(32, 60, 27, 40, 40)] },
+    K: { g: 54, c: [cubuk(5, 20, 100), "M48 20 L6 64 L50 100"] },
+    U: { g: 60, c: [uBuyuk] },
+    R: { g: 56, c: [cubuk(5, 20, 100), "M5 20 L30 20 C42 20 50 28 50 40 C50 52 42 60 30 60 L5 60", "M28 60 L52 100"] },
+    I: { g: 20, c: [cubuk(10, 20, 100)] },
+    M: { g: 68, c: [cubuk(5, 20, 100), "M5 20 L34 72", "M34 72 L63 20", cubuk(63, 20, 100)] },
+    "Ü": { g: 60, c: [uBuyuk, nokta(20, 7), nokta(40, 7)] },
+    S: { g: 58, c: [sBuyuk] },
+    "Ö": { g: 64, c: [daire(32, 60, 27, 40, 40), nokta(22, 7), nokta(42, 7)] },
+    Y: { g: 60, c: ["M5 20 L30 58", "M55 20 L30 58", cubuk(30, 58, 100)] },
+    D: { g: 58, c: [cubuk(5, 20, 100), "M5 20 L22 20 C42 20 55 36 55 60 C55 84 42 100 22 100 L5 100"] },
+    Z: { g: 60, c: ["M6 20 L54 20 L6 100 L54 100"] },
+    "Ç": { g: 60, c: [cBuyuk, cengel(32)] },
+    B: { g: 56, c: [cubuk(5, 20, 100), "M5 20 L28 20 C40 20 46 27 46 39 C46 51 39 58 28 58 L5 58 L31 58 C44 58 52 66 52 79 C52 92 44 100 31 100 L5 100"] },
+    G: { g: 60, c: [gBuyuk] },
+    C: { g: 60, c: [cBuyuk] },
+    "Ş": { g: 58, c: [sBuyuk, cengel(30)] },
+    P: { g: 54, c: [cubuk(5, 20, 100), "M5 20 L30 20 C43 20 51 28 51 41 C51 54 43 62 30 62 L5 62"] },
+    H: { g: 54, c: [cubuk(5, 20, 100), cubuk(49, 20, 100), yatay(5, 49, 60)] },
+    V: { g: 60, c: ["M5 20 L30 100 L55 20"] },
+    "Ğ": { g: 60, c: [gBuyuk, "M22 2 C24 9 28 12 32 12 C36 12 40 9 42 2"] },
+    F: { g: 48, c: [cubuk(5, 20, 100), yatay(5, 45, 20), yatay(5, 40, 60)] },
+    J: { g: 50, c: ["M45 20 L45 78 C45 92 37 100 25 100 C14 100 7 94 4 86"] },
+  };
+  T.YAZILIS = { K, B };
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (ad, at) => { const e = document.createElementNS(NS, ad); for (const k in at) e.setAttribute(k, at[k]); return e; };
+  const RENK = ["#E8505B", "#2F80ED", "#27AE60", "#F2994A", "#9B51E0"];
+
+  /* Tek harf: SVG + oynat(). Seçenek: { kalin } */
+  function harfSvg(ch, o = {}) {
+    const veri = K[ch] || B[ch]; if (!veri) return null;
+    const g = veri.g, sol = -12, gen = g + 24;
+    const svg = el("svg", { viewBox: `${sol} -12 ${gen} 162`, class: "yz-svg", "aria-label": ch + " harfinin yazılışı" });
+    /* defter çizgileri */
+    svg.append(el("rect", { x: sol, y: 60, width: gen, height: 40, fill: "#FCE7EC" }));
+    [[20, "#C9D3E6", "4 4"], [60, "#E3A1B0", ""], [100, "#E3A1B0", ""], [140, "#C9D3E6", "4 4"]].forEach(([y, c, d]) => svg.append(el("line", { x1: sol, x2: sol + gen, y1: y, y2: y, stroke: c, "stroke-width": 1.2, "stroke-dasharray": d })));
+    const kat = el("g", {}), ust = el("g", {}), isaret = el("g", {}); svg.append(kat, ust, isaret);
+    const KAL = o.kalin || 10, parcalar = [];
+    veri.c.forEach((c, i) => {
+      if (c.nokta) {
+        const [x, y] = c.nokta;
+        kat.append(el("circle", { cx: x, cy: y, r: KAL * 0.62, fill: "#D9DEE8" }));
+        const d = el("circle", { cx: x, cy: y, r: KAL * 0.62, fill: "#1B2A4A", opacity: 0 }); ust.append(d);
+        parcalar.push({ nokta: true, d, bas: [x, y], i });
+        return;
+      }
+      kat.append(el("path", { d: c, fill: "none", stroke: "#D9DEE8", "stroke-width": KAL, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+      const p = el("path", { d: c, fill: "none", stroke: "#1B2A4A", "stroke-width": KAL, "stroke-linecap": "round", "stroke-linejoin": "round" }); ust.append(p);
+      parcalar.push({ p, i });
+    });
+    svg._parcalar = parcalar; svg._isaret = isaret;
+    return svg;
+  }
+  function isaretCiz(svg) {
+    const ik = svg._isaret; ik.replaceChildren(); const yerler = [];
+    svg._parcalar.forEach((pr) => {
+      let x, y, ax = 0, ay = 0;
+      if (pr.nokta) { [x, y] = pr.bas; x += 9; y -= 6; }
+      else {
+        const L = pr.p.getTotalLength(), a = pr.p.getPointAtLength(0), b = pr.p.getPointAtLength(Math.min(L, 6));
+        ax = b.x - a.x; ay = b.y - a.y; const n = Math.hypot(ax, ay) || 1; ax /= n; ay /= n;
+        /* numara, başlangıcın hemen dışında (yönün tersi tarafında, yana kaydırılmış) */
+        const aday = [[-9, 8], [-9, -8], [-14, 0], [0, 12], [0, -12], [-18, 10], [-18, -10]].map(([g, y2]) => [a.x + ax * g - ay * y2, a.y + ay * g + ax * y2]);
+        [x, y] = aday.find(([cx, cy]) => yerler.every(([px, py]) => Math.hypot(px - cx, py - cy) >= 12.5)) || aday[0];
+        /* yol üstünde küçük ok: uzunluğun ortası */
+        const m = pr.p.getPointAtLength(L * 0.55), m2 = pr.p.getPointAtLength(Math.min(L, L * 0.55 + 2)), dx = m2.x - m.x, dy = m2.y - m.y, nn = Math.hypot(dx, dy) || 1, ux = dx / nn, uy = dy / nn;
+        const ox = m.x - uy * 9, oy = m.y + ux * 9;
+        ik.append(el("path", { d: `M${(ox - ux * 5 - uy * 3).toFixed(1)} ${(oy - uy * 5 + ux * 3).toFixed(1)} L${(ox + ux * 2).toFixed(1)} ${(oy + uy * 2).toFixed(1)} L${(ox - ux * 5 + uy * 3).toFixed(1)} ${(oy - uy * 5 - ux * 3).toFixed(1)}`, fill: "none", stroke: RENK[pr.i % 5], "stroke-width": 1.8, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+      }
+      yerler.push([x, y]); ik.append(el("circle", { cx: x, cy: y, r: 5.6, fill: RENK[pr.i % 5] }));
+      const t = el("text", { x, y: y + 2.3, "text-anchor": "middle", "font-size": 7.5, "font-weight": 800, fill: "#fff", "font-family": "Onest, sans-serif" }); t.textContent = pr.i + 1; ik.append(t);
+    });
+  }
+  /* sırayla çiz; kalem noktası çizginin ucunda ilerler */
+  function oynat(svg, hiz = 1) {
+    const no = (svg._no = (svg._no || 0) + 1);
+    svg._parcalar.forEach((pr) => { if (pr.nokta) pr.d.setAttribute("opacity", 0); else { const L = pr.p.getTotalLength(); pr.L = L; pr.p.style.strokeDasharray = L + " " + L; pr.p.style.strokeDashoffset = L; } });
+    let kalem = svg.querySelector(".yz-kalem"); if (!kalem) { kalem = el("circle", { r: 4.2, class: "yz-kalem", fill: "#FFB648", stroke: "#fff", "stroke-width": 1.5 }); svg.append(kalem); }
+    kalem.setAttribute("opacity", 1);
+    let i = 0;
+    const sonraki = () => {
+      if (no !== svg._no) return;
+      if (i >= svg._parcalar.length) { kalem.setAttribute("opacity", 0); return; }
+      const pr = svg._parcalar[i++];
+      if (pr.nokta) { kalem.setAttribute("cx", pr.bas[0]); kalem.setAttribute("cy", pr.bas[1]); pr.d.setAttribute("opacity", 1); setTimeout(sonraki, 450 / hiz); return; }
+      const sure = Math.max(500, pr.L * 11) / hiz, t0 = performance.now();
+      const ad = (z) => { if (no !== svg._no) return; const p = Math.min(1, (z - t0) / sure), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; pr.p.style.strokeDashoffset = pr.L * (1 - e); const q = pr.p.getPointAtLength(pr.L * e); kalem.setAttribute("cx", q.x); kalem.setAttribute("cy", q.y); if (p < 1) requestAnimationFrame(ad); else setTimeout(sonraki, 260 / hiz); };
+      requestAnimationFrame(ad);
+    };
+    setTimeout(sonraki, 250);
+  }
+
+  /* Bir harfin küçük ve büyük biçimini yan yana gösteren kart */
+  T.harfYazilis = function (l, o = {}) {
+    const buyuk = l.toLocaleUpperCase("tr-TR");
+    const svgK = harfSvg(l), svgB = harfSvg(buyuk);
+    const kart = h("div.yz-kart" + (o.kucuk ? ".kucuk" : ""), h("div.yz-ikili", h("figure.yz-fig", svgB, h("figcaption", "Büyük " + buyuk)), h("figure.yz-fig", svgK, h("figcaption", "Küçük " + l))));
+    const goster = () => { [svgB, svgK].forEach((s) => s && isaretCiz(s)); oynat(svgB); setTimeout(() => oynat(svgK), o.birlikte ? 0 : 400 + svgB._parcalar.reduce((t, p) => t + (p.nokta ? 450 : Math.max(500, (p.p.getTotalLength() || 0) * 11) + 260), 0)); };
+    kart._goster = goster;
+    requestAnimationFrame(() => requestAnimationFrame(goster));
+    return kart;
+  };
+
+  /* Harf sesi: harfin adı değil, kendisi ("nnn"). Sunucuda bir kez üretilir, sonra hep aynısı çalar. */
+  const harfOnbellek = new Map();
+  T.harfSesi = async function (l) {
+    l = T.trLower(String(l || "")).trim(); if (!l) return;
+    T.sesDur && T.sesDur();
+    try {
+      let url = harfOnbellek.get(l);
+      if (!url) {
+        if (T.sesTercih && T.sesTercih() === "cihaz") throw 0;
+        const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ metin: l, tur: "harf" }) });
+        if (!r.ok) throw 0;
+        url = URL.createObjectURL(await r.blob()); harfOnbellek.set(l, url);
+      }
+      const a = new Audio(url); T._calan = a; await a.play();
+    } catch (e) {
+      if ("aeıioöuü".includes(l)) T.speak(l);
+      else T.toast("Harf sesi şu an çalınamıyor. Sesi siz verin: " + l + l + l);
+    }
+  };
+})();
+
 /* ---- kasaba.js ---- */
 /* Ses Kasabası: 1. sınıf ilk okuma yazma.
    Her ses grubu bir mahalle, her ses bir dükkân. Dükkânın dört basamağı var: ses, hece, kelime, cümle.
@@ -11643,10 +11857,11 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     g: ["Gözlemevi", "#DDE5ED", "#3A506B", "kubbe"], "ş": ["Şekerci", "#FFD6E0", "#D1495B", "ucgen"], c: ["Cevizci", "#D4A373", "#6F4E37", "ucgen"], p: ["Pastane", "#FFF1E6", "#E07A5F", "kubbe"],
     h: ["Hastane", "#FFFFFF", "#E63946", "duz"], "ğ": ["Dağ evi", "#B7B7A4", "#6B705C", "ucgen"], v: ["Veteriner", "#CDEAC0", "#4F772D", "duz"], f: ["Fırın", "#E9B872", "#8C4A2F", "kubbe"], j: ["Jimnastik salonu", "#BDE0FE", "#3A86FF", "duz"],
   };
-  const MAHALLE = [["Çınar Mahallesi", "anetil"], ["Lale Mahallesi", "okurım"], ["Deniz Mahallesi", "üsöydz"], ["Güneş Mahallesi", "çbgşcp"], ["Yıldız Mahallesi", "hğvfj"]];
+  const MAHALLE = [["Çınar Mahallesi", "anetil"], ["Lale Mahallesi", "okurım"], ["Deniz Mahallesi", "üsöydz"], ["Güneş Mahallesi", "çbgcş"], ["Yıldız Mahallesi", "phvğfj"]];
   const ASAMA = [["ses", "Ses"], ["hece", "Hece"], ["kelime", "Kelime"], ["cumle", "Cümle"]];
   const MUSTERI_SAY = { ses: 4, hece: 4, kelime: 4, cumle: 3 };
   const BUYUK = (l) => l.toLocaleUpperCase("tr-TR");
+  const adOf = (l) => BUYUK(l) + " dükkânı";
   const dep = () => { const s = T.store.get(); const id = T.store.activeClass().id; s.kasaba2 = s.kasaba2 || {}; return s.kasaba2[id] || { asama: {} }; };
   const depYaz = (fn) => T.store.update((s) => { const id = T.store.activeClass().id; s.kasaba2 = s.kasaba2 || {}; const k = (s.kasaba2[id] = s.kasaba2[id] || { asama: {} }); fn(k); });
   const asamaOf = (l) => dep().asama[l] || 0; /* 0-4, 4 = dükkân açıldı */
@@ -11714,12 +11929,12 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
         const gunes = new THREE.DirectionalLight(0xfff0d6, 3.0); gunes.position.set(-12, 20, 16); gunes.castShadow = true; gunes.shadow.mapSize.set(2048, 2048); const sc = gunes.shadow.camera; sc.left = -20; sc.right = 20; sc.top = 14; sc.bottom = -10; sc.near = 4; sc.far = 60; gunes.shadow.bias = -0.0005; gunes.shadow.normalBias = 0.03; sahne.add(gunes);
 
         /* dükkânlar */
-        const tabelaDoku = (l, ad, kilitli) => c.doku(512, 256, (x, w, hh) => { x.fillStyle = kilitli ? "#E6E6E6" : "#FFF8EC"; x.beginPath(); x.roundRect(6, 6, w - 12, hh - 12, 36); x.fill(); x.lineWidth = 10; x.strokeStyle = kilitli ? "#9A9A9A" : "#5B3A29"; x.stroke(); x.fillStyle = kilitli ? "#A0A0A0" : "#D1495B"; x.font = "900 150px 'Baloo 2', sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(BUYUK(l) + l, w / 2, hh * 0.42); x.fillStyle = kilitli ? "#8A8A8A" : "#3A2A20"; x.font = "800 42px 'Baloo 2', sans-serif"; x.fillText(kilitli ? "Yakında" : ad, w / 2, hh * 0.82); });
+        const tabelaDoku = (l, ad, kilitli) => c.doku(512, 256, (x, w, hh) => { x.fillStyle = kilitli ? "#E6E6E6" : "#FFF8EC"; x.beginPath(); x.roundRect(6, 6, w - 12, hh - 12, 36); x.fill(); x.lineWidth = 10; x.strokeStyle = kilitli ? "#9A9A9A" : "#5B3A29"; x.stroke(); x.fillStyle = kilitli ? "#A0A0A0" : "#D1495B"; x.font = "700 150px Andika, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(BUYUK(l) + l, w / 2, hh * 0.42); x.fillStyle = kilitli ? "#8A8A8A" : "#3A2A20"; x.font = "700 46px Andika, sans-serif"; x.fillText(kilitli ? "Yakında" : ad, w / 2, hh * 0.82); });
         const tenteD = (renk) => c.doku(256, 64, (x, w, hh) => { for (let i = 0; i < 8; i++) { x.fillStyle = i % 2 ? "#FFFFFF" : renk; x.fillRect((i * w) / 8, 0, w / 8 + 1, hh); } });
         let dukkanlar = [], mahalleGrup = null;
         const acikMi = (l) => { const i = ORDER.indexOf(l); return i === 0 || asamaOf(l) > 0 || asamaOf(ORDER[i - 1]) >= 4 || IO.learned().includes(l); };
         function dukkan(l, i) {
-          const [ad, govde, cati, tip] = YER[l], kilit = !acikMi(l);
+          const [, govde, cati, tip] = YER[l], ad = BUYUK(l) + " sesi", kilit = !acikMi(l);
           const x = -11 + i * 4.4, z = yolEgri(x) - 4.6, g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = Math.sin(x * 0.12) * -0.12; mahalleGrup.add(g);
           const gm = M({ color: kilit ? 0xcfcfcf : govde, roughness: 0.75 }), cm = M({ color: kilit ? 0x9e9e9e : cati, roughness: 0.6 });
           const camM = new THREE.MeshStandardMaterial({ color: 0xbfe7ff, roughness: 0.1, metalness: 0.2, emissive: 0xffc45c, emissiveIntensity: asamaOf(l) >= 4 ? 0.9 : 0.05 }), kapM = M({ color: 0x6b4226, roughness: 0.6 }), beyaz = M({ color: 0xffffff, roughness: 0.6 });
@@ -11748,6 +11963,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
         const [rehber, kedi, kopek, robot, baykus] = await Promise.all([T.karakter3B(c, "sincap", { boy: 1.75 }), T.karakter3B(c, "kedi", { boy: 0.95 }), T.karakter3B(c, "kopek", { boy: 1.05 }), T.karakter3B(c, "robot", { boy: 1.6 }), T.karakter3B(c, "baykus", { boy: 1.45 })]);
         const musteriler = [kedi, robot, kopek, baykus];
         [rehber, ...musteriler].forEach((k) => { sahne.add(k.kok); k.kok.visible = false; });
+        try { await document.fonts.load("700 100px Andika", "AaÇçĞğ"); } catch (e) {}
         mahalleKur(mahalleI);
         /* kamera */
         const kam = { p: new THREE.Vector3(0, 5.2, 15.5), b: new THREE.Vector3(0, 1.4, -2.6), hp: null, hb: null };
@@ -11769,8 +11985,8 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
         function altCiz() {
           fis.classList.remove("acik"); basamak.classList.remove("acik");
           const sira = dukkanlar.find((d) => asamaOf(d.l) < 4);
-          alt.replaceChildren(h("div.ks-ipucu", sira ? (sira.kilit ? "Bu mahallenin dükkânları, önceki mahalle bitince açılır." : `Bir dükkâna dokun. Sıradaki dükkân: ${YER[sira.l][0]} (${BUYUK(sira.l)}${sira.l})`) : "Bu mahallenin bütün dükkânları açıldı. Harika!"),
-            sira && !sira.kilit ? h("button.ks-yeni", { onclick: () => dukkanGir(sira) }, T.icon("next"), YER[sira.l][0] + " dükkânına gir") : null);
+          alt.replaceChildren(h("div.ks-ipucu", sira ? (sira.kilit ? "Bu mahallenin dükkânları, önceki mahalle bitince açılır." : `Her dükkânda o sesin olduğu şeyler satılır. Sıradaki: ${adOf(sira.l)}`) : "Bu mahallenin bütün dükkânları açıldı. Harika!"),
+            sira && !sira.kilit ? h("button.ks-yeni", { onclick: () => dukkanGir(sira) }, T.icon("next"), adOf(sira.l) + "na gir") : null);
         }
         /* dükkân içi oyun */
         let aktif = null, mi_ = 0, sayac = 0, kilitSec = false, sonFis = "";
@@ -11782,9 +11998,20 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           rehber.kok.position.copy(w); rehber.kok.rotation.y = d.g.rotation.y + 0.55; rehber.kok.visible = true; rehber.oynat("salla");
           if (!IO.learned().includes(d.l)) IO.setLearned(IO.learned().concat(d.l));
           setTimeout(() => aktif === d && rehber.oynat("bekle"), 2400);
-          alt.replaceChildren(); oyunTuru();
+          if (asamaOf(d.l) === 0 && sayac === 0) yazilisGoster(d, true); else { alt.replaceChildren(); oyunTuru(); }
+        }
+        /* Dükkâna ilk girişte: harfin yazılış yönü ve sesi. Oyun sırasında da açılabilir. */
+        function yazilisGoster(d, ilk) {
+          dinlemeDur(); fis.classList.remove("acik");
+          const kart = T.harfYazilis(d.l);
+          const kapat = () => { pano.remove(); if (ilk) { alt.replaceChildren(); oyunTuru(); } };
+          const pano = h("div.ks-yazilis", h("div.ks-yz-bas", h("b", adOf(d.l)), h("span", "Önce harfimizin yazılışına bakalım. Numaralı noktadan başla, ok yönünde yaz.")), kart,
+            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => kart._goster() }, T.icon("reset"), "Tekrar göster"), h("button.ot-b.dinle", { onclick: () => T.harfSesi(d.l) }, T.icon("speaker"), "Sesi dinle"),
+              h("button.ks-yeni", { onclick: kapat }, T.icon(ilk ? "next" : "check"), ilk ? "Müşterileri al" : "Tamam")));
+          kap.parentNode.append(pano);
         }
         function dukkandanCik() {
+          dinlemeDur(); const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove();
           aktif = null; rehber.kok.visible = false; musteriler.forEach((k) => { k.kok.visible = false; k.hedef = null; });
           genelKam(); mahalleKur(mahalleI); ustCiz(); altCiz();
         }
@@ -11822,7 +12049,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           if (asama === "cumle") {
             const isim = IO.NAMES.filter((n) => okur(n, L)), nesne = IO.PICS.filter(([w2]) => okur(w2, L)).map(([w2]) => w2);
             if (!isim.length || !nesne.length || !L.includes("a") || !L.includes("l")) return null;
-            const ciftler = []; isim.forEach((n) => nesne.forEach((w2) => { if ((T.trLower(n) + w2).includes(l)) ciftler.push([n, w2]); }));
+            let ciftler = []; isim.forEach((n) => nesne.forEach((w2) => { if (w2.includes(l)) ciftler.push([n, w2]); })); if (!ciftler.length) isim.forEach((n) => nesne.forEach((w2) => { if (T.trLower(n).includes(l)) ciftler.push([n, w2]); }));
             if (!ciftler.length) return null;
             const [n2, hedef] = T.pick(ciftler), dis = T.shuffle(IO.PICS.map(([w2]) => w2).filter((w2) => w2 !== hedef)).slice(0, 2);
             return { fis: `${n2}, ${hedef} al.`, soz: "Fişimi oku, istediğimi ver:", fisTur: "cumle", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, resim: PIC.get(x) })), dogru: hedef };
@@ -11847,12 +12074,49 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           fis.classList.add("acik"); fis._k = k;
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),
-            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => T.speak(q.dinle || (asama === "ses" ? T.trLower(q.fis) : q.fis)) }, T.icon("speaker"), "Dinle"), h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))));
+            h("div.ks-yan",
+              asama !== "ses" && SR ? (okuBtn = h("button.ks-oku" + (otoDinle ? ".dinliyor" : ""), { onclick: () => (dinleyici ? dinlemeDur() : dinlemeBasla(q, k, d)) }, T.icon("mic"), "Oku")) : null,
+              h("button.ot-b.dinle", { onclick: () => (asama === "ses" ? T.harfSesi(d.l) : T.speak(q.dinle || q.fis)) }, T.icon("speaker"), "Dinle"),
+              h("button.ot-b.dinle", { onclick: () => yazilisGoster(d, false), "aria-label": "Harfin yazılışı" }, T.icon("pen"), "Yazılış"),
+              h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))),
+            duyulan = h("div.ks-duyulan"));
+          if (asama !== "ses" && SR && otoDinle) dinlemeBasla(q, k, d);
+        }
+        /* Sesli okuma: çocuk fişi okur, tarayıcının konuşma tanıması duyduğunu seçeneklerle eşler.
+           Ses tanıma tarayıcının kendi hizmetidir; öğrenci adı ya da kaydı sitede tutulmaz. */
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let dinleyici = null, otoDinle = false, okuBtn = null, duyulan = null;
+        const norm = (x) => T.trLower(x).replace(/[^a-zçğıöşü ]/g, " ").replace(/\s+/g, " ").trim();
+        const mesafe = (a, b) => { const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, (_, i) => [i]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; };
+        const eslesir = (kelimeler, hedef) => kelimeler.some((w) => w === hedef || (hedef.length >= 4 && mesafe(w, hedef) <= 1));
+        function dinlemeDur() { otoDinle = false; if (dinleyici) { try { dinleyici.abort(); } catch (e) {} dinleyici = null; } okuBtn && okuBtn.classList.remove("dinliyor"); }
+        function dinlemeBasla(q, k, d) {
+          if (!SR || dinleyici) return;
+          const r = new SR(); dinleyici = r; otoDinle = true;
+          r.lang = "tr-TR"; r.interimResults = true; r.maxAlternatives = 5; r.continuous = false;
+          okuBtn && okuBtn.classList.add("dinliyor"); duyulan && (duyulan.textContent = "Dinliyorum. Fişi yüksek sesle oku.");
+          let bitti = false;
+          r.onresult = (e) => {
+            const metinler = []; for (let i = 0; i < e.results.length; i++) for (let j = 0; j < e.results[i].length; j++) metinler.push(norm(e.results[i][j].transcript));
+            const kelimeler = [...new Set(metinler.join(" ").split(" ").filter(Boolean))];
+            duyulan && (duyulan.textContent = "Duyduğum: " + (metinler[0] || ""));
+            const sira = [q.secenek.find((x) => x.id === q.dogru), ...q.secenek.filter((x) => x.id !== q.dogru)];
+            const bulunan = sira.find((x) => eslesir(kelimeler, norm(x.id)));
+            const sonMu = e.results[e.results.length - 1].isFinal;
+            if (bulunan && (bulunan.id === q.dogru || sonMu)) {
+              bitti = true; try { r.abort(); } catch (er) {} dinleyici = null; okuBtn && okuBtn.classList.remove("dinliyor");
+              const btn = [...alt.querySelectorAll(".ks-urun")][q.secenek.indexOf(bulunan)];
+              if (btn) sec(btn, bulunan.id === q.dogru, k, d).then(() => { if (bulunan.id !== q.dogru && aktif === d) { otoDinle = true; setTimeout(() => aktif === d && !dinleyici && fis.classList.contains("acik") && dinlemeBasla(q, k, d), 900); } });
+            }
+          };
+          r.onerror = (e) => { if (e.error === "not-allowed" || e.error === "service-not-allowed") { otoDinle = false; T.toast("Mikrofon izni verilmedi. Seçenekler dokunarak da seçilebilir."); } };
+          r.onend = () => { if (dinleyici === r) dinleyici = null; okuBtn && okuBtn.classList.remove("dinliyor"); if (!bitti && duyulan && otoDinle) duyulan.textContent = (duyulan.textContent.startsWith("Duyduğum") ? duyulan.textContent + ". " : "") + "Bir daha okumak için Oku'ya bas."; };
+          try { r.start(); } catch (e) { dinleyici = null; }
         }
         async function sec(btn, dogru, k, d) {
           if (kilitSec) return;
           if (!dogru) { btn.classList.add("kotu"); T.sound.no(); setTimeout(() => btn.classList.remove("kotu"), 500); if (k.var("hayir")) k.oynat("hayir", { dongu: false }).then(() => k.oynat("bekle")); else { const y0 = k.kok.rotation.y; tw(600, (t) => (k.kok.rotation.y = y0 + Math.sin(t * Math.PI * 4) * 0.35)); } return; }
-          kilitSec = true; btn.classList.add("iyi"); T.sound.ok();
+          kilitSec = true; btn.classList.add("iyi"); T.sound.ok(); if (dinleyici) { try { dinleyici.abort(); } catch (e) {} dinleyici = null; }
           fis.classList.remove("acik");
           rehber.oynat("sevin", { dongu: false }).then(() => aktif && rehber.oynat("bekle"));
           if (k.var("sevin")) { k.oynat("sevin", { dongu: false }); await bekle(1400); } else { await tw(600, (t) => (k.kok.position.y = Math.abs(Math.sin(t * Math.PI * 2)) * 0.35)); k.kok.position.y = 0; }
@@ -11866,7 +12130,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           if (aktif === d) oyunTuru();
         }
         function basamakCiz(d, ai, kutla) {
-          basamak.replaceChildren(h("div.ks-dk", h("span.ks-harf", BUYUK(d.l) + d.l), h("b", YER[d.l][0])),
+          basamak.replaceChildren(h("div.ks-dk", h("span.ks-harf", BUYUK(d.l) + d.l), h("b", adOf(d.l))),
             h("div.ks-adimlar", ASAMA.map(([, ad], i) => h("div.ks-adim" + (i < ai ? ".bitti" : i === ai ? ".simdi" : ""), h("i", i < ai ? "✓" : String(i + 1)), ad))),
             ai < 4 ? h("div.ks-sayac", Array.from({ length: MUSTERI_SAY[ASAMA[ai][0]] }, (_, i) => h("i" + (i < sayac ? ".ok" : "")))) : null);
           basamak.classList.add("acik"); if (kutla) { basamak.classList.remove("kutla"); void basamak.offsetWidth; basamak.classList.add("kutla"); }
@@ -11877,10 +12141,10 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           if (!zaten) { T.sound.ok(); T.konfeti && T.konfeti(); }
           rehber.oynat("sevin");
           const sonraki = ORDER[ORDER.indexOf(d.l) + 1];
-          alt.replaceChildren(h("div.ks-acildi", h("b", YER[d.l][0] + " açıldı!"), h("span", "Ses, hece, kelime ve cümle basamaklarını bitirdiniz.")),
+          alt.replaceChildren(h("div.ks-acildi", h("b", adOf(d.l) + " açıldı!"), h("span", "Ses, hece, kelime ve cümle basamaklarını bitirdiniz.")),
             h("div.ks-yan",
               h("button.ot-b.dinle", { onclick: () => { depYaz((k) => (k.asama[d.l] = 0)); sayac = 0; oyunTuru(); } }, T.icon("reset"), "Baştan oyna"),
-              sonraki ? h("button.ks-yeni", { onclick: () => { const mi = MAHALLE.findIndex(([, ls]) => ls.includes(sonraki)); if (mi !== mahalleI) { mahalleI = mi; mahalleKur(mi); ustCiz(); } else mahalleKur(mi); const d2 = dukkanlar.find((x) => x.l === sonraki); d2.kilit = false; rehber.oynat("bekle"); dukkanGir(d2); } }, T.icon("next"), "Sıradaki dükkân: " + YER[sonraki][0]) : null,
+              sonraki ? h("button.ks-yeni", { onclick: () => { const mi = MAHALLE.findIndex(([, ls]) => ls.includes(sonraki)); if (mi !== mahalleI) { mahalleI = mi; mahalleKur(mi); ustCiz(); } else mahalleKur(mi); const d2 = dukkanlar.find((x) => x.l === sonraki); d2.kilit = false; rehber.oynat("bekle"); dukkanGir(d2); } }, T.icon("next"), "Sıradaki: " + adOf(sonraki)) : null,
               h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))));
           setTimeout(() => aktif === d && rehber.oynat("bekle"), 2600);
         }
@@ -12151,7 +12415,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
    Ses sırası Maarif Modeli 1. sınıf ilk okuma yazma kitabını izler. Oyun içerikleri bu uygulama için yazılmıştır. */
 (function () {
   const { h } = T; const S = T.svg;
-  const ORDER = ["a", "n", "e", "t", "i", "l", "o", "k", "u", "r", "ı", "m", "ü", "s", "ö", "y", "d", "z", "ç", "b", "g", "ş", "c", "p", "h", "ğ", "v", "f", "j"];
+  const ORDER = ["a", "n", "e", "t", "i", "l", "o", "k", "u", "r", "ı", "m", "ü", "s", "ö", "y", "d", "z", "ç", "b", "g", "c", "ş", "p", "h", "v", "ğ", "f", "j"];
   const VOW = "aeıioöuü";
   // 1. kitapta seslerin başladığı PDF sayfaları (246 sayfalık 1. kitap)
   const BOOK1 = { pages: 246, start: { a: 54, n: 66, e: 82, t: 100, i: 122, l: 136, o: 154, k: 166, u: 182, r: 200, ı: 212, m: 226 } };
@@ -12290,7 +12554,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     return (ctx, W, H, mask) => {
       const { top, base } = mask ? { top: H * 0.18, base: H * 0.78 } : linedGuide(ctx, W, H);
       const size = (base - top) * 1.32;
-      ctx.font = `600 ${size}px Lexend, "Segoe UI", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.font = `400 ${size}px Andika, Lexend, "Segoe UI", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
       const n = text.length, gap = W / (n + 1);
       [...text].forEach((ch, i) => {
         const x = gap * (i + 1);
@@ -12304,8 +12568,8 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
       let L = learned(), ch = L[L.length - 1], mode = "kucuk", text = ch;
       const bar = h("div.row");
       const update = () => { text = mode === "kucuk" ? ch : mode === "buyuk" ? T.trUpper(ch) : (T.trUpper(ch) + ch); paintBar(); pad.repaint(); };
-      const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(text)(ctx, W, H, m) });
-      function paintBar() { bar.replaceChildren(letterPicker(ch, (l) => { ch = l; update(); }, ORDER), h("div.seg", [["kucuk", "Küçük"], ["buyuk", "Büyük"], ["ikisi", "İkisi"]].map(([v, l]) => h("button", { "aria-pressed": String(v === mode), onclick: () => { mode = v; update(); } }, l))), h("button.btn.c-sky", { onclick: () => T.speak(ch) }, T.icon("speaker"), "Sesini dinle")); }
+      const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(text)(ctx, W, H, m) }); document.fonts && document.fonts.load("400 100px Andika", "aAğĞşŞ").then(() => pad.repaint()).catch(() => {});
+      function paintBar() { bar.replaceChildren(letterPicker(ch, (l) => { ch = l; update(); }, ORDER), h("div.seg", [["kucuk", "Küçük"], ["buyuk", "Büyük"], ["ikisi", "İkisi"]].map(([v, l]) => h("button", { "aria-pressed": String(v === mode), onclick: () => { mode = v; update(); } }, l))), h("button.btn.c-sky", { onclick: () => T.harfSesi(ch) }, T.icon("speaker"), "Sesini dinle"), h("button.btn.c-grape", { onclick: () => { const v = host.querySelector(".yz-kart"); if (v) { v.remove(); return; } bar.after(T.harfYazilis(ch, { kucuk: true })); } }, T.icon("pen"), "Yazılış yönü")); const v = host.querySelector(".yz-kart"); if (v) v.replaceWith(T.harfYazilis(ch, { kucuk: true })); }
       host.prepend(bar); paintBar();
     } });
   tool("rakam-yaz", { title: "Rakam yazalım", icon: "math", tone: "sun", short: "Rakamı say, yaz",

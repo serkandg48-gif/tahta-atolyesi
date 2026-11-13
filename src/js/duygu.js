@@ -55,36 +55,62 @@
   const present = () => { const s = T.store.get(), c = T.store.activeClass(); const day = (s.attendance[c.id] || {})[T.isoDate()] || {}; return c.students.filter((x) => day[x.id] !== "yok"); };
 
   /* 1. Duygumetre */
+  /* Duygudan bölgeye: duyguyu fark et, nedenini söyle, alet çantasından bir yol seç */
+  const NEDEN = [["arkadas", "Arkadaşlarım"], ["ev", "Evim, ailem"], ["ders", "Derslerim"], ["oyun", "Oyun"], ["uyku", "Uykum, yorgunluk"], ["saglik", "Bedenim"], ["baska", "Başka bir şey"]];
+  const bolgeOf = (d, siddet) => ({ yorgun: 0, uzgun: 0, mutlu: 1, sakin: 1, gururlu: 1, heyecanli: 2, saskin: 2, endiseli: 2, korkmus: siddet >= 5 ? 3 : 2, kizgin: siddet >= 3 ? 3 : 2 })[d] ?? 1;
+  T.duyguBolge = bolgeOf;
   tool("duygumetre", {
-    title: "Duygumetre", icon: "heart", tone: "pink", short: "Nasıl hissediyorum, ne kadar? Sınıfın duygu haritası",
+    title: "Duygumetre", icon: "heart", tone: "pink", short: "Nasılım, neden, ne yapabilirim? Duygu, bölge ve alet çantası bir arada",
     render(host) {
-      let mod = "tek", secili = null, siddet = 3, ogr = null;
+      let mod = "tek", secili = null, siddet = 3, ogr = null, neden = null;
       const box = h("div"); host.append(box);
-      const kayitAl = () => { const s = T.store.get(); s.duygu = s.duygu || {}; return s.duygu[cid() + ":" + T.isoDate()] || {}; };
+      const kayitAl = (gun = T.isoDate()) => { const s = T.store.get(); s.duygu = s.duygu || {}; return s.duygu[cid() + ":" + gun] || {}; };
+      function ozet() {
+        const gunler = []; for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); gunler.push(T.isoDate(d)); }
+        const say = {}, nsay = {}, bsay = [0, 0, 0, 0], zor = {}; let top = 0, gunSay = 0;
+        gunler.forEach((g) => { const k = kayitAl(g), v = Object.entries(k); if (v.length) gunSay++; v.forEach(([sid, x]) => { top++; say[x.d] = (say[x.d] || 0) + 1; if (x.n) nsay[x.n] = (nsay[x.n] || 0) + 1; bsay[bolgeOf(x.d, x.s)]++; if (["kizgin", "uzgun", "korkmus", "endiseli"].includes(x.d)) zor[sid] = (zor[sid] || 0) + 1; }); });
+        if (!top) return h("div.sb-card", h("h3", "Son 7 gün"), h("p.hint", "Henüz kayıt yok. \"Sırayla herkes\" ile çocuklar duygusunu seçtikçe özet burada oluşur."));
+        const st = T.store.activeClass().students, bar = (n, c) => h("div.dy-cbar", h("i", { style: { width: (n / top) * 100 + "%", background: c } }));
+        const izle = Object.entries(zor).filter(([, n]) => n >= 2).map(([sid, n]) => [st.find((x) => x.id === sid), n]).filter(([x]) => x);
+        return h("div.dy-ozet",
+          h("div.sb-card", h("h3", "Son 7 gün: duygular"), h("p.hint", gunSay + " günde " + top + " seçim"), h("div.dy-chart", DUYGU.filter(([k]) => say[k]).sort((x, y) => say[y[0]] - say[x[0]]).map(([k, l, c]) => h("div.dy-crow", T.yuz(k, 34), h("span", l), bar(say[k], c), h("b", say[k]))))),
+          h("div.sb-card", h("h3", "Bölgeler"), h("div.dy-chart", T.BOLGE.map(([ad, , c], i) => h("div.dy-crow", h("i.dy-bnokta", { style: { background: c } }), h("span", ad), bar(bsay[i], c), h("b", bsay[i])))),
+            Object.keys(nsay).length ? h("h3", { style: { marginTop: "14px" } }, "Nedenler") : null, h("div.dy-chart", NEDEN.filter(([k]) => nsay[k]).sort((x, y) => nsay[y[0]] - nsay[x[0]]).map(([k, l]) => h("div.dy-crow", h("i.dy-bnokta", { style: { background: "#8E7DBE" } }), h("span", l), bar(nsay[k], "#8E7DBE"), h("b", nsay[k]))))),
+          h("div.sb-card", h("h3", "Birebir konuşmak iyi olabilir"), izle.length ? h("div.dy-names", izle.map(([x, n]) => h("span.dy-izle", T.avatar(x.name, 28), x.name, h("small", n + " kez zor duygu")))) : h("p.hint", "Bu hafta zor duyguyu iki kez ya da daha çok seçen öğrenci yok."),
+            h("p.hint", "Bu özet yalnızca bu cihazda tutulur, hiçbir yere gönderilmez.")));
+      }
       function ciz() {
         const kayit = kayitAl();
-        const faces = h("div.dy-faces", DUYGU.map(([k, l]) => h("button.dy-face", { "aria-pressed": String(secili === k), onclick: () => { secili = k; T.speak(l); ciz(); } }, T.yuz(k, 92), h("span", l))));
+        if (mod === "bolge") { box.replaceChildren(ustBar()); T.tools.bolgeler.render(box); return; }
+        if (mod === "ozet") { box.replaceChildren(ustBar(), ozet()); return; }
+        const faces = h("div.dy-faces", DUYGU.map(([k, l]) => h("button.dy-face", { "aria-pressed": String(secili === k), onclick: () => { secili = k; neden = null; T.speak(l); ciz(); } }, T.yuz(k, 92), h("span", l))));
         const termo = h("div.dy-termo", h("div.dy-tlabel", "Ne kadar?"), h("div.dy-tbar", [1, 2, 3, 4, 5].map((n) => h("button", { "aria-pressed": String(n <= siddet), "aria-label": n + " / 5", onclick: () => { siddet = n; ciz(); } }, n))), h("div.dy-tends", h("span", "Biraz"), h("span", "Çok")));
-        const cumle = secili ? h("div.dy-cumle", "Ben şu an ", h("b", (siddet >= 4 ? "çok " : siddet <= 2 ? "biraz " : "") + T.trLower(DUYGU.find((x) => x[0] === secili)[1])), " hissediyorum çünkü ...") : h("div.dy-cumle.hint", "Bir yüz seç, sonra ne kadar hissettiğini göster.");
+        const dAd = secili ? T.trLower(DUYGU.find((x) => x[0] === secili)[1]) : "";
+        const cumle = secili ? h("div.dy-cumle", "Ben şu an ", h("b", (siddet >= 4 ? "çok " : siddet <= 2 ? "biraz " : "") + dAd), " hissediyorum", neden ? [" çünkü ", h("b", T.trLower(NEDEN.find((x) => x[0] === neden)[1])), " ile ilgili bir şey oldu."] : " çünkü ...") : h("div.dy-cumle.hint", "Bir yüz seç, sonra ne kadar hissettiğini göster.");
+        const nedenEl = secili ? h("div.dy-neden", h("div.dy-tlabel", "Neden?"), h("div.dy-nchips", NEDEN.map(([k, l]) => h("button", { "aria-pressed": String(neden === k), onclick: () => { neden = neden === k ? null : k; ciz(); } }, l)))) : null;
+        const bi = secili ? bolgeOf(secili, siddet) : null;
+        const bolgeEl = secili ? h("div.dy-bolge", { style: { "--c": T.BOLGE[bi][2] } }, h("i"), h("div", h("b", T.BOLGE[bi][0]), h("span", T.BOLGE[bi][1]))) : null;
         let isimler = null, alt = null;
         if (mod === "sinif") {
           const ps = present();
           const say = {}; Object.values(kayit).forEach((v) => (say[v.d] = (say[v.d] || 0) + 1));
           const toplam = Object.keys(kayit).length;
-          isimler = h("div.dy-names", ps.map((st) => h("button" + (ogr === st.id ? ".on" : "") + (kayit[st.id] ? ".done" : ""), { onclick: () => { ogr = st.id; secili = (kayit[st.id] || {}).d || null; siddet = (kayit[st.id] || {}).s || 3; ciz(); } }, T.avatar(st.name, 30), st.name, kayit[st.id] ? T.yuz(kayit[st.id].d, 26) : null)));
+          isimler = h("div.dy-names", ps.map((st) => h("button" + (ogr === st.id ? ".on" : "") + (kayit[st.id] ? ".done" : ""), { onclick: () => { ogr = st.id; const k = kayit[st.id] || {}; secili = k.d || null; siddet = k.s || 3; neden = k.n || null; ciz(); } }, T.avatar(st.name, 30), st.name, kayit[st.id] ? T.yuz(kayit[st.id].d, 26) : null)));
           alt = h("div.dy-class",
-            h("div.row", h("button.btn", { disabled: !(ogr && secili) ? true : null, onclick: () => { T.store.update((s) => { s.duygu = s.duygu || {}; const k = cid() + ":" + T.isoDate(); s.duygu[k] = s.duygu[k] || {}; s.duygu[k][ogr] = { d: secili, s: siddet }; }); T.sound.pop(); const sira = ps.findIndex((x) => x.id === ogr); const nx = ps.slice(sira + 1).concat(ps.slice(0, sira)).find((x) => !kayitAl()[x.id]); ogr = nx ? nx.id : null; secili = null; siddet = 3; ciz(); } }, T.icon("check"), "Kaydet, sıradaki"),
+            h("div.row", h("button.btn", { disabled: !(ogr && secili) ? true : null, onclick: () => { T.store.update((s) => { s.duygu = s.duygu || {}; const k = cid() + ":" + T.isoDate(); s.duygu[k] = s.duygu[k] || {}; s.duygu[k][ogr] = { d: secili, s: siddet, n: neden }; }); T.sound.pop(); const sira = ps.findIndex((x) => x.id === ogr); const nx = ps.slice(sira + 1).concat(ps.slice(0, sira)).find((x) => !kayitAl()[x.id] && x.id !== ogr); ogr = nx ? nx.id : null; secili = null; siddet = 3; neden = null; ciz(); } }, T.icon("check"), "Kaydet, sıradaki"),
               h("span.hint", toplam + " / " + ps.length + " arkadaş seçti")),
-            toplam ? h("div.dy-chart", DUYGU.filter(([k]) => say[k]).sort((a, b) => say[b[0]] - say[a[0]]).map(([k, l, c]) => h("div.dy-crow", T.yuz(k, 34), h("span", l), h("div.dy-cbar", h("i", { style: { width: (say[k] / toplam) * 100 + "%", background: c } })), h("b", say[k])))) : null,
-            toplam ? h("p.hint", "Sınıfta en çok görülen duygu üzerine kısa bir sohbet açabilirsin. Kızgın ya da üzgün seçen arkadaşlarla teneffüste birebir konuşmak iyi olur.") : null);
+            toplam ? h("div.dy-chart", DUYGU.filter(([k]) => say[k]).sort((a, b) => say[b[0]] - say[a[0]]).map(([k, l, c]) => h("div.dy-crow", T.yuz(k, 34), h("span", l), h("div.dy-cbar", h("i", { style: { width: (say[k] / toplam) * 100 + "%", background: c } })), h("b", say[k])))) : null);
         }
-        box.replaceChildren(
-          h("div.row", { style: { marginBottom: "14px" } }, h("div.seg", [["tek", "Tahtada birlikte"], ["sinif", "Sırayla herkes"]].map(([k, l]) => h("button", { "aria-pressed": String(mod === k), onclick: () => { mod = k; ogr = null; secili = null; ciz(); } }, l))),
-            mod === "sinif" ? h("button.btn.sm.c-chalk", { onclick: async () => { if (await T.confirm("Bugünün seçimleri silinsin mi?", "Bu sınıfın bugünkü duygumetre seçimleri silinir.", "Sil")) { T.store.update((s) => { if (s.duygu) delete s.duygu[cid() + ":" + T.isoDate()]; }); ciz(); } } }, T.icon("reset"), "Bugünü sıfırla") : null),
-          mod === "sinif" && !ogr ? h("p.dy-tip", "Önce adına dokun, sonra yüzünü ve ne kadar hissettiğini seç.") : null,
+        box.replaceChildren(ustBar(),
+          mod === "sinif" && !ogr ? h("p.dy-tip", "Önce adına dokun, sonra yüzünü, ne kadar hissettiğini ve nedenini seç.") : null,
           isimler,
-          h("div.dy-main", faces, h("div.dy-side", termo, cumle)),
+          h("div.dy-main", faces, h("div.dy-side", termo, nedenEl, cumle, bolgeEl)),
+          secili ? h("div", { style: { marginTop: "14px" } }, T.aletCantasi(bi)) : null,
           alt);
+      }
+      function ustBar() {
+        return h("div.row", { style: { marginBottom: "14px" } }, h("div.seg", [["tek", "Tahtada birlikte"], ["sinif", "Sırayla herkes"], ["bolge", "Bölgeler ve alet çantası"], ["ozet", "Haftalık özet"]].map(([k, l]) => h("button", { "aria-pressed": String(mod === k), onclick: () => { mod = k; ogr = null; secili = null; neden = null; ciz(); } }, l))),
+          mod === "sinif" ? h("button.btn.sm.c-chalk", { onclick: async () => { if (await T.confirm("Bugünün seçimleri silinsin mi?", "Bu sınıfın bugünkü duygumetre seçimleri silinir.", "Sil")) { T.store.update((s) => { if (s.duygu) delete s.duygu[cid() + ":" + T.isoDate()]; }); ciz(); } } }, T.icon("reset"), "Bugünü sıfırla") : null);
       }
       ciz();
     },

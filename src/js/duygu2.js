@@ -94,12 +94,51 @@
     ["Sarı bölge", "Heyecanlı, kaygılı, korkmuş. Enerji yükseliyor.", "#E0B020", ["Zıpla ya da koş", "Stres topu", "Derin nefes", "Gürültü kesici kulaklık"]],
     ["Kırmızı bölge", "Öfkeli, kontrolden çıkmak üzereyim. Enerji patlaması.", "#C2453A", ["Sakinleşme köşesine git", "Ona kadar say", "Derin nefes", "Bir yetişkinden yardım iste"]],
   ];
+  /* ---------- Duygusal alet çantası: sınıf kendi yollarını ekler, her yol bir karttır, açılınca uygulanır ---------- */
+  const NASIL = {
+    "Su molası": "Sıranın yanından kalk, sessizce birkaç yudum su iç, sonra yerine dön.", "Esneme": "Kollarını tavana uzat, beşe kadar say. Sonra yana eğil, öbür yana eğil.",
+    "Sarılma": "Kendine sıkıca sarıl ya da izin isteyerek bir arkadaşına sarıl.", "Kısa yürüyüş": "Öğretmenden izin al, sınıfın arkasında yavaşça bir tur yürü.",
+    "Temiz hava": "Pencerenin yanına git, üç derin nefes al.", "Hazır duruş": "Sırtın dik, ayakların yerde, ellerin masada. Hazırım!",
+    "Yardım et": "Bir arkadaşına ya da öğretmenine küçük bir yardım teklif et.", "Olumlu iç ses": "İçinden söyle: Bunu yapabilirim. Adım adım giderim.",
+    "Gülümse": "Yanındaki arkadaşına gülümse, o da sana gülümsesin.", "Zıpla ya da koş": "Yerinde on kez hafifçe zıpla, sonra dur ve nefesini dinle.",
+    "Stres topu": "Topu beş kez sık, bırak. Ellerin gevşesin.", "Gürültü kesici kulaklık": "Kulaklığı tak, gözlerini kapa, bir dakika sessizliği dinle.",
+    "Ona kadar say": "Yavaşça ona kadar say. Her sayıda omuzlarını biraz daha gevşet.", "Bir yetişkinden yardım iste": "Öğretmenine yaklaş ve söyle: Şu an zorlanıyorum, yardım eder misin?",
+  };
+  const GIT = { "Derin nefes": "duygu-sakinlesme", "Sakinleşme köşesine git": "duygu-sakinlesme" };
+  const aletler = () => { const v = veri("alet"); return BOLGE.map(([, , , def], i) => (v && v[i]) || def.slice()); };
+  function aletUygula(ad, renk) {
+    if (GIT[ad]) { T.go(GIT[ad]); return; }
+    let kalan = 60, iv = null;
+    const sure = h("div.alet-sure", "1:00"), bas = h("button.btn.big", { onclick: () => { if (iv) return; iv = setInterval(() => { kalan--; sure.textContent = `0:${T.pad(Math.max(0, kalan))}`; if (kalan <= 0) { clearInterval(iv); T.sound.bell(); bas.replaceChildren(T.icon("check"), "Bitti"); } }, 1000); } }, T.icon("play"), "Başlat");
+    const m = T.modal({ title: ad, body: h("div.alet-uygula", { style: { "--c": renk } }, h("p", NASIL[ad] || "Bu yolu birlikte uygulayalım."), sure, bas), actions: [{ label: "Kapat" }] });
+    const kapan = setInterval(() => { if (!document.body.contains(sure)) { clearInterval(iv); clearInterval(kapan); } }, 500);
+  }
+  /* bolgeNo: tek bölgenin çantası; yoksa hepsi */
+  T.aletCantasi = function (bolgeNo) {
+    const kap = h("div.sb-card.alet-kap"); let duzen = false;
+    function ciz() {
+      const A = aletler(), idler = bolgeNo == null ? BOLGE.map((_, i) => i) : [bolgeNo];
+      kap.replaceChildren(h("div.row", h("h3", { style: { margin: 0 } }, "Duygusal alet çantam"), h("div.spacer"), h("button.btn.sm" + (duzen ? "" : ".c-chalk"), { onclick: () => { duzen = !duzen; ciz(); } }, T.icon(duzen ? "check" : "pen"), duzen ? "Tamam" : "Düzenle")),
+        h("div.alet-sutun" + (idler.length === 1 ? ".tek" : ""), idler.map((i) => { const [ad, , renk] = BOLGE[i];
+          const giris = h("input.in", { placeholder: "Yeni yol ekle", onkeydown: (e) => { if (e.key === "Enter") ekle(); } });
+          const ekle = () => { const t = giris.value.trim(); if (!t) return; yaz("alet", (o) => { o = o || {}; const l = A[i].slice(); if (!l.includes(t)) l.push(t); o[i] = l; return o; }); ciz(); };
+          return h("div.alet-bolge", { style: { "--c": renk } }, idler.length > 1 ? h("b", ad) : null,
+            h("div.alet-kartlar", A[i].map((x) => h("div.alet-kart", h("button", { onclick: () => !duzen && aletUygula(x, renk) }, x),
+              duzen ? h("button.alet-sil", { "aria-label": x + " sil", onclick: () => { yaz("alet", (o) => { o = o || {}; o[i] = A[i].filter((y) => y !== x); return o; }); ciz(); } }, "×") : null))),
+            duzen ? h("div.row", giris, h("button.btn.sm", { onclick: ekle }, T.icon("plus"), "Ekle")) : null);
+        })),
+        duzen ? h("button.btn.sm.c-chalk", { onclick: () => { yaz("alet", () => null); ciz(); } }, T.icon("reset"), "Başlangıç listesine dön") : h("p.hint", { style: { margin: 0 } }, "Bir yola dokun, birlikte uygulayın. Sınıf kendi yollarını Düzenle ile ekleyebilir."));
+    }
+    ciz(); return kap;
+  };
+  T.BOLGE = BOLGE;
+
   tool("bolgeler", {
     title: "Düzenleme bölgeleri", icon: "heart", tone: "leaf", short: "Hangi bölgedeyim? Duygusal alet çantam",
     render(host) {
       duzeyPanosu(host, { anahtar: "bolge", gosterAd: "Bölgeyi göster", okAd: "Buradayım",
         duzeyler: BOLGE.map(([a, b, c]) => [a, b, c, () => { const s = S("svg", { viewBox: "0 0 40 40", width: 44, height: 44 }); s.innerHTML = `<circle cx="20" cy="20" r="17" fill="${c}"/>`; return s; }]),
-        alt: (i) => h("div.sb-card", { style: { marginTop: "14px" } }, h("h3", "Duygusal alet çantam"), h("div.bz-tools", (i == null ? BOLGE : [BOLGE[i]]).map(([a, , c, araclar]) => h("div.bz-col", { style: { "--c": c } }, h("b", a), h("ul", araclar.map((x) => h("li", x))))))) });
+        alt: (i) => h("div", { style: { marginTop: "14px" } }, T.aletCantasi(i == null ? null : i)) });
       host.append(h("p.hint", "Bölgeler iyi ya da kötü değildir; hepimiz gün içinde bölgeler arasında geziniriz. Amaç, hangi bölgede olduğunu fark etmek ve alet çantasından bir araç seçmek."));
     },
   });

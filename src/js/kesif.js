@@ -125,7 +125,7 @@
 
   /* ---------- SDÖ: Maarif sosyal duygusal öğrenme becerilerine göre ---------- */
   const SDB = [
-    ["Kendini tanıma", "SDB1.1", ["duygumetre", "bolgeler", "duygu-kartlari", "beynim"]],
+    ["Kendini tanıma", "SDB1.1", ["duygumetre", "duygu-kartlari", "beynim"]],
     ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "sogusun"]],
     ["Kendine uyarlama ve yansıtma", "SDB1.3", ["gul-diken", "gelecek-teleskobu", "favori-hatalar", "ogrenme-cukuru"]],
     ["İletişim ve sosyal farkındalık", "SDB2.1, SDB2.3", ["iltifat", "seninle-mi"]],
@@ -136,6 +136,9 @@
     ["Sınıf düzeni", ["bitirdim", "yz-duzeyi"]],
     ["Yansıtma panoları", ["calma-listesi", "bookflix"]],
   ];
+  /* her SDÖ aracının kendi 3B ikonu */
+  Object.entries({ duygumetre: "termometre", bolgeler: "trafik", "duygu-kartlari": "maske", beynim: "brain", sakinlesme: "lotus", "gul-diken": "gul", "gelecek-teleskobu": "teleskop", takildim: "dusunen", iltifat: "parlakkalp", "seninle-mi": "soru", "sorun-boyutu": "scale", catisma: "tokalasma" })
+    .forEach(([id, ik]) => T.tools[id] && (T.tools[id].ikon3 = ik));
   T.sections.duygu.title = "SDÖ araçlarımız";
   T.sections.duygu.render = function (view, sub) {
     if (sub && T.tools[sub]) return T.toolPage(view, sub);

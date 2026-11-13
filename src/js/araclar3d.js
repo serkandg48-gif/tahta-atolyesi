@@ -93,6 +93,7 @@
     requestAnimationFrame((zm) => { son = zm; dongu(zm); });
     return c;
   }).catch(() => null);
+  T.sahne3 = sahne3; T.yuvKutu = yuvKutu;
   const isikla = (c, guc = 1.6, poz = [4, 7, 8]) => { const { THREE, sahne } = c; sahne.add(new THREE.HemisphereLight(0xffffff, 0x3a3430, 0.7)); const g = new THREE.DirectionalLight(0xffffff, guc); g.position.set(...poz); sahne.add(g); return g; };
   const ahsapDoku = (c, a = "#B07A45", b = "#8A5A30") => c.doku(256, 256, (x, ww, hh) => { x.fillStyle = a; x.fillRect(0, 0, ww, hh); for (let i = 0; i < 70; i++) { x.strokeStyle = Math.random() < 0.5 ? b : "rgba(255,230,190,.25)"; x.globalAlpha = 0.25 + Math.random() * 0.4; x.lineWidth = 1 + Math.random() * 3; x.beginPath(); const y = Math.random() * hh; x.moveTo(0, y); x.bezierCurveTo(ww * 0.3, y + (Math.random() - 0.5) * 20, ww * 0.6, y + (Math.random() - 0.5) * 20, ww, y + (Math.random() - 0.5) * 10); x.stroke(); } x.globalAlpha = 1; });
 

@@ -1553,3 +1553,20 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ot-sonuc.iyi { color: #FFE27A; }
 .ot-skor { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-weight: 700; }
 .ot-puan { margin-left: auto; font: 800 24px var(--display); }
+/* Okuma tiyatrosu 3B */
+.ot-kap.ot3 { background: radial-gradient(120% 90% at 50% 30%, #3A2A3E, #120A14); }
+.ot3-kap { position: relative; width: 100%; aspect-ratio: 1200 / 620; max-height: calc(100vh - 250px); }
+.ot3-yuk { position: absolute; inset: 0; z-index: 5; display: grid; place-content: center; justify-items: center; gap: 14px; color: #FFE9C2; font: 800 clamp(18px, 2vw, 28px) var(--display); background: radial-gradient(80% 70% at 50% 40%, #4A2C3A, #160B14); }
+.ot3-yuk-ic { width: 54px; height: 54px; border-radius: 50%; border: 6px solid rgba(255,233,194,.25); border-top-color: #FFB648; animation: ot3don 0.9s linear infinite; }
+@keyframes ot3don { to { transform: rotate(360deg); } }
+.ot3-balon, .ot3-zz { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .25s; will-change: transform; }
+.ot3-balon { background: #fff; color: #E5782A; font: 800 clamp(26px, 3vw, 44px) var(--display); padding: 10px 26px; border-radius: 26px; box-shadow: 0 10px 24px rgba(0,0,0,.35); }
+.ot3-balon::after { content: ""; position: absolute; left: 22px; bottom: -16px; border: 12px solid transparent; border-top: 16px solid #fff; border-left-width: 4px; }
+.ot3-balon.acik { opacity: 1; animation: ot3pop .35s cubic-bezier(.2,1.6,.4,1); }
+@keyframes ot3pop { from { scale: .3; } to { scale: 1; } }
+.ot3-zz { color: #D6E6FF; font: 800 40px var(--display); text-shadow: 0 3px 10px rgba(0,0,0,.5); }
+.ot3-zz span { display: inline-block; animation: ot3z 2.4s ease-in-out infinite; }
+.ot3-zz span:nth-child(2) { font-size: .75em; animation-delay: .4s; } .ot3-zz span:nth-child(3) { font-size: .55em; animation-delay: .8s; }
+@keyframes ot3z { 0%,100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(-18px); opacity: 1; } }
+.ot3-zz.acik { opacity: 1; }
+.ot3-kap::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(75% 85% at 50% 45%, transparent 55%, rgba(18,6,16,.55)); }

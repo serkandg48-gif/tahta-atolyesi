@@ -6,7 +6,7 @@
     const { THREE } = c, { g, m } = await T.modelYukle(ad);
     const kok = new THREE.Group(), ic = new THREE.Group(); kok.add(ic);
     const model = m.SkeletonUtils.clone(g.scene); ic.add(model);
-    model.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; if (o.material) { o.material.metalness = 0; o.material.roughness = Math.max(0.6, o.material.roughness || 0.8); } } });
+    model.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = false; o.frustumCulled = false; if (o.material) { o.material.metalness = 0; o.material.roughness = Math.max(0.6, o.material.roughness || 0.8); } } });
     const dortAyak = !g.animations.some((a) => /Wave|Cheer|Talk/.test(a.name));
     const klipler = {};
     g.animations.forEach((a) => { const k = a.clone(); if (dortAyak) k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale") && !t.name.endsWith(".position")); else { k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale")); k.tracks.forEach((t) => { if (!t.name.endsWith(".position")) return; const kemik = model.getObjectByName(t.name.slice(0, -9)); if (!kemik) return; const v = t.values, x0 = kemik.position.x, z0 = kemik.position.z; for (let i = 0; i < v.length; i += 3) { v[i] = x0; v[i + 2] = z0; } }); } klipler[a.name] = k; });

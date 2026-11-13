@@ -140,8 +140,8 @@
   function letterGuide(text) {
     return (ctx, W, H, mask) => {
       const { top, base } = mask ? { top: H * 0.18, base: H * 0.78 } : linedGuide(ctx, W, H);
-      const size = (base - top) * 1.32;
-      ctx.font = `400 ${size}px Andika, Lexend, "Segoe UI", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      const size = (base - top) / 0.72;
+      ctx.font = `${size}px "Tahta Harf", Andika, Lexend, sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
       const n = text.length, gap = W / (n + 1);
       [...text].forEach((ch, i) => {
         const x = gap * (i + 1);
@@ -155,7 +155,7 @@
       let L = learned(), ch = L[L.length - 1], mode = "kucuk", text = ch;
       const bar = h("div.row");
       const update = () => { text = mode === "kucuk" ? ch : mode === "buyuk" ? T.trUpper(ch) : (T.trUpper(ch) + ch); paintBar(); pad.repaint(); };
-      const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(text)(ctx, W, H, m) }); document.fonts && document.fonts.load("400 100px Andika", "aAğĞşŞ").then(() => pad.repaint()).catch(() => {});
+      const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(text)(ctx, W, H, m) }); document.fonts && document.fonts.load("100px 'Tahta Harf'", "aAğĞşŞ").then(() => pad.repaint()).catch(() => {});
       function paintBar() { bar.replaceChildren(letterPicker(ch, (l) => { ch = l; update(); }, ORDER), h("div.seg", [["kucuk", "Küçük"], ["buyuk", "Büyük"], ["ikisi", "İkisi"]].map(([v, l]) => h("button", { "aria-pressed": String(v === mode), onclick: () => { mode = v; update(); } }, l))), h("button.btn.c-sky", { onclick: () => T.harfSesi(ch) }, T.icon("speaker"), "Sesini dinle"), h("button.btn.c-grape", { onclick: () => { const v = host.querySelector(".yz-kart"); if (v) { v.remove(); return; } bar.after(T.harfYazilis(ch, { kucuk: true })); } }, T.icon("pen"), "Yazılış yönü")); const v = host.querySelector(".yz-kart"); if (v) v.replaceWith(T.harfYazilis(ch, { kucuk: true })); }
       host.prepend(bar); paintBar();
     } });

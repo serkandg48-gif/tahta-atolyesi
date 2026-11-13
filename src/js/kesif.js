@@ -127,17 +127,25 @@
   const SDB = [
     ["Kendini tanıma", "SDB1.1", ["duygumetre", "duygu-kartlari", "beynim"]],
     ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "sogusun"]],
-    ["Kendine uyarlama ve yansıtma", "SDB1.3", ["gul-diken", "gelecek-teleskobu", "favori-hatalar", "ogrenme-cukuru"]],
+    ["Kendine uyarlama ve yansıtma", "SDB1.3", ["takildigimda", "gul-diken", "gelecek-teleskobu"]],
     ["İletişim ve sosyal farkındalık", "SDB2.1, SDB2.3", ["iltifat", "seninle-mi"]],
     ["Sorumlu karar verme", "SDB3.3", ["sorun-boyutu", "catisma"]],
   ];
   const KULTUR = [
-    ["Öğrenmeyi görünür kılma", ["anlama-duzeyi", "uc-adim", "takildim", "bump-it-up"]],
+    ["Öğrenmeyi görünür kılma", ["anlama-duzeyi", "bump-it-up"]],
     ["Sınıf düzeni", ["bitirdim", "yz-duzeyi"]],
     ["Yansıtma panoları", ["calma-listesi", "bookflix"]],
   ];
+  /* Takıldığımda: zorlandığında başvurulan dört pano tek araçta, sekmelerle */
+  const TAKIL = [["uc-adim", "Sormadan önce 3 adım"], ["takildim", "Takıldım, ne yapmalıyım?"], ["ogrenme-cukuru", "Öğrenme çukuru"], ["favori-hatalar", "Favori hatalarımız"]];
+  T.tools["takildigimda"] = { back: "duygu", grades: [1, 4], title: "Takıldığımda", icon: "help", tone: "grape", short: "3 adım, öğrenme çukuru, favori hatalar",
+    render(host, api) {
+      let sec = TAKIL[0][0]; const ust = h("div.row", { style: { marginBottom: "14px" } }), ic = h("div"); host.append(ust, ic);
+      const ciz = () => { ust.replaceChildren(h("div.seg", TAKIL.map(([id, ad]) => h("button", { "aria-pressed": String(id === sec), onclick: () => { sec = id; ciz(); } }, ad)))); ic.replaceChildren(); T.tools[sec] && T.tools[sec].render(ic, api); };
+      ciz();
+    } };
   /* her SDÖ aracının kendi 3B ikonu */
-  Object.entries({ duygumetre: "termometre", bolgeler: "trafik", "duygu-kartlari": "maske", beynim: "brain", sakinlesme: "lotus", "gul-diken": "gul", "gelecek-teleskobu": "teleskop", takildim: "dusunen", iltifat: "parlakkalp", "seninle-mi": "soru", "sorun-boyutu": "scale", catisma: "tokalasma" })
+  Object.entries({ duygumetre: "termometre", bolgeler: "trafik", "duygu-kartlari": "maske", beynim: "brain", sakinlesme: "lotus", "gul-diken": "gul", "gelecek-teleskobu": "teleskop", takildigimda: "dusunen", iltifat: "parlakkalp", "seninle-mi": "soru", "sorun-boyutu": "scale", catisma: "tokalasma" })
     .forEach(([id, ik]) => T.tools[id] && (T.tools[id].ikon3 = ik));
   T.sections.duygu.title = "SDÖ araçlarımız";
   T.sections.duygu.render = function (view, sub) {

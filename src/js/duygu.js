@@ -60,7 +60,7 @@
   const bolgeOf = (d, siddet) => ({ yorgun: 0, uzgun: 0, mutlu: 1, sakin: 1, gururlu: 1, heyecanli: 2, saskin: 2, endiseli: 2, korkmus: siddet >= 5 ? 3 : 2, kizgin: siddet >= 3 ? 3 : 2 })[d] ?? 1;
   T.duyguBolge = bolgeOf;
   tool("duygumetre", {
-    title: "Duygumetre", icon: "heart", tone: "pink", short: "Nasılım, neden, ne yapabilirim? Duygu, bölge ve alet çantası bir arada",
+    title: "Duygumetre", icon: "heart", tone: "pink", short: "Nasılım, neden, ne yapabilirim?",
     render(host) {
       let mod = "tek", secili = null, siddet = 3, ogr = null, neden = null;
       const box = h("div"); host.append(box);
@@ -132,7 +132,7 @@
   const kartVeri = () => { const s = T.store.get(); return ((s.duyguKart || {})[cid()]) || []; };
   const kartYaz = (fn) => T.store.update((s) => { s.duyguKart = s.duyguKart || {}; s.duyguKart[cid()] = fn(s.duyguKart[cid()] || []); });
   tool("duygu-kartlari", {
-    title: "Duygu kartları", icon: "heart", tone: "pink", short: "Durumu oku, duyguyu bul, ne yapardın konuş. Sınıf kendi kartını ekler",
+    title: "Duygu kartları", icon: "heart", tone: "pink", short: "Durumu oku, duyguyu bul, konuş",
     render(host) {
       /* deste: bütün kartlar karışır, bitmeden hiçbiri tekrar gelmez, aynı duygu art arda gelmez */
       let deste = [], son = null, kart = null, acik = false;
@@ -227,7 +227,7 @@
   const ILTIFAT = ["Bana yardım ettiğin için teşekkür ederim.", "Oyunlarda herkesi düşünüyorsun.", "Fikirlerin çok yaratıcı.", "Arkadaşlarına karşı naziksin.", "Zor bir işte vazgeçmiyorsun.", "Seninle oynamak çok eğlenceli.", "Dikkatli dinliyorsun.", "Sıranı sabırla bekliyorsun.", "Malzemelerini paylaşıyorsun.", "Yeni gelenlere arkadaşlık ediyorsun."];
   const BASLAT = ["Bugün bana ... yardım ettin.", "... yaptığında çok mutlu oldum.", "Senden ... öğrendim.", "Oyunda ... yaptığın için teşekkür ederim.", "... konusunda çok emek veriyorsun."];
   tool("iltifat", {
-    title: "İltifat çemberi", icon: "star", tone: "sun", short: "Günün arkadaşı çarkla seçilir, sınıf davranışa yönelik güzel sözler söyler",
+    title: "İltifat çemberi", icon: "star", tone: "sun", short: "Günün arkadaşına sınıfça güzel sözler",
     render(host) {
       let st = null; const sozler = []; const box = h("div.dy-iltifat"); host.append(box);
       const kap3 = h("div.dy-ilt-cark"); let ck = null, sira = [];

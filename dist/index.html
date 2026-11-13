@@ -2456,7 +2456,7 @@ body.yt-acik #layer { z-index: 1000; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="99281a0950";
+window.SURUM="f45c074ec0";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -13646,7 +13646,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   const bolgeOf = (d, siddet) => ({ yorgun: 0, uzgun: 0, mutlu: 1, sakin: 1, gururlu: 1, heyecanli: 2, saskin: 2, endiseli: 2, korkmus: siddet >= 5 ? 3 : 2, kizgin: siddet >= 3 ? 3 : 2 })[d] ?? 1;
   T.duyguBolge = bolgeOf;
   tool("duygumetre", {
-    title: "Duygumetre", icon: "heart", tone: "pink", short: "Nasılım, neden, ne yapabilirim? Duygu, bölge ve alet çantası bir arada",
+    title: "Duygumetre", icon: "heart", tone: "pink", short: "Nasılım, neden, ne yapabilirim?",
     render(host) {
       let mod = "tek", secili = null, siddet = 3, ogr = null, neden = null;
       const box = h("div"); host.append(box);
@@ -13718,7 +13718,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   const kartVeri = () => { const s = T.store.get(); return ((s.duyguKart || {})[cid()]) || []; };
   const kartYaz = (fn) => T.store.update((s) => { s.duyguKart = s.duyguKart || {}; s.duyguKart[cid()] = fn(s.duyguKart[cid()] || []); });
   tool("duygu-kartlari", {
-    title: "Duygu kartları", icon: "heart", tone: "pink", short: "Durumu oku, duyguyu bul, ne yapardın konuş. Sınıf kendi kartını ekler",
+    title: "Duygu kartları", icon: "heart", tone: "pink", short: "Durumu oku, duyguyu bul, konuş",
     render(host) {
       /* deste: bütün kartlar karışır, bitmeden hiçbiri tekrar gelmez, aynı duygu art arda gelmez */
       let deste = [], son = null, kart = null, acik = false;
@@ -13813,7 +13813,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   const ILTIFAT = ["Bana yardım ettiğin için teşekkür ederim.", "Oyunlarda herkesi düşünüyorsun.", "Fikirlerin çok yaratıcı.", "Arkadaşlarına karşı naziksin.", "Zor bir işte vazgeçmiyorsun.", "Seninle oynamak çok eğlenceli.", "Dikkatli dinliyorsun.", "Sıranı sabırla bekliyorsun.", "Malzemelerini paylaşıyorsun.", "Yeni gelenlere arkadaşlık ediyorsun."];
   const BASLAT = ["Bugün bana ... yardım ettin.", "... yaptığında çok mutlu oldum.", "Senden ... öğrendim.", "Oyunda ... yaptığın için teşekkür ederim.", "... konusunda çok emek veriyorsun."];
   tool("iltifat", {
-    title: "İltifat çemberi", icon: "star", tone: "sun", short: "Günün arkadaşı çarkla seçilir, sınıf davranışa yönelik güzel sözler söyler",
+    title: "İltifat çemberi", icon: "star", tone: "sun", short: "Günün arkadaşına sınıfça güzel sözler",
     render(host) {
       let st = null; const sozler = []; const box = h("div.dy-iltifat"); host.append(box);
       const kap3 = h("div.dy-ilt-cark"); let ck = null, sira = [];
@@ -14221,7 +14221,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
 
   /* =================== 4. BARIŞ YOLU (çatışma çözüm köşesi) =================== */
   tool("catisma", {
-    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım birbirine yaklaşır, uzlaşır, el sıkışır",
+    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım uzlaşır, el sıkışır",
     render(host, api) {
       let adim = 0, a = null, b = null, sayac = 10, t = null, secilen = {};
       const sahneKap = h("div.by-sahne"), box = h("div"); host.append(sahneKap, box);
@@ -14655,17 +14655,25 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   const SDB = [
     ["Kendini tanıma", "SDB1.1", ["duygumetre", "duygu-kartlari", "beynim"]],
     ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "sogusun"]],
-    ["Kendine uyarlama ve yansıtma", "SDB1.3", ["gul-diken", "gelecek-teleskobu", "favori-hatalar", "ogrenme-cukuru"]],
+    ["Kendine uyarlama ve yansıtma", "SDB1.3", ["takildigimda", "gul-diken", "gelecek-teleskobu"]],
     ["İletişim ve sosyal farkındalık", "SDB2.1, SDB2.3", ["iltifat", "seninle-mi"]],
     ["Sorumlu karar verme", "SDB3.3", ["sorun-boyutu", "catisma"]],
   ];
   const KULTUR = [
-    ["Öğrenmeyi görünür kılma", ["anlama-duzeyi", "uc-adim", "takildim", "bump-it-up"]],
+    ["Öğrenmeyi görünür kılma", ["anlama-duzeyi", "bump-it-up"]],
     ["Sınıf düzeni", ["bitirdim", "yz-duzeyi"]],
     ["Yansıtma panoları", ["calma-listesi", "bookflix"]],
   ];
+  /* Takıldığımda: zorlandığında başvurulan dört pano tek araçta, sekmelerle */
+  const TAKIL = [["uc-adim", "Sormadan önce 3 adım"], ["takildim", "Takıldım, ne yapmalıyım?"], ["ogrenme-cukuru", "Öğrenme çukuru"], ["favori-hatalar", "Favori hatalarımız"]];
+  T.tools["takildigimda"] = { back: "duygu", grades: [1, 4], title: "Takıldığımda", icon: "help", tone: "grape", short: "3 adım, öğrenme çukuru, favori hatalar",
+    render(host, api) {
+      let sec = TAKIL[0][0]; const ust = h("div.row", { style: { marginBottom: "14px" } }), ic = h("div"); host.append(ust, ic);
+      const ciz = () => { ust.replaceChildren(h("div.seg", TAKIL.map(([id, ad]) => h("button", { "aria-pressed": String(id === sec), onclick: () => { sec = id; ciz(); } }, ad)))); ic.replaceChildren(); T.tools[sec] && T.tools[sec].render(ic, api); };
+      ciz();
+    } };
   /* her SDÖ aracının kendi 3B ikonu */
-  Object.entries({ duygumetre: "termometre", bolgeler: "trafik", "duygu-kartlari": "maske", beynim: "brain", sakinlesme: "lotus", "gul-diken": "gul", "gelecek-teleskobu": "teleskop", takildim: "dusunen", iltifat: "parlakkalp", "seninle-mi": "soru", "sorun-boyutu": "scale", catisma: "tokalasma" })
+  Object.entries({ duygumetre: "termometre", bolgeler: "trafik", "duygu-kartlari": "maske", beynim: "brain", sakinlesme: "lotus", "gul-diken": "gul", "gelecek-teleskobu": "teleskop", takildigimda: "dusunen", iltifat: "parlakkalp", "seninle-mi": "soru", "sorun-boyutu": "scale", catisma: "tokalasma" })
     .forEach(([id, ik]) => T.tools[id] && (T.tools[id].ikon3 = ik));
   T.sections.duygu.title = "SDÖ araçlarımız";
   T.sections.duygu.render = function (view, sub) {

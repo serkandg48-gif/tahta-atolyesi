@@ -369,7 +369,7 @@
 
   /* =================== 4. BARIŞ YOLU (çatışma çözüm köşesi) =================== */
   tool("catisma", {
-    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım birbirine yaklaşır, uzlaşır, el sıkışır",
+    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım uzlaşır, el sıkışır",
     render(host, api) {
       let adim = 0, a = null, b = null, sayac = 10, t = null, secilen = {};
       const sahneKap = h("div.by-sahne"), box = h("div"); host.append(sahneKap, box);

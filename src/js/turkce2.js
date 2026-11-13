@@ -26,7 +26,7 @@
     title: "Okuma hızı", icon: "speed", tone: "sky", grades: [1, 8], short: "Sayaçlı okuma, kayan yazı, satır satır; hata işaretle, gelişimi izle",
     render(host) {
       const g = Math.min(4, Math.max(1, T.store.grade()));
-      let metin = T._okumaMetni || METIN[g][0][1]; T._okumaMetni = null;
+      let metin = T._okumaMetni || (T.store.get().okumaMetni || {})[cid()] || ""; T._okumaMetni = null;
       let mod = "sayac", ogr = "", boyut = g <= 2 ? 40 : 32, hece = g <= 2, hiz = g <= 1 ? 30 : g === 2 ? 50 : g === 3 ? 70 : 90;
       let calisiyor = false, bas = 0, gecen = 0, iv = null, hatalar = new Set(), sonKelime = null, bitti = false, bekliyor = false;
       const box = h("div"); host.append(box);
@@ -47,10 +47,11 @@
       };
       const sesNotu = () => T.auth && T.auth.user() ? null : h("span.hint", "Daha doğal ses için Ayarlar'dan Google ile giriş yap.");
       const kelimeler = () => metin.trim().split(/\s+/).filter(Boolean);
+      const metinKaydet = (t) => { metin = t; T.store.update((s2) => { s2.okumaMetni = s2.okumaMetni || {}; s2.okumaMetni[cid()] = t; }); sifirla(); };
       function kaynakSec() {
-        const list = h("div", { style: { display: "grid", gap: "8px" } }, [1, 2, 3, 4].map((s) => h("div", h("b", s + ". sınıf"), h("div.row", { style: { gap: "6px", marginTop: "4px" } }, METIN[s].map(([ad, t]) => h("button.btn.sm.c-chalk", { onclick: () => { metin = t; sifirla(); m.close(); } }, ad))))));
-        const ta = h("textarea.in", { placeholder: "Kendi metnini yapıştır", style: { minHeight: "120px", fontSize: "18px" } });
-        const m = T.modal({ title: "Okuma metni seç", wide: true, body: h("div", { style: { display: "grid", gap: "14px" } }, list, h("b", "Kendi metnim"), ta, h("p.hint", "Yapay zekâ ile metin üretmek için Metin uyarlayıcıyı kullan; oradan 'Okuma hızında aç' ile buraya gelir.")), actions: [{ label: "Kapat" }, { label: "Bu metni kullan", tone: "c-leaf", onClick: () => { if (!ta.value.trim()) return false; metin = ta.value.trim(); sifirla(); } }] });
+        const ta = h("textarea.in", { placeholder: "Öğrencilerin okuyacağı metni buraya yapıştır", style: { minHeight: "200px", fontSize: "18px" } }, metin);
+        T.modal({ title: "Okuma metni", wide: true, body: h("div", { style: { display: "grid", gap: "10px" } }, ta, h("p.hint", "Metin bu sınıf için saklanır. Bir dahaki açılışta aynı metin gelir.")), actions: [{ label: "Kapat" }, { label: "Bu metni kullan", tone: "c-leaf", onClick: () => { if (!ta.value.trim()) return false; metinKaydet(ta.value.trim()); } }] });
+        setTimeout(() => ta.focus(), 50);
       }
       function sifirla() { clearInterval(iv); cancelAnimationFrame(T._kyRaf); calisiyor = false; gecen = 0; hatalar = new Set(); sonKelime = null; bitti = false; bekliyor = false; ciz(); }
       const kelimeSpan = (w, i) => {
@@ -73,6 +74,12 @@
         return h("div.sb-card", h("h3", st.name + ": okuma gelişimi"), h("div.ok-graf", l.slice(-12).map((x) => h("div", { title: x.d }, h("i", { style: { height: (x.ddk / max) * 100 + "%" } }), h("b", x.ddk), h("small", x.d.slice(5).split("-").reverse().join("."))))), h("p.hint", "Dakikada doğru okunan kelime sayısı. Çocuğu yalnızca kendi önceki ölçümüyle karşılaştır."));
       }
       function ciz() {
+        if (!metin.trim()) {
+          const ta = h("textarea.in", { placeholder: "Öğrencilerin okuyacağı metni buraya yapıştır", style: { minHeight: "220px", fontSize: "20px" } });
+          box.replaceChildren(h("div.sb-card", { style: { display: "grid", gap: "12px" } }, h("h3", "Okuma metnini yapıştır"), h("p.hint", "Sayaçlı okuma, kayan yazı ve satır satır okuma bu metinle çalışır. Metin bu sınıf için saklanır."), ta,
+            h("div.row", h("button.btn.c-leaf", { onclick: () => { if (ta.value.trim()) metinKaydet(ta.value.trim()); else T.toast("Önce metni yapıştır"); } }, T.icon("check"), "Bu metni kullan"))));
+          setTimeout(() => ta.focus(), 50); return;
+        }
         const ws = kelimeler(); const st = T.store.activeClass().students;
         const ustBar = h("div.row", { style: { marginBottom: "12px" } },
           seg([["sayac", "Sayaçlı okuma"], ["kayan", "Kayan yazı"], ["satir", "Satır satır"]], mod, (v) => { mod = v; sifirla(); }),
@@ -90,7 +97,7 @@
           const adim = bitti ? 3 : bekliyor ? 3 : calisiyor ? 2 : 1;
           const rehber = h("div.ok-rehber", [["1", "Metni ve öğrenciyi seç, Başlat'a bas"], ["2", "Öğrenci okurken yanlış okunan kelimeye dokun"], ["3", "Süre bitince son okunan kelimeye dokun"]].map(([n, t]) => h("div" + (+n === adim ? ".on" : +n < adim ? ".gecti" : ""), h("b", n), h("span", t))));
           govde = h("div", rehber, h("div.ok-grid",
-            h("div", metinEl, bekliyor ? h("div.dy-tip.ok-bekle", "Öğrencinin okuduğu son kelimeye dokun.", h("button.btn.sm.c-leaf", { onclick: () => { sonKelime = ws.length - 1; bekliyor = false; bitti = true; ciz(); } }, "Metnin sonuna kadar okudu")) : calisiyor ? h("p.hint", "Yanlış okunan kelimeye dokun, kırmızı olur. Yanlışlıkla dokunduysan bir daha dokun.") : !bitti ? h("div.row", { style: { marginTop: "10px", gap: "8px" } }, ornekDugme(metinEl), sesNotu()) : null),
+            h("div", metinEl, bekliyor ? h("div.dy-tip.ok-bekle", "Öğrencinin okuduğu son kelimeye dokun.", h("button.btn.sm.c-leaf", { onclick: () => { sonKelime = ws.length - 1; bekliyor = false; bitti = true; ciz(); } }, "Metnin sonuna kadar okudu")) : calisiyor ? h("p.hint", "Yanlış okunan kelimeye dokun, kırmızı olur. Yanlışlıkla dokunduysan bir daha dokun.") : !bitti ? h("div.row", { style: { marginTop: "10px", gap: "8px" } }, null) : null),
             h("div.ok-yan",
               h("div.ok-sure", `${Math.floor(s / 60)}:${T.pad(s % 60)}`),
               calisiyor ? h("div.ok-canli", h("b", hatalar.size), h("small", "hata işaretlendi")) : !bitti && !bekliyor ? h("small.hint", ws.length + " kelimelik metin") : null,
@@ -114,7 +121,7 @@
           const ilerle = () => { const sp = metinEl.querySelectorAll(".ok-w"); sp.forEach((x, j) => { x.classList.toggle("aktif", j === i); x.classList.toggle("gecti", j < i); }); };
           const oynat = () => { if (calisiyor) { calisiyor = false; clearInterval(iv); btn.replaceChildren(T.icon("play"), "Devam"); return; } calisiyor = true; btn.replaceChildren(T.icon("pause"), "Durdur"); iv = setInterval(() => { i++; if (i >= ws.length) { clearInterval(iv); calisiyor = false; btn.replaceChildren(T.icon("play"), "Baştan"); i = -1; } ilerle(); }, 60000 / hiz); };
           const btn = h("button.btn.big", { onclick: oynat }, T.icon("play"), "Başlat");
-          govde = h("div", metinEl, h("div.row", { style: { marginTop: "12px" } }, btn, hizKontrol(), ornekDugme(metinEl), h("span.hint", "Vurgu seçtiğin hızda kelime kelime ilerler. Koro okuma ve izleyerek okuma için.")));
+          govde = h("div", metinEl, h("div.row", { style: { marginTop: "12px" } }, btn, hizKontrol(), h("span.hint", "Vurgu seçtiğin hızda kelime kelime ilerler. Koro okuma ve izleyerek okuma için.")));
         }
         box.replaceChildren(ustBar, govde, gecmisCiz());
       }

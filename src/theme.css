@@ -1827,3 +1827,13 @@ body.yt-acik #layer { z-index: 1000; }
 @media (max-width: 760px) { .hm-tarif { top: 120px; left: 8px; } .hm-raf { bottom: 8px; } }
 .hm-kurabiye { width: 96px; height: 96px; display: grid; place-items: center; border-radius: 50%; font-size: 54px; background: radial-gradient(circle at 35% 30%, #F7D59C, #D99A52 70%, #B87634); box-shadow: inset 0 -6px 0 rgba(0,0,0,.15), 0 6px 14px rgba(0,0,0,.3); animation: hm-dol .5s; }
 .hm-raf .ks-yeni { white-space: nowrap; margin-left: 10px; }
+.ks-cark[hidden] { display: none; }
+.hm-sihir { position: absolute; z-index: 6; display: grid; justify-items: center; gap: 6px; transform: translate(-50%, -50%); pointer-events: none; animation: hm-yuksel 2.4s cubic-bezier(.2,.8,.2,1) forwards; }
+.hm-sihir.in { transition: transform .6s ease-in, opacity .6s; opacity: 0; transform: translate(-50%, 120%) scale(.5); }
+@keyframes hm-yuksel { 0% { transform: translate(-50%, -20%) scale(.1); opacity: 0; } 25% { opacity: 1; } 60% { transform: translate(-50%, -88%) scale(1.15); } 100% { transform: translate(-50%, -80%) scale(1.05); opacity: 1; } }
+.hm-isik { position: absolute; inset: -60px; border-radius: 50%; background: radial-gradient(circle, rgba(255,240,170,.95), rgba(255,200,90,.35) 45%, rgba(255,200,90,0) 70%); animation: hm-parla 1.2s ease-in-out infinite alternate; z-index: -1; }
+@keyframes hm-parla { from { transform: scale(.85); opacity: .7; } to { transform: scale(1.15); opacity: 1; } }
+.hm-sihir-kelime { padding: 4px 22px; border-radius: 16px; background: #FFFBF2; font: 400 clamp(48px, 5.5vw, 76px) var(--okuma); color: #3B2A1E; box-shadow: 0 0 0 4px #FFD66B, 0 10px 30px rgba(255,170,40,.6); }
+.hm-kivilcim { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; border-radius: 50%; background: #FFF3B0; box-shadow: 0 0 12px 4px #FFD66B; animation: hm-kiv 1.3s ease-out infinite; animation-delay: var(--g); }
+@keyframes hm-kiv { from { transform: rotate(var(--a)) translateX(10px) scale(1); opacity: 1; } to { transform: rotate(var(--a)) translateX(150px) scale(.2); opacity: 0; } }
+.hm-pisti span { white-space: nowrap; }

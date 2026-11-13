@@ -8,6 +8,8 @@
   const dep = () => { const s = T.store.get(), id = T.store.activeClass().id; return ((s.mutfak || {})[id]) || {}; };
   const depYaz = (fn) => T.store.update((s) => { const id = T.store.activeClass().id; s.mutfak = s.mutfak || {}; fn((s.mutfak[id] = s.mutfak[id] || {})); });
   const TARIF_SAY = 5;
+  /* insan resimli kelimeler (ana, dede...) kurabiye olmaz, resimli siparişe girmez */
+  const INSAN = /[\u{1F466}-\u{1F469}\u{1F46E}-\u{1F478}\u{1F9D1}-\u{1F9D3}\u{1F935}\u{1F470}]/u;
 
   T.tools["hece-mutfagi"] = {
     back: "birinci", grades: [1, 1], title: "Hece Mutfağı", icon: "hece", tone: "tomato",
@@ -55,6 +57,10 @@
         const buharD = c.doku(64, 64, (x, w) => { const g = x.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); g.addColorStop(0, "rgba(255,255,255,.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, w, w); });
         const buharlar = []; for (let i = 0; i < 16; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: buharD, transparent: true, depthWrite: false, opacity: 0 })); s.userData.t = Math.random() * 2; sahne.add(s); buharlar.push(s); }
         let buharGuc = 0.15;
+        /* pişince kazandan fışkıran yıldızlar */
+        const yildizD = c.doku(64, 64, (x, w) => { x.translate(w / 2, w / 2); x.fillStyle = "#FFE27A"; x.shadowColor = "#FFF6C8"; x.shadowBlur = 10; x.beginPath(); for (let i = 0; i < 10; i++) { const r2 = i % 2 ? 9 : 26, a = (i / 10) * Math.PI * 2 - Math.PI / 2; x.lineTo(Math.cos(a) * r2, Math.sin(a) * r2); } x.closePath(); x.fill(); });
+        const yildizlar = []; for (let i = 0; i < 36; i++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: yildizD, transparent: true, depthWrite: false, opacity: 0, color: [0xffe27a, 0xffb3c7, 0xa8e6ff, 0xc8ffb0][i % 4] })); sp.userData = { t: 9, v: new THREE.Vector3() }; sahne.add(sp); yildizlar.push(sp); }
+        const fiskir = () => yildizlar.forEach((sp, i) => { sp.userData.t = -i * 0.025; sp.position.copy(tencere); const a = Math.random() * Math.PI * 2; sp.userData.v.set(Math.cos(a) * (0.5 + Math.random() * 0.9), 2.2 + Math.random() * 1.6, Math.sin(a) * 0.4 + 0.5); });
         /* karakterler: aşçı kız, müşteri erkek */
         const asci = await T.karakter3B(c, "kiz", { boy: 1.25 }), musteri = await T.karakter3B(c, "erkek", { boy: 1.3 });
         asci.kok.position.set(-1.75, 0, 0.9); asci.kok.rotation.y = 0.5; sahne.add(asci.kok); asci.oynat("dur");
@@ -64,6 +70,7 @@
           asci.guncelle(dt); musteri.guncelle(dt);
           if (musteriHedef) { const p = musteri.kok.position, d = musteriHedef.x - p.x; if (Math.abs(d) < 0.03) { p.x = musteriHedef.x; const f = musteriHedef.bitti; musteriHedef = null; f && f(); } else p.x += Math.sign(d) * Math.min(Math.abs(d), dt * 1.3); }
           buharlar.forEach((s) => { s.userData.t += dt * (0.5 + buharGuc); const t = s.userData.t % 2, k = t / 2; s.position.set(tencere.x + Math.sin(t * 3 + s.id) * 0.12 * k, tencere.y + 0.1 + k * (0.6 + buharGuc * 0.6), tencere.z); const sc = 0.18 + k * (0.35 + buharGuc * 0.3); s.scale.set(sc, sc, sc); s.material.opacity = Math.sin(k * Math.PI) * (0.25 + buharGuc * 0.55); });
+          yildizlar.forEach((sp) => { const u = sp.userData; u.t += dt; if (u.t < 0 || u.t > 1.6) { sp.material.opacity = 0; return; } u.v.y -= dt * 3.2; sp.position.addScaledVector(u.v, dt); const sc = 0.12 + Math.sin(u.t * 9) * 0.03; sp.scale.set(sc, sc, sc); sp.material.opacity = Math.min(1, (1.6 - u.t) * 1.5); sp.material.rotation += dt * 4; });
           sicak.intensity += ((buharGuc > 0.5 ? 6 : 1.2) - sicak.intensity) * Math.min(1, dt * 3);
         };
         const ekranda = (v) => { const p = v.clone().project(kamera), b = kap.getBoundingClientRect(); return { x: (p.x * 0.5 + 0.5) * b.width, y: (-p.y * 0.5 + 0.5) * b.height }; };
@@ -73,7 +80,7 @@
         const L = () => IO.learned();
         const sozcukler = () => { const s = new Set(IO.PICS.map(([w]) => w)); Object.values(BANKA).forEach((v) => { (v.kelime || []).forEach((w) => w === T.trLower(w) && s.add(w)); (v.tablo || []).forEach((w) => s.add(w)); }); return [...s]; };
         const havuz = () => { const l = L(), uz = dep().uzunluk || "2", resimli = dep().tur !== "hepsi";
-          return sozcukler().filter((w) => /^[a-zçğıöşü]+$/.test(w) && IO.okWord(w, l)).filter((w) => { const n = T.heceler(w).length; return uz === "2" ? n === 2 : uz === "3" ? n === 3 : n >= 2 && n <= 4; }).filter((w) => !resimli || PIC.has(w)); };
+          return sozcukler().filter((w) => /^[a-zçğıöşü]+$/.test(w) && IO.okWord(w, l)).filter((w) => { const n = T.heceler(w).length; return uz === "2" ? n === 2 : uz === "3" ? n === 3 : n >= 2 && n <= 4; }).filter((w) => !resimli || (PIC.has(w) && !INSAN.test(PIC.get(w)))); };
         const deste = []; let son = "";
         const cek = () => { if (!deste.length) deste.push(...T.shuffle(havuz())); if (!deste.length) return null; let i = deste.findIndex((w) => w !== son); if (i < 0) i = 0; son = deste.splice(i, 1)[0]; return son; };
         const heceHavuzu = () => [...new Set(havuz().concat(sozcukler().filter((w) => IO.okWord(w, L()))).flatMap((w) => T.heceler(w)))];
@@ -142,7 +149,7 @@
           if (kilit || b.classList.contains("bos")) return;
           if (x !== hs[dolu]) {
             b.classList.remove("salla"); void b.offsetWidth; b.classList.add("salla"); T.sound.no();
-            asci.oynat("hayir", { dongu: false }).then(() => asci.oynat("dur")); return;
+            asci.oynat("hayir", { dongu: false }).then(() => asci.oynat("dur")); T.karakterSesi("kiz", "Tekrar dene!"); return;
           }
           kilit = true; b.classList.add("bos");
           /* hece kavanozdan tencereye uçar */
@@ -158,13 +165,22 @@
         function pisti() {
           kilit = true; buharGuc = 1; pisen++;
           depYaz((k) => (k.toplam = (k.toplam || 0) + 1));
-          const dv = h("button.ks-yeni", { onclick: () => devam() }, T.icon("next"), pisen >= TARIF_SAY ? "Menüyü bitir" : "Sıradaki müşteri");
-          const res = PIC.get(kelime);
-          raf.replaceChildren(res ? h("div.hm-kurabiye", res) : null, h("div.hm-pisti", h("b", kelime), h("span", res ? "kurabiyesi hazır!" : "Kelimeyi kurduk!")), dv);
-          asci.oynat("sevin", { dongu: false }).then(() => asci.oynat("dur")); musteri.oynat("zipla", { dongu: false }).then(() => musteri.oynat("dur"));
-          T.konfeti && T.konfeti();
+          const dv = h("button.ks-yeni", { onclick: () => devam() }, T.icon("next"), pisen >= TARIF_SAY ? "Siparişleri bitir" : "Sıradaki müşteri");
+          const res = PIC.has(kelime) && !INSAN.test(PIC.get(kelime)) ? PIC.get(kelime) : null;
+          /* heceler kazanda birleşir, kelime ışıltıyla yükselir */
+          raf.replaceChildren(); fiskir();
+          const p = ekranda(tencere), sihir = h("div.hm-sihir", { style: { left: p.x + "px", top: p.y + "px" } },
+            h("div.hm-isik"), Array.from({ length: 10 }, (_, i) => h("i.hm-kivilcim", { style: { "--a": i * 36 + "deg", "--g": 0.15 * (i % 3) + "s" } })),
+            res ? h("div.hm-kurabiye", res) : null, h("b.hm-sihir-kelime", kelime));
+          sahneEl.append(sihir);
+          asci.oynat("sevin", { dongu: false }).then(() => asci.oynat("dur"));
+          setTimeout(() => T.karakterSesi("kiz", "Harikasın!"), 900);
+          setTimeout(() => { musteri.oynat("zipla", { dongu: false }).then(() => musteri.oynat("dur")); T.karakterSesi("erkek", "Teşekkür ederim!"); }, 2300);
+          setTimeout(() => { sihir.classList.add("in"); }, 2600);
+          setTimeout(() => { sihir.remove(); raf.replaceChildren(res ? h("div.hm-kurabiye", res) : null, h("div.hm-pisti", h("b", kelime), h("span", res ? "kurabiyesi hazır!" : "Kelimeyi kurduk!")), dv); }, 3200);
+          T.konfeti && setTimeout(() => T.konfeti(), 400);
           const devam = () => {
-            okuyan = null; ustCiz();
+            if (!raf.querySelector(".ks-yeni")) return; okuyan = null; ustCiz();
             musteri.kok.rotation.y = Math.PI / 2; musteri.oynat("yuru");
             musteriHedef = { x: 4.8, bitti: () => { musteri.kok.visible = false; if (pisen >= TARIF_SAY) menuBitti(); else yeniTarif(); } };
             raf.replaceChildren();

@@ -173,6 +173,21 @@
 
   /* Harf sesi: harfin adı değil, kendisi ("nnn"). Sunucuda bir kez üretilir, sonra hep aynısı çalar. */
   const harfOnbellek = new Map();
+  /* Oyun karakterlerinin sabit sözleri ("Teşekkür ederim!", "Harikasın!", "Tekrar dene!"): çocuk sesiyle, bir kez üretilip saklanır. */
+  const karOnbellek = new Map();
+  T.karakterSesi = async function (kim, soz) {
+    const k = kim + "|" + soz;
+    try {
+      let url = karOnbellek.get(k);
+      if (!url) {
+        if (T.sesTercih && T.sesTercih() === "cihaz") throw 0;
+        const r = await fetch("/api/ses", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ metin: soz, tur: "karakter", kim }) });
+        if (!r.ok) throw 0;
+        url = URL.createObjectURL(await r.blob()); karOnbellek.set(k, url);
+      }
+      const a = new Audio(url); await a.play();
+    } catch (e) { try { T.speak(soz); } catch (e2) {} }
+  };
   T.harfSesi = async function (l) {
     l = T.trLower(String(l || "")).trim(); if (!l) return;
     T.sesDur && T.sesDur();

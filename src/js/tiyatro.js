@@ -139,7 +139,7 @@
 
   T.tools["okuma-tiyatrosu"] = {
     back: "turkce", title: "Okuma tiyatrosu", icon: "text", tone: "grape", grades: [1, 3], grup: "Okuma",
-    short: "Cümleyi oku, kedi sahnede oynasın. Doğru mu oynadı?",
+    short: "Cümleyi oku, kedi sahnede canlandırsın. Rolünü doğru yaptı mı?",
     render(host) {
       const svg = S("svg", { viewBox: "0 0 1200 620", class: "ot-sahne", role: "img", "aria-label": "Okuma tiyatrosu sahnesi" });
       const kart = h("div.ot-kart"), dugme = h("div.ot-dugme"), skorEl = h("div.ot-skor");
@@ -170,7 +170,7 @@
       async function zipla(x, y, yuk = 170) { await tw(160, (t) => { kd.sy = 1 - 0.2 * t; kd.sx = 1 + 0.1 * t; }); ses(320, 0.25, "sine", 0.1); const x0 = kd.x, y0 = kd.y; kd.yon = x >= x0 ? 1 : -1; await tw(620, (t) => { kd.x = lerp(x0, x, t); kd.y = lerp(y0, y, t) - Math.sin(t * Math.PI) * yuk; kd.sy = 0.8 + 0.35 * Math.sin(t * Math.PI); kd.sx = 1.1 - 0.15 * Math.sin(t * Math.PI); kd.rot = Math.sin(t * Math.PI * 2) * -8 * kd.yon; }, (t) => t); kd.rot = 0; ses(140, 0.1, "square", 0.05); await tw(120, (t) => { kd.sy = 0.8 + 0.2 * t; kd.sx = 1.12 - 0.12 * t; }); kd.sy = kd.sx = 1; }
       async function oyna(a) {
         if (a === "masa") { await yuru(MASA - 230); await zipla(MASA - 10, MASA_UST); await tw(300, (t) => (kd.basRot = -12 * Math.sin(t * Math.PI))); }
-        else if (a === "kutu") { await yuru(KUTU + 200); await zipla(KUTU, ZEMIN - 70, 150); kd.kuyruk = 0; await tw(420, (t) => (kd.y = lerp(ZEMIN - 70, ZEMIN - 4, cik(t)))); for (let i = 0; i < 3; i++) await tw(120, (t) => (kd.rot = Math.sin(t * Math.PI) * 6 * (i % 2 ? 1 : -1))); kd.rot = 0; }
+        else if (a === "kutu") { await yuru(KUTU + 200); await zipla(KUTU, ZEMIN - 70, 150); kd.yon = 1; await tw(420, (t) => (kd.y = lerp(ZEMIN - 70, ZEMIN - 4, cik(t)))); for (let i = 0; i < 3; i++) await tw(120, (t) => (kd.rot = Math.sin(t * Math.PI) * 6 * (i % 2 ? 1 : -1))); kd.rot = 0; }
         else if (a === "top") { await yuru(top.x - 125); kd.yon = 1; await bekle(150); await tw(220, (t) => (kd.pati = Math.sin(t * Math.PI))); ses(500, 0.08); const x0 = top.x; await tw(900, (t) => { top.x = lerp(x0, x0 + 190, t); top.r = t * 520; top.y = ZEMIN - 26 - Math.abs(Math.sin(t * Math.PI * 2)) * 40 * (1 - t); }, cik); await yuru(top.x - 120, 420); await zipla(top.x - 45, ZEMIN, 90); await tw(220, (t) => (kd.pati = Math.sin(t * Math.PI))); }
         else if (a === "sut") { await yuru(SUT - 130); kd.yon = 1; await tw(360, (t) => { kd.basRot = 24 * t; kd.basY = 34 * t; }); for (let i = 0; i < 4; i++) { await tw(200, (t) => (kd.dil = Math.sin(t * Math.PI))); ses(900, 0.05, "sine", 0.05); sut.d = Math.max(0.15, sut.d - 0.2); } await tw(360, (t) => { kd.basRot = 24 * (1 - t); kd.basY = 34 * (1 - t); }); await tw(300, (t) => (kd.dil = Math.sin(t * Math.PI) * 0.8)); }
         else if (a === "uyku") { await yuru(HALI); await tw(500, (t) => { kd.sy = 1 - 0.28 * t; kd.sx = 1 + 0.14 * t; kd.goz = 1 - t; kd.basY = 20 * t; }); kd.uyku = 1; k.zz.setAttribute("transform", `translate(${kd.x + 60 * kd.yon} ${kd.y - 150})`); await tw(1400, (t) => { k.zz.setAttribute("opacity", Math.min(1, t * 3)); k.zz.setAttribute("transform", `translate(${kd.x + 60 * kd.yon + t * 30} ${kd.y - 150 - t * 40})`); }, (t) => t); }
@@ -199,10 +199,10 @@
       function ciz(asama, sonuc) {
         kart.replaceChildren(h("div.ot-cumle", soru.cumle));
         const b = (cls, ic, fn, lbl) => h("button.ot-b." + cls, { onclick: fn }, ic ? T.icon(ic) : null, lbl);
-        if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, "Okuduk, oynasın"));
-        else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", "Kedi oynuyor, dikkatle izleyin..."));
-        else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", "Kedi cümleyi doğru oynadı mı?"), b("evet", "check", () => karar(true), "Doğru oynadı"), b("hayir", "close", () => karar(false), "Yanlış oynadı"));
-        else if (asama === "sonuc") dugme.replaceChildren(h("div.ot-sonuc" + (sonuc ? ".iyi" : ""), sonuc ? "Harika! Dikkatli okudunuz." : soru.dogruMu ? "Aslında kedi doğru oynadı. Cümleyi bir daha okuyalım." : "Kedi yanlış oynadı. Cümle neyi anlatıyordu, bir daha okuyalım."), soru.dogruMu ? null : b("dinle", "eye", dogrusunuGoster, "Doğrusunu göster"), b("oyna", "next", async () => { await sifirla(); yeniSoru(); }, "Yeni cümle"));
+        if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, "Okuduk, sahneye çıksın"));
+        else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", "Kedi rolünü oynuyor, dikkatle izleyin..."));
+        else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", "Kedi rolünü doğru yaptı mı?"), b("evet", "check", () => karar(true), "Rolünü doğru yaptı"), b("hayir", "close", () => karar(false), "Rolünü yanlış yaptı"));
+        else if (asama === "sonuc") dugme.replaceChildren(h("div.ot-sonuc" + (sonuc ? ".iyi" : ""), sonuc ? "Harika! Dikkatli okudunuz." : soru.dogruMu ? "Aslında kedi rolünü doğru yaptı. Cümleyi bir daha okuyalım." : "Kedi rolünü yanlış yaptı. Cümle neyi anlatıyordu, bir daha okuyalım."), soru.dogruMu ? null : b("dinle", "eye", dogrusunuGoster, "Doğrusunu göster"), b("oyna", "next", async () => { await sifirla(); yeniSoru(); }, "Yeni cümle"));
         skorEl.replaceChildren(h("span", "Seviye"), h("div.seg", [[1, "Tek cümle"], [2, "İki olay"]].map(([v, l]) => h("button", { "aria-pressed": String(seviye === v), onclick: async () => { if (mesgul) return; seviye = v; await sifirla(); yeniSoru(); } }, l))), h("b.ot-puan", "⭐ " + String(skor)));
       }
       async function oynat() { if (mesgul) return; mesgul = true; T.sound.unlock(); ciz("oynuyor"); await sifirla(false); await bekle(300); for (const a of soru.oyun) { await oyna(a); await bekle(500); } mesgul = false; ciz("karar"); }

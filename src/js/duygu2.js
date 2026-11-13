@@ -10,14 +10,40 @@
   const seg = (opts, cur, on) => h("div.seg", opts.map(([v, l]) => h("button", { "aria-pressed": String(v === cur), onclick: () => on(v) }, l)));
 
   /* ---------- Küçük çizimler ---------- */
-  const el = (n, c) => { // n parmaklı el
-    const s = S("svg", { viewBox: "0 0 60 70", width: 58, height: 66, "aria-hidden": "true" });
-    let g = `<rect x="10" y="34" width="40" height="30" rx="12" fill="${c}"/>`;
-    const xs = [12, 21, 30, 39]; const up = n >= 5 ? 4 : n;
-    xs.forEach((x, i) => { const on = i < up; g += `<rect x="${x}" y="${on ? 6 : 26}" width="8" height="${on ? 34 : 14}" rx="4" fill="${c}"/>`; });
-    g += n >= 5 ? `<rect x="44" y="30" width="8" height="22" rx="4" fill="${c}" transform="rotate(35 48 41)"/>` : `<rect x="40" y="40" width="14" height="8" rx="4" fill="${c}"/>`;
-    s.innerHTML = `<g stroke="rgba(27,42,74,.55)" stroke-width="1.6">${g}</g>`; return s;
+  /* Gerçekçi el çizimi. n: kalkık parmak sayısı (1-5; 5'te başparmak da açık). ops.yumruk: parmaklar avucun üstüne kıvrık (beyin el modeli).
+     ops.alarm: başparmak avuçta, kırmızı ışıltılı. */
+  const elCiz = (n, ops = {}) => {
+    const s = S("svg", { viewBox: "0 0 120 150", width: ops.boy || 70, height: (ops.boy || 70) * 1.25, "aria-hidden": "true" });
+    const ten = ops.ten || "#F3CFA8", golge = "#D9A97C", cizgi = "#A9744A", id = "e" + Math.random().toString(36).slice(2, 7);
+    const P = [[36.5, 40, 15], [51.5, 46, 15.5], [66.5, 43, 15], [81, 34, 13.5]]; /* x, uzunluk, en: işaret, orta, yüzük, serçe */
+    let g = `<defs><linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${golge}"/><stop offset=".3" stop-color="${ten}"/><stop offset=".75" stop-color="${ten}"/><stop offset="1" stop-color="${golge}"/></linearGradient>
+      <radialGradient id="${id}r"><stop offset="0" stop-color="#FF3B30" stop-opacity=".85"/><stop offset="1" stop-color="#FF3B30" stop-opacity="0"/></radialGradient></defs>`;
+    const f = `fill="url(#${id})" stroke="${cizgi}" stroke-width="2.2" stroke-linejoin="round"`;
+    /* bilek ve avuç */
+    g += `<path d="M44 148 L46 122 Q30 116 28 96 L28 74 Q28 64 38 62 L86 62 Q94 63 94 74 L94 98 Q92 116 78 122 L80 148 Z" ${f}/>`;
+    if (ops.yumruk) {
+      /* yumruk: dört parmak avucun önüne kıvrılmış */
+      P.forEach(([x, , w], i) => { g += `<rect x="${x - w / 2 - 0.5}" y="${54 + (i === 1 ? -3 : 0)}" width="${w + 1}" height="${34 - (i === 3 ? 4 : 0)}" rx="${w / 2}" ${f}/><path d="M${x - w / 2 + 2} ${70 + (i === 1 ? -3 : 0)} h${w - 3}" stroke="${golge}" stroke-width="1.6"/>`; });
+    } else {
+      const up = Math.min(4, n);
+      P.forEach(([x, L, w], i) => {
+        if (i < up) {
+          const y = 66 - L; g += `<rect x="${x - w / 2}" y="${y}" width="${w}" height="${L + 6}" rx="${w / 2}" ${f}/>`;
+          g += `<path d="M${x - w / 2 + 2.5} ${y + L * 0.38} h${w - 5} M${x - w / 2 + 2.5} ${y + L * 0.68} h${w - 5}" stroke="${golge}" stroke-width="1.4" stroke-linecap="round"/>`;
+          g += `<ellipse cx="${x}" cy="${y + 6.5}" rx="${w / 2 - 2.6}" ry="4.6" fill="#FBE3CC" stroke="${golge}" stroke-width="1"/>`;
+        } else {
+          /* kıvrık parmak: avucun üstünde boğum */
+          g += `<rect x="${x - w / 2}" y="55" width="${w}" height="22" rx="${w / 2}" ${f}/><path d="M${x - w / 2 + 2.5} 63 h${w - 5}" stroke="${golge}" stroke-width="1.4" stroke-linecap="round"/>`;
+        }
+      });
+      if (ops.alarm) g += `<circle cx="56" cy="92" r="30" fill="url(#${id}r)"/>`;
+      if (n >= 5) g += `<path d="M30 96 Q16 92 10 72 Q8 64 15 62 Q21 61 24 68 L34 84 Z" ${f}/><ellipse cx="13.5" cy="67" rx="4" ry="4.8" fill="#FBE3CC" stroke="${golge}" stroke-width="1" transform="rotate(-25 13.5 67)"/>`;
+      else g += `<path d="M30 98 Q24 86 32 82 L64 84 Q72 86 68 93 Q66 97 58 97 Z" ${f}/><ellipse cx="63" cy="89.5" rx="4.5" ry="3.6" fill="#FBE3CC" stroke="${golge}" stroke-width="1"/>`;
+    }
+    s.innerHTML = g; return s;
   };
+  T.elCiz = elCiz;
+  const el = (n) => elCiz(n, { boy: 64 });
   const hava = (k) => { const s = S("svg", { viewBox: "0 0 80 60", width: 80, height: 60, "aria-hidden": "true" });
     const bulut = (x, y, c) => `<path d="M${x} ${y}a10 10 0 0 1 10-10a14 14 0 0 1 26 3a9 9 0 0 1 1 17H${x + 2}a9 9 0 0 1-2-10z" fill="${c}"/>`;
     s.innerHTML = { gunes: '<circle cx="28" cy="24" r="11" fill="#E9A23B"/>' + bulut(30, 40, "#D3D9E4"), bulut: bulut(14, 30, "#AEB8CB") + bulut(26, 42, "#D3D9E4"), firtina: bulut(14, 28, "#6F8FB0") + '<path d="M40 38l-6 11h7l-5 10" stroke="#E9A23B" stroke-width="4" fill="none" stroke-linejoin="round"/><path d="M22 42l-3 7M30 42l-3 7" stroke="#3B7DD8" stroke-width="3.5" stroke-linecap="round"/>' }[k]; return s; };
@@ -239,19 +265,22 @@
   tool("gelecek-teleskobu", {
     title: "Gelecek teleskobu", icon: "telescope", tone: "grape", short: "Bunu yaparsam 10 dakika sonra ne olur?",
     render(host) {
-      let cur = null, acik = {}, kendi = false;
+      let cur = null, acik = {}, kendi = false, bakis = null;
       const box = h("div"); host.append(box);
-      const yeni = () => { const L = tum("teleskop", TELESKOP); cur = desteCek("tel", L); acik = {}; kendi = false; };
+      const yeni = () => { const L = tum("teleskop", TELESKOP); cur = desteCek("tel", L); acik = {}; kendi = false; bakis = null; };
       function ciz() {
         const [d, a1, s1, a2, s2] = cur;
-        const yol = (k, a, s, kotu) => h("button.gt-yol" + (kotu ? ".kotu" : ".iyi") + (acik[k] ? ".open" : ""), { onclick: () => { acik[k] = true; T.speak(s); ciz(); } }, h("small", "Bunu yaparsam"), h("b", a), acik[k] ? h("div.gt-sonuc", h("small", "10 dakika sonra"), s) : h("span.hint", "Teleskoptan bak"));
+        const yildiz = (renk, n) => h("div.gt-yildizlar", Array.from({ length: n }, (_, i) => h("i", { style: { "--r": renk, "--d": i * 0.08 + "s", "--x": (i * 37) % 90 + "%", "--y": (i * 53) % 70 + "%", "--s": 0.7 + ((i * 7) % 5) / 8 } })));
+        const yol = (k, a, s, kotu) => h("button.gt-yol" + (kotu ? ".kotu" : ".iyi") + (acik[k] ? ".open" : ""), { onclick: () => { acik[k] = true; bakis = k; ciz(); } },
+          acik[k] ? yildiz(kotu ? "#1d1d24" : "#FFD23F", 7) : null, h("small", "Bunu yaparsam"), h("b", a), acik[k] ? h("div.gt-sonuc", h("small", "10 dakika sonra"), s) : h("span.gt-bak", "Teleskopla bak"));
+        const teleskop = () => { const sv = S("svg", { viewBox: "0 0 200 210", class: "gt-teleskop" + (bakis ? " bak-" + bakis : "") }); sv.innerHTML = '<g class="gt-tup"><path d="M58 70 L150 34 L172 92 L80 128 Z" fill="#8B5A2B" stroke="#5C3A1A" stroke-width="4"/><ellipse cx="69" cy="99" rx="22" ry="34" transform="rotate(-21 69 99)" fill="#1B2140" stroke="#5C3A1A" stroke-width="5"/><g fill="#FFD23F"><path d="M64 84l3 6 6 1-5 4 1 6-5-3-5 3 1-6-5-4 6-1z"/><path d="M76 104l2 4 4 1-3 3 1 4-4-2-3 2 1-4-3-3 4-1z"/><path d="M60 110l2 4 4 1-3 3 1 4-4-2-3 2 1-4-3-3 4-1z"/></g><rect x="150" y="52" width="26" height="22" rx="4" transform="rotate(-21 163 63)" fill="#6E4420" stroke="#5C3A1A" stroke-width="3"/></g><g stroke="#5C3A1A" stroke-width="7" stroke-linecap="round"><path d="M115 100 L85 200"/><path d="M115 100 L118 205"/><path d="M115 100 L150 198"/></g>'; return sv; };
         box.replaceChildren(h("div.dy-card", { style: { maxWidth: "1100px" } }, h("small.ak-lbl", "Gelecek teleskobu: 10 dakika sonrası"), h("div.dy-durum", d),
           kendi ? h("p.sb-line", "Sizce iki farklı davranış ne olabilir? 10 dakika sonra ne olur? Önce sınıf tahmin etsin, sonra teleskoba bakın.") : null,
-          h("div.gt-yollar", yol("a", a1, s1, true), yol("b", a2, s2, false)),
+          h("div.gt-pano", yol("b", a2, s2, false), teleskop(), yol("a", a1, s1, true)),
           h("p.sb-line", "Bunu yaparsam 10 dakika sonra ne olur? Davranışımdan sonra ne olur?"),
           h("div.row", { style: { justifyContent: "center" } },
             h("button.btn", { onclick: () => { yeni(); ciz(); } }, T.icon("next"), "Yeni durum"),
-            h("button.btn.c-chalk", { onclick: () => { acik = {}; kendi = true; ciz(); } }, T.icon("help"), "Önce biz tahmin edelim"),
+            h("button.btn.c-chalk", { onclick: () => { acik = {}; kendi = true; bakis = null; ciz(); } }, T.icon("help"), "Önce biz tahmin edelim"),
             h("button.btn.c-chalk", { onclick: () => ekleFormu("Sınıfımızdan bir durum ekle", [["Durum", "Ne oldu? (ör. Arkadaşım sırama oturdu.)"], ["1. davranış", "Bunu yaparsam... (zorlayan davranış)"], ["1. sonuç", "10 dakika sonra ne olur?"], ["2. davranış", "Bunu yaparsam... (yardımcı davranış)"], ["2. sonuç", "10 dakika sonra ne olur?"]], (v) => { yaz("teleskop", (o) => (o || []).concat({ v })); cur = v; acik = {}; ciz(); }) }, T.icon("plus"), "Durum ekle")),
           h("p.hint", TELESKOP.length + " hazır durum ve sınıfın eklediği " + (veri("teleskop") || []).length + " durum sırayla gelir; hepsi bitmeden aynısı tekrar gelmez.")));
       }
@@ -261,29 +290,60 @@
 
   /* Beynim: el modeli ve pedallar */
   tool("beynim", {
-    title: "Beynimi tanıyorum", icon: "brain", tone: "pink", short: "Beynin el modeli, duygu ve mantık pedalları",
+    title: "Beynimi tanıyorum", icon: "brain", tone: "pink", short: "Beynin el modeli ve beyin arabası",
     render(host) {
       let mod = "el", kapak = false;
       const box = h("div"); host.append(box);
-      function elSvg(acik) {
-        const s = S("svg", { viewBox: "0 0 220 260", width: 220, height: 260 });
-        s.innerHTML = acik
-          ? '<rect x="70" y="150" width="80" height="100" rx="20" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/><g fill="#F0C9A0" stroke="#B9875A" stroke-width="3"><rect x="62" y="40" width="22" height="120" rx="11"/><rect x="88" y="22" width="22" height="135" rx="11"/><rect x="114" y="26" width="22" height="130" rx="11"/><rect x="140" y="44" width="22" height="115" rx="11"/></g><circle cx="110" cy="175" r="28" fill="#E25B4B" opacity=".75"/><rect x="96" y="150" width="20" height="44" rx="10" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/>'
-          : '<rect x="70" y="150" width="80" height="100" rx="20" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/><path d="M58 150q0-60 52-62q52 2 52 62z" fill="#F0C9A0" stroke="#B9875A" stroke-width="3"/><path d="M70 120h80M70 135h80" stroke="#B9875A" stroke-width="2"/><rect x="86" y="120" width="18" height="40" rx="9" fill="#E6B38A" stroke="#B9875A" stroke-width="2"/>';
-        return s;
+      /* Dan Siegel el modeli: kapalı elde başparmak (duygusal beyin) avuçta, dört parmak (düşünen beyin) üstüne kapanır */
+      /* Beyin arabası: gaz (duygu) hızlandırır, fren (düşünce) yavaşlatır. Sınıf kuralları virajına hızlı girilirse araba yoldan çıkar. */
+      const DURUM_P = [["Arkadaşın sıranı aldı, çok kızdın.", 85], ["Teneffüse çıkmak için çok heyecanlısın.", 70], ["Oyunu kaybettin, çok üzüldün.", 60], ["Sakin bir şekilde resim yapıyorsun.", 25], ["Biri kalemini izinsiz aldı.", 80]];
+      let pd = null;
+      function pedalOyunu() {
+        if (pd) pd.dur();
+        const kap = h("div.bn-oyun"), durumEl = h("div.dy-durum"), hizEl = h("div.bn-hiz"), mesaj = h("div.bn-mesaj"), yolSvg = S("svg", { viewBox: "0 0 600 260", class: "bn-yol" });
+        yolSvg.innerHTML = `<rect width="600" height="260" fill="#9BD08A"/><path id="bnyol" d="M30 210 L330 210 Q470 210 500 140 Q525 80 470 40" fill="none" stroke="#3A3F47" stroke-width="54" stroke-linecap="round"/><path d="M30 210 L330 210 Q470 210 500 140 Q525 80 470 40" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="18 16"/>
+          <path d="M395 196 Q455 196 480 150" fill="none" stroke="#FFD23F" stroke-width="10" stroke-dasharray="8 8" opacity=".9"/><text x="240" y="110" font-size="22" font-weight="800" fill="#1B2A4A">Sınıf kuralları virajı</text><path d="M440 104 L470 120" stroke="#1B2A4A" stroke-width="3" marker-end="url(#)"/>
+          <g id="bnaraba"><rect x="-26" y="-14" width="52" height="28" rx="9" fill="#E8483F"/><rect x="-12" y="-10" width="22" height="20" rx="4" fill="#BFE3F7"/><circle cx="-16" cy="-15" r="6" fill="#222"/><circle cx="16" cy="-15" r="6" fill="#222"/><circle cx="-16" cy="15" r="6" fill="#222"/><circle cx="16" cy="15" r="6" fill="#222"/></g>`;
+        const yol = yolSvg.querySelector("#bnyol"), araba = yolSvg.querySelector("#bnaraba"), L = yol.getTotalLength ? yol.getTotalLength() : 760;
+        let hiz = 0, konum = 0, gaz = false, fren = false, durdu = false, bitti = false, raf = 0, son = 0, sapma = 0;
+        const dz = T.pick(DURUM_P); durumEl.textContent = dz[0]; hiz = dz[1];
+        const ciz2 = () => {
+          const p = yol.getPointAtLength(Math.min(L, konum)), p2 = yol.getPointAtLength(Math.min(L, konum + 2)), aci = Math.atan2(p2.y - p.y, p2.x - p.x) * 180 / Math.PI;
+          araba.setAttribute("transform", `translate(${p.x + sapma},${p.y + sapma * 0.4}) rotate(${aci + sapma * 3})`);
+          hizEl.replaceChildren(h("div.bn-ibre", h("i", { style: { width: hiz + "%", background: hiz > 55 ? "#E8483F" : hiz > 35 ? "#F2B134" : "#3FAE5A" } })), h("b", hiz > 55 ? "Çok hızlı" : hiz > 35 ? "Dikkatli" : "Güvenli hız"));
+        };
+        const tur = (t) => {
+          if (durdu) return; const dt = Math.min(0.05, (t - son) / 1000 || 0); son = t;
+          if (!bitti) {
+            if (gaz) hiz = Math.min(100, hiz + 60 * dt); if (fren) hiz = Math.max(8, hiz - 80 * dt);
+            konum += (hiz * 2.2) * dt;
+            const virajda = konum > L * 0.5 && konum < L * 0.78;
+            if (virajda && hiz > 55) { bitti = true; mesaj.className = "bn-mesaj kotu"; mesaj.replaceChildren(h("b", "Araba virajı alamadı!"), "Şu an çok hızlı gidiyordun. Biraz ön beyin frenine basmak gerekiyordu."); T.sound.no(); }
+            else if (konum >= L) { bitti = true; mesaj.className = "bn-mesaj iyi"; mesaj.replaceChildren(h("b", "Virajı güvenle aldın!"), "Duygunu fark ettin, düşünce frenine bastın. Beyin araban yolda kaldı."); T.sound.ok(); }
+          } else if (mesaj.classList.contains("kotu")) sapma = Math.min(60, sapma + 120 * dt);
+          ciz2(); raf = requestAnimationFrame(tur);
+        };
+        const pedal = (ad, cls, alt, on) => { const b = h("button.bn-ped." + cls, h("b", ad), h("span", alt)); const ac = (v) => (e) => { e.preventDefault(); on(v); b.classList.toggle("bas", v); }; b.addEventListener("pointerdown", ac(true)); ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => b.addEventListener(ev, ac(false))); return b; };
+        kap.append(h("div.bn-ust", h("small.ak-lbl", "Durum"), durumEl, h("p.hint", "Duygu gazı şimdiden basılı. Viraja gelmeden düşünce frenine basılı tut.")), yolSvg, hizEl, mesaj,
+          h("div.bn-pedallar", pedal("Fren", "fren", "Düşünce: dur, düşün", (v) => (fren = v)), pedal("Gaz", "gaz", "Duygular", (v) => (gaz = v))),
+          h("div.row", { style: { justifyContent: "center" } }, h("button.btn", { onclick: () => { kap.replaceWith(pedalOyunu()); } }, T.icon("reset"), "Yeni durum")));
+        ciz2(); son = performance.now(); raf = requestAnimationFrame(tur);
+        pd = { dur: () => { durdu = true; cancelAnimationFrame(raf); } }; T.onLeave(() => pd && pd.dur());
+        return kap;
       }
+      const elSvg = (acik) => h("div.bn-elcizim", acik ? elCiz(4, { boy: 200, alarm: true }) : elCiz(0, { boy: 200, yumruk: true }),
+        acik ? [h("span.bn-et.ust", "Dört parmak kalktı: düşünen beyin devre dışı"), h("span.bn-et.orta", "Başparmak açıkta: alarm çalıyor")]
+             : [h("span.bn-et.ust", "Dört parmak: düşünen beyin"), h("span.bn-et.orta", "İçteki başparmak: duygusal beyin"), h("span.bn-et.alt", "Bilek: beyin sapına giden yol")]);
       function ciz() {
-        let ic;
+        let ic; if (mod !== "pedal" && pd) { pd.dur(); pd = null; }
         if (mod === "el") ic = h("div.bn-grid",
           h("div.sb-card.bn-el", elSvg(kapak), h("button.btn.big", { onclick: () => { kapak = !kapak; ciz(); } }, kapak ? "Kapağı kapat" : "Kapağı kaldır")),
           h("div.sb-card", kapak
             ? [h("h3", "Kapak kalktı: mantık devre dışı"), h("p.sb-line", "Dört parmak kalktı. Ön beyin, yani düşünen beyin, devreden çıktı. Başparmak açıkta: alarm merkezi direksiyonda. Sadece panik hâlindeki duygu konuşuyor."), h("p.sb-line", h("b", "Altın kural: "), "Kapak kalkmışken açıklama yapma. Önce kapağın kapanmasına yardım et, dersi sonra ver.")]
             : [h("h3", "Her şey yolunda: kapalı el"), h("p.sb-line", "Dört parmak ön beyindir: mantıklı, düşünen beyin. İçteki başparmak duygusal beyindir, alarm merkezi. Bilek beyin sapına giden yoldur."), h("p.sb-line", "Mantıklı beyin duyguyu kucaklar. Çocuk sakindir, öğrenmeye açıktır.")],
             h("div.bn-tetik", h("b", "Kapak neden kalkar?"), h("ul", h("li", "Fiziksel: açlık, yorgunluk"), h("li", "Aile ve ev içi: gerginlik, tartışma, güvensizlik"), h("li", "Duygusal: utanma, dışlanma, hayal kırıklığı"), h("li", "Çevresel: gürültü, belirsizlik")))));
-        else ic = h("div.bn-grid",
-          h("div.sb-card.bn-pedal", h("div.bn-p.fren", h("b", "Fren"), "Düşünce, dur"), h("div.bn-p.gaz", h("b", "Gaz"), "Duygular pedalı")),
-          h("div.sb-card", h("h3", "Beynimizin pedalları: duygu ve mantık"), h("p.sb-line", "Beyin arabamızın bir gaz pedalı var: duygularımız. Bir de fren pedalı: düşünce. Sınıf kurallarının virajına gelirken ikisini birlikte kullanırız."), h("div.dy-bubble", "Şu an çok hızlı gidiyorsun ve virajı alamayabilirsin. Lütfen biraz ön beyin frenine bas."), h("p.hint", "Nasihat yerine bu dili kullanmak, çocuğa dışarıdan kontrol yerine kendi frenini fark etmeyi öğretir.")));
-        box.replaceChildren(seg([["el", "Beynin el modeli"], ["pedal", "Pedallar"]], mod, (v) => { mod = v; ciz(); }), h("div", { style: { marginTop: "14px" } }, ic));
+        else { ic = pedalOyunu(); }
+        box.replaceChildren(seg([["el", "Beynin el modeli"], ["pedal", "Beyin arabası: pedallar"]], mod, (v) => { mod = v; ciz(); }), h("div", { style: { marginTop: "14px" } }, ic));
       }
       ciz();
     },

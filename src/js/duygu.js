@@ -178,11 +178,8 @@
           if (!c) return; c.sahne.add(new c.THREE.HemisphereLight(0xffffff, 0x9fb5d6, 2.2)); const L = new c.THREE.DirectionalLight(0xffffff, 1.6); L.position.set(1, 3, 3); c.sahne.add(L);
           const k = await T.karakter3B(c, "erkek", { boy: 1.35 }).catch(() => null); if (!k) return;
           k.kok.rotation.y = 0.15; c.sahne.add(k.kok); k.oynat("dur"); rehber = k;
-          const kem = {}; k.model.traverse((o) => { if (o.isBone) kem[o.name] = o; });
-          const gogus = kem.mixamorigSpine2 || kem.mixamorigSpine1, omuz = [kem.mixamorigLeftShoulder, kem.mixamorigRightShoulder].filter(Boolean), q = new c.THREE.Quaternion(), ex = new c.THREE.Vector3(1, 0, 0), ez = new c.THREE.Vector3(0, 0, 1);
-          c.kare = (dt) => { k.guncelle(dt); nefesSimdi += (nefesHedef - nefesSimdi) * Math.min(1, dt * 1.6);
-            if (gogus) { q.setFromAxisAngle(ex, -0.12 * nefesSimdi); gogus.quaternion.multiply(q); }
-            omuz.forEach((b, i) => { q.setFromAxisAngle(ez, (i ? 1 : -1) * 0.14 * nefesSimdi); b.quaternion.multiply(q); }); };
+          /* nefes: kemiklere dokunmadan, gövde hafifçe yükselir ve genişler */
+          c.kare = (dt) => { k.guncelle(dt); nefesSimdi += (nefesHedef - nefesSimdi) * Math.min(1, dt * 1.6); k.kok.scale.set(1 + nefesSimdi * 0.018, 1 + nefesSimdi * 0.025, 1 + nefesSimdi * 0.03); };
         });
       };
       const tamEkran = () => { try { document.fullscreenElement ? document.exitFullscreen() : (box.requestFullscreen || box.webkitRequestFullscreen).call(box); } catch (e) { T.toast("Bu ortamda tam ekran kapalı"); } };

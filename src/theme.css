@@ -1890,3 +1890,33 @@ body.yt-acik #layer { z-index: 1000; }
 .hm-balon { position: absolute; z-index: 5; max-width: 260px; padding: 12px 18px; border-radius: 20px; background: #fff; font: 800 clamp(18px, 1.8vw, 24px) var(--display); color: #2B1D14; box-shadow: 0 8px 22px rgba(0,0,0,.18); transform: translate(-50%, -100%) scale(.6); opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; text-align: center; }
 .hm-balon::after { content: ""; position: absolute; left: 50%; bottom: -12px; margin-left: -10px; border: 12px solid transparent; border-bottom: 0; border-top-color: #fff; }
 .hm-balon.acik { opacity: 1; transform: translate(-50%, calc(-100% - 14px)) scale(1); }
+.bn-elcizim { display: grid; justify-items: center; gap: 6px; padding: 6px; }
+.bn-et { max-width: 260px; text-align: center; font: 700 14px/1.3 var(--body); color: var(--navy); background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 6px 9px; box-shadow: 0 3px 8px rgba(0,0,0,.08); }
+.bn-et.orta { border-color: #F2A39C; } .bn-el .btn { white-space: nowrap; }
+@media (max-width: 700px) { .bn-elcizim { padding: 10px; } .bn-et { position: static; margin-top: 6px; } }
+.bn-oyun { display: grid; gap: 12px; justify-items: center; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 16px; }
+.bn-ust { text-align: center; } .bn-ust .dy-durum { font-size: clamp(22px, 2.6vw, 32px); }
+.bn-yol { width: min(100%, 760px); height: auto; border-radius: 16px; }
+.bn-hiz { display: flex; align-items: center; gap: 12px; width: min(100%, 520px); } .bn-hiz b { min-width: 110px; font: 800 18px var(--display); }
+.bn-ibre { flex: 1; height: 18px; border-radius: 9px; background: #EEF1F5; overflow: hidden; } .bn-ibre i { display: block; height: 100%; transition: width .1s; }
+.bn-mesaj { min-height: 26px; font-size: 19px; text-align: center; display: grid; gap: 2px; } .bn-mesaj.kotu { color: #B3261E; } .bn-mesaj.iyi { color: #1F7A3A; } .bn-mesaj b { font: 800 22px var(--display); }
+.bn-pedallar { display: flex; gap: 40px; align-items: flex-end; user-select: none; }
+.bn-ped { touch-action: none; border: 0; cursor: pointer; border-radius: 16px; display: grid; gap: 4px; justify-items: center; color: #fff; padding: 18px 26px; box-shadow: 0 8px 0 rgba(0,0,0,.25); transition: transform .08s, box-shadow .08s; }
+.bn-ped b { font: 800 28px var(--display); } .bn-ped span { font: 700 14px var(--body); }
+.bn-ped.fren { width: 190px; height: 120px; background: repeating-linear-gradient(0deg, #6CC2E8 0 14px, #4FA7CF 14px 22px); }
+.bn-ped.gaz { width: 120px; height: 170px; background: repeating-linear-gradient(0deg, #FFB648 0 14px, #F08A1C 14px 22px); }
+.bn-ped.bas { transform: translateY(6px) scale(.97); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+/* Gelecek teleskobu: panodaki gibi mavi (altın yıldız) ve mor (kara yıldız) iki yarı */
+.gt-pano { display: grid; grid-template-columns: 1fr minmax(140px, 220px) 1fr; align-items: stretch; border-radius: 22px; overflow: hidden; margin: 14px 0; background: linear-gradient(90deg, #3FA9E0 0 50%, #8E5BC7 50% 100%); }
+.gt-pano .gt-yol { position: relative; overflow: hidden; border: 0; margin: 16px; border-radius: 18px; min-height: 230px; padding: 18px; cursor: pointer; display: grid; align-content: center; gap: 8px; text-align: center; color: #fff; background: rgba(255,255,255,.14); box-shadow: inset 0 0 0 3px rgba(255,255,255,.35); }
+.gt-pano .gt-yol b { font: 800 clamp(20px, 2.2vw, 28px) var(--display); position: relative; } .gt-pano .gt-yol small { font: 700 15px var(--body); opacity: .9; position: relative; }
+.gt-pano .gt-yol.open { background: rgba(255,255,255,.92); color: var(--navy); }
+.gt-bak { justify-self: center; padding: 8px 16px; border-radius: 999px; background: rgba(0,0,0,.22); font: 700 15px var(--body); position: relative; }
+.gt-pano .gt-sonuc { position: relative; padding: 12px; border-radius: 14px; background: #FFF6C8; color: #3B2A1E; font-size: 20px; display: grid; gap: 4px; } .gt-pano .kotu .gt-sonuc { background: #EEE6F7; }
+.gt-yildizlar { position: absolute; inset: 0; pointer-events: none; }
+.gt-yildizlar i { position: absolute; left: var(--x); top: var(--y); width: 34px; height: 34px; background: var(--r); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); transform: scale(var(--s)); opacity: .55; animation: gt-yil .6s backwards; animation-delay: var(--d); }
+@keyframes gt-yil { from { transform: scale(0) rotate(-90deg); opacity: 0; } }
+.gt-teleskop { width: 100%; align-self: center; }
+.gt-tup { transform-origin: 115px 100px; transition: transform .6s cubic-bezier(.3,1.4,.6,1); }
+.gt-teleskop { transition: transform .5s; } .gt-teleskop.bak-a { transform: scaleX(-1); } .gt-teleskop.bak-b .gt-tup, .gt-teleskop.bak-a .gt-tup { transform: rotate(-8deg); }
+@media (max-width: 760px) { .gt-pano { grid-template-columns: 1fr; background: linear-gradient(180deg, #3FA9E0 0 50%, #8E5BC7 50% 100%); } .gt-teleskop { max-width: 160px; justify-self: center; } }

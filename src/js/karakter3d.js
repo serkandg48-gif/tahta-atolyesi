@@ -49,9 +49,18 @@
     let aktif = null, aktifK = null, hedefY = 0, simdiY = 0, bitti = null;
     mixer.addEventListener("finished", (e) => { if (e.action === aktif && bitti) { const f = bitti; bitti = null; f(); } });
     function oynat(tur, o = {}) {
+      /* "dur": sakin duruş. Bekleme klibinin ilk karesi donar; sürekli sallanma olmaz. */
+      if (tur === "dur") {
+        if (dortAyak) return oynat("bekle", o);
+        const k = bul("bekle"); if (!k) return Promise.resolve();
+        if (aktifK === k && aktif && aktif.timeScale === 0) return Promise.resolve();
+        const ac = mixer.clipAction(k); ac.reset(); ac.setLoop(THREE.LoopRepeat, Infinity); ac.time = 0; ac.timeScale = 0; ac.enabled = true; ac.setEffectiveWeight(1); ac.play();
+        if (aktif && aktif !== ac) aktif.crossFadeTo(ac, o.gecis ?? 0.4, false); else ac.fadeIn(o.gecis ?? 0.2);
+        aktif = ac; aktifK = k; hedefY = zemin[k.name] ?? 0; return Promise.resolve();
+      }
       const clip = typeof tur === "string" ? bul(tur) : tur;
       if (!clip) { if (dortAyak && (tur === "bekle" || !clip)) { if (aktif) aktif.fadeOut(o.gecis ?? 0.3); aktif = null; aktifK = null; hedefY = durusZemin; } return Promise.resolve(); }
-      if (aktifK === clip && o.dongu !== false) return Promise.resolve();
+      if (aktifK === clip && o.dongu !== false && aktif && aktif.timeScale !== 0) return Promise.resolve();
       const ac = mixer.clipAction(clip); ac.reset(); ac.setLoop(o.dongu === false ? THREE.LoopOnce : THREE.LoopRepeat, Infinity); ac.clampWhenFinished = true; ac.timeScale = o.hiz || 1;
       ac.enabled = true; ac.setEffectiveWeight(1); ac.play();
       if (aktif && aktif !== ac) aktif.crossFadeTo(ac, o.gecis ?? 0.3, false); else ac.fadeIn(o.gecis ?? 0.2);

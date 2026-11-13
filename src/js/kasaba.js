@@ -176,7 +176,7 @@
           const w = d.g.localToWorld(new THREE.Vector3(-1.45, 0, 2.75));
           rehber.kok.position.copy(w); rehber.kok.rotation.y = d.g.rotation.y + 0.55; rehber.kok.visible = true; rehber.oynat("salla");
           if (!IO.learned().includes(d.l)) IO.setLearned(IO.learned().concat(d.l));
-          setTimeout(() => aktif === d && rehber.oynat("bekle"), 2400);
+          setTimeout(() => aktif === d && rehber.oynat("dur"), 2400);
           if (asamaOf(d.l) === 0 && sayac === 0) yazilisGoster(d, true); else { alt.replaceChildren(); oyunTuru(); }
         }
         /* Dükkâna ilk girişte: harfin yazılış yönü ve sesi. Oyun sırasında da açılabilir. */
@@ -250,7 +250,7 @@
           k.kok.position.copy(giris); k.kok.visible = true;
           alt.replaceChildren(h("div.ks-ipucu", "Bir müşteri geliyor..."));
           await yurut(k, w, 2.4); if (aktif !== d) return;
-          k.kok.rotation.y = d.g.rotation.y - 1.25; k.oynat("bekle");
+          k.kok.rotation.y = d.g.rotation.y - 1.25; k.oynat("dur");
           alt.replaceChildren(h("div.ks-ipucu", (dep().okuyan || "liste") === "liste" ? "Çarkı çevirip okuyacak arkadaşı seçin." : "Okuyacak öğrenciyi seçin."));
           const okuyan = await okuyanCark(); if (aktif !== d) return;
           fis.replaceChildren(okuyan ? h("div.ks-okuyan", T.icon("hand"), h("b", okuyan), h("button", { onclick: async (e) => { e.stopPropagation(); const y = await okuyanCark(); if (y) fis.querySelector(".ks-okuyan b").textContent = y; } }, "Başkası")) : null, h("small.ok-yazi", q.soz), h("b.ks-fis-" + q.fisTur, ...(q.fisTur === "harf" ? [q.fis] : isaretle(q.fis, d.l))), q.soru ? h("div.ks-fis-soru.ok-yazi", q.soru) : null);
@@ -265,10 +265,10 @@
         }
         async function sec(btn, dogru, k, d) {
           if (kilitSec) return;
-          if (!dogru) { btn.classList.add("kotu"); T.sound.no(); setTimeout(() => btn.classList.remove("kotu"), 500); if (k.var("hayir")) k.oynat("hayir", { dongu: false }).then(() => k.oynat("bekle")); else { const y0 = k.kok.rotation.y; tw(600, (t) => (k.kok.rotation.y = y0 + Math.sin(t * Math.PI * 4) * 0.35)); } return; }
+          if (!dogru) { btn.classList.add("kotu"); T.sound.no(); setTimeout(() => btn.classList.remove("kotu"), 500); if (k.var("hayir")) k.oynat("hayir", { dongu: false }).then(() => k.oynat("dur")); else { const y0 = k.kok.rotation.y; tw(600, (t) => (k.kok.rotation.y = y0 + Math.sin(t * Math.PI * 4) * 0.35)); } return; }
           kilitSec = true; btn.classList.add("iyi"); T.sound.ok();
           fis.classList.remove("acik");
-          rehber.oynat("sevin", { dongu: false }).then(() => aktif && rehber.oynat("bekle"));
+          rehber.oynat("sevin", { dongu: false }).then(() => aktif && rehber.oynat("dur"));
           if (k.var("sevin")) { k.oynat("sevin", { dongu: false }); await bekle(1400); } else { await tw(600, (t) => (k.kok.position.y = Math.abs(Math.sin(t * Math.PI * 2)) * 0.35)); k.kok.position.y = 0; }
           const cikis = d.g.localToWorld(new THREE.Vector3(-8, 0, 4.6));
           yurut(k, cikis, 2.6).then(() => { k.kok.visible = false; });
@@ -294,9 +294,9 @@
           alt.replaceChildren(h("div.ks-acildi", h("b", adOf(d.l) + " açıldı!"), h("span", "Ses, hece, kelime ve cümle basamaklarını bitirdiniz.")),
             h("div.ks-yan",
               h("button.ot-b.dinle", { onclick: () => { depYaz((k) => (k.asama[d.l] = 0)); sayac = 0; oyunTuru(); } }, T.icon("reset"), "Baştan oyna"),
-              sonraki ? h("button.ks-yeni", { onclick: () => { const mi = MAHALLE.findIndex(([, ls]) => ls.includes(sonraki)); if (mi !== mahalleI) { mahalleI = mi; mahalleKur(mi); ustCiz(); } else mahalleKur(mi); const d2 = dukkanlar.find((x) => x.l === sonraki); d2.kilit = false; rehber.oynat("bekle"); dukkanGir(d2); } }, T.icon("next"), "Sıradaki: " + adOf(sonraki)) : null,
+              sonraki ? h("button.ks-yeni", { onclick: () => { const mi = MAHALLE.findIndex(([, ls]) => ls.includes(sonraki)); if (mi !== mahalleI) { mahalleI = mi; mahalleKur(mi); ustCiz(); } else mahalleKur(mi); const d2 = dukkanlar.find((x) => x.l === sonraki); d2.kilit = false; rehber.oynat("dur"); dukkanGir(d2); } }, T.icon("next"), "Sıradaki: " + adOf(sonraki)) : null,
               h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))));
-          setTimeout(() => aktif === d && rehber.oynat("bekle"), 2600);
+          setTimeout(() => aktif === d && rehber.oynat("dur"), 2600);
         }
         /* döngü */
         const v3 = new THREE.Vector3();
@@ -307,7 +307,7 @@
           dukkanlar.forEach((d) => { if (d.g.userData.pervane) d.g.userData.pervane.rotation.z += dt * 1.1; });
           [rehber, ...musteriler].forEach((k) => {
             k.guncelle(dt);
-            if (k.hedef) { const p = k.kok.position, dx = k.hedef.x - p.x, dz = k.hedef.z - p.z, dd = Math.hypot(dx, dz); if (dd < 0.06) { const f = k.hedef.res; k.hedef = null; k.oynat("bekle"); f && f(); } else { const st = Math.min(dd, dt * k.hedef.hiz); p.x += (dx / dd) * st; p.z += (dz / dd) * st; let fa = Math.atan2(dx, dz) - k.kok.rotation.y; fa = Math.atan2(Math.sin(fa), Math.cos(fa)); k.kok.rotation.y += fa * Math.min(1, dt * 8); } }
+            if (k.hedef) { const p = k.kok.position, dx = k.hedef.x - p.x, dz = k.hedef.z - p.z, dd = Math.hypot(dx, dz); if (dd < 0.06) { const f = k.hedef.res; k.hedef = null; k.oynat("dur"); f && f(); } else { const st = Math.min(dd, dt * k.hedef.hiz); p.x += (dx / dd) * st; p.z += (dz / dd) * st; let fa = Math.atan2(dx, dz) - k.kok.rotation.y; fa = Math.atan2(Math.sin(fa), Math.cos(fa)); k.kok.rotation.y += fa * Math.min(1, dt * 8); } }
           });
           if (false) { fis._k.kok.getWorldPosition(v3); v3.y += fis._k.dortAyak ? 1.35 : 1.85; v3.project(kamera); const b = kap.getBoundingClientRect(); fis.style.transform = `translate(${(v3.x * 0.5 + 0.5) * b.width}px, ${(-v3.y * 0.5 + 0.5) * b.height}px) translate(-50%, -100%)`; }
         };

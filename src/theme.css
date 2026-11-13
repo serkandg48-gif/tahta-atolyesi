@@ -1837,3 +1837,4 @@ body.yt-acik #layer { z-index: 1000; }
 .hm-kivilcim { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; border-radius: 50%; background: #FFF3B0; box-shadow: 0 0 12px 4px #FFD66B; animation: hm-kiv 1.3s ease-out infinite; animation-delay: var(--g); }
 @keyframes hm-kiv { from { transform: rotate(var(--a)) translateX(10px) scale(1); opacity: 1; } to { transform: rotate(var(--a)) translateX(150px) scale(.2); opacity: 0; } }
 .hm-pisti span { white-space: nowrap; }
+.hm-sahne:fullscreen { background: #F1D9B8; }

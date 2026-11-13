@@ -152,7 +152,7 @@ async function sesModel(env, metin, model, istem, ses_) {
 const SES_MAX = 240;
 /* Oyun karakterlerinin sabit sözleri: yalnızca bu listedekiler, çocuk sesiyle üretilir ve saklanır. */
 const KARAKTER = { kiz: "Leda", erkek: "Puck" };
-const KARAKTER_SOZ = ["Teşekkür ederim!", "Harikasın!", "Tekrar dene!", "Çok güzel!", "Afiyet olsun!", "Merhaba!"];
+const KARAKTER_SOZ = ["Teşekkür ederim!", "Harikasın!", "Tekrar dene!", "Çok güzel!", "Afiyet olsun!", "Merhaba!", "Süper!", "Hadi hece ve kelime oluşturalım!"];
 const karakterIstemi = (kim, soz) => `Sen ${kim === "kiz" ? "yedi yaşında neşeli bir kız" : "yedi yaşında neşeli bir erkek"} çocuksun. Türkiye Türkçesiyle, sevinçli ve doğal bir çocuk sesiyle yalnızca şunu söyle: «${soz}» Başka hiçbir şey söyleme.`;
 
 const kota = (env, email) => env.KOTA.get(env.KOTA.idFromName("ogretmen:" + email));

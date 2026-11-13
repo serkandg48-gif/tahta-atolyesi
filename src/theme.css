@@ -1884,3 +1884,9 @@ body.yt-acik #layer { z-index: 1000; }
 .dy-ilt-cark { position: relative; width: 100%; aspect-ratio: 1 / 1.05; }
 .dy-ilt-sag { display: grid; gap: 12px; justify-items: start; }
 @media (max-width: 760px) { .dy-ilt-ust { grid-template-columns: 1fr; } }
+.ks-cark-bas { user-select: none; }
+.ks-cark-bas::before { content: ""; position: absolute; top: 6px; left: 50%; width: 40px; height: 5px; margin-left: -20px; border-radius: 3px; background: rgba(0,0,0,.18); }
+.ks-cark { padding-top: 18px; }
+.hm-balon { position: absolute; z-index: 5; max-width: 260px; padding: 12px 18px; border-radius: 20px; background: #fff; font: 800 clamp(18px, 1.8vw, 24px) var(--display); color: #2B1D14; box-shadow: 0 8px 22px rgba(0,0,0,.18); transform: translate(-50%, -100%) scale(.6); opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; text-align: center; }
+.hm-balon::after { content: ""; position: absolute; left: 50%; bottom: -12px; margin-left: -10px; border: 12px solid transparent; border-bottom: 0; border-top-color: #fff; }
+.hm-balon.acik { opacity: 1; transform: translate(-50%, calc(-100% - 14px)) scale(1); }

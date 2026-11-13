@@ -4,6 +4,18 @@
    Otomatik konuşma yok; "Dinle" yalnızca basılınca çalışır. */
 (function () {
   const { h } = T;
+  /* Panoyu başlığından tutup sahne içinde sürükleme (çark gibi küçük panolar için) */
+  T.surukle = function (el, tutamak) {
+    tutamak.style.cursor = "grab"; tutamak.style.touchAction = "none";
+    tutamak.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button")) return;
+      const ust = el.offsetParent || el.parentNode, ub = ust.getBoundingClientRect(), eb = el.getBoundingClientRect(), dx = e.clientX - eb.left, dy = e.clientY - eb.top;
+      tutamak.setPointerCapture(e.pointerId); tutamak.style.cursor = "grabbing";
+      const tasi = (ev) => { const x = Math.max(0, Math.min(ub.width - eb.width, ev.clientX - ub.left - dx)), y = Math.max(0, Math.min(ub.height - 40, ev.clientY - ub.top - dy)); Object.assign(el.style, { left: x + "px", top: y + "px", right: "auto", bottom: "auto", transform: "none" }); };
+      const bit = () => { tutamak.style.cursor = "grab"; tutamak.removeEventListener("pointermove", tasi); tutamak.removeEventListener("pointerup", bit); tutamak.removeEventListener("pointercancel", bit); };
+      tutamak.addEventListener("pointermove", tasi); tutamak.addEventListener("pointerup", bit); tutamak.addEventListener("pointercancel", bit);
+    });
+  };
   const YER = {
     a: ["Arıcı", "#F6C445", "#B5651D", "kubbe"], n: ["Nalbur", "#7FA7C9", "#3D5A80", "ucgen"], e: ["Eczane", "#F2F2F2", "#2E9E5B", "duz"], t: ["Tren garı", "#C96F4A", "#5B3A29", "kule"],
     i: ["İtfaiye", "#D94B3D", "#7A1F1A", "duz"], l: ["Lokanta", "#F4A261", "#9C3D2B", "ucgen"], o: ["Okul", "#F1D7A8", "#B23A48", "kule"], k: ["Kütüphane", "#8E7DBE", "#4B3F72", "ucgen"],
@@ -189,7 +201,7 @@
             if (!carkPano) {
               const boyut = (f) => { const v = Math.max(0, Math.min(3, (dep().carkB ?? 1) + f)); depYaz((k) => (k.carkB = v)); carkPano.dataset.b = v; };
               carkPano = h("div.ks-cark", h("div.ks-cark-bas", h("button.ks-cb", { onclick: () => boyut(-1), "aria-label": "Çarkı küçült" }, "−"), h("b", "Kim okuyacak?"), h("button.ks-cb", { onclick: () => boyut(1), "aria-label": "Çarkı büyüt" }, "+")), h("div.ks-cark-kap"), h("div.ks-cark-sonuc"), h("div.ks-yan"));
-              carkPano.dataset.b = dep().carkB ?? 1;
+              carkPano.dataset.b = dep().carkB ?? 1; T.surukle(carkPano, carkPano.querySelector(".ks-cark-bas"));
             }
             const sahneEl = host.querySelector(".ks-sahne"); sahneEl.append(carkPano); carkPano.hidden = false;
             const sonuc = carkPano.querySelector(".ks-cark-sonuc"), yan = carkPano.querySelector(".ks-yan"); sonuc.textContent = "";

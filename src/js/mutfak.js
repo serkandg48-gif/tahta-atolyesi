@@ -21,7 +21,7 @@
       const ust = h("div.ks-ust"), tarif = h("div.hm-tarif"), raf = h("div.hm-raf"), alt = h("div.ks-alt");
       const sahneEl = h("div.ks-sahne.hm-sahne", kap, tarif, raf, ust, alt, yuk);
       host.append(sahneEl);
-      Promise.all([T.sahne3(kap, { kamera: [0, 1.6, 6.2], bak: [0, 1.05, 0], fov: 36, env: ["#FFF6E8", "#F1D9B8", "#7A5638"] }, api), T.modelYukle("mutfak").catch(() => null), T.modelYukle("erkek")])
+      Promise.all([T.sahne3(kap, { kamera: [0.1, 1.75, 6.0], bak: [0.3, 1.55, 0], fov: 38, env: ["#FFF6E8", "#F1D9B8", "#7A5638"] }, api), T.modelYukle("mutfak").catch(() => null), T.modelYukle("erkek")])
         .then(([c, mut]) => { if (!c) { yuk.textContent = "Bu cihazda 3B çizim açılamadı."; return; } kur(c, mut).catch((e) => { console.error(e); yuk.textContent = "Mutfak kurulamadı."; }); })
         .catch((e) => { console.error(e); yuk.textContent = "Mutfak yüklenemedi. Sayfayı yenileyip tekrar dene."; });
 
@@ -41,9 +41,9 @@
         let tencere = new THREE.Vector3(0.1, 1.2, 0.2);
         if (mut) {
           const k = mut.g.scene.clone(true); k.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-          const b = new THREE.Box3().setFromObject(k), bo = b.getSize(new THREE.Vector3()), sc = 2.6 / bo.y; k.scale.multiplyScalar(sc);
+          const b = new THREE.Box3().setFromObject(k), bo = b.getSize(new THREE.Vector3()), sc = 3.55 / bo.y; k.scale.multiplyScalar(sc);
           const b2 = new THREE.Box3().setFromObject(k), m2 = b2.getCenter(new THREE.Vector3()); k.position.x -= m2.x; k.position.z -= m2.z + 0.6; k.position.y -= b2.min.y;
-          const g = new THREE.Group(); g.add(k); g.position.set(0.35, 0, 0); sahne.add(g);
+          const g = new THREE.Group(); g.add(k); g.position.set(0.15, 0, 0); sahne.add(g);
           const b3 = new THREE.Box3().setFromObject(g), bo3 = b3.getSize(new THREE.Vector3());
           tencere = new THREE.Vector3(b3.min.x + bo3.x * 0.5, b3.min.y + bo3.y * 0.47, b3.max.z - bo3.z * 0.3);
         } else {
@@ -63,11 +63,16 @@
         const fiskir = () => yildizlar.forEach((sp, i) => { sp.userData.t = -i * 0.025; sp.position.copy(tencere); const a = Math.random() * Math.PI * 2; sp.userData.v.set(Math.cos(a) * (0.5 + Math.random() * 0.9), 2.2 + Math.random() * 1.6, Math.sin(a) * 0.4 + 0.5); });
         /* karakterler: aşçı kız, müşteri erkek */
         /* tek rehber: erkek öğrenci tezgâhın yanında bekler, yönlendirir ve cesaret verir */
-        const asci = await T.karakter3B(c, "erkek", { boy: 1.3 });
-        asci.kok.position.set(2.35, 0, 1.2); asci.kok.rotation.y = -0.55; sahne.add(asci.kok); asci.oynat("dur");
-        const ovgu = ["Harikasın!", "Süper!"]; let ovguI = 0, ilkTur = true;
+        const asci = await T.karakter3B(c, "erkek", { boy: 1.45 });
+        asci.kok.position.set(2.75, 0, 0.9); asci.kok.rotation.y = -0.55; sahne.add(asci.kok); asci.oynat("dur");
+        const UYARI = ["Tekrar dene!", "Bir daha dene!", "Sırayı düşün, hangi hece önce?"]; let uyariI = 0, ilkTur = true;
+        /* konuşma balonu: ses yerine yazılı yönerge, rehberin başının üstünde */
+        const balonEl = h("div.hm-balon"); sahneEl.append(balonEl); let balonT = null;
+        const bas = new THREE.Vector3();
+        const balon = (t, ms) => { balonEl.textContent = t; balonEl.classList.add("acik"); clearTimeout(balonT); balonT = setTimeout(() => balonEl.classList.remove("acik"), ms || 2500); };
+        const balonYer = () => { bas.copy(asci.kok.position); bas.y += 1.62; const p = ekranda(bas); balonEl.style.left = p.x + "px"; balonEl.style.top = p.y + "px"; };
         c.kare = (dt) => {
-          asci.guncelle(dt);
+          asci.guncelle(dt); balonEl.classList.contains("acik") && balonYer();
           buharlar.forEach((s) => { s.userData.t += dt * (0.5 + buharGuc); const t = s.userData.t % 2, k = t / 2; s.position.set(tencere.x + Math.sin(t * 3 + s.id) * 0.12 * k, tencere.y + 0.1 + k * (0.6 + buharGuc * 0.6), tencere.z); const sc = 0.18 + k * (0.35 + buharGuc * 0.3); s.scale.set(sc, sc, sc); s.material.opacity = Math.sin(k * Math.PI) * (0.25 + buharGuc * 0.55); });
           yildizlar.forEach((sp) => { const u = sp.userData; u.t += dt; if (u.t < 0 || u.t > 1.6) { sp.material.opacity = 0; return; } u.v.y -= dt * 3.2; sp.position.addScaledVector(u.v, dt); const sc = 0.12 + Math.sin(u.t * 9) * 0.03; sp.scale.set(sc, sc, sc); sp.material.opacity = Math.min(1, (1.6 - u.t) * 1.5); sp.material.rotation += dt * 4; });
           sicak.intensity += ((buharGuc > 0.5 ? 6 : 1.2) - sicak.intensity) * Math.min(1, dt * 3);
@@ -101,7 +106,7 @@
           const gelen = (cls.students || []).filter((st) => gun[st.id] !== "yok").map((st) => st.name);
           if (!gelen.length) { T.toast("Sınıf listesi boş. Öğrencileri Sınıfım sayfasından ekleyebilirsin."); return; }
           if (!sira.some((n) => gelen.includes(n))) sira = gelen.slice(); sira = sira.filter((n) => gelen.includes(n));
-          if (!carkPano) carkPano = h("div.ks-cark", { "data-b": "1" }, h("div.ks-cark-bas", h("b", "Kim okuyacak?")), h("div.ks-cark-kap"), h("div.ks-cark-sonuc"), h("div.ks-yan"));
+          if (!carkPano) { carkPano = h("div.ks-cark", { "data-b": "1" }, h("div.ks-cark-bas", h("b", "Kim okuyacak?")), h("div.ks-cark-kap"), h("div.ks-cark-sonuc"), h("div.ks-yan")); T.surukle(carkPano, carkPano.querySelector(".ks-cark-bas")); }
           sahneEl.append(carkPano); carkPano.hidden = false;
           const sonuc = carkPano.querySelector(".ks-cark-sonuc"), yan = carkPano.querySelector(".ks-yan"); sonuc.textContent = "";
           if (!ck) ck = await T.cark3B(carkPano.querySelector(".ks-cark-kap"), null, { sure: 3.2, arka: ["#FFFFFF", "#F3EEE4"] });
@@ -112,7 +117,10 @@
             h("button.ot-b.dinle", { onclick: () => (carkPano.hidden = true) }, "Kapat"));
         }
 
+        let bekleyen = [];
+        const sonra = (fn, ms) => bekleyen.push(setTimeout(fn, ms));
         function yeniTarif() {
+          bekleyen.forEach(clearTimeout); bekleyen = []; sahneEl.querySelectorAll(".hm-sihir,.hm-ucan").forEach((e) => e.remove());
           kelime = cek(); dolu = 0; kilit = false; buharGuc = 0.15;
           if (!kelime) {
             tarif.replaceChildren(h("div.hm-kart", h("b", "Kelime yok"), h("p", "Bu ayarla okunabilen kelime yok. Daha çok ses öğrenince ya da \"Hepsi\" seçilince kelimeler gelir.")));
@@ -124,7 +132,7 @@
           if (ters && !hs.includes(ters) && /[aeıioöuü]/.test(ters) && IO.okWord(ters, L())) yabanci[0] = ters;
           tarif.classList.remove("acik"); raf.replaceChildren(); alt.replaceChildren();
           tarifCiz(); rafCiz(T.shuffle(hs.concat(yabanci)));
-          if (ilkTur) { ilkTur = false; asci.oynat("salla", { dongu: false }).then(() => asci.oynat("dur")); setTimeout(() => T.karakterSesi("erkek", "Hadi hece ve kelime oluşturalım!"), 300); }
+          if (ilkTur) { ilkTur = false; asci.oynat("salla", { dongu: false }).then(() => asci.oynat("dur")); } balon("Hadi heceleri sırayla kazana at!", 3500);
         }
         function tarifCiz() {
           const resim = PIC.get(kelime);
@@ -147,7 +155,7 @@
           if (kilit || b.classList.contains("bos")) return;
           if (x !== hs[dolu]) {
             b.classList.remove("salla"); void b.offsetWidth; b.classList.add("salla"); T.sound.no();
-            asci.oynat("hayir", { dongu: false }).then(() => asci.oynat("dur")); T.karakterSesi("erkek", "Tekrar dene!"); return;
+            asci.oynat("hayir", { dongu: false }).then(() => asci.oynat("dur")); balon(UYARI[uyariI++ % UYARI.length], 2200); return;
           }
           kilit = true; b.classList.add("bos");
           /* hece kavanozdan tencereye uçar */
@@ -155,7 +163,7 @@
           const ucan = h("span.hm-ucan", x); ucan.style.left = bb.left - kb.left + bb.width / 2 + "px"; ucan.style.top = bb.top - kb.top + 10 + "px"; sahneEl.append(ucan);
           requestAnimationFrame(() => { ucan.style.transform = `translate(${hed.x - (bb.left - kb.left + bb.width / 2)}px, ${hed.y - (bb.top - kb.top + 10)}px) scale(.4)`; ucan.style.opacity = "0.2"; });
           asci.oynat("konus", { dongu: false }).then(() => asci.oynat("dur"));
-          setTimeout(() => {
+          sonra(() => {
             ucan.remove(); dolu++; buharGuc = 0.15 + (dolu / hs.length) * 0.4; T.sound.ok(); tarifCiz(); kilit = false;
             if (dolu === hs.length) pisti();
           }, 650);
@@ -171,11 +179,10 @@
             h("div.hm-isik"), Array.from({ length: 10 }, (_, i) => h("i.hm-kivilcim", { style: { "--a": i * 36 + "deg", "--g": 0.15 * (i % 3) + "s" } })),
             res ? h("div.hm-kurabiye", res) : null, h("b.hm-sihir-kelime", kelime));
           sahneEl.append(sihir);
-          asci.oynat("sevin", { dongu: false }).then(() => asci.oynat("dur"));
-          setTimeout(() => T.karakterSesi("erkek", ovgu[ovguI++ % ovgu.length]), 900);
-          setTimeout(() => { sihir.classList.add("in"); }, 2600);
-          setTimeout(() => { sihir.remove(); raf.replaceChildren(res ? h("div.hm-kurabiye", res) : null, h("div.hm-pisti", h("b", kelime), h("span", res ? "kurabiyesi hazır!" : "Kelimeyi kurduk!")), dv); }, 3200);
-          T.konfeti && setTimeout(() => T.konfeti(), 400);
+          asci.oynat("alkis", { dongu: false }).then(() => asci.oynat("dur"));
+          sonra(() => { sihir.classList.add("in"); }, 2600);
+          sonra(() => { sihir.remove(); raf.replaceChildren(res ? h("div.hm-kurabiye", res) : null, h("div.hm-pisti", h("b", kelime), h("span", res ? "kurabiyesi hazır!" : "Kelimeyi kurduk!")), dv); }, 3200);
+          T.konfeti && sonra(() => T.konfeti(), 400);
           const devam = () => {
             if (!raf.querySelector(".ks-yeni")) return; okuyan = null; ustCiz();
             if (pisen >= TARIF_SAY) menuBitti(); else yeniTarif();

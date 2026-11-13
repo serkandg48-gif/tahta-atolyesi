@@ -216,18 +216,38 @@
   tool("zihin-suzgeci", {
     title: "Zihin süzgeci", icon: "filter", tone: "sky", short: "Süzmeden söyleme: doğru mu, sırası mı, nazik mi?",
     render(host) {
-      const kova = [];
+      /* Panodaki gibi üç süzgeç üst üste, yanda zihin kovası. Sözcükler her süzgeçten geçer; geçemeyen kovada bekler. */
+      const SUZ = [["Bu doğru mu?", "", "#3C6FB5", "#5B8FD6", "Doğru değilse"], ["Şu an sırası mı? Acil mi?", "Söz kesiyor mu? Konu dışı mı? Acil değilse bekle.", "#E0B020", "#F4CD45", "Sırası değilse"], ["Nezaket kurallarına uygun mu?", "Birini üzer mi?", "#D16BA5", "#EE8EC2", "Nazik değilse"]];
+      let adim = 0, durum = "yol", kova = []; /* durum: yol | kova | temiz */
       const inp = h("input.in", { placeholder: "Söylemek istediğin cümle (isteğe bağlı)", style: { fontSize: "20px" } });
-      akis(host, {
-        ust: () => h("div.row", { style: { marginBottom: "10px" } }, inp),
-        adimlar: [
-          { baslik: "1. süzgeç", soru: "Bu doğru mu?", renk: "#3C6FB5", hayir: { baslik: "Zihin kovasına", metin: "Doğru değilse bu sözcükler zihin kovasında bekler. Yeniden düşün." } },
-          { baslik: "2. süzgeç", soru: "Şu an sırası mı? Acil mi?", not: "Söz kesiyor mu? Konu dışı mı? Acil değilse bekle.", renk: "#E0B020", hayir: { baslik: "Zihin kovasına", metin: "Sırası değilse ya da acil değilse bekle. Sözcüklerin zihin kovasında seni bekliyor." } },
-          { baslik: "3. süzgeç", soru: "Nezaket kurallarına uygun mu?", not: "Birini üzer mi?", renk: "#D16BA5", hayir: { baslik: "Zihin kovasına", metin: "Nazik değilse daha nazik bir söyleyiş bul. Ne söylersen arkadaşın üzülmez?" } }],
-        son: { baslik: "Sözcükler temizlendi!", metin: "Şimdi konuşabilirsin.", renk: "#2E8B57" },
-        onHayir: () => { if (inp.value.trim()) { kova.push(inp.value.trim()); inp.value = ""; } },
-        kova: () => kova.length ? h("div.zs-kova", h("b", "Zihin kovası: düşünce bekleme alanı"), kova.map((x) => h("div.dy-bubble", x))) : null,
-      });
+      const box = h("div"); host.append(h("div.row", { style: { marginBottom: "10px" } }, inp), box);
+      const suzgec = (i, y) => { const [, , c1, c2] = SUZ[i]; let d = ""; for (let r = 0; r < 3; r++) for (let k = 0; k < 7 - r; k++) d += `<circle cx="${70 + r * 14 + k * 28}" cy="${y + 28 + r * 18}" r="4.5" fill="#fff" opacity=".85"/>`;
+        return `<g class="zs-s${i === adim && durum === "yol" ? " on" : ""}"><path d="M250 ${y + 8} q55 -6 90 6 q14 6 0 14 q-40 8 -90 0z" fill="${c1}"/><path d="M40 ${y} h220 q-10 70 -110 76 q-100 -6 -110 -76z" fill="${c2}" stroke="${c1}" stroke-width="5"/><ellipse cx="150" cy="${y}" rx="110" ry="14" fill="${c1}"/>${d}<rect x="120" y="${y + 74}" width="60" height="12" rx="4" fill="${c1}"/></g>`; };
+      function ciz() {
+        const sv = S("svg", { viewBox: "0 0 560 520", class: "zs-sahne" });
+        let g = '<rect width="560" height="520" rx="20" fill="#BFE0EE"/>';
+        g += suzgec(0, 30) + suzgec(1, 190) + suzgec(2, 350);
+        /* kova */
+        g += `<g class="zs-kova${durum === "kova" ? " on" : ""}"><path d="M400 330 h130 l-14 170 h-102z" fill="#8B5A2B" stroke="#5C3A1A" stroke-width="5"/><ellipse cx="465" cy="330" rx="65" ry="12" fill="#5C3A1A"/><path d="M405 330 q60 -70 120 0" fill="none" stroke="#5C3A1A" stroke-width="5"/><text x="465" y="395" text-anchor="middle" font-size="19" font-weight="800" fill="#fff">Zihin kovası</text><text x="465" y="420" text-anchor="middle" font-size="13" fill="#FBE3CC">Düşünce bekleme alanı</text></g>`;
+        SUZ.forEach(([, , c1], i) => { const y = 60 + i * 160; g += `<path d="M300 ${y + 20} Q420 ${y + 20} 450 310" fill="none" stroke="${c1}" stroke-width="10" stroke-linecap="round" opacity="${durum === "kova" && i === adim ? 1 : 0.35}" marker-end="url(#zsok)"/>`; });
+        g = '<defs><marker id="zsok" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0 0 L5 2.5 L0 5z" fill="#1B2A4A"/></marker></defs>' + g;
+        g += `<g class="zs-temiz${durum === "temiz" ? " on" : ""}"><rect x="60" y="460" width="200" height="50" rx="10" fill="#3FAE5A"/><text x="160" y="482" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">Sözcükler temizlendi!</text><text x="160" y="501" text-anchor="middle" font-size="14" fill="#fff">Şimdi konuşabilirsin.</text></g>`;
+        sv.innerHTML = g;
+        const sozY = durum === "temiz" ? 455 : durum === "kova" ? 300 : 30 + adim * 160 - 24, sozX = durum === "kova" ? 465 : 150;
+        const soz = h("div.zs-soz", { style: { left: (sozX / 560) * 100 + "%", top: (sozY / 520) * 100 + "%" } }, inp.value.trim() || "Sözcüklerim");
+        const sahne = h("div.zs-kap", sv, soz);
+        let kart;
+        if (durum === "temiz") kart = h("div.ak-card.son", T.icon3d("tamam"), h("h3", "Sözcükler temizlendi!"), h("p", "Şimdi konuşabilirsin."), h("button.btn", { onclick: () => { adim = 0; durum = "yol"; inp.value = ""; ciz(); } }, T.icon("reset"), "Yeni cümle"));
+        else if (durum === "kova") kart = h("div.ak-card.hayir", h("h3", "Zihin kovasına"), h("p", SUZ[adim][4] + " sözcükler zihin kovasında bekler ve yeniden düşünülür."), h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { durum = "yol"; adim = 0; ciz(); } }, T.icon("reset"), "Yeniden düşün, baştan süz")));
+        else { const [soru, not, c1] = SUZ[adim]; kart = h("div.ak-card", { style: { "--c": c1 } }, h("small.ak-lbl", (adim + 1) + ". süzgeç"), h("h3", soru), not ? h("p.hint", not) : null,
+          h("div.row", { style: { justifyContent: "center", gap: "14px" } },
+            h("button.btn.big.ak-evet", { onclick: () => { T.sound.ok(); if (adim < 2) adim++; else durum = "temiz"; ciz(); } }, T.icon("check"), "Evet"),
+            h("button.btn.big.ak-hayir", { onclick: () => { durum = "kova"; if (inp.value.trim()) kova.push(inp.value.trim()); T.sound.pop(); ciz(); } }, T.icon("close"), "Hayır")),
+          h("button.btn.sm.c-chalk", { onclick: () => T.speak(soru) }, T.icon("speaker"), "Dinle")); }
+        box.replaceChildren(h("div.zs-grid", sahne, h("div", kart, kova.length ? h("div.zs-kovalist", h("b", "Kovada bekleyenler"), kova.map((x) => h("div.dy-bubble", x))) : null)));
+      }
+      inp.addEventListener("input", () => { const e = box.querySelector(".zs-soz"); if (e) e.textContent = inp.value.trim() || "Sözcüklerim"; });
+      ciz();
     },
   });
 
@@ -368,7 +388,7 @@
         h("div.dy-card", { style: { maxWidth: "1100px" } },
           h("div.dy-durum", t),
           def.serbest && once && !secim ? h("p.hint", "Geçen sefer sınıfımız buna " + kutu(once)[1].toLocaleLowerCase("tr") + " demişti. Bugün de aynı mı düşünüyoruz?") : null,
-          h("div.ay-kutular", def.kutular.map(([k, ad, renk, ikon, aciklama]) => h("button.ay-kutu" + (secim ? (def.serbest ? (k === secim ? ".right" : "") : k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": renk }, onclick: () => {
+          h("div.ay-kutular" + (def.kutuSinif ? "." + def.kutuSinif : ""), def.kutular.map(([k, ad, renk, ikon, aciklama]) => h("button.ay-kutu" + (secim ? (def.serbest ? (k === secim ? ".right" : "") : k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": renk }, onclick: () => {
             if (secim && !def.serbest) return; secim = k;
             if (def.serbest) { T.sound.pop(); yaz(def.anahtar + "-karar", (o) => Object.assign(o || {}, { [t]: k })); } else k === dogru ? T.sound.ok() : T.sound.no();
             ciz(); } }, ikon ? ikon() : null, h("b", ad), aciklama ? h("span", aciklama) : null))),
@@ -391,9 +411,9 @@
 
   /* Problem kalibrasyonu (eski "Sorunum ne büyüklükte?" aracının yerine) */
   const KALIB = [
-    ["kucuk", "Küçük problem", "#6DAF5A", () => hava("gunes"), "Bence bu küçük bir problem. Kendimiz çözebiliriz.", ["Derin nefes alırım.", "Kibarca söylerim: Lütfen ...", "Sırayla yapmayı öneririm.", "Görmezden gelir, başka bir şeye geçerim."]],
-    ["orta", "Orta problem", "#8E9BB4", () => hava("bulut"), "Bu konuda biriyle konuşmamız gerekiyor mu? Kendimiz çözebilir miyiz? Birlikte karar verelim.", ["Problem çözme basamağına git: Barış yolu.", "Ben diliyle ne olduğunu anlat.", "Olmadıysa biraz soğusun köşesine not bırak."]],
-    ["buyuk", "Büyük problem", "#C2453A", () => hava("firtina"), "Denedik olmadı, sorun devam ediyor. Şiddet içeren sorunlar var. Tehlikedeyim.", ["Öğretmenden yardım al.", "Biri yaralandıysa hemen bir yetişkine söyle.", "Güvenli bir yerde bekle."]],
+    ["kucuk", "Küçük problem", "#6DAF5A", () => T.icon3d("gunesbulut", "kalib-ik"), "Bence bu küçük bir problem. Kendimiz çözebiliriz.", ["Derin nefes alırım.", "Kibarca söylerim: Lütfen ...", "Sırayla yapmayı öneririm.", "Görmezden gelir, başka bir şeye geçerim."]],
+    ["orta", "Orta problem", "#8E9BB4", () => T.icon3d("bulut", "kalib-ik"), "Bu konuda biriyle konuşmamız gerekiyor mu? Kendimiz çözebilir miyiz? Birlikte karar verelim.", ["Problem çözme basamağına git: Barış yolu.", "Ben diliyle ne olduğunu anlat.", "Olmadıysa biraz soğusun köşesine not bırak."]],
+    ["buyuk", "Büyük problem", "#C2453A", () => T.icon3d("firtina", "kalib-ik"), "Denedik olmadı, sorun devam ediyor. Şiddet içeren sorunlar var. Tehlikedeyim.", ["Öğretmenden yardım al.", "Biri yaralandıysa hemen bir yetişkine söyle.", "Güvenli bir yerde bekle."]],
   ];
   const KALIB_DURUM = [["Suluk kapağım açılmıyor.", "kucuk"], ["Sırama biri oturmuş.", "kucuk"], ["Boyam bitti.", "kucuk"], ["Arkadaşım benden önce bitirdi.", "kucuk"], ["Oyunda ebe oldum.", "kucuk"], ["Ayakkabımın bağı çözüldü.", "kucuk"], ["İstediğim renk kalem başkasında.", "kucuk"], ["Yanımdaki arkadaş çok gürültü yapıyor.", "orta"], ["Arkadaşım sözünü tutmadı.", "orta"], ["Oyunda kurallara uyulmuyor.", "orta"], ["Grupta herkes işi bana bıraktı.", "orta"], ["Arkadaşım beni bir oyundan çıkardı.", "orta"], ["Biri eşyamı izinsiz aldı ve vermiyor.", "orta"], ["Kendimi çok kötü hissediyorum ve geçmiyor.", "buyuk"], ["Biri beni tehdit etti.", "buyuk"], ["Teneffüste biri kavga ediyor.", "buyuk"], ["Kalemimin ucu kırıldı.", "kucuk"], ["Oyunda ilk sırayı başkası aldı.", "kucuk"], ["Arkadaşım bana yanlışlıkla çarptı.", "kucuk"], ["Silgimi bulamıyorum.", "kucuk"], ["En sevdiğim oyunu oynayamadık.", "kucuk"],
     ["Arkadaşım oyuna beni almadı.", "orta"], ["Arkadaşım sırrımı başkalarına anlattı.", "orta"], ["Grupta herkes benim fikrimi dinlemiyor.", "orta"], ["İki gündür aynı arkadaşla tartışıyoruz.", "orta"],
@@ -421,7 +441,9 @@
         anahtar: "seninle",
         durumlar: [["Arkadaşım kalemini sıranın altına düşürdü.", "sikayet"], ["Okul kapısı açık kalmış, küçük kardeşler dışarı çıkıyor.", "bilgi"], ["Ece sırasını toplamamış.", "sikayet"], ["Bir arkadaş makasla oynuyor ve birini kesebilir.", "bilgi"], ["Kerem yanlış renkte kalem kullanıyor.", "sikayet"], ["Bir arkadaşım nefes almakta zorlanıyor.", "bilgi"], ["Selin şarkı mırıldanıyor.", "sikayet"], ["Bahçe kapısında tanımadığım biri çocukları çağırıyor.", "bilgi"], ["Arda benden daha büyük bir dilim aldı.", "sikayet"], ["Lavaboda yerler ıslak, biri kayabilir.", "bilgi"], ["Efe sırasında sallanıyor.", "sikayet"], ["Bir arkadaş kendini kapalı bir yere kilitlemiş.", "bilgi"], ["Asya oyunda hile yaptı ama kimse zarar görmedi.", "sikayet"], ["Prizden kıvılcım çıkıyor.", "bilgi"], ["Ahmet ödevini yapmamış.", "sikayet"], ["Ahmet düşmek üzere!", "bilgi"], ["Elif kalemini yere düşürdü.", "sikayet"], ["Bahçede kırık cam var.", "bilgi"], ["Can sırada konuşuyor.", "sikayet"], ["Bir arkadaş ağlıyor ve yardım istiyor.", "bilgi"],
           ["Mert yemeğini bitirmedi.", "sikayet"], ["Biri merdivenlerden düştü.", "bilgi"], ["Defne benden önce bitirdi.", "sikayet"], ["Biri bir arkadaşımıza her gün vuruyor.", "bilgi"], ["Zeynep resmini başka renge boyamış.", "sikayet"], ["Lavaboda su taşıyor.", "bilgi"]],
-        kutular: [["sikayet", "Seninle ilgili değil", "#C2453A", null, "Şikâyet etme"], ["bilgi", "Bilgilendirme", "#2E8B57", null, "Rapor et"]],
+        kutuSinif: "sm-pano",
+        kutular: [["sikayet", "Seninle ilgili değil", "#C2453A", () => h("div.sm-ic", T.icon3d("susss"), h("div.sm-etiketler", h("div.sm-etiket", h("small", "Örnek"), "\"Ahmet ödevini yapmamış.\""), h("div.sm-etiket", h("small", "Kural"), "Kendine sakla."))), "Şikâyet etme"],
+          ["bilgi", "Bilgilendirme", "#2E8B57", () => h("div.sm-ic", T.icon3d("kahraman"), h("div.sm-etiketler", h("div.sm-etiket", h("small", "Amaç"), "Korumak, kurtarmak."), h("div.sm-etiket", h("small", "Kural"), "Hemen söyle!"))), "Rapor et"]],
         sonuc: (b) => b[0] === "sikayet" ? [h("b", "Seninle ilgili değil. "), "Kural: Kendine sakla. Kimse tehlikede değil; bunu söylemek kimseye yardım etmez."] : [h("b", "Bilgilendirme. "), "Amaç: korumak ya da kurtarmak. Biri yaralanabilir. Kural: Hemen söyle!"],
       });
     },
@@ -574,7 +596,7 @@
     render(host) {
       notPanosu(host, { anahtar: "sogusun", ilerlet: true, yerTutucu: "Hatırlamak için kısacık bir not (ör. Top meselesi)", isimAd: "Kim yazdı? (isteğe bağlı)",
         ust: () => h("p.sb-line", "Çatışma anında duygular yoğundur ya da uzun dinlemeye zaman yoktur. Hemen çözmeye çalışmak yerine buraya kısa bir not bırak. Hiçbir çatışma gözden kaçmaz."),
-        kolonlar: [["1. Bu çok sıcak", "Biraz soğumaya bırakalım: kısa bir not.", "#C2453A"], ["2. Kendi uzlaşma denememiz", "Bekleme sürecinde barış yolu şablonuyla konuşmayı deneyin.", "#E9A23B"], ["3. Anlamlı bir sohbet", "Öğretmenle sakin bir ortamda kısa ama derin bir sohbet.", "#3C8DD8"], ["4. Hâlâ sıcak", "Öğretmenle birlikte ileriye dönük olumlu eylemler belirleyin.", "#7A5BC7"], ["Çözüldü", "Biz konuşabiliriz!", "#2E8B57"]],
+        kolonlar: [["1. Bu çok sıcak", "Biraz soğumaya bırakalım: kısa bir not.", "#C2453A", () => T.icon3d("ates")], ["2. Kendi uzlaşma denememiz", "Bekleme sürecinde barış yolu şablonuyla konuşmayı deneyin.", "#E9A23B", () => T.icon3d("tokalasma")], ["3. Anlamlı bir sohbet", "Öğretmenle sakin bir ortamda kısa ama derin bir sohbet.", "#3C8DD8", () => T.icon3d("konusma")], ["4. Hâlâ sıcak", "Öğretmenle birlikte ileriye dönük olumlu eylemler belirleyin.", "#7A5BC7", () => T.icon3d("sicak")], ["Çözüldü", "Biz konuşabiliriz!", "#2E8B57", () => T.icon3d("tamam")]],
         not: "Notu sağ alttaki okla bir sonraki aşamaya taşı." });
     },
   });

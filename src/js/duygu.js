@@ -33,7 +33,7 @@
   /* ---------- Bölüm ---------- */
   const GRUPLAR = [
     ["Duygularımı tanıyorum", ["duygumetre", "bolgeler", "duygu-kartlari", "beynim"]],
-    ["Kendimi düzenliyorum", ["sakinlesme", "zihin-suzgeci", "dusunce-istasyonu", "gelecek-teleskobu"]],
+    ["Kendimi düzenliyorum", ["sakinlesme", "zihin-suzgeci", "gelecek-teleskobu"]],
     ["Arkadaşlarımla", ["catisma", "sorun-boyutu", "seninle-mi", "sogusun", "iltifat"]],
     ["Öğrenme kültürü", ["anlama-duzeyi", "uc-adim", "takildim", "ogrenme-cukuru", "favori-hatalar", "bitirdim", "bump-it-up", "yz-duzeyi"]],
     ["Yansıtma panoları", ["gul-diken", "calma-listesi", "bookflix"]],

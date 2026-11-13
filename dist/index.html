@@ -2322,6 +2322,36 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-cark-bas { display: flex; align-items: center; gap: 6px; }
 .ks-cark-bas b { font: 800 17px var(--display); color: #2D4A22; }
 .ks-cb { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #EEF1F5; font: 800 18px var(--body); cursor: pointer; display: grid; place-items: center; }
+/* Yazı tahtası */
+.yt-kok { position: fixed; inset: 0; z-index: 900; display: grid; grid-template-rows: auto 1fr auto; background: #E9EEF3; --yt-ink: #1B2A4A; }
+.yt-ust, .yt-alt { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow-x: auto; }
+.yt-alt { box-shadow: 0 -2px 10px rgba(0,0,0,.08); }
+.yt-grup { display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 14px; background: #F2F5F8; flex: none; }
+.yt-bosluk { flex: 1; }
+.yt-b { display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; font: 700 14px var(--body); color: #33415C; cursor: pointer; white-space: nowrap; }
+.yt-b svg { width: 20px; height: 20px; }
+.yt-b.on { background: #1B2A4A; color: #fff; }
+.yt-b.kapat { background: #FFE3E3; color: #B23A3A; }
+.yt-kag { width: 34px; height: 34px; border-radius: 9px; border: 2px solid #D5DCE4; cursor: pointer; }
+.yt-kag.on { outline: 3px solid #2E86DE; outline-offset: 1px; }
+.yt-renk { width: 32px; height: 32px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); cursor: pointer; }
+.yt-renk.on { box-shadow: 0 0 0 3px #1B2A4A; }
+.yt-kalin { width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; display: grid; place-items: center; cursor: pointer; }
+.yt-kalin i { display: block; border-radius: 50%; background: #1B2A4A; }
+.yt-kalin.on { background: #fff; box-shadow: inset 0 0 0 2px #1B2A4A; }
+.yt-sayfa b { font: 800 15px var(--body); min-width: 46px; text-align: center; }
+.yt-sahne { position: relative; overflow: hidden; touch-action: none; }
+.yt-sahne canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.yt-yazilar { position: absolute; inset: 0; pointer-events: none; }
+.yt-yazi-kap { position: absolute; display: flex; align-items: flex-start; gap: 4px; pointer-events: auto; }
+.yt-yazi { min-width: 40px; min-height: 1em; padding: 2px 6px; outline: none; border-radius: 8px; font-family: Onest, sans-serif; line-height: 1.25; white-space: pre-wrap; }
+.yt-yazi.harf { font-family: var(--okuma); }
+.yt-yazi:focus { box-shadow: 0 0 0 2px rgba(46,134,222,.55); background: rgba(255,255,255,.12); }
+.yt-tut { opacity: 0; cursor: grab; font-size: 18px; color: #7A8699; user-select: none; padding-top: 4px; }
+.yt-yazi-kap:hover .yt-tut, .yt-yazi-kap:focus-within .yt-tut { opacity: 1; }
+.yt-ust, .yt-alt { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
+.yt-b span { display: inline; }
+@media (max-width: 1300px) { .yt-b span { display: none; } .yt-b { padding: 0 10px; } }
 
 </style>
 </head>
@@ -2336,7 +2366,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="50baabf23d";
+window.SURUM="a64085d1f4";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -11741,6 +11771,146 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
   };
 })();
 
+/* ---- yazitahtasi.js ---- */
+/* Yazı tahtası: tam ekran boş tahta. Boş, satırlı, kareli, noktalı, izometrik, yazı defteri ve koordinat zemini.
+   Kalem, fosforlu kalem, nesne silgisi, metin kutusu, sayfalar, geri al. Sayfalar bu cihazda saklanır. */
+(function () {
+  const h = T.h;
+  const ANAHTAR = "ta-yazi-tahtasi";
+  const ZEMIN = [["bos", "Boş"], ["satir", "Satırlı"], ["defter", "Yazı defteri"], ["kare", "Kareli"], ["nokta", "Noktalı"], ["izo", "İzometrik"], ["koord", "Koordinat"]];
+  const RENK_KAG = [["beyaz", "Beyaz", "#FFFFFF", "#1B2A4A"], ["krem", "Krem", "#FBF6EA", "#1B2A4A"], ["yesil", "Yeşil tahta", "#1F4D3A", "#F4F1E8"], ["siyah", "Kara tahta", "#1C2128", "#F4F1E8"]];
+  const KALEM = ["#1B2A4A", "#E2473B", "#2E86DE", "#2E9E5B", "#F0A329", "#8E44AD"];
+  const SANAL = 1600; /* çizimler sanal genişliğe göre saklanır, ekran değişince bozulmaz */
+  const oku = () => { try { return JSON.parse(localStorage.getItem(ANAHTAR)) || null; } catch (e) { return null; } };
+  const sakla = (d) => { try { localStorage.setItem(ANAHTAR, JSON.stringify(d)); } catch (e) { T.toast("Tahta kaydedilemedi: cihazda yer kalmamış olabilir."); } };
+  const yeniSayfa = (z = "satir", k = "beyaz") => ({ z, k, a: 40, cizgi: [], yazi: [] });
+
+  function ac() {
+    let d = oku() || { s: [yeniSayfa()], i: 0 };
+    let arac = "kalem", renk = KALEM[0], kalin = 4, geri = [];
+    const sayfa = () => d.s[d.i];
+    const zeminCv = h("canvas.yt-zemin"), cizCv = h("canvas.yt-ciz"), yaziKat = h("div.yt-yazilar");
+    const sahne = h("div.yt-sahne", zeminCv, cizCv, yaziKat);
+    const ust = h("div.yt-ust"), alt = h("div.yt-alt");
+    const kok = h("div.yt-kok", ust, sahne, alt);
+    document.body.append(kok);
+    const kapat = () => { kaydet(); kok.remove(); document.removeEventListener("keydown", tus); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); };
+    const tus = (e) => { if (e.target.isContentEditable) return; if ((e.ctrlKey || e.metaKey) && e.key === "z") { geriAl(); e.preventDefault(); } if (e.key === "Escape") kapat(); };
+    document.addEventListener("keydown", tus);
+    let olc = 1, W = 0, H = 0;
+    const zc = zeminCv.getContext("2d"), cc = cizCv.getContext("2d");
+    function boyut() {
+      const r = sahne.getBoundingClientRect(); W = r.width; H = r.height; olc = W / SANAL;
+      [zeminCv, cizCv].forEach((c) => { c.width = W * devicePixelRatio; c.height = H * devicePixelRatio; });
+      zemin(); ciz(); yazilar();
+    }
+    function zemin() {
+      const s = sayfa(), [, , bg, ink] = RENK_KAG.find((x) => x[0] === s.k) || RENK_KAG[0], koyu = s.k === "yesil" || s.k === "siyah";
+      const x = zc, D = devicePixelRatio, a = s.a * olc * D, w = W * D, hh = H * D;
+      x.setTransform(1, 0, 0, 1, 0, 0); x.fillStyle = bg; x.fillRect(0, 0, w, hh);
+      const c1 = koyu ? "rgba(255,255,255,.22)" : "rgba(46,134,222,.28)", c2 = koyu ? "rgba(255,255,255,.4)" : "rgba(226,71,59,.45)";
+      x.lineWidth = Math.max(1, D);
+      const cizgi = (x1, y1, x2, y2, c, lw) => { x.strokeStyle = c; x.lineWidth = lw || Math.max(1, D); x.beginPath(); x.moveTo(x1, y1); x.lineTo(x2, y2); x.stroke(); };
+      if (s.z === "satir") { for (let y = a * 2; y < hh; y += a) cizgi(0, y, w, y, c1); cizgi(a * 2.2, 0, a * 2.2, hh, c2); }
+      else if (s.z === "defter") {
+        /* ilkokul yazı defteri: üst, orta (kesikli) ve taban çizgisi; satırlar arası boşluk */
+        const sat = a * 2.6;
+        for (let y = a * 1.6; y + sat < hh; y += sat) { cizgi(0, y, w, y, c1); x.setLineDash([a * 0.25, a * 0.2]); cizgi(0, y + sat * 0.5 * 0.62, w, y + sat * 0.5 * 0.62, c1); x.setLineDash([]); cizgi(0, y + sat * 0.62, w, y + sat * 0.62, koyu ? "rgba(255,255,255,.45)" : "rgba(226,71,59,.5)", Math.max(1.5, D * 1.5)); }
+      }
+      else if (s.z === "kare" || s.z === "koord") {
+        for (let X = 0; X < w; X += a) cizgi(X, 0, X, hh, c1); for (let Y = 0; Y < hh; Y += a) cizgi(0, Y, w, Y, c1);
+        if (s.z === "koord") { const ox = Math.round(w / 2 / a) * a, oy = Math.round(hh / 2 / a) * a, ana = koyu ? "#F4F1E8" : "#1B2A4A"; cizgi(0, oy, w, oy, ana, 2.5 * D); cizgi(ox, 0, ox, hh, ana, 2.5 * D);
+          x.fillStyle = ana; x.font = `${Math.round(a * 0.45)}px Onest, sans-serif`; x.textAlign = "center"; x.textBaseline = "top";
+          for (let k = -Math.floor(ox / a); k * a + ox < w; k++) if (k) x.fillText(k, ox + k * a, oy + a * 0.12);
+          x.textAlign = "right"; x.textBaseline = "middle"; for (let k = -Math.floor(oy / a); k * a + oy < hh; k++) if (k) x.fillText(-k, ox - a * 0.15, oy + k * a); }
+      }
+      else if (s.z === "nokta") { x.fillStyle = koyu ? "rgba(255,255,255,.45)" : "rgba(27,42,74,.35)"; for (let X = a; X < w; X += a) for (let Y = a; Y < hh; Y += a) { x.beginPath(); x.arc(X, Y, Math.max(1.6, a * 0.06), 0, 7); x.fill(); } }
+      else if (s.z === "izo") { const dy = a, dx = a * Math.sqrt(3) / 2; x.fillStyle = koyu ? "rgba(255,255,255,.5)" : "rgba(27,42,74,.4)"; let sat = 0; for (let X = 0; X < w + dx; X += dx, sat++) for (let Y = (sat % 2) * dy / 2; Y < hh; Y += dy) { x.beginPath(); x.arc(X, Y, Math.max(1.6, a * 0.06), 0, 7); x.fill(); }
+        x.strokeStyle = koyu ? "rgba(255,255,255,.12)" : "rgba(46,134,222,.15)"; for (let k = -hh; k < w + hh; k += dx * 2) { x.beginPath(); x.moveTo(k, 0); x.lineTo(k + hh * Math.sqrt(3), hh); x.stroke(); x.beginPath(); x.moveTo(k, 0); x.lineTo(k - hh * Math.sqrt(3), hh); x.stroke(); } }
+      kok.style.setProperty("--yt-ink", ink);
+    }
+    function cizgiCiz(c, st) {
+      const D = devicePixelRatio * olc; if (!st.p.length) return;
+      c.globalAlpha = st.f ? 0.35 : 1; c.strokeStyle = st.r; c.lineWidth = st.w * D; c.lineCap = st.f ? "butt" : "round"; c.lineJoin = "round";
+      c.beginPath(); c.moveTo(st.p[0][0] * D, st.p[0][1] * D);
+      for (let i = 1; i < st.p.length - 1; i++) { const mx = (st.p[i][0] + st.p[i + 1][0]) / 2, my = (st.p[i][1] + st.p[i + 1][1]) / 2; c.quadraticCurveTo(st.p[i][0] * D, st.p[i][1] * D, mx * D, my * D); }
+      if (st.p.length > 1) { const L = st.p[st.p.length - 1]; c.lineTo(L[0] * D, L[1] * D); } else c.lineTo(st.p[0][0] * D + 0.1, st.p[0][1] * D);
+      c.stroke(); c.globalAlpha = 1;
+    }
+    function ciz() { cc.setTransform(1, 0, 0, 1, 0, 0); cc.clearRect(0, 0, cizCv.width, cizCv.height); sayfa().cizgi.forEach((st) => cizgiCiz(cc, st)); }
+    function yazilar() {
+      yaziKat.replaceChildren(...sayfa().yazi.map((y) => yaziKutu(y)));
+    }
+    function yaziKutu(y) {
+      const el = h("div.yt-yazi" + (y.f === "harf" ? ".harf" : ""), { contentEditable: "true", spellcheck: false, style: { left: y.x * olc + "px", top: y.y * olc + "px", fontSize: y.s * olc + "px", color: y.r } });
+      el.textContent = y.t;
+      el.addEventListener("input", () => { y.t = el.innerText; kaydet(); });
+      el.addEventListener("blur", () => { if (!el.innerText.trim()) { sayfa().yazi = sayfa().yazi.filter((z) => z !== y); el.remove(); kaydet(); } });
+      el.addEventListener("pointerdown", (e) => { if (arac === "sil") { e.preventDefault(); geri.push(JSON.stringify(sayfa())); sayfa().yazi = sayfa().yazi.filter((z) => z !== y); el.remove(); kaydet(); return; } e.stopPropagation(); });
+      /* sürükleme tutamacı */
+      const tut = h("span.yt-tut", { contentEditable: "false", title: "Taşı" }, "⠿");
+      tut.addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); const x0 = e.clientX, y0 = e.clientY, a0 = y.x, b0 = y.y; tut.setPointerCapture(e.pointerId);
+        const mv = (ev) => { y.x = a0 + (ev.clientX - x0) / olc; y.y = b0 + (ev.clientY - y0) / olc; el.style.left = y.x * olc + "px"; el.style.top = y.y * olc + "px"; };
+        const up = () => { tut.removeEventListener("pointermove", mv); tut.removeEventListener("pointerup", up); kaydet(); };
+        tut.addEventListener("pointermove", mv); tut.addEventListener("pointerup", up); });
+      const kap = h("div.yt-yazi-kap", tut, el); kap.style.left = el.style.left; kap.style.top = el.style.top; el.style.left = el.style.top = "";
+      const sync = new MutationObserver(() => { kap.style.left = y.x * olc + "px"; kap.style.top = y.y * olc + "px"; }); sync.observe(el, { attributes: true, attributeFilter: ["style"] });
+      return kap;
+    }
+    let kayitT = null; const kaydet = () => { clearTimeout(kayitT); kayitT = setTimeout(() => sakla(d), 300); };
+    /* çizim */
+    let akt = null;
+    const nokta = (e) => { const r = cizCv.getBoundingClientRect(); return [(e.clientX - r.left) / olc, (e.clientY - r.top) / olc]; };
+    cizCv.addEventListener("pointerdown", (e) => {
+      if (document.activeElement && document.activeElement.isContentEditable) document.activeElement.blur();
+      const p = nokta(e);
+      if (arac === "metin") { const y = { x: p[0], y: p[1] - 20, t: "", s: kalin * 9 + 18, r: renk, f: metinYazi }; sayfa().yazi.push(y); const k = yaziKutu(y); yaziKat.append(k); setTimeout(() => k.querySelector(".yt-yazi").focus(), 0); return; }
+      cizCv.setPointerCapture(e.pointerId);
+      if (arac === "sil") { geri.push(JSON.stringify(sayfa())); akt = { sil: true }; silAt(p); return; }
+      geri.push(JSON.stringify(sayfa())); if (geri.length > 60) geri.shift();
+      akt = { r: renk, w: arac === "fosfor" ? kalin * 5 + 10 : kalin, f: arac === "fosfor", p: [p] }; sayfa().cizgi.push(akt);
+    });
+    cizCv.addEventListener("pointermove", (e) => {
+      if (!akt) return; const p = nokta(e);
+      if (akt.sil) { silAt(p); return; }
+      const L = akt.p[akt.p.length - 1]; if (Math.hypot(p[0] - L[0], p[1] - L[1]) < 1.2) return;
+      akt.p.push(p); ciz();
+    });
+    const birak = () => { if (akt) { akt = null; ciz(); kaydet(); } };
+    cizCv.addEventListener("pointerup", birak); cizCv.addEventListener("pointercancel", birak);
+    function silAt(p) { const r = 18; const once = sayfa().cizgi.length; sayfa().cizgi = sayfa().cizgi.filter((st) => !st.p.some((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) < r + st.w / 2)); if (sayfa().cizgi.length !== once) ciz(); }
+    function geriAl() { if (!geri.length) return; d.s[d.i] = JSON.parse(geri.pop()); zemin(); ciz(); yazilar(); kaydet(); }
+    let metinYazi = "harf";
+    /* araç çubukları */
+    function cubuk() {
+      const s = sayfa();
+      const btn = (ad, ikon, on, f, ek = "") => h("button.yt-b" + (on ? ".on" : "") + ek, { onclick: f, title: ad, "aria-label": ad }, ikon ? T.icon(ikon) : null, h("span", ad));
+      ust.replaceChildren(
+        h("div.yt-grup", ZEMIN.map(([k, ad]) => btn(ad, null, s.z === k, () => { s.z = k; zemin(); cubuk(); kaydet(); }))),
+        h("div.yt-grup", RENK_KAG.map(([k, ad, bg]) => h("button.yt-kag" + (s.k === k ? ".on" : ""), { title: ad, "aria-label": ad, style: { background: bg }, onclick: () => { s.k = k; if ((k === "yesil" || k === "siyah") && renk === KALEM[0]) renk = "#F4F1E8"; if ((k === "beyaz" || k === "krem") && renk === "#F4F1E8") renk = KALEM[0]; zemin(); cubuk(); kaydet(); } }))),
+        h("div.yt-grup", btn("Aralık −", null, false, () => { s.a = Math.max(20, s.a - 8); zemin(); kaydet(); }), btn("Aralık +", null, false, () => { s.a = Math.min(120, s.a + 8); zemin(); kaydet(); })),
+        h("div.yt-bosluk"),
+        btn("Tam ekran", "full", false, () => { try { document.fullscreenElement ? document.exitFullscreen() : kok.requestFullscreen(); } catch (e) {} }),
+        btn("Kapat", "close", false, kapat, ".kapat"));
+      const koyu = s.k === "yesil" || s.k === "siyah", renkler = koyu ? ["#F4F1E8"].concat(KALEM.slice(1)) : KALEM;
+      alt.replaceChildren(
+        h("div.yt-grup", btn("Kalem", "pen", arac === "kalem", () => { arac = "kalem"; cubuk(); }), btn("Fosforlu", "spark", arac === "fosfor", () => { arac = "fosfor"; cubuk(); }), btn("Metin", "text", arac === "metin", () => { arac = "metin"; cubuk(); }), btn("Silgi", "reset", arac === "sil", () => { arac = "sil"; cubuk(); })),
+        h("div.yt-grup", renkler.map((c) => h("button.yt-renk" + (renk === c ? ".on" : ""), { style: { background: c }, "aria-label": "Renk", onclick: () => { renk = c; cubuk(); } }))),
+        h("div.yt-grup", [2, 4, 8, 14].map((w) => h("button.yt-kalin" + (kalin === w ? ".on" : ""), { "aria-label": "Kalınlık " + w, onclick: () => { kalin = w; cubuk(); } }, h("i", { style: { width: w + 4 + "px", height: w + 4 + "px" } })))),
+        arac === "metin" ? h("div.yt-grup", btn("Okul harfi", null, metinYazi === "harf", () => { metinYazi = "harf"; cubuk(); }), btn("Düz yazı", null, metinYazi === "duz", () => { metinYazi = "duz"; cubuk(); })) : null,
+        h("div.yt-bosluk"),
+        btn("Geri al", "back", false, geriAl),
+        btn("Sayfayı temizle", "trash", false, async () => { if (await T.confirm("Sayfa temizlensin mi?", "Bu sayfadaki çizimler ve yazılar silinir.", "Temizle")) { geri.push(JSON.stringify(s)); s.cizgi = []; s.yazi = []; ciz(); yazilar(); kaydet(); } }),
+        h("div.yt-grup.yt-sayfa", btn("Önceki", "back", false, () => { if (d.i > 0) { d.i--; geri = []; boyut(); cubuk(); kaydet(); } }), h("b", (d.i + 1) + " / " + d.s.length), btn("Sonraki", "next", false, () => { if (d.i < d.s.length - 1) { d.i++; geri = []; boyut(); cubuk(); kaydet(); } }), btn("Yeni sayfa", "plus", false, () => { d.s.splice(d.i + 1, 0, yeniSayfa(s.z, s.k)); d.i++; geri = []; boyut(); cubuk(); kaydet(); }),
+          d.s.length > 1 ? btn("Sayfayı sil", "close", false, async () => { if (await T.confirm("Bu sayfa silinsin mi?", "Sayfa geri getirilemez.", "Sil")) { d.s.splice(d.i, 1); d.i = Math.max(0, d.i - 1); geri = []; boyut(); cubuk(); kaydet(); } }) : null));
+      cizCv.style.cursor = arac === "metin" ? "text" : arac === "sil" ? "cell" : "crosshair";
+    }
+    const gozle = new ResizeObserver(() => boyut()); gozle.observe(sahne);
+    cubuk(); requestAnimationFrame(boyut);
+  }
+  T.yaziTahtasi = { ac };
+})();
+
 /* ---- kelime-bankasi.js ---- */
 /* Ses gruplarına göre hece, kelime ve cümle bankası. Kaynak: öğretmenin verdiği ses cep kartları ve hece-kelime tabloları (yalnızca kelime listeleri alındı). */
 T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük","ür","tü","kü","rü"],"kelime":["üzüm","ürün","tül","kül","Ümit","ünlü","tüm","tütün","Ülkü"],"cumle":["Ümit üzüm al.","Ümit ile Ali üzüm al.","Ülkü tül al.","Ülkü ile Ümit tül al."],"soru":[["Ümit ile Ali üzüm al.","Ümit ne al?",["tül","üzüm"],"üzüm"],["Ülkü ile Ümit tül al.","Ülkü ile kim tül al?",["Ali","Ümit"],"Ümit"]],"tablo":["kül","ünlü","kürek","kür","küllü","kürekli","tüm","küller","kürekle","tür","ünlem","kürekler","tül","kütük","küme","tüllü","kütükte","kümeli","tüller","kütükten","kümeler","ütü","kütükler","menü","ütüle","ülke","menüler","ütülü","ülkem","tünel","ütüler","ülken","tüneli","ütüleme","ülkeler","tünele","küre","ürk","ünal","küreli","ürkek","ülkü","küreler","ürküt","ümran","lüle","ürktü","atatürk","ülkemi","lüleli","ürktün","ümitli","ülkeni","türk","ürktüm","ümitlen","ülkene","türkler","ürküttü","kültür","ülkeme","kürk","ürkütme","kültürlü","kürklü","ürkütür","kültürle","tüketim","kürkler","tümer","kültürlen","tüketti","kütlet","tülin","kültürler","ünite","kütletti","ümit","ülkülü","mükemmel"]},"s":{"hece":["as","sa","es","se","is","si","ıs","os","us","üs","sı","so","su","sü"],"kelime":["saat","masa","sarı","soru","ses","Selim","Sena","sırt"],"cumle":["Selim masa al.","Selim ile Sena masa al.","Sena saat al.","Sena ile Selim saat al.","Selim saat al."],"soru":[["Selim ile Sena masa al.","Selim ne al?",["masa","saat"],"masa"],["Sena ile Selim saat al.","Sena ile kim saat al?",["Selim","Ali"],"Selim"]],"tablo":["ses","sara","esin","asa","askılık","sare","asım","kas","kaslı","sena","kasım","askı","asar","senem","suna","tasma","aseton","suat","aslan","asır","salim","aslı","asker","astar","selim","esma","asma","astı","sinem","sıla","asmak","astın","sinan","sultan","makas","astım","eskir","riskli","susam","sek","eskiler","isim","sesli","kestane","misket","küs","sene","testere","iskele","üst","serin","iskelet","üstte","sera","ısı","islam","üstten","sert","ısır","ister","üstüne","selam","ıslak","isteme","üstün","kese","ıskalar","ismet","üstlük","keser","kes","kis","uslu","ser","eski","risk","usta","sarıl","tasa","salla","sim","saat","sana","sallar","simli","sarı","sarık","sallarım","simit","arsa","sarkar","saman","sisli","satar","santim","samanlık","siler","salı","masa","sarılır","sinek","salon","masal","sakar","sinema","salkım","sakarlık","sitil","sakin","kask","satılık","asil","sansar","sarımsak","sat","insan","salata","sis","sar","kasa","salatalık","sil","sık","sırtına","sos","sürer","sıra","satsın","sol","süt","sırık","taksın","soslu","süslü","sıska","alsın","soru","sıktı","sarsın","sorun","sulu","sıktın","satsınlar","sokak","suluk","sıktım","alsınlar","sorumlu","musluk","sıkar","taksınlar","sorumluluk","sıktılar","sarsınlar","sollar","susamlı","mısır","sır","mısırlar","sor","sür","sırt","sırtın","son","sürü"]},"ö":{"hece":["ör","rö","ön","nö","öl","lö","öt","ök","öm","ös","tö","kö","mö","sö"],"kelime":["ördek","öküz","örtü","önlük","Ömer","Önder","özel","ömür"],"cumle":["Ömer ördek al.","Ömer ile Önder ördek al.","Önder önlük al.","Önder ile Ömer önlük al."],"soru":[["Ömer ile Önder ördek al.","Ömer ne al?",["önlük","ördek"],"ördek"],["Önder ile Ömer önlük al.","Önder ile kim önlük al?",["Ali","Ömer"],"Ömer"]],"tablo":["ömer","önem","ört","tören","önal","öneri","örtü","aktör","ömür","öttü","örtülü","kömür","ökten","öttür","örttü","kömürlük","köksal","öter","örttün","kötü","öner","ötsün","örttüm","kötülük","önlük","öteki","örter","köklü","önlüklü","öksür","örnek","monitör","önemli","öksürük","örnekler","traktör"]},"y":{"hece":["ay","ya","ye","yı","yu","yo","ey","ıy","iy","oy","öy","uy","yi","yö","üy","yü"],"kelime":["ay","yol","yaz","yelek","yumak","yarım","uyku","Yeliz","Yunus"],"cumle":["Yeliz yelek al.","Yeliz ile Ömer yelek al.","Yunus yumak al.","Yunus ile Yeliz yumak al.","Yunus yelek al."],"soru":[["Yeliz ile Ömer yelek al.","Yeliz ne al?",["yumak","yelek"],"yelek"],["Yunus ile Yeliz yumak al.","Yunus ile kim yumak al?",["Yeliz","Ömer"],"Yeliz"]],"tablo":["ayla","leyla","kaynak","koyun","aylin","koray","kaynar","maymun","yaman","meyra","kamyon","leylek","yasin","meryem","kamyonet","yelek","yasemin","kay","koy","ray","öykü","kayar","köy","kolye","oya","kayak","köylü","soy","oktay","kaykay","küylüler","soylu","kaya","kayık","soylular","sayarlar","yat","oynarım","yaktı","sayar","yattı","oynarsın","yaktın","sayarım","yattım","oynarlar","yaktım","sayarsın","yattın","oyun","yaktılar","ayı","yatar","ayak","yakıyor","tay","yatak","ayaklı","niye","yaka","ayaklık","uyar","neyi","yalan","ayaklar","uyum","neyim","yalın","yıka","uyumlu","say","yarım","ayna","yırt","sayı","yarın","oyna","yak","sayılar","yarınlar","oynar","yakar","yer","yürüt","tüylü","onaylar","yeri","yürütür","yok","yerim","yürüttü","yokluk","yumurta","yerler","yürüttüm","yoksul","türkiye","yersin","yürüttün","yoklar","yarasa","yiyor","söyle","yılan","yemek","söyler","olay","yunus","yemekler","söylerim","olaylı","kuyu","yeterli","söylersin","olaylar","kolonya","uyku","yor","yurt","onay","uykulu","yorum","tüy","onayla","yürü","tüyler","onaylı"]},"d":{"hece":["ad","da","ed","de","id","di","ıd","od","öd","ud","dı","do","dö","du","üd","dü"],"kelime":["dal","dede","dere","dört","ders","dilek","dünya","adım","Dede","Deniz"],"cumle":["Dede dal al.","Dede ile Deniz dal al.","Deniz saat al.","Deniz ile Dede saat al."],"soru":[["Dede ile Deniz dal al.","Dede ne al?",["saat","dal"],"dal"],["Deniz ile Dede saat al.","Deniz ile kim saat al?",["Ali","Dede"],"Dede"]],"tablo":["seda","ada","dilara","dal","soda","arda","serdar","dar","radyo","adem","eda","dam","damar","aydın","damla","adam","damat","adnan","doruk","dayı","adres","adil","derya","dana","mandal","diyar","demir","adana","onda","dilek","kader","oda","ondan","didem","kadir","darı","oradan","neden","kurdele","melodi","den","yedek","din","midye","der","minder","dik","ders","desen","dil","kandil","del","mide","diken","kadın","des","deri","dikkat","nadir","deste","derin","dikkatli","yedi","destek","kedi","sendeki","adet","maden","kendi","ondaki","daire","ördek","dere","direk","adalet","dedi","rende","dikmek","mandalina","dede","lider","mendil","dolu","döktüm","duydun","dondurma","doku","döktün","duyar","dün","dola","döker","uydu","dür","doldu","döner","uyudu","dünya","doktor","dört","uydur","dünkü","dolma","dut","uydurma","dükkan","doydu","dur","durak","dürüm","doydum","durmak","dudak","düdük","domates","duman","duyuru","ödül","dol","dön","duyu","ordu","dos","dök","duydu","odun","dost","döktü","duydum","dokuma"]},"z":{"hece":["az","za","ez","ze","iz","zi","ız","oz","öz","uz","zı","zo","zö","zu","üz","zü"],"kelime":["zil","zeytin","koza","kız","kaz","yüz","Zeki","ziyaret","Kız"],"cumle":["Zeki zil al.","Zeki ile Deniz zil al.","Kız üzüm al.","Kız ile Zeki üzüm al."],"soru":[["Zeki ile Deniz zil al.","Zeki ne al?",["zil","üzüm"],"zil"],["Kız ile Zeki üzüm al.","Kız ile kim üzüm al?",["Deniz","Zeki"],"Zeki"]],"tablo":["arzu","nazım","zeren","ayaz","azmi","ozan","zerrin","azar","azra","özlem","ziya","erzak","deniz","remzi","zümra","ezan","izzet","rıza","rize","ikaz","kazım","sezai","izmir","imza","mirza","suzan","denizli","kaz","nazan","yılmaz","erzurum","kaza","nazlı","zeki","kazak","kızamık","zaman","dize","mazeret","kiraz","zar","müze","düzenli","koza","zarar","zemin","düzeltti","manzara","zeytin","düzensiz","naz","zalim","teyze","lezzetli","olamaz","kuzen","mayonez","saz","sazlık","düzine","yazı","tuzak","yazarlık","ezel","kazı","uzak","zamansız","kuzey","tatsız","kazan","yaz","nezle","yazar","zeka","düzen","kazma","zam","taze","merkez","sakız","sekiz","dertsiz","yazık","müzik","terazi","mazot","lazım","analiz","takoz","yalnız","emzik","ziyaret","sezon","kırmızı","zindan","dizili","ıstakoz","imkansız","titiz","zor","dinozor","zil","azim","koz","maydanoz","izin","rezil","toz","azimli","mazi","terzi","tozlu","kazılı","kız","ezik","temiz","tozsuz","razı","telsiz","zorlu","tazı","nazik","renksiz","dozer","sözlük","tuzluk","uzmanlık","üzerinde","tuz","temmuz","uzunluk","uykusuz","muz","sonsuz","düz","mandalsız","kuzu","sonsuzluk","yüz","dikkatsiz","uzun","mutsuz","üzüm","desteksiz","uzuyor","uzay","öküz","ödülsüz","otuz","uzaylı","yüzük","uyumsuz","omuz","düzlük","yalansız","zurna","domuz","ütüsüz","tüysüz","köz","mezun","üzüntü","söz","uzman","dokuz","üzümlü","sözsüz","kurnaz","zulüm","üzmek"]},"o":{"hece":["ol","lo","on","no","ot","to"],"kelime":["ok","ona","oto","otel","kilo","Okan","nokta","motor","Ela"],"cumle":["Okan oto al.","Okan ile Ela oto al.","Ela ok al.","Ela ile Okan ok al.","Okan kilo al."],"soru":[["Okan ile Ela oto al.","Okan ne al?",["ok","oto"],"oto"],["Ela ile Okan ok al.","Ela ile kim ok al?",["Ali","Okan"],"Okan"]],"tablo":["onat","olta","alo","oteli","otel","otelin","olan","nota","ton","otla","tonton","ona"]},"k":{"hece":["ak","ka","ek","ke","ik","ki","ok","ko"],"kelime":["kale","kalem","kilo","kano","kule","kulak","koku","ekmek","Kaan","Kemal"],"cumle":["Kaan kalem al.","Kaan ile Ali kalem al.","Kemal ekmek al.","Kemal ile Kaan ekmek al.","Kaan kano al."],"soru":[["Kaan ile Ali kalem al.","Kaan ne al?",["kalem","ekmek"],"kalem"],["Kemal ile Kaan ekmek al.","Kemal ile kim ekmek al?",["Ali","Kaan"],"Kaan"]],"tablo":["kal","kek","ilke","kel","iki","kaan","kil","kan","kalk","kol","ken","kantin","kat","kekik","inek","ket","keklik","ekin","kit","okan","otlak","kot","toka","otlakta","kano","nokta","etkin","kilit","kilo","konak","etkinlik","kilitli","koli","kitli","kellik","kilitle","koala","kitle","kokla","etiketli","ikili","kanat","tokan","etiketle","tilki","kale","kolile","kalite","ilkeli","ekti","konakta","kaliteli","etiket","ektik","otlaktan","annelik","lak"]},"u":{"hece":["ul","lu","un","nu","ut","tu","uk","ku"],"kelime":["mum","kum","kulak","kule","okul","kutu","Utku","ilkokul","Umut"],"cumle":["Utku mum al.","Utku ile Ali mum al.","Umut kutu al.","Umut ile Utku kutu al."],"soru":[["Utku ile Ali mum al.","Utku ne al?",["kutu","mum"],"mum"],["Umut ile Utku kutu al.","Umut ile kim kutu al?",["Utku","Ali"],"Utku"]],"tablo":["kul","okul","kutla","kut","utku","kukla","tut","kutu","koltuk","lut","kule","kullan","kuk","kulak","kokulu","luk","koku","kuleli","konuk","tutuklu","oku","kutlu","okullu"]},"r":{"hece":["ar","ra","er","re","ir","ri","or","ur","ro","ru"],"kelime":["kar","mor","kurt","tren","Rana","Murat","arı","ırmak"],"cumle":["Rana kar al.","Rana ile Murat kar al.","Murat tren al.","Murat ile Rana tren al."],"soru":[["Rana ile Murat kar al.","Rana ne al?",["kar","tren"],"kar"],["Murat ile Rana tren al.","Murat ile kim tren al?",["Ali","Rana"],"Rana"]],"tablo":["rak","roka","onur","rek","lira","lara","rik","kara","taner","rok","tere","nurten","ruk","tarak","ural","kar","nar","erol","ker","erik","terlik","kir","rana","renk","kor","nur","terli","iri","eren","onar","anar","kartal","kural","torun","kork","kirli","kurallar","turta","korku","arka","tarla","kitler","korkak","kira","tarlalar","katlar","korkar","okur","kuru","kutlar","korkulu","tur","karne","takar","korkuluk","turla","karneler","kurut","kurt","turlar","teker","kurutur","kurtlar","raket","tekerler","ellerin","kart","roket","tekerlek","terlikler"]},"ı":{"hece":["ıl","lı","ın","nı","ık","kı","ıt","ır","tı","rı"],"kelime":["ırmak","arı","ılık","kalın","tırtıl","kırk","Arı","Tırtıl"],"cumle":["Arı ırmakta.","Kırk arı ırmakta.","Tırtıl kalın.","Murat tırtıl al."],"soru":[["Kırk arı ırmakta.","Ne ırmakta?",["arı","at"],"arı"],["Murat tırtıl al.","Murat ne al?",["tırtıl","kalem"],"tırtıl"]],"tablo":["tır","tırtıl","atlı","tıl","anı","tatlı","rık","arı","tattı","tık","anıl","tanı","kıl","tarık","tanıt","tın","ıtır","tanık","lın","akın","katıl","lık","atkı","katır","lır","taktı","kırık","kır","kırk","takı","katı","tırnaklı","altın","atık","kılık","ılık","atıklar","alır","akıl","kına","alırlar","akıllı","kınalar","anlatır","kalır","katkı","karanlık","kalırlar","katkılı","tokalı","kıta","katkılar","kalın","karın","kiralık","kalınlık","tırnak","kınalı"]},"m":{"hece":["am","ma","em","me","im","mi","om","um","ım","mo","mu","mı"],"kelime":["elma","kalem","mum","limon","mola","Emin","Melek","Mert","Mine"],"cumle":["Emin elma al.","Emin ile Mine elma al.","Mine limon al.","Mine ile Melek limon al.","Anne kalem al."],"soru":[["Emin ile Mine elma al.","Emin ne al?",["limon","elma"],"elma"],["Mine ile Melek limon al.","Mine ile kim limon al?",["Melek","Emin"],"Melek"]],"tablo":["lem","kemal","kamil","kalem","mine","melek","mut","meltem","emel","armut","marul","mum","emine","kerem","kim","metin","temel","minik","limon","melike","elma","mert","ırmak","mete","lokum","mutlu","mek","kemik","tulum","ekmek","meral","nemli","tamam","mantı","komutan","konum","mantık","makine","emir","mamut","kalemlik","omlet","motor","makarna","market","mola","mineral","takım","mart","koruma","mimar","kimlik","karamel","rakam","tutum","makara","reklam","keman","meraklı","emin","kilim","kelime","umut","ekim","minare","manken","maket","alman","martı","mama","imam","ikram","mermer","emek","merak","millet"]},"ç":{"hece":["aç","ça","eç","çe","iç","çi","ıç","oç","öç","uç","çı","ço","çö","çu","üç","çü"],"kelime":["çay","çam","çiçek","çanta","çekiç","çocuk","çilek","saç","Çınar","Çilem"],"cumle":["Çınar çay al.","Çınar ile Ece çay al.","Çilem çiçek al.","Çilem ile Çınar çiçek al.","Çınar çiçek al."],"soru":[["Çınar ile Ece çay al.","Çınar ne al?",["çay","çiçek"],"çay"],["Çilem ile Çınar çiçek al.","Çilem ile kim çiçek al?",["Çınar","Ece"],"Çınar"]],"tablo":["açma","sütlaç","çam","akçe","açmak","taç","çamlık","çek","açtı","uçak","çamur","çekil","açlık","ilaç","çanta","çekim","açı","çadır","çare","çekirdek","amaç","çakal","çaresiz","çekyat","kaç","çakı","çarık","çekiç","kaçak","çakıl","çatal","çelimsiz","maç","çakmak","çatı","çelik","saç","çalım","çay","çene","saçma","çalı","çayır","çenesiz","salça","çan","çayırlık","çerez","kemençe","çıkar","için","çini","kokoreç","çıkardı","içlik","çirkin","kraliçe","çınar","içmek","çita","reçel","çıra","içten","çikolata","reçete","çırak","keçi","çitle","seç","çıta","kireç","çitlemek","seçenek","inatçı","niçin","çiz","seçim","kaçık","çiçek","çizer","seçkin","kaçınmak","çiçekçi","çizik","seçmek","kaçın","çil","çizim","seçtim","sıçramak","çile","çizme","serçe","tarçın","çilek","çizmek","çeyiz","çık","dinç","çim","çeyrek","açık","elçi","çimen","içeri","alçı","içi","çimento","çörek","suç","ölçü","miraç","çöz","suçlu","ödünç","orçun","çözmek","sütçü","çözüm","uçmak","seçil","çok","uçsuz","üçer","selçuk","çorak","uçurum","açelya","tunç","çolak","uçurtma","ayça","türkçe","çokluk","utanç","aytaç","yalçın","çoktan","çulluk","çetin","ayraç","çukur","inanç","çürük","çorum","korkunç","çürümek","elçin","çök","okçu","çünkü","erdinç","çöl","oruç","küçük","kıraç","çömlek","sonuç","külçe","meriç"]},"b":{"hece":["ab","ba","eb","be","ib","bi","ıb","ob","öb","ub","bı","bo","bö","bu","üb","bü"],"kelime":["bal","baba","balon","bebek","bulut","bere","bina","bisiklet","Baba","Bilal"],"cumle":["Baba balon al.","Baba ile Bilal balon al.","Bilal bal al.","Bilal ile Baba bal al."],"soru":[["Baba ile Bilal balon al.","Baba ne al?",["bal","balon"],"balon"],["Bilal ile Baba bal al.","Bilal ile kim bal al?",["Baba","Ali"],"Baba"]],"tablo":["abi","balık","barbunya","bayat","kablo","abla","balkon","bardak","bayılmak","kasaba","baba","balon","bas","bayrak","kibar","akbaba","balta","baret","bayram","kurban","akraba","baldır","basamak","baza","lamba","araba","balo","basket","bazen","oba","badem","bale","basketbol","banyo","sabun","badana","balerin","baskı","çaba","soba","bak","bamya","baskül","çoban","tabak","bakan","bana","basit","çorba","taban","bakım","bando","baston","ebat","tablet","bakar","bank","batı","kaba","tablo","bakır","banka","bateri","kabak","torba","bakkal","bant","bay","kaban","bebek","bal","baraka","bayan","kalabalık","beden","bekçi","beyin","sabır","bir","tabi","bekle","bez","bırak","biri","tombik","bekler","biber","bıraktı","birden","bizim","bekar","biberon","bıçak","biraz","kabin","bel","beton","abide","birisi","abone","belli","ebe","biblo","birlik","bodrum","belki","kelebek","bidon","birlikte","boksör","ben","kulübe","biçer","bisiklet","bol","benek","körebe","bile","bilardo","bone","benekli","leblebi","bilek","bitki","boru","bere","nöbet","bilet","bitti","bot","berber","rütbe","bilim","ibre","boy","beraber","sebze","bilinç","ibrik","boya","berrak","sobe","bilye","elbise","boyar","besin","sobele","bin","kibrit","boyama","beslenme","tebrik","bina","labirent","boyun","beter","tembel","biner","mobilya","boz","bey","zebra","binlik","sabit","boza","bozuk","bulut","büst","beril","bordo","but","büro","berkan","batman","kobra","butik","bütün","berna","bartın","robot","buton","bütünlük","berra","bursa","sembol","buz","büyük","berrin","bitlis","böl","buzluk","büyüklük","betül","bolu","bölme","bukle","dürbün","birol","istanbul","bölük","çabuk","bülbül","bora","otobüs","buket","albüm","bülent","minibüs","burak","aybüke","burçak","bade","burçin","banu","buse","buzdolabı","basri","ebru","burası","sabunluk","bedir","kübra","burktu","kurabiye","bekir","sabri","burs","balıkesir","berat","berke","börek","kabuk","böbrek","kabul","böyle","kabus","öbür","kambur","bulanık","tabure","bulantı","tombul","trabzon"]},"g":{"hece":["ga","ge","gı","gi","go","gu","ag","eg","ıg","ig","og","ög","ug","gö","üg","gü"],"kelime":["gül","gece","gemi","göl","göz","güneş","gitar","Gizem","Gül"],"cumle":["Gül gemi al.","Gül ile Gizem gemi al.","Gizem gitar al.","Gizem ile Gül gitar al.","Gizem gül al."],"soru":[["Gül ile Gizem gemi al.","Gül ne al?",["gemi","gitar"],"gemi"],["Gizem ile Gül gitar al.","Gizem ile kim gitar al?",["Gül","Ali"],"Gül"]],"tablo":["grubu","gak","mangal","gelinlik","yenge","çizgili","gaga","organ","genç","yüzgeç","dergi","dalga","otogar","geç","geriye","gibi","gar","rüzgar","geçit","aygıt","gider","garson","utangaç","gerçek","çalgı","git","galiba","yorgan","gerçeklik","dalgıç","gir","gargara","gayret","gergedan","dargın","gitmek","gaz","bölge","gergin","gıda","gitar","gazi","çekirge","gez","kaygı","giy","gazete","çengel","gezi","kızgın","giyim","gazoz","denge","gezgin","sargı","giysi","ızgara","engel","geyik","saygı","giz","karga","ergen","gemi","kırgın","gizli","kırılgan","gel","sünger","bilgi","gizemli","omurga","gelin","üçgen","bilgin","ilginç","sergi","görgü","düzgün","begüm","müge","silgi","göz","gübre","bengü","nilgün","zengin","gözlük","güç","bilge","özge","gol","gözlüklü","güçlü","özgür","goril","gözleme","güçsüz","ege","sezgin","kargo","örgü","gül","ergin","simge","mango","bulgu","gülmek","gamze","songül","açgözlü","bulgur","gülümse","gaye","tolga","göbek","solgun","gümrük","giray","tugay","gök","olgun","gün","gizem","bingöl","gökyüzü","uygun","güney","gökçe","giresun","göl","dolgu","günaydın","gökçen","yozgat","gölet","dolgun","gür","gönül","gölge","gurur","güz","görkem","göm","gururlu","güzel","gözde","gömlek","kanguru","güzellik","güler","göç","yorgun","güllü","göçtü","bugün","üzgün","güzin"]},"c":{"hece":["ac","ca","ec","ce","ic","ci","ıc","oc","öc","uc","cı","co","cö","cu","üc","cü"],"kelime":["cam","can","Cem","cuma","ceket","cümle","Cemal","cüzdan","Cansu"],"cumle":["Cem cüzdan al.","Cem ile Cansu cüzdan al.","Cansu ceket al.","Cansu ile Cem ceket al."],"soru":[["Cem ile Cansu cüzdan al.","Cem ne al?",["ceket","cüzdan"],"cüzdan"],["Cansu ile Cem ceket al.","Cansu ile kim ceket al?",["Cemal","Cem"],"Cem"]],"tablo":["acı","cani","tüccar","gece","çaycı","amca","canım","yonca","görümce","cılız","acaba","cansız","acele","güncel","cımbız","açacak","icat","acemi","içecek","kiracı","alacak","karınca","beceri","ince","sıkıcı","atmaca","koca","bilmece","incelik","yazıcı","baca","kucak","böcek","macera","kazıcı","bacak","mercan","ceket","örümcek","acımak","cadde","ocak","cennet","önce","acıdı","cadı","oyuncak","cesur","önceki","sancı","cacık","rica","ceylan","öncelik","acil","cam","salıncak","ceza","tencere","bencil","cambaz","seccade","cezalı","tümce","birinci","cami","sıcak","çekmece","yüce","cici","can","solucan","eczane","akıncı","ciddi","bilecik","cisim","macun","sözcü","ceren","tunceli","ciklet","tacir","bücür","cem","necmettin","cilt","tamirci","cüce","cemil","olcay","cila","ormancı","cücük","cemile","cilalı","boncuk","cüzdan","cemre","cins","çocuk","cümle","cengiz","düzce","cimri","cuma","golcü","cenk","erzincan","cimcime","korucu","öncü","kocaeli","cirit","oduncu","sözcük","ceyda","eskici","oyuncu","ücra","inci","sucuk","ücret","ceylin","incir","sunucu","üzücü","cezmi","izci","turuncu","burcu","cüneyt","kaleci","ucuz","dicle","mercimek","ucuzluk","canan","ece","minicik","uykucu","caner","ecem","mucit","yolcu","cansu","ecrin","mucize","cumartesi","celil","gonca"]},"ş":{"hece":["aş","şa","eş","şe","iş","şi","ış","oş","öş","uş","şı","şo","şö","şu","üş","şü"],"kelime":["şal","şeker","şemsiye","şarkı","şimşek","ışık","kaşık","Şule","Şeyma"],"cumle":["Şule şemsiye al.","Şule ile Şeyma şemsiye al.","Şeyma ışık al.","Şeyma ile Şule ışık al."],"soru":[["Şule ile Şeyma şemsiye al.","Şule ne al?",["ışık","şemsiye"],"şemsiye"],["Şeyma ile Şule ışık al.","Şeyma ile kim ışık al?",["Ali","Şule"],"Şule"]],"tablo":["baş","akşam","işaret","beş","şekil","kaş","başak","meşale","şey","şerit","şal","başka","şalgam","ateş","kardeş","şan","kumaş","başkent","eşek","meşgul","şaş","kuşak","şanslı","eşya","neşeli","taş","nişan","şaşkın","gişe","şelale","aşçı","şanlı","yoldaş","köşe","şenlik","marş","şarkı","nişasta","meşe","şerbet","maşa","taşlı","yaşamak","neşe","şimşek","şair","tıraş","arkadaş","çeşme","menekşe","şaka","yaşam","yumuşak","eşsiz","menteşe","şato","yaşlı","çarşamba","güneş","şemsiye","şart","başarı","şaşırmak","güreş","aşı","uşak","başkan","araştırma","keşke","dış","yaşa","dışarı","başlangıç","şeker","kış","şık","alışık","eşit","geçmiş","şok","alış","altmış","işçi","ilişki","koşu","satış","kışlık","işte","şirket","şort","aşık","ulaşım","şiir","şişkin","komşu","ışık","yanlış","şişe","şişman","koşmak","alkış","bulaşık","beşik","şişmek","koşucu","aşırı","karışık","bitiş","yetmiş","konuşmak","barış","şımarık","dikiş","bitişik","köşk","çarşı","şırınga","dişçi","diriliş","şömine","çıkış","çalışkan","geniş","eşitlik","şöyle","karış","sarmaşık","giriş","işitmek","coşku","kaşık","işlem","şikayet","duş","kayış","yanlışlık","şimdi","tebeşir","kuş","nakış","kuşbaşı","şirin","birleşik","muş","tanış","diş","yemiş","iletişim","şut","taşıt","şiş","yeşil","titreşim","tuş","yarış","ekşi","enişte","koş","aşure","açılış","eşik","erişte","loş","baykuş","boşuna","üşümek","şenay","buluşma","düşman","şener","dolmuş","şükran","şermin","konuş","müşteri","şeyma","kurşun","teşekkür","şule","kurtuluş","gümüş","kuruş","şükür","ulaş","kuşku","ayşe","yaşar","düş","şadiye","şakir","gülüş","şamil","gülüşmek","şebnem","oluş","ayşen","yeşim","şubat","şurada","turşu","büşra","yokuş","coşkun","üşü","gülşen","düştü","düştüm","düştün","düşüyor","yaş","yaşıyor","yaşıyorum","yaşıyorsun","yaşıyoruz","yaşıyorlar"]},"a":{"hece":["at","ta","al","la","an","na"],"kelime":["ata","ana","at","al","anne","tane","lale","Ali","Ata"],"cumle":["Ata at al.","Ata ile Ali at al.","Ali ata al.","Ali ile Ela ata al."],"soru":[["Ata ile Ali at al.","Ata ne al?",["ata","at"],"at"],["Ali ile Ela ata al.","Ali ne al?",["ata","at"],"ata"]],"tablo":[]},"n":{"hece":["an","na","en","ne","in","ni"],"kelime":["ana","anne","nane","nal","nine","ten","tane","Nil","Nane","Anne"],"cumle":["Nane al.","Nane ile Nil al.","Anne tane al.","Anne ile Nil tane al.","Anne nane al."],"soru":[["Nane ile Nil al.","Nil ne al?",["nane","tane"],"nane"],["Anne ile Nil tane al.","Anne ne al?",["tane","ana"],"tane"]],"tablo":[]},"e":{"hece":["el","le","et","te","en","ne"],"kelime":["el","et","tel","Ela","nane","anne","elli","tane","Ali"],"cumle":["Ela et al.","Ela ile Ali et al.","Ali tel al.","Ali ile Ela tel al.","Ela nane al."],"soru":[["Ela ile Ali et al.","Ela ne al?",["tel","et"],"et"],["Ali ile Ela tel al.","Ali ne al?",["tel","et"],"tel"]],"tablo":[]},"t":{"hece":["at","ta","et","te","it","ti"],"kelime":["ata","at","tat","tane","tel","net","tatil","tellal","Ata","Ela"],"cumle":["Ata tane al.","Ata ile Ela tane al.","Ela tel al.","Ela ile Ali tel al.","Ata tane tane al."],"soru":[["Ata ile Ela tane al.","Ata ne al?",["tel","tane"],"tane"],["Ela ile Ali tel al.","Ela ne al?",["tel","tane"],"tel"]],"tablo":["nat"]},"i":{"hece":["it","ti","il","li","in","ni"],"kelime":["Ali","Nil","nine","elli","tatil","ilan","İnan","ilet"],"cumle":["İnan ilan al.","İnan ile Ali ilan al.","Nil nine al.","Nil ile Ali nine al."],"soru":[["İnan ile Ali ilan al.","İnan ne al?",["ilan","nine"],"ilan"],["Nil ile Ali nine al.","Nil ne al?",["ilan","nine"],"nine"]],"tablo":[]},"l":{"hece":["al","la","el","le","il","li"],"kelime":["lale","Ela","Ali","tel","elli","tatil","tellal","nal","Lale"],"cumle":["Lale lale al.","Lale ile Ela lale al.","Ela tel al.","Ela ile Lale tel al."],"soru":[["Ela ile Lale tel al.","Ela ne al?",["lale","tel"],"tel"]],"tablo":["tel"]},"p":{"hece":["ap","pa","ep","pe","ip","pi","ıp","op","öp","up","pı","po","pö","pu","üp","pü"],"kelime":["pasta","pilot","papatya","pazar","top","kitap","pencere","Pınar","Pelin"],"cumle":["Pınar pasta al.","Pınar ile Pelin pasta al.","Pelin top al.","Pelin ile Pınar top al."],"soru":[["Pınar ile Pelin pasta al.","Pınar ne al?",["top","pasta"],"pasta"],["Pelin ile Pınar top al.","Pelin ile kim top al?",["Pınar","Ali"],"Pınar"]],"tablo":["kap","park","pamuk","kaptan","koparmak","pak","pati","panik","ketçap","pantolon","pas","plan","parça","papyon","patlıcan","pat","sıpa","parke","parlak","pazartesi","pay","sopa","parti","parmak","cep","sap","çorap","pasta","paspas","kep","yap","dolap","paten","pastel","pek","etap","ispat","patik","patron","per","kalp","kasap","pazar","yaprak","pes","kamp","kebap","pikap","palmiye","sep","kupa","kitap","şapka","palyaço","tep","paça","kopar","topaç","papatya","ipek","pala","paket","çarpma","paraşüt","küpe","pano","palet","kapalı","patates","peki","para","palto","kaplan","yelpaze","tepe","akrep","deprem","yapı","ekip","kumpir","kepçe","küpeli","çarpı","grip","piknik","köpek","pekmez","kalıp","ipli","pirinç","pedal","pergel","kayıp","klip","pislik","pembe","petrol","zıpla","pide","pişman","perde","peynir","çarpım","pike","piyano","peron","kelepçe","çıplak","pist","pratik","peruk","pencere","pırasa","tipi","sincap","galip","spiker","iptal","terapi","kirpi","diploma","pilot","pirzola","piriz","pişirmek","pişir","inkılap","sepet","tıp","pim","pizza","kop","süper","zıp","dip","rakip","pot","tepki","kapı","pis","takip","poz","tepsi","kırp","tip","kirpik","top","peşin","penguen","kıpırtı","petek","perişan","yapışık","pipet","serpmek","kapışmak","prens","perşembe","yapışmak","salep","pelikan","postacı","sebep","zımpara","pil","depo","popüler","pullu","alp","pota","toplama","ampul","alper","spor","porselen","kopuk","alperen","koptu","portakal","kutup","kupon","toplamak","pudra","sarp","polar","çöp","karpuz","necip","polis","löp","mektup","pelin","posta","köprü","puding","pınar","kulp","polat","kulplu","pusat","tüp","serap","küp","yakup","püre","poyraz","tüpçü","serpil","ponpon","put","kulüp","sertap","poster","puan","süpürge","toprak","tapu","püskül","zeynep","toplum","turp","köpük","poşet","çöpçü","tempo","çöplük","topla","pırlanta","toplu","kup","topuk","pul","mikrop","pus"]},"h":{"hece":["ha","he","hı","hi","ho","hu","ah","eh","ıh","ih","oh","öh","uh","hö","üh","hü"],"kelime":["havuç","hava","halı","hamur","hasta","hoş","Hasan","Hülya"],"cumle":["Hasan havuç al.","Hasan ile Hülya havuç al.","Hülya halı al.","Hülya ile Hasan halı al."],"soru":[["Hasan ile Hülya havuç al.","Hasan ne al?",["halı","havuç"],"havuç"],["Hülya ile Hasan halı al.","Hülya ile kim halı al?",["Ali","Hasan"],"Hasan"]],"tablo":["hal","bahar","haram","bahane","tezgah","hak","bahçe","hasat","hademe","timsah","ham","buhar","hasır","hadsiz","zahmet","han","hakem","hasta","halsiz","ahtapot","hap","hakim","hatır","hançer","anahtar","has","haklı","hayat","hardal","hastane","hat","halat","hayır","harita","haziran","şah","halay","hazır","hasret","kahkaha","dahi","halka","kahya","haşere","mahalle","hala","hamak","rahat","haydut","sabahçı","halı","hamam","sabah","hazine","hareket","halk","hamle","sahan","lahana","muhabir","hata","hamsi","siyah","pahalı","halsizlik","saha","hangi","tahin","şahane","hastalık","taht","hapis","tahta","tahmin","siyahlık","hem","tehlike","hindi","hop","huzur","hep","helallik","hisar","hobi","nohut","her","mühendis","ihmal","hoca","tohum","helikopter","kahin","hopla","huysuz","ahenk","ahır","nehir","horoz","meşhur","hekim","hırs","sahil","horlar","muhtaç","helal","hırka","sahip","hortum","muhtar","helke","hızlı","şahin","hostes","cumhur","henüz","kahır","şehir","sohbet","cumhuriyet","hepsi","tahıl","tarih","horultu","hür","hesap","hırsız","zehir","homurtu","hük","sehpa","ıhlamur","zihin","şöhret","tüh","şüphe","hiç","hikaye","köhne","hücum","hediye","his","hizmet","huy","hüzün","heykel","hile","müthiş","huni","hüsran","herkes","sahi","sürahi","humus","hüküm","hemşire","ahize","tesbih","hurda","hürriyet","heyecan","hilal","sahiden","hurma","hükmetmek","ahu","hande","tahir","nuh","harun","talha","hale","hasan","mahmut","ruhi","mehmet","ahmet","hilmi","mehtap","allah","hülya","serhat","hacer","hüsnü","hüseyin","hakan","ihsan","abdullah","halil","ilhan","hayrettin","haluk","mahir"]},"v":{"hece":["av","va","ev","ve","iv","vi","ıv","ov","öv","uv","vı","vo","vö","vu","üv","vü"],"kelime":["ev","vazo","vapur","vagon","mavi","tavuk","davul","Veli","Vedat"],"cumle":["Veli vazo al.","Veli ile Vedat vazo al.","Vedat tavuk al.","Vedat ile Veli tavuk al."],"soru":[["Veli ile Vedat vazo al.","Veli ne al?",["tavuk","vazo"],"vazo"],["Vedat ile Veli tavuk al.","Vedat ile kim tavuk al?",["Ali","Veli"],"Veli"]],"tablo":["lav","vana","manav","eyvah","avrupa","ova","vazo","miyav","bedava","bulvar","vah","yuva","pilav","cıvata","dev","var","cevap","prova","hayvan","sev","vay","çuval","sınav","lavabo","ver","avcı","devam","şınav","tavşan","deve","avlu","divan","tavla","vasıta","evet","ayva","duvar","vagon","kavanoz","evli","hava","havlu","vahşi","tavsiye","ödev","kova","helva","vakit","tuvalet","şive","kavurucu","valiz","kahvaltı","veda","oval","kavak","varış","pehlivan","veli","tava","kavga","varil","vatandaşlık","zevk","vadi","kıvam","vapur","yuvarlak","cezve","vali","kovan","vatan","yuvarlar","çevre","evcil","kevgir","kıvrık","tedavi","havuz","evlat","kuvvet","vızıltı","vicdan","kavun","evrak","mevcut","kıvranmak","virgül","tavuk","görev","mevsim","civ","vitrin","avukat","güveç","vesika","çivi","vitamin","kılavuz","güven","vesile","kivi","kov","randevu","ilave","eldiven","mavi","vokal","kavurma","kahve","vekalet","vida","kovboy","vidalı","küvet","verimli","vinç","valide","kavgalı","levha","güvercin","vize","övgü","vesikalık","meyve","lacivert","avize","övün","kahveci","sevgi","vestiyer","ceviz","övme","kahvehane","vergi","veteriner","çevik","gövde","kuvvetli","vezir","vır","kavim","voleybol","verimsiz","vezne","vız","villa","vur","vücut","zirve","sıvı","vişne","avuç","çevreci","devrik","kıvır","vites","davul","görevli","elveda","tavır","civciv","havuç","çeviklik","evrim","yavuz","vedat","elvan","avni","vural","evran","evren","alev","levent","velit","mevlüt","nevzat","volkan","neval","rıdvan","vahit","sevil","savaş","pervin","sevim","vildan","merve","sevinç","vehbi","şevval","veysel"]},"ğ":{"hece":["ağ","eğ","ığ","oğ","uğ","üğ","iğ","öğ","ğa","ğe","ğı","ği","ğo","ğö","ğu","ğü"],"kelime":["dağ","ağaç","yağmur","soğan","öğretmen","ağız","bağ","yoğurt","Ağaç","Yoğurt"],"cumle":["Ağaç dağda.","Kuru ağaç dağda.","Yoğurt al.","Soğan ile yoğurt al."],"soru":[["Kuru ağaç dağda.","Ağaç nerede?",["dağda","evde"],"dağda"],["Soğan ile yoğurt al.","Soğan ile ne al?",["yoğurt","süt"],"yoğurt"]],"tablo":["ağa","doğar","sağdık","eğer","sığ","bağ","doğal","sağlam","eğit","çığ","çağ","soğan","sağlık","eğri","ağıl","dağ","yağdı","yağmur","beğen","ağır","sağ","yağla","ağlamak","ciğer","ağıt","yağ","yağlı","armağan","değer","ağız","ağaç","yağan","kurbağa","diğer","bağır","ağla","ağabey","papağan","eğlen","bağış","ağrı","bağcık","sağanak","leğen","çağır","boğa","çağdaş","yanardağ","yeğen","kağıt","doğa","dağlık","yağmurlu","değnek","kağnı","bağla","mağara","yağmurluk","eğitim","bağlı","mağaza","kaplumbağa","akciğer","sağır","boğaz","mağdur","rağmen","değerli","sığır","doğan","poğaça","sağlıklı","eğlence","yağış","yığın","doğ","çoğu","düğme","tuğrul","buzağı","doğu","kuğu","düğün","çağatay","çığlık","doğdu","oğul","göğüs","ertuğrul","ağırlık","doğra","boğum","söğüt","niğde","dağınık","doğru","çoğul","düğmeli","muğla","sığınak","doğum","doğuş","oğuz","elazığ","sığırcık","koğuş","soğuk","uğur","tekirdağ","oğlak","tuğla","buğra","eğik","oğlan","uğrak","çağla","eğil","doğmuş","uğraş","çağrı","eğim","doğramak","yoğun","yoğurmak","buğday","öğle","soğuma","tuğba","iğne","öğlen","soğutma","yağız","değil","öğret","yoğurt","yiğit","iğrenç","öğretim","ağustos","çağlar","değişik","öğrenci","öğün","çiğdem","değirmen","öğretmen","öğüt","göktuğ"]},"f":{"hece":["af","fa","ef","fe","if","fi","ıf","of","öf","uf","fı","fo","fö","fu","üf","fü"],"kelime":["fil","fare","fener","fırın","fındık","fidan","fasulye","Fatma","Filiz"],"cumle":["Fatma fındık al.","Fatma ile Filiz fındık al.","Filiz fidan al.","Filiz ile Fatma fidan al."],"soru":[["Fatma ile Filiz fındık al.","Fatma ne al?",["fidan","fındık"],"fındık"],["Filiz ile Fatma fidan al.","Filiz ile kim fidan al?",["Fatma","Ali"],"Fatma"]],"tablo":["fan","esnaf","şeffaf","küfe","fedakar","far","fakat","zürafa","fener","feribot","kaf","fakir","fabrika","ferah","kıyafet","laf","fanus","fasulye","hedef","şeftali","raf","fazla","faydalı","kafes","fesleğen","saf","hafta","affetmek","nefes","festival","defa","hoşaf","fen","sefer","teneffüs","fare","sayfa","fer","zafer","şeref","fark","afacan","fes","aferin","fıçı","harf","alfabe","şef","defter","sırf","kafa","çarşaf","afet","efsane","fıkra","şifa","asfalt","büfe","ferman","fırça","ufak","farklı","feda","körfez","fırın","vefa","fayton","fena","lütfen","sınıf","zarf","mutfak","kafe","nefer","sıfır","zayıf","fire","çiftçi","yulaf","fındık","ofis","define","şoför","fıstık","fidan","fincan","kuaför","fırfır","fikir","teklif","köfte","fırsat","filiz","telafi","öfke","fırtına","firma","trafik","fuar","fırıldak","fişek","bonfile","füze","kadife","fiyat","fatura","nüfus","fil","hafif","fon","futbol","fiş","iftar","fos","fular","fit","keşif","sofra","yufka","lif","keyif","forma","üfle","afiş","nefis","fosil","çift","şifre","telefon","üflemek","file","tarif","formül","parfüm","film","zarif","gofret","efe","filo","afiyet","fotoğraf","arif","fino","biftek","fotokopi","elif","fuat","ufuk","defne","efsun","faruk","fatih","fatma","feray","ferda","ferdi","ferit","fırat","figen","fulya","funda","füsun","fadime"]},"j":{"hece":["ja","je","ji","jo","ju","jö","aj","ej","ıj","ij","oj","öj","uj","jı","üj","jü"],"kelime":["jet","jilet","jeton","jöle","jüri","jandarma","jimnastik","Jale"],"cumle":["Jale jöle al.","Jale ile Veli jöle al.","Jale jeton al.","Jale ile Fatma jeton al."],"soru":[["Jale ile Veli jöle al.","Jale ne al?",["jöle","jeton"],"jöle"],["Jale ile Fatma jeton al.","Jale ile kim jeton al?",["Fatma","Veli"],"Fatma"]],"tablo":["ajan","montaj","ejderha","lojman","ajda","guaj","peyzaj","jelatin","joker","jale","imaj","pijama","jelibon","jokey","ajdar","jant","avantaj","oksijen","jimnastik","müjde","plaj","deterjan","enjektör","jön","nejat","şarj","jandarma","projektör","jöle","tanju","bagaj","bej","jip","jöleli","tijen","baraj","jel","reji","hidrojen","jülide","mesaj","jet","jilet","kaju","müjdat","pasaj","oje","rejim","judo","müjgan","viraj","obje","alerji","judocu","nejdet","bandaj","jeton","enerji","abajur","japon","jaguar","kolej","hijyen","panjur","japonca","jakuzi","ojeli","dijital","jüri","japonya","makyaj","proje","nostalji","jübile","jüpiter"]}};
@@ -13090,7 +13260,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   /* ---------- Bölüm ---------- */
   const GRUPLAR = [
     ["Duygularımı tanıyorum", ["duygumetre", "bolgeler", "duygu-kartlari", "beynim"]],
-    ["Kendimi düzenliyorum", ["sakinlesme", "zihin-suzgeci", "dusunce-istasyonu", "gelecek-teleskobu"]],
+    ["Kendimi düzenliyorum", ["sakinlesme", "zihin-suzgeci", "gelecek-teleskobu"]],
     ["Arkadaşlarımla", ["catisma", "sorun-boyutu", "seninle-mi", "sogusun", "iltifat"]],
     ["Öğrenme kültürü", ["anlama-duzeyi", "uc-adim", "takildim", "ogrenme-cukuru", "favori-hatalar", "bitirdim", "bump-it-up", "yz-duzeyi"]],
     ["Yansıtma panoları", ["gul-diken", "calma-listesi", "bookflix"]],
@@ -13402,48 +13572,57 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
     },
   });
 
-  /* Düşünce istasyonu: hangi trene biniyorsun? */
-  const DURUM_TREN = ["Arkadaşın oyunda seni yendi.", "Öğretmen sana bir soru sordu ama cevabı bilmiyorsun.", "Sıra beklerken biri önüne geçti.", "Ödevin çok zor geldi.", "Arkadaşın resmine yanlışlıkla boya döktü.", "Teneffüs bitti ama oyununuz yarım kaldı.", "Biri sana kötü bir isim taktı.", "Grup çalışmasında fikrin seçilmedi."];
-  tool("dusunce-istasyonu", {
-    title: "Düşünce istasyonu", icon: "train", tone: "sky", short: "Zihin garı: her trene binme!",
-    render(host) {
-      let durum = T.pick(DURUM_TREN), secim = null;
-      const box = h("div"); host.append(box);
-      const tren = (renk, vagonlar, yon, on) => h("button.dt-tren" + (on ? ".on" : ""), { style: { "--c": renk }, onclick: () => { secim = yon; yon === "dogru" ? T.sound.ok() : T.sound.no(); ciz(); } },
-        h("div.dt-lok", T.icon("train")), vagonlar.map((v) => h("div.dt-vagon", v)), h("div.dt-yon", yon === "dogru" ? "Doğru yön: başarı" : "Hatalı yön: uyarı alma"));
-      function ciz() {
-        box.replaceChildren(
-          h("div.dy-card", { style: { maxWidth: "1100px" } },
-            h("small.ak-lbl", "Zihin garı: her trene binme!"), h("div.dy-durum", durum),
-            h("div.dt-hat", tren("#3A3F4B", ["Acele et", "Laf at", "Düşünmeden yap"], "hatali", secim === "hatali"), tren("#C2453A", ["Bekle", "Planla", "Uygula"], "dogru", secim === "dogru")),
-            secim ? h("p.sb-line", secim === "dogru" ? "Bekle, planla, uygula treni seni hedefe götürür. Peki planın ne?" : "Bu tren seni uyarı almaya götürür. Hangi istasyonda inip doğru trene geçebilirsin?") : h("p.sb-line", "Öğretmen sorusu: Şu an bindiğin tren seni nereye götürüyor?"),
-            h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(durum) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { durum = T.pick(DURUM_TREN.filter((x) => x !== durum)); secim = null; ciz(); } }, T.icon("next"), "Yeni durum"))));
-      }
-      ciz();
-    },
-  });
-
   /* Gelecek teleskobu: 10 dakika sonra ne olur? */
   const TELESKOP = [
     ["Teneffüste top oynarken arkadaşım topu bana vermedi.", "Topu elinden çekip alırsam", "Kavga çıkar, ikimiz de oyundan oluruz.", "Sıranın bende olduğunu söylersem", "Oyun devam eder, sıram gelince oynarım."],
     ["Ders sırasında aklıma çok komik bir şey geldi.", "Hemen yüksek sesle söylersem", "Ders bölünür, arkadaşlarım konuyu kaçırır.", "Teneffüse kadar aklımda tutarsam", "Teneffüste anlatırım, birlikte güleriz."],
     ["Ödevim çok zor geldi.", "Defterimi kapatıp bırakırsam", "Ödev yarım kalır, yarın daha da zorlanırım.", "Takıldım adımlarını uygularsam", "Bir yerden başlarım, yardım isterim, bitiririm."],
     ["Arkadaşım resmime yanlışlıkla su döktü.", "Ona bağırırsam", "Arkadaşım üzülür, resmim yine ıslak kalır.", "Derin nefes alıp ne yapabileceğimizi sorarsam", "Birlikte kurularız, belki yeni bir resim yaparız."],
+    ["Sırada biri önüme geçti.", "Onu itersem", "Biri düşebilir, ikimiz de üzülürüz.", "Sıranın bende olduğunu sakince söylersem", "Arkadaşım fark eder, yerime geçerim."],
+    ["Oyunu kaybettim.", "Oyunu bozup gidersem", "Kimse benimle oynamak istemez.", "Tebrik edip yeniden oynamak istersem", "Yeni bir oyun başlar, belki bu sefer ben kazanırım."],
+    ["Grup çalışmasında fikrim seçilmedi.", "Küsüp çalışmazsam", "Grup zorlanır, ben de bir şey öğrenemem.", "Seçilen fikre kendi fikrimden bir parça eklersem", "Çalışma daha güzel olur, katkım görünür."],
+    ["Arkadaşım kalemimi sormadan aldı.", "Elinden kapıp kızarsam", "Kalem kırılabilir, aramız bozulur.", "Kalemime ihtiyacım olduğunu söylersem", "Kalemimi geri verir, belki bir dahaki sefer sorar."],
+    ["Öğretmen bir soru sordu, cevabı bilmiyorum.", "Bildiğimi söyleyip uydurursam", "Yanlış öğrenirim, sonra utanırım.", "Bilmiyorum ama düşünmek istiyorum dersem", "Öğretmen ipucu verir, birlikte buluruz."],
+    ["Çok sinirlendim, kalbim hızlı atıyor.", "Hemen bağırırsam", "Söylediğime pişman olabilirim.", "Sakinleşme köşesine gidersem", "Birkaç dakika sonra ne istediğimi daha iyi anlatırım."],
+    ["Yeni bir arkadaş sınıfa geldi, yalnız oturuyor.", "Onu görmezden gelirsem", "Arkadaşım kendini yalnız hisseder.", "Yanına gidip adını sorarsam", "Yeni bir arkadaşım olur, o da mutlu olur."],
+    ["Bir yanlış yaptım ve arkadaşım üzüldü.", "Hiçbir şey olmamış gibi davranırsam", "Arkadaşım kırgın kalır.", "Özür dileyip ne yapabileceğimi sorarsam", "Arkadaşım rahatlar, aramız düzelir."],
+    ["Teneffüs bitti ama oyunumuz yarım kaldı.", "Sınıfa girmeyip oynamaya devam edersem", "Derse geç kalırım, uyarı alırım.", "Bir sonraki teneffüste devam etmeyi önerirsem", "Derse zamanında girerim, oyun da bekler."],
+    ["Bir arkadaşım beni oyuna almadı.", "Oyunlarını bozarsam", "Kimse eğlenemez, ben de alınmam.", "Katılabilir miyim diye sorar ya da başka bir oyun kurarsam", "Belki beni alırlar ya da yeni bir oyun başlar."],
+    ["Yemekte sevmediğim bir yemek çıktı.", "Tabağı itip somurtursam", "Aç kalırım, masadakiler de rahatsız olur.", "Bir lokma tadıp kibarca söylersem", "Belki sevdiğim bir şey bulurum, kimse kırılmaz."],
+    ["Arkadaşım benimle alay etti.", "Ben de onunla alay edersem", "Kavga büyür, ikimiz de üzülürüz.", "Bundan hoşlanmadığımı açıkça söylersem", "Arkadaşım ne hissettiğimi anlar, durur."],
+    ["Defterimi evde unuttum.", "Saklayıp hiçbir şey söylemezsem", "Derste ne yapacağımı bilemem.", "Öğretmenime dürüstçe söylersem", "Bir çözüm buluruz, yarın getiririm."],
+    ["Bir yarışmada ikinci oldum.", "Ödülümü atıp ağlarsam", "Emeğimi kendim küçültmüş olurum.", "Kazananı tebrik edip neyi geliştireceğimi düşünürsem", "Gururlanırım, bir dahakine daha hazır olurum."],
+    ["Arkadaşım oyuncağımı bozdu.", "Onun oyuncağını da bozarsam", "İki oyuncak birden bozulur.", "Birlikte tamir etmeyi denersem", "Belki düzelir, birlikte oynarız."],
+    ["Uzun bir sırayı beklemem gerekiyor.", "Sürekli itip kakarsam", "Sıra karışır, herkes daha çok bekler.", "Beklerken aklımdan bir oyun oynarsam", "Zaman çabuk geçer, sıram gelir."],
   ];
+  const tum = (anahtar, taban) => taban.concat((veri(anahtar) || []).map((x) => x.v));
+  /* Deste: maddeler karıştırılır, hepsi bitmeden tekrar gelmez */
+  const deste = {};
+  const desteCek = (ad, liste) => { const d = (deste[ad] = deste[ad] && deste[ad].length ? deste[ad] : T.shuffle(liste.map((_, i) => i))); return liste[d.pop()]; };
+  function ekleFormu(baslik, alanlar, kaydet) {
+    const inp = alanlar.map(([ad, yer]) => h("input.in", { placeholder: yer, "aria-label": ad }));
+    T.modal({ title: baslik, body: h("div", { style: { display: "grid", gap: "10px" } }, inp, h("p.hint", "Eklenen durumlar bu sınıfın listesine girer. Çocuklar da önerebilir.")), actions: [{ label: "Vazgeç" }, { label: "Ekle", tone: "c-leaf", onClick: () => { const v = inp.map((x) => x.value.trim()); if (v.some((x) => !x)) { T.toast("Bütün kutuları doldurun"); return false; } kaydet(v); T.sound.pop(); } }] });
+  }
   tool("gelecek-teleskobu", {
     title: "Gelecek teleskobu", icon: "telescope", tone: "grape", short: "Bunu yaparsam 10 dakika sonra ne olur?",
     render(host) {
-      let i = 0, acik = {};
+      let cur = null, acik = {}, kendi = false;
       const box = h("div"); host.append(box);
+      const yeni = () => { const L = tum("teleskop", TELESKOP); cur = desteCek("tel", L); acik = {}; kendi = false; };
       function ciz() {
-        const [d, a1, s1, a2, s2] = TELESKOP[i % TELESKOP.length];
+        const [d, a1, s1, a2, s2] = cur;
         const yol = (k, a, s, kotu) => h("button.gt-yol" + (kotu ? ".kotu" : ".iyi") + (acik[k] ? ".open" : ""), { onclick: () => { acik[k] = true; T.speak(s); ciz(); } }, h("small", "Bunu yaparsam"), h("b", a), acik[k] ? h("div.gt-sonuc", h("small", "10 dakika sonra"), s) : h("span.hint", "Teleskoptan bak"));
         box.replaceChildren(h("div.dy-card", { style: { maxWidth: "1100px" } }, h("small.ak-lbl", "Gelecek teleskobu: 10 dakika sonrası"), h("div.dy-durum", d),
+          kendi ? h("p.sb-line", "Sizce iki farklı davranış ne olabilir? 10 dakika sonra ne olur? Önce sınıf tahmin etsin, sonra teleskoba bakın.") : null,
           h("div.gt-yollar", yol("a", a1, s1, true), yol("b", a2, s2, false)),
           h("p.sb-line", "Bunu yaparsam 10 dakika sonra ne olur? Davranışımdan sonra ne olur?"),
-          h("button.btn", { onclick: () => { i++; acik = {}; ciz(); } }, T.icon("next"), "Yeni durum")));
+          h("div.row", { style: { justifyContent: "center" } },
+            h("button.btn", { onclick: () => { yeni(); ciz(); } }, T.icon("next"), "Yeni durum"),
+            h("button.btn.c-chalk", { onclick: () => { acik = {}; kendi = true; ciz(); } }, T.icon("help"), "Önce biz tahmin edelim"),
+            h("button.btn.c-chalk", { onclick: () => ekleFormu("Sınıfımızdan bir durum ekle", [["Durum", "Ne oldu? (ör. Arkadaşım sırama oturdu.)"], ["1. davranış", "Bunu yaparsam... (zorlayan davranış)"], ["1. sonuç", "10 dakika sonra ne olur?"], ["2. davranış", "Bunu yaparsam... (yardımcı davranış)"], ["2. sonuç", "10 dakika sonra ne olur?"]], (v) => { yaz("teleskop", (o) => (o || []).concat({ v })); cur = v; acik = {}; ciz(); }) }, T.icon("plus"), "Durum ekle")),
+          h("p.hint", TELESKOP.length + " hazır durum ve sınıfın eklediği " + (veri("teleskop") || []).length + " durum sırayla gelir; hepsi bitmeden aynısı tekrar gelmez.")));
       }
-      ciz();
+      yeni(); ciz();
     },
   });
 
@@ -13479,20 +13658,42 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
 
   /* =================== 3. AYIRMA OYUNLARI =================== */
   function ayir(host, def) {
-    let sira = T.shuffle(def.durumlar.slice()), i = 0, secim = null;
+    /* durumlar destelenir: hepsi bitmeden tekrar gelmez. Sınıf kendi durumunu ekleyebilir (def.anahtar).
+       def.serbest: doğru cevap yok, sınıf birlikte karar verir; karar kaydedilir. */
+    const liste = () => def.durumlar.concat(def.anahtar ? (veri(def.anahtar) || []).map((x) => [x.t, x.k]) : []);
+    let sira = [], cur = null, secim = null;
+    const sonraki = () => { if (!sira.length) sira = T.shuffle(liste().slice()); cur = sira.pop(); secim = null; };
     const box = h("div"); host.append(box);
+    const kararlar = () => (def.serbest ? veri(def.anahtar + "-karar") || {} : {});
     function ciz() {
-      const [t, dogru] = sira[i % sira.length];
-      const kutu = (k) => { const b = def.kutular.find((x) => x[0] === k); return b; };
+      const [t, dogru] = cur;
+      const kutu = (k) => def.kutular.find((x) => x[0] === k);
+      const once = kararlar()[t];
+      const sonucKutu = def.serbest ? secim : dogru;
       box.replaceChildren(
         def.ust ? def.ust() : null,
         h("div.dy-card", { style: { maxWidth: "1100px" } },
           h("div.dy-durum", t),
-          h("div.ay-kutular", def.kutular.map(([k, ad, renk, ikon, aciklama]) => h("button.ay-kutu" + (secim ? (k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": renk }, onclick: () => { if (secim) return; secim = k; k === dogru ? T.sound.ok() : T.sound.no(); ciz(); } }, ikon ? ikon() : null, h("b", ad), aciklama ? h("span", aciklama) : null))),
-          secim ? h("div.ay-sonuc", { style: { "--c": kutu(dogru)[2] } }, def.sonuc(kutu(dogru))) : null,
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(t) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; secim = null; ciz(); } }, T.icon("next"), "Sıradaki durum"))));
+          def.serbest && once && !secim ? h("p.hint", "Geçen sefer sınıfımız buna " + kutu(once)[1].toLocaleLowerCase("tr") + " demişti. Bugün de aynı mı düşünüyoruz?") : null,
+          h("div.ay-kutular", def.kutular.map(([k, ad, renk, ikon, aciklama]) => h("button.ay-kutu" + (secim ? (def.serbest ? (k === secim ? ".right" : "") : k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": renk }, onclick: () => {
+            if (secim && !def.serbest) return; secim = k;
+            if (def.serbest) { T.sound.pop(); yaz(def.anahtar + "-karar", (o) => Object.assign(o || {}, { [t]: k })); } else k === dogru ? T.sound.ok() : T.sound.no();
+            ciz(); } }, ikon ? ikon() : null, h("b", ad), aciklama ? h("span", aciklama) : null))),
+          secim ? h("div.ay-sonuc", { style: { "--c": kutu(sonucKutu)[2] } }, def.sonuc(kutu(sonucKutu))) : null,
+          secim && def.serbest ? h("p.sb-line", "Herkes aynı büyüklükte görmeyebilir. Farklı düşünen var mı? Neden?") : null,
+          h("div.row", { style: { justifyContent: "center" } },
+            h("button.btn.c-chalk", { onclick: () => T.speak(t) }, T.icon("speaker"), "Dinle"),
+            h("button.btn", { onclick: () => { sonraki(); ciz(); } }, T.icon("next"), "Sıradaki durum"),
+            def.anahtar ? h("button.btn.c-chalk", { onclick: () => durumEkle() }, T.icon("plus"), "Durum ekle") : null)),
+        def.anahtar && (veri(def.anahtar) || []).length ? h("details.ks-diger", h("summary", "Sınıfımızın eklediği durumlar (" + veri(def.anahtar).length + ")"), h("div", { style: { display: "grid", gap: "6px" } }, veri(def.anahtar).map((x) => h("div.row", h("span", { style: { flex: 1 } }, x.t + (def.serbest ? "" : " · " + kutu(x.k)[1])), h("button.btn.sm.c-chalk", { "aria-label": "Sil", onclick: () => { yaz(def.anahtar, (o) => (o || []).filter((y) => y.t !== x.t)); sira = sira.filter((y) => y[0] !== x.t); ciz(); } }, T.icon("close")))))) : null);
     }
-    ciz();
+    function durumEkle() {
+      const inp = h("input.in", { placeholder: "Durum (ör. Arkadaşım sıramı aldı.)" });
+      let k = def.serbest ? null : def.kutular[0][0];
+      const sec = def.serbest ? null : h("div.seg", def.kutular.map(([kk, ad]) => h("button", { "aria-pressed": String(kk === k), onclick: (e) => { k = kk; [...e.target.parentNode.children].forEach((b2) => b2.setAttribute("aria-pressed", String(b2 === e.target))); } }, ad)));
+      T.modal({ title: "Sınıfımızdan bir durum ekle", body: h("div", { style: { display: "grid", gap: "10px" } }, inp, sec, h("p.hint", def.serbest ? "Büyüklüğüne sınıf, durum ekrana gelince birlikte karar verir." : "Bu durumun hangi kutuya girdiğini seçin.")), actions: [{ label: "Vazgeç" }, { label: "Ekle", tone: "c-leaf", onClick: () => { const v = inp.value.trim(); if (!v) return false; yaz(def.anahtar, (o) => (o || []).concat({ t: v, k })); cur = [v, k]; secim = null; T.sound.pop(); ciz(); } }] });
+    }
+    sonraki(); ciz();
   }
 
   /* Problem kalibrasyonu (eski "Sorunum ne büyüklükte?" aracının yerine) */
@@ -13501,7 +13702,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
     ["orta", "Orta problem", "#8E9BB4", () => hava("bulut"), "Bu konuda biriyle konuşmamız gerekiyor mu? Kendimiz çözebilir miyiz? Birlikte karar verelim.", ["Problem çözme basamağına git: Barış yolu.", "Ben diliyle ne olduğunu anlat.", "Olmadıysa biraz soğusun köşesine not bırak."]],
     ["buyuk", "Büyük problem", "#C2453A", () => hava("firtina"), "Denedik olmadı, sorun devam ediyor. Şiddet içeren sorunlar var. Tehlikedeyim.", ["Öğretmenden yardım al.", "Biri yaralandıysa hemen bir yetişkine söyle.", "Güvenli bir yerde bekle."]],
   ];
-  const KALIB_DURUM = [["Kalemimin ucu kırıldı.", "kucuk"], ["Oyunda ilk sırayı başkası aldı.", "kucuk"], ["Arkadaşım bana yanlışlıkla çarptı.", "kucuk"], ["Silgimi bulamıyorum.", "kucuk"], ["En sevdiğim oyunu oynayamadık.", "kucuk"],
+  const KALIB_DURUM = [["Suluk kapağım açılmıyor.", "kucuk"], ["Sırama biri oturmuş.", "kucuk"], ["Boyam bitti.", "kucuk"], ["Arkadaşım benden önce bitirdi.", "kucuk"], ["Oyunda ebe oldum.", "kucuk"], ["Ayakkabımın bağı çözüldü.", "kucuk"], ["İstediğim renk kalem başkasında.", "kucuk"], ["Yanımdaki arkadaş çok gürültü yapıyor.", "orta"], ["Arkadaşım sözünü tutmadı.", "orta"], ["Oyunda kurallara uyulmuyor.", "orta"], ["Grupta herkes işi bana bıraktı.", "orta"], ["Arkadaşım beni bir oyundan çıkardı.", "orta"], ["Biri eşyamı izinsiz aldı ve vermiyor.", "orta"], ["Kendimi çok kötü hissediyorum ve geçmiyor.", "buyuk"], ["Biri beni tehdit etti.", "buyuk"], ["Teneffüste biri kavga ediyor.", "buyuk"], ["Kalemimin ucu kırıldı.", "kucuk"], ["Oyunda ilk sırayı başkası aldı.", "kucuk"], ["Arkadaşım bana yanlışlıkla çarptı.", "kucuk"], ["Silgimi bulamıyorum.", "kucuk"], ["En sevdiğim oyunu oynayamadık.", "kucuk"],
     ["Arkadaşım oyuna beni almadı.", "orta"], ["Arkadaşım sırrımı başkalarına anlattı.", "orta"], ["Grupta herkes benim fikrimi dinlemiyor.", "orta"], ["İki gündür aynı arkadaşla tartışıyoruz.", "orta"],
     ["Biri her gün benimle alay ediyor, konuştuk ama durmadı.", "buyuk"], ["Bahçede bir arkadaşım düştü, dizi kanıyor.", "buyuk"], ["Bir arkadaşım beni itip vurdu.", "buyuk"], ["Okulda bir yabancı beni yanına çağırdı.", "buyuk"]];
   tool("sorun-boyutu", {
@@ -13510,10 +13711,10 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
       let mod = "pano";
       const box = h("div"); host.append(box);
       function ciz() {
-        box.replaceChildren(seg([["pano", "Pano"], ["oyun", "Hangi problem?"]], mod, (v) => { mod = v; ciz(); }));
+        box.replaceChildren(seg([["pano", "Pano"], ["oyun", "Birlikte karar verelim"]], mod, (v) => { mod = v; ciz(); }));
         const alan = h("div", { style: { marginTop: "14px" } }); box.append(alan);
         if (mod === "pano") alan.append(h("div.pk-pano", KALIB.map(([, ad, renk, ikon, metin, ne]) => h("div.pk-col", { style: { "--c": renk } }, ikon(), h("b", ad), h("p", metin), h("ul", ne.map((x) => h("li", x)))))), h("p.hint", "Sınıf içi çatışmada öğrenciler problemin büyüklüğüne birlikte karar verir. Aynı sorun herkese aynı büyüklükte gelmeyebilir; önemli olan tepkinin uygun olması."));
-        else ayir(alan, { durumlar: KALIB_DURUM, kutular: KALIB.map(([k, ad, renk, ikon]) => [k, ad, renk, ikon]), sonuc: (b) => { const k = KALIB.find((x) => x[0] === b[0]); return [h("b", k[1] + ": "), k[4], h("ul", k[5].map((x) => h("li", x)))]; } });
+        else ayir(alan, { durumlar: KALIB_DURUM, anahtar: "kalib", serbest: true, ust: () => h("p.sb-line", "Doğru tek cevap yok. Durumu okuyun, problemin büyüklüğüne sınıfça karar verin."), kutular: KALIB.map(([k, ad, renk, ikon]) => [k, ad, renk, ikon]), sonuc: (b) => { const k = KALIB.find((x) => x[0] === b[0]); return [h("b", k[1] + ": "), k[4], h("ul", k[5].map((x) => h("li", x)))]; } });
       }
       ciz();
     },
@@ -13524,7 +13725,8 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
     render(host) {
       ayir(host, {
         ust: () => h("p.sb-line", "Söylemeden önce sor: Bu seninle mi ilgili? Amacım korumak ya da kurtarmak mı?"),
-        durumlar: [["Ahmet ödevini yapmamış.", "sikayet"], ["Ahmet düşmek üzere!", "bilgi"], ["Elif kalemini yere düşürdü.", "sikayet"], ["Bahçede kırık cam var.", "bilgi"], ["Can sırada konuşuyor.", "sikayet"], ["Bir arkadaş ağlıyor ve yardım istiyor.", "bilgi"],
+        anahtar: "seninle",
+        durumlar: [["Arkadaşım kalemini sıranın altına düşürdü.", "sikayet"], ["Okul kapısı açık kalmış, küçük kardeşler dışarı çıkıyor.", "bilgi"], ["Ece sırasını toplamamış.", "sikayet"], ["Bir arkadaş makasla oynuyor ve birini kesebilir.", "bilgi"], ["Kerem yanlış renkte kalem kullanıyor.", "sikayet"], ["Bir arkadaşım nefes almakta zorlanıyor.", "bilgi"], ["Selin şarkı mırıldanıyor.", "sikayet"], ["Bahçe kapısında tanımadığım biri çocukları çağırıyor.", "bilgi"], ["Arda benden daha büyük bir dilim aldı.", "sikayet"], ["Lavaboda yerler ıslak, biri kayabilir.", "bilgi"], ["Efe sırasında sallanıyor.", "sikayet"], ["Bir arkadaş kendini kapalı bir yere kilitlemiş.", "bilgi"], ["Asya oyunda hile yaptı ama kimse zarar görmedi.", "sikayet"], ["Prizden kıvılcım çıkıyor.", "bilgi"], ["Ahmet ödevini yapmamış.", "sikayet"], ["Ahmet düşmek üzere!", "bilgi"], ["Elif kalemini yere düşürdü.", "sikayet"], ["Bahçede kırık cam var.", "bilgi"], ["Can sırada konuşuyor.", "sikayet"], ["Bir arkadaş ağlıyor ve yardım istiyor.", "bilgi"],
           ["Mert yemeğini bitirmedi.", "sikayet"], ["Biri merdivenlerden düştü.", "bilgi"], ["Defne benden önce bitirdi.", "sikayet"], ["Biri bir arkadaşımıza her gün vuruyor.", "bilgi"], ["Zeynep resmini başka renge boyamış.", "sikayet"], ["Lavaboda su taşıyor.", "bilgi"]],
         kutular: [["sikayet", "Seninle ilgili değil", "#C2453A", null, "Şikâyet etme"], ["bilgi", "Bilgilendirme", "#2E8B57", null, "Rapor et"]],
         sonuc: (b) => b[0] === "sikayet" ? [h("b", "Seninle ilgili değil. "), "Kural: Kendine sakla. Kimse tehlikede değil; bunu söylemek kimseye yardım etmez."] : [h("b", "Bilgilendirme. "), "Amaç: korumak ya da kurtarmak. Biri yaralanabilir. Kural: Hemen söyle!"],
@@ -13599,11 +13801,13 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   }
 
   tool("gul-diken", {
-    title: "Gül, diken, tomurcuk", icon: "flower", tone: "pink", short: "Günümüzün analizi: dönüşümlü düşünme panosu",
+    title: "Gül, diken, tomurcuk", icon: "flower", tone: "pink", short: "Günün, haftanın ya da ünitenin analizi: dönüşümlü düşünme panosu",
     render(host) {
-      notPanosu(host, { anahtar: "gdt", ust: () => h("p.sb-line", "Günümüzün analizi: nasıl geçtiğini detaylı düşünelim."), kolonlar: [
-        ["Gül", "Bugün en çok neyi sevdin? (Başarı, mutluluk)", "#C2453A"], ["Diken", "Bugün seni ne zorladı ya da üzdü? (Zorluk)", "#8A6A3B"], ["Tomurcuk", "Yarın için neyi iple çekiyorsun? (Umut, potansiyel)", "#2E8B57"]],
-        not: "Gün sonunda her çocuk bir ya da üç kutuya not yazar. İsim isteğe bağlı." });
+      const ZAMAN = { gun: ["Bugün", "Yarın"], hafta: ["Bu hafta", "Gelecek hafta"], unite: ["Bu ünitede", "Sonraki ünitede"] };
+      const z = (veri("gdt-zaman") || "gun"), [bu, sonra] = ZAMAN[z];
+      notPanosu(host, { anahtar: "gdt", ust: () => h("div", h("div.seg", [["gun", "Gün"], ["hafta", "Hafta"], ["unite", "Ünite"]].map(([k, ad]) => h("button", { "aria-pressed": String(k === z), onclick: () => { yaz("gdt-zaman", () => k); host.replaceChildren(); T.tools["gul-diken"].render(host); } }, ad))), h("p.sb-line", bu + " nasıl geçti? Birlikte düşünelim.")), kolonlar: [
+        ["Gül", bu + " neyi iyi yaptık, neyi sevdik, neyle gurur duyduk?", "#C2453A"], ["Diken", bu + " bizi ne zorladı, ne üzdü, ne zor geldi?", "#8A6A3B"], ["Tomurcuk", sonra + " neyi merak ediyoruz, neyi geliştirmek, denemek istiyoruz?", "#2E8B57"]],
+        not: "Her çocuk bir ya da üç kutuya not yazar. İsim isteğe bağlı." });
     },
   });
   tool("calma-listesi", {
@@ -13927,7 +14131,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   /* ---------- SDÖ: Maarif sosyal duygusal öğrenme becerilerine göre ---------- */
   const SDB = [
     ["Kendini tanıma", "SDB1.1", ["duygumetre", "bolgeler", "duygu-kartlari", "beynim"]],
-    ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "dusunce-istasyonu", "sogusun"]],
+    ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "sogusun"]],
     ["Kendine uyarlama ve yansıtma", "SDB1.3", ["gul-diken", "gelecek-teleskobu", "favori-hatalar", "ogrenme-cukuru"]],
     ["İletişim ve sosyal farkındalık", "SDB2.1, SDB2.3", ["iltifat", "seninle-mi"]],
     ["Sorumlu karar verme", "SDB3.3", ["sorun-boyutu", "catisma"]],
@@ -15742,11 +15946,12 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     return ids.concat("kitaplar", "olcme", "duygu", "kultur", "zeka").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
-  const ARACLAR = [["bg", "Arka plan", "bg"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["hepsi", "Tüm araçlar", "plus"]];
+  const ARACLAR = [["bg", "Arka plan", "bg"], ["yazitahtasi", "Yazı tahtası", "pen"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["hepsi", "Tüm araçlar", "plus"]];
   function dockMod() { try { return localStorage.getItem("ta-dock") || "atolye"; } catch (e) { return "atolye"; } }
   function dockYaz(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function aracAc(k) {
     if (k === "bg") { T.arkaPlanSec(); return; }
+    if (k === "yazitahtasi") { T.yaziTahtasi.ac(); return; }
     const tahta = T.board.aktif() ? T.board : T.yuzen;
     k === "hepsi" ? tahta.openTray() : tahta.add(k);
   }
@@ -15760,9 +15965,9 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     const atolye = [["ana", "Ana sayfa", "home"], ["sabah", "Sabah rutini", "sun"], ["sinif", "Sınıfım", "class"], "|"]
       .concat(T.menu().filter((m) => T.bolumGorunur(m[0]) || cur === m[0]).map((m) => [m[0], { kitaplar: "Kitaplar", zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" }[m[0]] || m[1], m[3]]), "|", [["plan", "Plan", "plan"], ["ayarlar", "Ayarlar", "settings"]]);
     const sade = T.gorunum().mod === "sade";
-    const ARAC_SADE = ["timer", "name", "dice", "groups", "traffic", "noise", "text", "hepsi"];
+    const ARAC_SADE = ["yazitahtasi", "timer", "name", "dice", "groups", "traffic", "noise", "text", "hepsi"];
     const serit = h("div.dock-serit", mod === "arac"
-      ? ARACLAR.filter(([k]) => (k === "bg" || k === "hepsi" || T.widgets[k]) && (!sade || ARAC_SADE.includes(k))).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
+      ? ARACLAR.filter(([k]) => (k === "bg" || k === "hepsi" || k === "yazitahtasi" || T.widgets[k]) && (!sade || ARAC_SADE.includes(k))).map(([k, l, ic]) => h("button.dock-item", { onclick: () => aracAc(k), title: l }, T.icon3d(ic || T.widgets[k].icon), h("span", l)))
       : atolye.map((d) => d === "|" ? h("span.dock-sep", { "aria-hidden": "true" }) : h("button.dock-item", { "aria-current": cur === d[0] ? "page" : null, onclick: () => T.go(d[0]) }, T.icon3d(d[2]), h("span", d[1]))),
       h("button.dock-item.dock-tam", { onclick: () => { T.gorunumYaz((g) => (g.mod = g.mod === "sade" ? "tam" : "sade")); T.toast(T.gorunum().mod === "sade" ? "Sade görünüm: her gün kullanılanlar" : "Tüm araçlar ve bölümler açıldı"); T.route(); }, title: sade ? "Tüm araçları ve bölümleri göster" : "Yalnızca her gün kullanılanları göster" }, T.icon(sade ? "plus" : "minus"), h("span", sade ? "Tümünü göster" : "Sadeleştir")));
     const kay = (yon) => serit.scrollBy({ top: yon * serit.clientHeight * 0.7, behavior: "smooth" });

@@ -126,7 +126,7 @@
   /* ---------- SDÖ: Maarif sosyal duygusal öğrenme becerilerine göre ---------- */
   const SDB = [
     ["Kendini tanıma", "SDB1.1", ["duygumetre", "bolgeler", "duygu-kartlari", "beynim"]],
-    ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "dusunce-istasyonu", "sogusun"]],
+    ["Kendini düzenleme", "SDB1.2", ["sakinlesme", "zihin-suzgeci", "sogusun"]],
     ["Kendine uyarlama ve yansıtma", "SDB1.3", ["gul-diken", "gelecek-teleskobu", "favori-hatalar", "ogrenme-cukuru"]],
     ["İletişim ve sosyal farkındalık", "SDB2.1, SDB2.3", ["iltifat", "seninle-mi"]],
     ["Sorumlu karar verme", "SDB3.3", ["sorun-boyutu", "catisma"]],

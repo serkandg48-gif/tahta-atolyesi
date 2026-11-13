@@ -166,48 +166,57 @@
     },
   });
 
-  /* Düşünce istasyonu: hangi trene biniyorsun? */
-  const DURUM_TREN = ["Arkadaşın oyunda seni yendi.", "Öğretmen sana bir soru sordu ama cevabı bilmiyorsun.", "Sıra beklerken biri önüne geçti.", "Ödevin çok zor geldi.", "Arkadaşın resmine yanlışlıkla boya döktü.", "Teneffüs bitti ama oyununuz yarım kaldı.", "Biri sana kötü bir isim taktı.", "Grup çalışmasında fikrin seçilmedi."];
-  tool("dusunce-istasyonu", {
-    title: "Düşünce istasyonu", icon: "train", tone: "sky", short: "Zihin garı: her trene binme!",
-    render(host) {
-      let durum = T.pick(DURUM_TREN), secim = null;
-      const box = h("div"); host.append(box);
-      const tren = (renk, vagonlar, yon, on) => h("button.dt-tren" + (on ? ".on" : ""), { style: { "--c": renk }, onclick: () => { secim = yon; yon === "dogru" ? T.sound.ok() : T.sound.no(); ciz(); } },
-        h("div.dt-lok", T.icon("train")), vagonlar.map((v) => h("div.dt-vagon", v)), h("div.dt-yon", yon === "dogru" ? "Doğru yön: başarı" : "Hatalı yön: uyarı alma"));
-      function ciz() {
-        box.replaceChildren(
-          h("div.dy-card", { style: { maxWidth: "1100px" } },
-            h("small.ak-lbl", "Zihin garı: her trene binme!"), h("div.dy-durum", durum),
-            h("div.dt-hat", tren("#3A3F4B", ["Acele et", "Laf at", "Düşünmeden yap"], "hatali", secim === "hatali"), tren("#C2453A", ["Bekle", "Planla", "Uygula"], "dogru", secim === "dogru")),
-            secim ? h("p.sb-line", secim === "dogru" ? "Bekle, planla, uygula treni seni hedefe götürür. Peki planın ne?" : "Bu tren seni uyarı almaya götürür. Hangi istasyonda inip doğru trene geçebilirsin?") : h("p.sb-line", "Öğretmen sorusu: Şu an bindiğin tren seni nereye götürüyor?"),
-            h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(durum) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { durum = T.pick(DURUM_TREN.filter((x) => x !== durum)); secim = null; ciz(); } }, T.icon("next"), "Yeni durum"))));
-      }
-      ciz();
-    },
-  });
-
   /* Gelecek teleskobu: 10 dakika sonra ne olur? */
   const TELESKOP = [
     ["Teneffüste top oynarken arkadaşım topu bana vermedi.", "Topu elinden çekip alırsam", "Kavga çıkar, ikimiz de oyundan oluruz.", "Sıranın bende olduğunu söylersem", "Oyun devam eder, sıram gelince oynarım."],
     ["Ders sırasında aklıma çok komik bir şey geldi.", "Hemen yüksek sesle söylersem", "Ders bölünür, arkadaşlarım konuyu kaçırır.", "Teneffüse kadar aklımda tutarsam", "Teneffüste anlatırım, birlikte güleriz."],
     ["Ödevim çok zor geldi.", "Defterimi kapatıp bırakırsam", "Ödev yarım kalır, yarın daha da zorlanırım.", "Takıldım adımlarını uygularsam", "Bir yerden başlarım, yardım isterim, bitiririm."],
     ["Arkadaşım resmime yanlışlıkla su döktü.", "Ona bağırırsam", "Arkadaşım üzülür, resmim yine ıslak kalır.", "Derin nefes alıp ne yapabileceğimizi sorarsam", "Birlikte kurularız, belki yeni bir resim yaparız."],
+    ["Sırada biri önüme geçti.", "Onu itersem", "Biri düşebilir, ikimiz de üzülürüz.", "Sıranın bende olduğunu sakince söylersem", "Arkadaşım fark eder, yerime geçerim."],
+    ["Oyunu kaybettim.", "Oyunu bozup gidersem", "Kimse benimle oynamak istemez.", "Tebrik edip yeniden oynamak istersem", "Yeni bir oyun başlar, belki bu sefer ben kazanırım."],
+    ["Grup çalışmasında fikrim seçilmedi.", "Küsüp çalışmazsam", "Grup zorlanır, ben de bir şey öğrenemem.", "Seçilen fikre kendi fikrimden bir parça eklersem", "Çalışma daha güzel olur, katkım görünür."],
+    ["Arkadaşım kalemimi sormadan aldı.", "Elinden kapıp kızarsam", "Kalem kırılabilir, aramız bozulur.", "Kalemime ihtiyacım olduğunu söylersem", "Kalemimi geri verir, belki bir dahaki sefer sorar."],
+    ["Öğretmen bir soru sordu, cevabı bilmiyorum.", "Bildiğimi söyleyip uydurursam", "Yanlış öğrenirim, sonra utanırım.", "Bilmiyorum ama düşünmek istiyorum dersem", "Öğretmen ipucu verir, birlikte buluruz."],
+    ["Çok sinirlendim, kalbim hızlı atıyor.", "Hemen bağırırsam", "Söylediğime pişman olabilirim.", "Sakinleşme köşesine gidersem", "Birkaç dakika sonra ne istediğimi daha iyi anlatırım."],
+    ["Yeni bir arkadaş sınıfa geldi, yalnız oturuyor.", "Onu görmezden gelirsem", "Arkadaşım kendini yalnız hisseder.", "Yanına gidip adını sorarsam", "Yeni bir arkadaşım olur, o da mutlu olur."],
+    ["Bir yanlış yaptım ve arkadaşım üzüldü.", "Hiçbir şey olmamış gibi davranırsam", "Arkadaşım kırgın kalır.", "Özür dileyip ne yapabileceğimi sorarsam", "Arkadaşım rahatlar, aramız düzelir."],
+    ["Teneffüs bitti ama oyunumuz yarım kaldı.", "Sınıfa girmeyip oynamaya devam edersem", "Derse geç kalırım, uyarı alırım.", "Bir sonraki teneffüste devam etmeyi önerirsem", "Derse zamanında girerim, oyun da bekler."],
+    ["Bir arkadaşım beni oyuna almadı.", "Oyunlarını bozarsam", "Kimse eğlenemez, ben de alınmam.", "Katılabilir miyim diye sorar ya da başka bir oyun kurarsam", "Belki beni alırlar ya da yeni bir oyun başlar."],
+    ["Yemekte sevmediğim bir yemek çıktı.", "Tabağı itip somurtursam", "Aç kalırım, masadakiler de rahatsız olur.", "Bir lokma tadıp kibarca söylersem", "Belki sevdiğim bir şey bulurum, kimse kırılmaz."],
+    ["Arkadaşım benimle alay etti.", "Ben de onunla alay edersem", "Kavga büyür, ikimiz de üzülürüz.", "Bundan hoşlanmadığımı açıkça söylersem", "Arkadaşım ne hissettiğimi anlar, durur."],
+    ["Defterimi evde unuttum.", "Saklayıp hiçbir şey söylemezsem", "Derste ne yapacağımı bilemem.", "Öğretmenime dürüstçe söylersem", "Bir çözüm buluruz, yarın getiririm."],
+    ["Bir yarışmada ikinci oldum.", "Ödülümü atıp ağlarsam", "Emeğimi kendim küçültmüş olurum.", "Kazananı tebrik edip neyi geliştireceğimi düşünürsem", "Gururlanırım, bir dahakine daha hazır olurum."],
+    ["Arkadaşım oyuncağımı bozdu.", "Onun oyuncağını da bozarsam", "İki oyuncak birden bozulur.", "Birlikte tamir etmeyi denersem", "Belki düzelir, birlikte oynarız."],
+    ["Uzun bir sırayı beklemem gerekiyor.", "Sürekli itip kakarsam", "Sıra karışır, herkes daha çok bekler.", "Beklerken aklımdan bir oyun oynarsam", "Zaman çabuk geçer, sıram gelir."],
   ];
+  const tum = (anahtar, taban) => taban.concat((veri(anahtar) || []).map((x) => x.v));
+  /* Deste: maddeler karıştırılır, hepsi bitmeden tekrar gelmez */
+  const deste = {};
+  const desteCek = (ad, liste) => { const d = (deste[ad] = deste[ad] && deste[ad].length ? deste[ad] : T.shuffle(liste.map((_, i) => i))); return liste[d.pop()]; };
+  function ekleFormu(baslik, alanlar, kaydet) {
+    const inp = alanlar.map(([ad, yer]) => h("input.in", { placeholder: yer, "aria-label": ad }));
+    T.modal({ title: baslik, body: h("div", { style: { display: "grid", gap: "10px" } }, inp, h("p.hint", "Eklenen durumlar bu sınıfın listesine girer. Çocuklar da önerebilir.")), actions: [{ label: "Vazgeç" }, { label: "Ekle", tone: "c-leaf", onClick: () => { const v = inp.map((x) => x.value.trim()); if (v.some((x) => !x)) { T.toast("Bütün kutuları doldurun"); return false; } kaydet(v); T.sound.pop(); } }] });
+  }
   tool("gelecek-teleskobu", {
     title: "Gelecek teleskobu", icon: "telescope", tone: "grape", short: "Bunu yaparsam 10 dakika sonra ne olur?",
     render(host) {
-      let i = 0, acik = {};
+      let cur = null, acik = {}, kendi = false;
       const box = h("div"); host.append(box);
+      const yeni = () => { const L = tum("teleskop", TELESKOP); cur = desteCek("tel", L); acik = {}; kendi = false; };
       function ciz() {
-        const [d, a1, s1, a2, s2] = TELESKOP[i % TELESKOP.length];
+        const [d, a1, s1, a2, s2] = cur;
         const yol = (k, a, s, kotu) => h("button.gt-yol" + (kotu ? ".kotu" : ".iyi") + (acik[k] ? ".open" : ""), { onclick: () => { acik[k] = true; T.speak(s); ciz(); } }, h("small", "Bunu yaparsam"), h("b", a), acik[k] ? h("div.gt-sonuc", h("small", "10 dakika sonra"), s) : h("span.hint", "Teleskoptan bak"));
         box.replaceChildren(h("div.dy-card", { style: { maxWidth: "1100px" } }, h("small.ak-lbl", "Gelecek teleskobu: 10 dakika sonrası"), h("div.dy-durum", d),
+          kendi ? h("p.sb-line", "Sizce iki farklı davranış ne olabilir? 10 dakika sonra ne olur? Önce sınıf tahmin etsin, sonra teleskoba bakın.") : null,
           h("div.gt-yollar", yol("a", a1, s1, true), yol("b", a2, s2, false)),
           h("p.sb-line", "Bunu yaparsam 10 dakika sonra ne olur? Davranışımdan sonra ne olur?"),
-          h("button.btn", { onclick: () => { i++; acik = {}; ciz(); } }, T.icon("next"), "Yeni durum")));
+          h("div.row", { style: { justifyContent: "center" } },
+            h("button.btn", { onclick: () => { yeni(); ciz(); } }, T.icon("next"), "Yeni durum"),
+            h("button.btn.c-chalk", { onclick: () => { acik = {}; kendi = true; ciz(); } }, T.icon("help"), "Önce biz tahmin edelim"),
+            h("button.btn.c-chalk", { onclick: () => ekleFormu("Sınıfımızdan bir durum ekle", [["Durum", "Ne oldu? (ör. Arkadaşım sırama oturdu.)"], ["1. davranış", "Bunu yaparsam... (zorlayan davranış)"], ["1. sonuç", "10 dakika sonra ne olur?"], ["2. davranış", "Bunu yaparsam... (yardımcı davranış)"], ["2. sonuç", "10 dakika sonra ne olur?"]], (v) => { yaz("teleskop", (o) => (o || []).concat({ v })); cur = v; acik = {}; ciz(); }) }, T.icon("plus"), "Durum ekle")),
+          h("p.hint", TELESKOP.length + " hazır durum ve sınıfın eklediği " + (veri("teleskop") || []).length + " durum sırayla gelir; hepsi bitmeden aynısı tekrar gelmez.")));
       }
-      ciz();
+      yeni(); ciz();
     },
   });
 
@@ -243,20 +252,42 @@
 
   /* =================== 3. AYIRMA OYUNLARI =================== */
   function ayir(host, def) {
-    let sira = T.shuffle(def.durumlar.slice()), i = 0, secim = null;
+    /* durumlar destelenir: hepsi bitmeden tekrar gelmez. Sınıf kendi durumunu ekleyebilir (def.anahtar).
+       def.serbest: doğru cevap yok, sınıf birlikte karar verir; karar kaydedilir. */
+    const liste = () => def.durumlar.concat(def.anahtar ? (veri(def.anahtar) || []).map((x) => [x.t, x.k]) : []);
+    let sira = [], cur = null, secim = null;
+    const sonraki = () => { if (!sira.length) sira = T.shuffle(liste().slice()); cur = sira.pop(); secim = null; };
     const box = h("div"); host.append(box);
+    const kararlar = () => (def.serbest ? veri(def.anahtar + "-karar") || {} : {});
     function ciz() {
-      const [t, dogru] = sira[i % sira.length];
-      const kutu = (k) => { const b = def.kutular.find((x) => x[0] === k); return b; };
+      const [t, dogru] = cur;
+      const kutu = (k) => def.kutular.find((x) => x[0] === k);
+      const once = kararlar()[t];
+      const sonucKutu = def.serbest ? secim : dogru;
       box.replaceChildren(
         def.ust ? def.ust() : null,
         h("div.dy-card", { style: { maxWidth: "1100px" } },
           h("div.dy-durum", t),
-          h("div.ay-kutular", def.kutular.map(([k, ad, renk, ikon, aciklama]) => h("button.ay-kutu" + (secim ? (k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": renk }, onclick: () => { if (secim) return; secim = k; k === dogru ? T.sound.ok() : T.sound.no(); ciz(); } }, ikon ? ikon() : null, h("b", ad), aciklama ? h("span", aciklama) : null))),
-          secim ? h("div.ay-sonuc", { style: { "--c": kutu(dogru)[2] } }, def.sonuc(kutu(dogru))) : null,
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(t) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; secim = null; ciz(); } }, T.icon("next"), "Sıradaki durum"))));
+          def.serbest && once && !secim ? h("p.hint", "Geçen sefer sınıfımız buna " + kutu(once)[1].toLocaleLowerCase("tr") + " demişti. Bugün de aynı mı düşünüyoruz?") : null,
+          h("div.ay-kutular", def.kutular.map(([k, ad, renk, ikon, aciklama]) => h("button.ay-kutu" + (secim ? (def.serbest ? (k === secim ? ".right" : "") : k === dogru ? ".right" : k === secim ? ".wrong" : "") : ""), { style: { "--c": renk }, onclick: () => {
+            if (secim && !def.serbest) return; secim = k;
+            if (def.serbest) { T.sound.pop(); yaz(def.anahtar + "-karar", (o) => Object.assign(o || {}, { [t]: k })); } else k === dogru ? T.sound.ok() : T.sound.no();
+            ciz(); } }, ikon ? ikon() : null, h("b", ad), aciklama ? h("span", aciklama) : null))),
+          secim ? h("div.ay-sonuc", { style: { "--c": kutu(sonucKutu)[2] } }, def.sonuc(kutu(sonucKutu))) : null,
+          secim && def.serbest ? h("p.sb-line", "Herkes aynı büyüklükte görmeyebilir. Farklı düşünen var mı? Neden?") : null,
+          h("div.row", { style: { justifyContent: "center" } },
+            h("button.btn.c-chalk", { onclick: () => T.speak(t) }, T.icon("speaker"), "Dinle"),
+            h("button.btn", { onclick: () => { sonraki(); ciz(); } }, T.icon("next"), "Sıradaki durum"),
+            def.anahtar ? h("button.btn.c-chalk", { onclick: () => durumEkle() }, T.icon("plus"), "Durum ekle") : null)),
+        def.anahtar && (veri(def.anahtar) || []).length ? h("details.ks-diger", h("summary", "Sınıfımızın eklediği durumlar (" + veri(def.anahtar).length + ")"), h("div", { style: { display: "grid", gap: "6px" } }, veri(def.anahtar).map((x) => h("div.row", h("span", { style: { flex: 1 } }, x.t + (def.serbest ? "" : " · " + kutu(x.k)[1])), h("button.btn.sm.c-chalk", { "aria-label": "Sil", onclick: () => { yaz(def.anahtar, (o) => (o || []).filter((y) => y.t !== x.t)); sira = sira.filter((y) => y[0] !== x.t); ciz(); } }, T.icon("close")))))) : null);
     }
-    ciz();
+    function durumEkle() {
+      const inp = h("input.in", { placeholder: "Durum (ör. Arkadaşım sıramı aldı.)" });
+      let k = def.serbest ? null : def.kutular[0][0];
+      const sec = def.serbest ? null : h("div.seg", def.kutular.map(([kk, ad]) => h("button", { "aria-pressed": String(kk === k), onclick: (e) => { k = kk; [...e.target.parentNode.children].forEach((b2) => b2.setAttribute("aria-pressed", String(b2 === e.target))); } }, ad)));
+      T.modal({ title: "Sınıfımızdan bir durum ekle", body: h("div", { style: { display: "grid", gap: "10px" } }, inp, sec, h("p.hint", def.serbest ? "Büyüklüğüne sınıf, durum ekrana gelince birlikte karar verir." : "Bu durumun hangi kutuya girdiğini seçin.")), actions: [{ label: "Vazgeç" }, { label: "Ekle", tone: "c-leaf", onClick: () => { const v = inp.value.trim(); if (!v) return false; yaz(def.anahtar, (o) => (o || []).concat({ t: v, k })); cur = [v, k]; secim = null; T.sound.pop(); ciz(); } }] });
+    }
+    sonraki(); ciz();
   }
 
   /* Problem kalibrasyonu (eski "Sorunum ne büyüklükte?" aracının yerine) */
@@ -265,7 +296,7 @@
     ["orta", "Orta problem", "#8E9BB4", () => hava("bulut"), "Bu konuda biriyle konuşmamız gerekiyor mu? Kendimiz çözebilir miyiz? Birlikte karar verelim.", ["Problem çözme basamağına git: Barış yolu.", "Ben diliyle ne olduğunu anlat.", "Olmadıysa biraz soğusun köşesine not bırak."]],
     ["buyuk", "Büyük problem", "#C2453A", () => hava("firtina"), "Denedik olmadı, sorun devam ediyor. Şiddet içeren sorunlar var. Tehlikedeyim.", ["Öğretmenden yardım al.", "Biri yaralandıysa hemen bir yetişkine söyle.", "Güvenli bir yerde bekle."]],
   ];
-  const KALIB_DURUM = [["Kalemimin ucu kırıldı.", "kucuk"], ["Oyunda ilk sırayı başkası aldı.", "kucuk"], ["Arkadaşım bana yanlışlıkla çarptı.", "kucuk"], ["Silgimi bulamıyorum.", "kucuk"], ["En sevdiğim oyunu oynayamadık.", "kucuk"],
+  const KALIB_DURUM = [["Suluk kapağım açılmıyor.", "kucuk"], ["Sırama biri oturmuş.", "kucuk"], ["Boyam bitti.", "kucuk"], ["Arkadaşım benden önce bitirdi.", "kucuk"], ["Oyunda ebe oldum.", "kucuk"], ["Ayakkabımın bağı çözüldü.", "kucuk"], ["İstediğim renk kalem başkasında.", "kucuk"], ["Yanımdaki arkadaş çok gürültü yapıyor.", "orta"], ["Arkadaşım sözünü tutmadı.", "orta"], ["Oyunda kurallara uyulmuyor.", "orta"], ["Grupta herkes işi bana bıraktı.", "orta"], ["Arkadaşım beni bir oyundan çıkardı.", "orta"], ["Biri eşyamı izinsiz aldı ve vermiyor.", "orta"], ["Kendimi çok kötü hissediyorum ve geçmiyor.", "buyuk"], ["Biri beni tehdit etti.", "buyuk"], ["Teneffüste biri kavga ediyor.", "buyuk"], ["Kalemimin ucu kırıldı.", "kucuk"], ["Oyunda ilk sırayı başkası aldı.", "kucuk"], ["Arkadaşım bana yanlışlıkla çarptı.", "kucuk"], ["Silgimi bulamıyorum.", "kucuk"], ["En sevdiğim oyunu oynayamadık.", "kucuk"],
     ["Arkadaşım oyuna beni almadı.", "orta"], ["Arkadaşım sırrımı başkalarına anlattı.", "orta"], ["Grupta herkes benim fikrimi dinlemiyor.", "orta"], ["İki gündür aynı arkadaşla tartışıyoruz.", "orta"],
     ["Biri her gün benimle alay ediyor, konuştuk ama durmadı.", "buyuk"], ["Bahçede bir arkadaşım düştü, dizi kanıyor.", "buyuk"], ["Bir arkadaşım beni itip vurdu.", "buyuk"], ["Okulda bir yabancı beni yanına çağırdı.", "buyuk"]];
   tool("sorun-boyutu", {
@@ -274,10 +305,10 @@
       let mod = "pano";
       const box = h("div"); host.append(box);
       function ciz() {
-        box.replaceChildren(seg([["pano", "Pano"], ["oyun", "Hangi problem?"]], mod, (v) => { mod = v; ciz(); }));
+        box.replaceChildren(seg([["pano", "Pano"], ["oyun", "Birlikte karar verelim"]], mod, (v) => { mod = v; ciz(); }));
         const alan = h("div", { style: { marginTop: "14px" } }); box.append(alan);
         if (mod === "pano") alan.append(h("div.pk-pano", KALIB.map(([, ad, renk, ikon, metin, ne]) => h("div.pk-col", { style: { "--c": renk } }, ikon(), h("b", ad), h("p", metin), h("ul", ne.map((x) => h("li", x)))))), h("p.hint", "Sınıf içi çatışmada öğrenciler problemin büyüklüğüne birlikte karar verir. Aynı sorun herkese aynı büyüklükte gelmeyebilir; önemli olan tepkinin uygun olması."));
-        else ayir(alan, { durumlar: KALIB_DURUM, kutular: KALIB.map(([k, ad, renk, ikon]) => [k, ad, renk, ikon]), sonuc: (b) => { const k = KALIB.find((x) => x[0] === b[0]); return [h("b", k[1] + ": "), k[4], h("ul", k[5].map((x) => h("li", x)))]; } });
+        else ayir(alan, { durumlar: KALIB_DURUM, anahtar: "kalib", serbest: true, ust: () => h("p.sb-line", "Doğru tek cevap yok. Durumu okuyun, problemin büyüklüğüne sınıfça karar verin."), kutular: KALIB.map(([k, ad, renk, ikon]) => [k, ad, renk, ikon]), sonuc: (b) => { const k = KALIB.find((x) => x[0] === b[0]); return [h("b", k[1] + ": "), k[4], h("ul", k[5].map((x) => h("li", x)))]; } });
       }
       ciz();
     },
@@ -288,7 +319,8 @@
     render(host) {
       ayir(host, {
         ust: () => h("p.sb-line", "Söylemeden önce sor: Bu seninle mi ilgili? Amacım korumak ya da kurtarmak mı?"),
-        durumlar: [["Ahmet ödevini yapmamış.", "sikayet"], ["Ahmet düşmek üzere!", "bilgi"], ["Elif kalemini yere düşürdü.", "sikayet"], ["Bahçede kırık cam var.", "bilgi"], ["Can sırada konuşuyor.", "sikayet"], ["Bir arkadaş ağlıyor ve yardım istiyor.", "bilgi"],
+        anahtar: "seninle",
+        durumlar: [["Arkadaşım kalemini sıranın altına düşürdü.", "sikayet"], ["Okul kapısı açık kalmış, küçük kardeşler dışarı çıkıyor.", "bilgi"], ["Ece sırasını toplamamış.", "sikayet"], ["Bir arkadaş makasla oynuyor ve birini kesebilir.", "bilgi"], ["Kerem yanlış renkte kalem kullanıyor.", "sikayet"], ["Bir arkadaşım nefes almakta zorlanıyor.", "bilgi"], ["Selin şarkı mırıldanıyor.", "sikayet"], ["Bahçe kapısında tanımadığım biri çocukları çağırıyor.", "bilgi"], ["Arda benden daha büyük bir dilim aldı.", "sikayet"], ["Lavaboda yerler ıslak, biri kayabilir.", "bilgi"], ["Efe sırasında sallanıyor.", "sikayet"], ["Bir arkadaş kendini kapalı bir yere kilitlemiş.", "bilgi"], ["Asya oyunda hile yaptı ama kimse zarar görmedi.", "sikayet"], ["Prizden kıvılcım çıkıyor.", "bilgi"], ["Ahmet ödevini yapmamış.", "sikayet"], ["Ahmet düşmek üzere!", "bilgi"], ["Elif kalemini yere düşürdü.", "sikayet"], ["Bahçede kırık cam var.", "bilgi"], ["Can sırada konuşuyor.", "sikayet"], ["Bir arkadaş ağlıyor ve yardım istiyor.", "bilgi"],
           ["Mert yemeğini bitirmedi.", "sikayet"], ["Biri merdivenlerden düştü.", "bilgi"], ["Defne benden önce bitirdi.", "sikayet"], ["Biri bir arkadaşımıza her gün vuruyor.", "bilgi"], ["Zeynep resmini başka renge boyamış.", "sikayet"], ["Lavaboda su taşıyor.", "bilgi"]],
         kutular: [["sikayet", "Seninle ilgili değil", "#C2453A", null, "Şikâyet etme"], ["bilgi", "Bilgilendirme", "#2E8B57", null, "Rapor et"]],
         sonuc: (b) => b[0] === "sikayet" ? [h("b", "Seninle ilgili değil. "), "Kural: Kendine sakla. Kimse tehlikede değil; bunu söylemek kimseye yardım etmez."] : [h("b", "Bilgilendirme. "), "Amaç: korumak ya da kurtarmak. Biri yaralanabilir. Kural: Hemen söyle!"],
@@ -363,11 +395,13 @@
   }
 
   tool("gul-diken", {
-    title: "Gül, diken, tomurcuk", icon: "flower", tone: "pink", short: "Günümüzün analizi: dönüşümlü düşünme panosu",
+    title: "Gül, diken, tomurcuk", icon: "flower", tone: "pink", short: "Günün, haftanın ya da ünitenin analizi: dönüşümlü düşünme panosu",
     render(host) {
-      notPanosu(host, { anahtar: "gdt", ust: () => h("p.sb-line", "Günümüzün analizi: nasıl geçtiğini detaylı düşünelim."), kolonlar: [
-        ["Gül", "Bugün en çok neyi sevdin? (Başarı, mutluluk)", "#C2453A"], ["Diken", "Bugün seni ne zorladı ya da üzdü? (Zorluk)", "#8A6A3B"], ["Tomurcuk", "Yarın için neyi iple çekiyorsun? (Umut, potansiyel)", "#2E8B57"]],
-        not: "Gün sonunda her çocuk bir ya da üç kutuya not yazar. İsim isteğe bağlı." });
+      const ZAMAN = { gun: ["Bugün", "Yarın"], hafta: ["Bu hafta", "Gelecek hafta"], unite: ["Bu ünitede", "Sonraki ünitede"] };
+      const z = (veri("gdt-zaman") || "gun"), [bu, sonra] = ZAMAN[z];
+      notPanosu(host, { anahtar: "gdt", ust: () => h("div", h("div.seg", [["gun", "Gün"], ["hafta", "Hafta"], ["unite", "Ünite"]].map(([k, ad]) => h("button", { "aria-pressed": String(k === z), onclick: () => { yaz("gdt-zaman", () => k); host.replaceChildren(); T.tools["gul-diken"].render(host); } }, ad))), h("p.sb-line", bu + " nasıl geçti? Birlikte düşünelim.")), kolonlar: [
+        ["Gül", bu + " neyi iyi yaptık, neyi sevdik, neyle gurur duyduk?", "#C2453A"], ["Diken", bu + " bizi ne zorladı, ne üzdü, ne zor geldi?", "#8A6A3B"], ["Tomurcuk", sonra + " neyi merak ediyoruz, neyi geliştirmek, denemek istiyoruz?", "#2E8B57"]],
+        not: "Her çocuk bir ya da üç kutuya not yazar. İsim isteğe bağlı." });
     },
   });
   tool("calma-listesi", {

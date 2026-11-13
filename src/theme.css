@@ -1764,3 +1764,33 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-cark-bas { display: flex; align-items: center; gap: 6px; }
 .ks-cark-bas b { font: 800 17px var(--display); color: #2D4A22; }
 .ks-cb { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #EEF1F5; font: 800 18px var(--body); cursor: pointer; display: grid; place-items: center; }
+/* Yazı tahtası */
+.yt-kok { position: fixed; inset: 0; z-index: 900; display: grid; grid-template-rows: auto 1fr auto; background: #E9EEF3; --yt-ink: #1B2A4A; }
+.yt-ust, .yt-alt { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow-x: auto; }
+.yt-alt { box-shadow: 0 -2px 10px rgba(0,0,0,.08); }
+.yt-grup { display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 14px; background: #F2F5F8; flex: none; }
+.yt-bosluk { flex: 1; }
+.yt-b { display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; font: 700 14px var(--body); color: #33415C; cursor: pointer; white-space: nowrap; }
+.yt-b svg { width: 20px; height: 20px; }
+.yt-b.on { background: #1B2A4A; color: #fff; }
+.yt-b.kapat { background: #FFE3E3; color: #B23A3A; }
+.yt-kag { width: 34px; height: 34px; border-radius: 9px; border: 2px solid #D5DCE4; cursor: pointer; }
+.yt-kag.on { outline: 3px solid #2E86DE; outline-offset: 1px; }
+.yt-renk { width: 32px; height: 32px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); cursor: pointer; }
+.yt-renk.on { box-shadow: 0 0 0 3px #1B2A4A; }
+.yt-kalin { width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; display: grid; place-items: center; cursor: pointer; }
+.yt-kalin i { display: block; border-radius: 50%; background: #1B2A4A; }
+.yt-kalin.on { background: #fff; box-shadow: inset 0 0 0 2px #1B2A4A; }
+.yt-sayfa b { font: 800 15px var(--body); min-width: 46px; text-align: center; }
+.yt-sahne { position: relative; overflow: hidden; touch-action: none; }
+.yt-sahne canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.yt-yazilar { position: absolute; inset: 0; pointer-events: none; }
+.yt-yazi-kap { position: absolute; display: flex; align-items: flex-start; gap: 4px; pointer-events: auto; }
+.yt-yazi { min-width: 40px; min-height: 1em; padding: 2px 6px; outline: none; border-radius: 8px; font-family: Onest, sans-serif; line-height: 1.25; white-space: pre-wrap; }
+.yt-yazi.harf { font-family: var(--okuma); }
+.yt-yazi:focus { box-shadow: 0 0 0 2px rgba(46,134,222,.55); background: rgba(255,255,255,.12); }
+.yt-tut { opacity: 0; cursor: grab; font-size: 18px; color: #7A8699; user-select: none; padding-top: 4px; }
+.yt-yazi-kap:hover .yt-tut, .yt-yazi-kap:focus-within .yt-tut { opacity: 1; }
+.yt-ust, .yt-alt { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
+.yt-b span { display: inline; }
+@media (max-width: 1300px) { .yt-b span { display: none; } .yt-b { padding: 0 10px; } }

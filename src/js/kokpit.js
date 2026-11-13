@@ -53,7 +53,10 @@
       govde.replaceChildren(
         h("label.bt-madde" + (a.donen !== false ? ".on" : ""), { style: { cursor: "pointer" } }, h("input", { type: "checkbox", checked: a.donen !== false ? true : null, onchange: (e) => { ayarYaz((k) => (k.donen = e.target.checked)); donenSecim = null; arkaPlanUygula(); ciz(); } }), h("span", "Her açılışta değişsin (fotoğraflar ve benim görsellerim arasından)")),
         h("b", "Fotoğraflar"),
-        h("div.kp-temalar", FOTO.map(([id, ad]) => h("button.kp-tema" + (etkin({ tip: "foto", id }) ? ".on" : ""), { onclick: () => { sec({ tip: "foto", id }); m.close(); } }, h("span", { style: { background: `#ddd url("arka/${id}-k.jpg") center / cover` } }), ad))),
+        h("div.kp-temalar", FOTO.map(([id, ad]) => h("button.kp-tema" + (etkin({ tip: "foto", id }) ? ".on" : ""), { onclick: () => { if (ambId) T.ambiyans.kapat(); sec({ tip: "foto", id }); m.close(); } }, h("span", { style: { background: `#ddd url("arka/${id}-k.jpg") center / cover` } }), ad))),
+        h("b", "Hareketli arka plan: sakin çalışma videoları"),
+        h("div.kp-temalar", AMB.map(([id, ad]) => h("button.kp-tema" + (ambId === id ? ".on" : ""), { onclick: () => { m.close(); T.ambiyans.ac(id); T.route(); } }, h("span", { style: { background: `#222 url("ambiyans/${id}.jpg") center / cover` } }), ad))),
+        h("div.row", h("button.btn.c-sky", { onclick: () => { m.close(); T.ambiyans.sec(); } }, T.icon("music"), "Videoların müziğini seç"), ambId ? h("button.btn.c-tomato", { onclick: () => { m.close(); T.ambiyans.kapat(); T.route(); } }, T.icon("close"), "Videoyu kapat") : null),
         h("b", "Benim görsellerim"),
         ozel,
         h("div.row", h("label.btn.c-chalk", { style: { cursor: "pointer" } }, T.icon("download"), "Görsel ekle", h("input", { type: "file", accept: "image/*", multiple: true, style: { display: "none" }, onchange: async (e) => {
@@ -71,7 +74,8 @@
 
   /* ---------- Müzik ve atmosfer (Web Audio) ---------- */
   /* Klasik çalma listesi: Pixabay lisanslı parçalar, dist/muzik içinde. Yalnızca çalınca indirilir. */
-  const KLASIK = [["piyano-vals", "Piyano valsi", "Tunetank"], ["keman", "Keman", "Nastelbom"], ["sakin-klasik", "Sakin klasik", "AtlasAudio"], ["modern-klasik", "Modern klasik", "AtlasAudio"], ["yaylilar", "Yaylılar", "Nastelbom"], ["klasik-esinti", "Klasik esinti", "Starostin"], ["dag-klasik", "Dağ esintisi", "The Mountain"], ["kraliyet-ingiliz", "Kraliyet marşı", "Alex Morgan"], ["saray-bahcesi", "Saray bahçesi", "Mondamusic"], ["sinematik", "Sinematik", "Lexin Music"], ["stride-piyano", "Stride piyano", "Alex Morgan"], ["yayli-salon", "Yaylı salonu", "Cinematic Strings Hall"], ["moszkowski-etut", "Moszkowski, Etüt 7", "Lorenzo Buczek"], ["dingin-atmosfer", "Dingin atmosfer", "SigmaEffect"], ["sonbahar-ormani", "Sonbahar ormanı", "The Fealdo Project"], ["sakin-lofi", "Sakin lofi", "Velario Music"]];
+  const KLASIK = [["piyano-vals", "Piyano valsi", "Tunetank"], ["keman", "Keman", "Nastelbom"], ["sakin-klasik", "Sakin klasik", "AtlasAudio"], ["modern-klasik", "Modern klasik", "AtlasAudio"], ["yaylilar", "Yaylılar", "Nastelbom"], ["klasik-esinti", "Klasik esinti", "Starostin"], ["dag-klasik", "Dağ esintisi", "The Mountain"], ["kraliyet-ingiliz", "Kraliyet marşı", "Alex Morgan"], ["saray-bahcesi", "Saray bahçesi", "Mondamusic"], ["sinematik", "Sinematik", "Lexin Music"], ["stride-piyano", "Stride piyano", "Alex Morgan"], ["yayli-salon", "Yaylı salonu", "Cinematic Strings Hall"], ["moszkowski-etut", "Moszkowski, Etüt 7", "Lorenzo Buczek"], ["dingin-atmosfer", "Dingin atmosfer", "SigmaEffect"], ["sonbahar-ormani", "Sonbahar ormanı", "The Fealdo Project"], ["sakin-lofi", "Sakin lofi", "Velario Music"], ["swing-caz", "Swing caz", "Alex Morgan"], ["passacaglia", "Passacaglia", "Grand Project"], ["ruzgar-cello", "Rüzgâr eserken", "Kaazoom"], ["buyulu-piyano", "Büyülü piyano", "Kaazoom"], ["ozgur-gunler", "Özgür günler", "Kaazoom"], ["duygu-aynasi", "Duygu aynası", "Piano Music"], ["ilham-sabahi", "İlham sabahı", "Piano Music"], ["duygu-dengesi", "Duygu dengesi", "Piano Music"], ["mavi-dalgalar", "Mavi dalgalar", "Piano Music"], ["sakinles", "Sakinleş", "Piano Music"], ["ruya-kutuphanesi", "Rüya kütüphanesi", "Piano Music"], ["kayan-yildizlar", "Kayan yıldızlar", "Piano Music"], ["gece-kutuphanesi", "Gece kütüphanesi", "The 217am Library"]];
+  T.MUZIKLER = KLASIK;
   const Muzik = (function () {
     let ozelUrl = null, ctx, master, analyser, mod = null, audioEl = null, hacim = 0.5;
     function kur() {
@@ -88,6 +92,7 @@
       const k = KLASIK[sira[siraI]]; audioEl.loop = false; audioEl.src = "muzik/" + k[0] + ".mp3";
       audioEl.play().catch(() => T.toast("Müzik çalınamadı")); T.muzikDurum && T.muzikDurum(); T.$$(".kp-parca").forEach((x) => (x.textContent = k[1] + " · " + k[2]));
     }
+    function tekParca(id) { kur(); ctx.resume(); durdur(); const i = KLASIK.findIndex((k) => k[0] === id); if (i < 0) return false; mod = "klasik"; elKur(); sira = KLASIK.map((_, j) => j).filter((j) => j !== i).sort(() => Math.random() - 0.5); sira.unshift(i); siraI = 0; const k = KLASIK[i]; audioEl.loop = false; audioEl.src = "muzik/" + k[0] + ".mp3"; audioEl.play().catch(() => T.toast("Müzik çalınamadı")); T.muzikDurum && T.muzikDurum(); T.$$(".kp-parca").forEach((x) => (x.textContent = k[1] + " · " + k[2])); return true; }
     function durdur() { if (audioEl) audioEl.pause(); mod = null; }
     function cal(m) {
       kur(); ctx.resume(); durdur(); mod = m;
@@ -95,7 +100,7 @@
       if (m === "ozel") { const k = ozelUrl || ayar().muzikUrl; if (!k) return false; elKur(); audioEl.loop = true; audioEl.src = k; audioEl.play().catch(() => T.toast("Ses dosyası çalınamadı")); return true; }
       return false;
     }
-    return { sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
+    return { tekParca, sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
   })();
   T.muzik = Muzik;
 
@@ -269,12 +274,14 @@
   T.kokpit = {
     render(view) {
       const sade = !!ayar().sade, g = gizli();
+      if (ayar().amb && ayar().amb !== "ozel" && !T.ambiyans.aktif()) T.ambiyans.ac(ayar().amb, false);
       const kok = h("div.kokpit" + (sade ? ".sade" : ""));
       view.append(kok);
       const kontroller = h("div.kp-kontrol",
         h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Kartları geri getir" : "Kartları gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Kartları aç" : "Ders modu"),
         !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
         h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
+        h("button.kp-dugme" + (T.ambiyans && T.ambiyans.aktif() ? ".on" : ""), { onclick: () => T.ambiyans.sec(), title: "Sakin çalışma videoları" }, T.icon("film"), "Sakin çalışma"),
         h("button.kp-dugme", { onclick: () => T.hosgeldin(true), title: "Nasıl kullanılır?", "aria-label": "Nasıl kullanılır?" }, "?"),
         h("button.kp-dugme", { onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} }, title: "Tam ekran", "aria-label": "Tam ekran" }, T.icon("full")));
       kok.append(kontroller);
@@ -341,4 +348,74 @@
     T.modal({ title: "Ana sayfa kartları", body: h("div", { style: { display: "grid", gap: "8px" } }, KARTLAR.map(([k, l]) => h("label.bt-madde", h("input", { type: "checkbox", checked: g[k] ? null : true, onchange: (e) => (g[k] = !e.target.checked) }), h("span", l)))),
       actions: [{ label: "Vazgeç" }, { label: "Uygula", tone: "c-leaf", onClick: () => { ayarYaz((x) => (x.gizli = g)); T.route(); } }] });
   }
+
+  /* ---------- Sakin çalışma: arka planda gerçek görüntülü döngü videoları ve eşlik eden müzik ---------- */
+  const AMB = [["sisli-orman", "Sisli orman sabahı", "ilham-sabahi"], ["isikli-orman", "Işıklı orman", "yaylilar"], ["sonbahar-ormani", "Sonbahar yolu", "sonbahar-ormani"], ["orman-deresi", "Orman deresi", "sakinles"], ["orman-selalesi", "Orman şelalesi", "mavi-dalgalar"], ["dikey-selale", "Taşlı şelale", "duygu-aynasi"], ["yesil-cayir", "Yeşil çayır", "dag-klasik"], ["bulut-dagi", "Bulutların üstünde", "sinematik"], ["tirtil", "Yaprakta tırtıl", "piyano-vals"], ["kamp-atesi", "Kamp ateşi", "dingin-atmosfer"], ["somine-salon", "Mumlu şömine", "gece-kutuphanesi"], ["somine-kedi", "Şömine başında kedi", "buyulu-piyano"], ["yagmurda-kedi", "Kanepede uyuyan kedi", "sakin-lofi"], ["yildizli-pencere", "Yıldızlı pencere", "kayan-yildizlar"], ["citteki-kedi", "Çitteki kedi", "ozgur-gunler"], ["karli-veranda", "Karlı verandada gitar", "duygu-dengesi"], ["yagmurlu-tren", "Yağmurlu tren yolculuğu", "swing-caz"], ["pencere-kenari", "Pencere kenarında hayal", "ruya-kutuphanesi"], ["dag-gunbatimi", "Pencereden gün batımı", "ruzgar-cello"]];
+  const ambMuzik = (id) => { const k = ayar().ambMuzik || {}; return id in k ? k[id] : (AMB.find((a) => a[0] === id) || [])[2] || ""; };
+  const muzikAd = (id) => { const k = KLASIK.find((x) => x[0] === id); return k ? k[1] : "Müziksiz"; };
+  let ambId = null, ambVideo = null, ozelVidUrl = null, sayac = null;
+  function videoKur(src) {
+    const tuval = T.$("#tuval"); if (!tuval) return;
+    if (!ambVideo) { ambVideo = h("video.amb-video", { muted: true, loop: true, playsinline: true, autoplay: true, "aria-hidden": "true" }); ambVideo.muted = true; ambVideo.setAttribute("muted", ""); ambVideo.setAttribute("playsinline", ""); }
+    if (ambVideo.parentNode !== tuval) tuval.prepend(ambVideo);
+    ambVideo.src = src; ambVideo.play().catch(() => {});
+    document.body.classList.add("amb-acik");
+  }
+  T.ambiyans = {
+    aktif: () => !!ambId,
+    ac(id, muzikle = true) {
+      ambId = id;
+      if (id === "ozel") { if (!ozelVidUrl) return; videoKur(ozelVidUrl); }
+      else videoKur("ambiyans/" + id + ".mp4");
+      ayarYaz((k) => (k.amb = id));
+      const m = id === "ozel" ? "" : ambMuzik(id);
+      if (muzikle && m) { T.spotify && T.spotify.kapat(); Muzik.tekParca(m); }
+      T.muzikDurum && T.muzikDurum();
+    },
+    kapat() { ambId = null; if (ambVideo) { ambVideo.pause(); ambVideo.removeAttribute("src"); ambVideo.load(); ambVideo.remove(); } document.body.classList.remove("amb-acik"); ayarYaz((k) => (k.amb = null)); Muzik.durdur(); T.muzikDurum && T.muzikDurum(); const t = T.$(".amb-tam"); if (t) t.remove(); },
+    sec() {
+      let m;
+      const govde = h("div.amb-sec");
+      const ciz = () => {
+        govde.replaceChildren(
+          h("p.hint", "Öğrenciler sessizce çalışırken arkada gerçek görüntülü bir video dönsün. Her videonun kendine uygun bir müziği var, istersen değiştir."),
+          h("div.amb-izgara", AMB.map(([id, ad]) => h("div.amb-kart" + (ambId === id ? ".on" : ""),
+            h("button.amb-onizle", { onclick: () => { T.ambiyans.ac(id); ciz(); }, "aria-label": ad + " videosunu aç" }, h("img", { src: "ambiyans/" + id + ".jpg", alt: "", loading: "lazy" }), h("span", ad)),
+            h("label.amb-muzik", T.icon("music"), h("select", { "aria-label": ad + " için müzik", onchange: (e) => { const v = e.target.value; ayarYaz((k) => { k.ambMuzik = k.ambMuzik || {}; k.ambMuzik[id] = v; }); if (ambId === id) { if (v) Muzik.tekParca(v); else Muzik.durdur(); T.muzikDurum && T.muzikDurum(); } } },
+              h("option", { value: "", selected: ambMuzik(id) === "" ? true : null }, "Müziksiz"), KLASIK.map(([k, l]) => h("option", { value: k, selected: ambMuzik(id) === k ? true : null }, l))))))),
+          h("div.row", { style: { gap: "8px", flexWrap: "wrap" } },
+            h("button.btn.c-sky", { onclick: () => { const g = h("input", { type: "file", accept: "video/*" }); g.onchange = () => { const f = g.files[0]; if (!f) return; if (ozelVidUrl) URL.revokeObjectURL(ozelVidUrl); ozelVidUrl = URL.createObjectURL(f); T.ambiyans.ac("ozel"); ciz(); }; g.click(); } }, T.icon("plus"), "Kendi videom"),
+            ambId ? h("button.btn.c-leaf", { onclick: () => { m.close(); T.ambiyans.tamEkran(); } }, T.icon("full"), "Tam ekran") : null,
+            ambId ? h("button.btn.c-tomato", { onclick: () => { T.ambiyans.kapat(); ciz(); T.route(); } }, T.icon("close"), "Videoyu kapat") : null));
+      };
+      ciz();
+      m = T.modal({ title: "Sakin çalışma", wide: true, body: govde, actions: [{ label: "Tamam", onClick: () => T.route() }] });
+    },
+    tamEkran() {
+      if (!ambId) return;
+      const eski = T.$(".amb-tam"); if (eski) eski.remove();
+      const v = h("video.amb-tam-video", { muted: true, loop: true, playsinline: true, autoplay: true }); v.muted = true; v.src = ambVideo ? ambVideo.src : "";
+      if (ambVideo) v.currentTime = ambVideo.currentTime || 0;
+      const saat = h("div.amb-saat"), kalan = h("div.amb-kalan");
+      const sure = (dk) => { clearInterval(sayac); if (!dk) { kalan.textContent = ""; return; } const bit = Date.now() + dk * 60000; const tik = () => { const s = Math.max(0, Math.round((bit - Date.now()) / 1000)); kalan.textContent = "Sessiz çalışma " + Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); if (!s) { clearInterval(sayac); kalan.textContent = "Süre doldu"; T.sound.bell && T.sound.bell(); } }; tik(); sayac = setInterval(tik, 1000); };
+      const i = () => AMB.findIndex((a) => a[0] === ambId);
+      const gec = (d) => { const n = AMB[(Math.max(0, i()) + d + AMB.length) % AMB.length][0]; T.ambiyans.ac(n); v.src = "ambiyans/" + n + ".mp4"; v.play().catch(() => {}); ad.textContent = (AMB.find((a) => a[0] === n) || [])[1] + " · " + muzikAd(ambMuzik(n)); };
+      const ad = h("span.amb-ad", ((AMB.find((a) => a[0] === ambId) || [])[1] || "Kendi videom") + " · " + muzikAd(ambId === "ozel" ? "" : ambMuzik(ambId)));
+      const cubuk = h("div.amb-cubuk",
+        h("button", { "aria-label": "Önceki video", onclick: () => gec(-1) }, T.icon("back")), ad, h("button", { "aria-label": "Sonraki video", onclick: () => gec(1) }, T.icon("next")),
+        h("span.amb-ayrac"), [0, 10, 15, 20, 30].map((dk) => h("button.amb-sure", { onclick: () => sure(dk) }, dk ? dk + " dk" : "Süresiz")),
+        h("span.amb-ayrac"), h("button", { "aria-label": "Müziği aç ya da kapat", onclick: () => { if (Muzik.aktif()) Muzik.durdur(); else { const mz = ambMuzik(ambId); if (mz) Muzik.tekParca(mz); } T.muzikDurum && T.muzikDurum(); } }, T.icon("music")),
+        h("button", { "aria-label": "Tam ekrandan çık", onclick: () => kapat() }, T.icon("close")));
+      const tam = h("div.amb-tam", v, h("div.amb-ust", saat, kalan), cubuk);
+      document.body.append(tam);
+      let gizT; const goster = () => { tam.classList.add("hareket"); clearTimeout(gizT); gizT = setTimeout(() => tam.classList.remove("hareket"), 3000); };
+      tam.addEventListener("pointermove", goster); tam.addEventListener("pointerdown", goster); goster();
+      const saatYaz = () => { const d = new Date(); saat.textContent = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }; saatYaz(); const st = setInterval(saatYaz, 10000);
+      function kapat() { clearInterval(st); clearInterval(sayac); tam.remove(); try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {} }
+      document.addEventListener("fullscreenchange", function f() { if (!document.fullscreenElement && document.body.contains(tam)) { document.removeEventListener("fullscreenchange", f); kapat(); } });
+      try { tam.requestFullscreen && tam.requestFullscreen().catch(() => {}); } catch (e) {}
+      document.addEventListener("keydown", function k(e) { if (!document.body.contains(tam)) return document.removeEventListener("keydown", k); if (e.key === "Escape") kapat(); });
+    },
+  };
+  document.addEventListener("visibilitychange", () => { if (!ambVideo || !ambId) return; if (document.hidden) ambVideo.pause(); else ambVideo.play().catch(() => {}); });
 })();

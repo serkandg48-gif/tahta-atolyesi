@@ -90,6 +90,7 @@ T.ICONS = {
   spell: '<path d="M8 36 16 12l8 24M11 28h10M30 18c0-4 10-4 10 0s-10 4-10 9 10 5 10 0"/><path class="f" d="M28 36h14v6H28z"/>',
   lock: '<rect class="f" x="10" y="21" width="28" height="20" rx="4"/><rect x="10" y="21" width="28" height="20" rx="4"/><path d="M16 21v-6a8 8 0 0 1 16 0v6M24 29v5"/>',
   full: '<path d="M8 18V8h10M30 8h10v10M40 30v10H30M18 40H8V30"/>',
+  film: '<rect class="f" x="5" y="10" width="38" height="28" rx="5"/><rect x="5" y="10" width="38" height="28" rx="5"/><path d="M20 18v12l10-6z"/>',
   bg: '<rect class="f" x="6" y="8" width="36" height="32" rx="4"/><rect x="6" y="8" width="36" height="32" rx="4"/><path d="M6 32l10-10 8 8 6-6 12 12"/><circle cx="32" cy="17" r="3"/>',
   save: '<path class="f" d="M8 8h26l6 6v26H8z"/><path d="M8 8h26l6 6v26H8zM15 8v10h16V8M15 40V28h18v12"/>',
   user: '<circle class="f" cx="24" cy="17" r="8"/><circle cx="24" cy="17" r="8"/><path d="M8 42c1-9 8-14 16-14s15 5 16 14"/>',

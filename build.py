@@ -96,6 +96,8 @@ def main():
         shutil.copytree(SRC / "ikon3d", ROOT / "dist" / "ikon3d", dirs_exist_ok=True)
     if (SRC / "muzik").exists():
         shutil.copytree(SRC / "muzik", ROOT / "dist" / "muzik", dirs_exist_ok=True)
+    if (SRC / "ambiyans").exists():
+        shutil.copytree(SRC / "ambiyans", ROOT / "dist" / "ambiyans", dirs_exist_ok=True)
     if (SRC / "arka").exists():
         shutil.copytree(SRC / "arka", ROOT / "dist" / "arka", dirs_exist_ok=True)
     print(f"dist/index.html {len(out)//1024} KB")

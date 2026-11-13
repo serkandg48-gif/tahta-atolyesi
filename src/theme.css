@@ -1795,3 +1795,35 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .yt-b span { display: inline; }
 @media (max-width: 1300px) { .yt-b svg + span { display: none; } .yt-b { padding: 0 10px; } }
 body.yt-acik #layer { z-index: 1000; }
+
+/* ---------- Hece Mutfağı ---------- */
+.hm-sahne { background: linear-gradient(#F8E7CF, #EFD2AE); }
+.hm-tarif { position: absolute; top: 78px; left: 16px; z-index: 3; opacity: 0; transform: translateY(-10px) rotate(-1.5deg); transition: .35s; pointer-events: none; }
+.hm-tarif.acik { opacity: 1; transform: rotate(-1.5deg); pointer-events: auto; }
+.hm-kart { padding: 10px 16px 14px; border-radius: 14px; background: #FFFBF2; box-shadow: 0 10px 24px rgba(90,50,20,.22); border-top: 10px solid #D1495B; display: grid; gap: 6px; }
+.hm-govde { display: flex; align-items: center; gap: 16px; } .hm-sag { display: grid; gap: 10px; justify-items: start; }
+.hm-kart-bas { width: 100%; display: flex; justify-content: space-between; align-items: baseline; font: 700 14px var(--body); color: #7A5638; }
+.hm-kart-bas b { font: 800 18px var(--display); color: #5B3A29; }
+.hm-resim { font-size: clamp(56px, 7vw, 96px); line-height: 1.1; }
+.hm-resim.yok { width: 90px; height: 90px; display: grid; place-items: center; border-radius: 50%; background: #F3E3CC; color: #7A5638; } .hm-resim.yok svg { width: 44px; height: 44px; }
+.hm-yerler { display: flex; gap: 8px; }
+.hm-yer { min-width: 70px; height: 62px; padding: 0 8px; display: grid; place-items: center; border-radius: 12px; border: 3px dashed #D9B98F; font: 400 clamp(30px, 3.4vw, 44px) var(--okuma); color: #3B2A1E; }
+.hm-yer.dolu { border: 3px solid #2FA552; background: #EFFBF1; animation: hm-dol .35s; }
+@keyframes hm-dol { from { transform: scale(1.25); } }
+.hm-kart .ks-yan { justify-content: flex-start; } .hm-kart .ot-b { padding: 10px 18px; font-size: 16px; }
+.hm-ipucu { font: 400 34px var(--okuma); color: #3B2A1E; }
+.hm-raf { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 3; display: flex; align-items: center; gap: clamp(8px, 1.4vw, 18px); padding: 14px 18px 10px; border-radius: 16px; background: linear-gradient(#A86B3C, #8A5530); box-shadow: 0 8px 0 #6B3F22, 0 14px 26px rgba(0,0,0,.25); }
+.hm-raf:empty { display: none; }
+.hm-kavanoz { position: relative; width: clamp(78px, 8vw, 108px); height: clamp(92px, 9.6vw, 128px); border: 0; padding: 18px 0 0; cursor: pointer; border-radius: 18px 18px 22px 22px; background: linear-gradient(90deg, rgba(255,255,255,.55), rgba(255,255,255,.2) 40%, rgba(255,255,255,.45)), color-mix(in srgb, var(--kr) 55%, #fff); box-shadow: inset 0 -14px 0 color-mix(in srgb, var(--kr) 80%, #000 10%), 0 4px 10px rgba(0,0,0,.25); transition: transform .15s, opacity .3s; }
+.hm-kavanoz:hover { transform: translateY(-4px); }
+.hm-kapak { position: absolute; top: -8px; left: 12%; right: 12%; height: 18px; border-radius: 6px; background: var(--kr); box-shadow: inset 0 -4px 0 rgba(0,0,0,.2); }
+.hm-etiket { display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 10px; background: #FFFBF2; font: 400 clamp(28px, 3vw, 40px) var(--okuma); color: #2B1D14; box-shadow: 0 2px 0 rgba(0,0,0,.12); }
+.hm-kavanoz.bos { opacity: .25; pointer-events: none; transform: scale(.92); }
+.hm-kavanoz.salla { animation: hm-salla .45s; }
+@keyframes hm-salla { 20%, 60% { transform: translateX(-8px) rotate(-4deg); } 40%, 80% { transform: translateX(8px) rotate(4deg); } }
+.hm-ucan { position: absolute; z-index: 5; padding: 4px 14px; border-radius: 12px; background: #FFFBF2; font: 400 40px var(--okuma); color: #2B1D14; box-shadow: 0 6px 16px rgba(0,0,0,.25); translate: -50% 0; pointer-events: none; transition: transform .6s cubic-bezier(.4,-0.3,.6,1), opacity .6s; }
+.hm-pisti { display: grid; justify-items: center; padding: 6px 30px; color: #fff; animation: hm-dol .4s; }
+.hm-pisti b { font: 400 clamp(44px, 5vw, 64px) var(--okuma); } .hm-pisti span { font: 800 20px var(--display); }
+@media (max-width: 760px) { .hm-tarif { top: 120px; left: 8px; } .hm-raf { bottom: 8px; } }
+.hm-kurabiye { width: 96px; height: 96px; display: grid; place-items: center; border-radius: 50%; font-size: 54px; background: radial-gradient(circle at 35% 30%, #F7D59C, #D99A52 70%, #B87634); box-shadow: inset 0 -6px 0 rgba(0,0,0,.15), 0 6px 14px rgba(0,0,0,.3); animation: hm-dol .5s; }
+.hm-raf .ks-yeni { white-space: nowrap; margin-left: 10px; }

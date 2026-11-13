@@ -10,18 +10,67 @@
     return T._modeller[ad] || (T._modeller[ad] = YUK.then((m) => new Promise((ok, red) => { const L = new m.GLTFLoader(); L.setMeshoptDecoder(m.MeshoptDecoder); L.load(new URL("vendor/modeller/" + ad + ".glb", location.href).href, (g) => ok({ g, m }), undefined, red); })));
   };
 
-  const EYLEM = {
-    masa: { cumle: "Kedi masaya zıpladı.", kisa: "masaya zıpladı" },
-    kutu: { cumle: "Kedi kutuya girdi.", kisa: "kutuya girdi" },
-    top: { cumle: "Kedi topla oynadı.", kisa: "topla oynadı" },
-    sut: { cumle: "Kedi sütünü içti.", kisa: "sütünü içti" },
-    uyku: { cumle: "Kedi halıda uyudu.", kisa: "halıda uyudu" },
-    miyav: { cumle: "Kedi yüksek sesle miyavladı.", kisa: "miyavladı" },
+  /* ---- cümle kurucu: eylemler parçalardan kurulur, yanlış oyun tek ayrıntıda ayrışır ---- */
+  const SAYI = ["", "bir", "iki", "üç"];
+  const RENK = { kirmizi: "kırmızı", mavi: "mavi" };
+  const E = {
+    zipla: { no: (p) => "zıplama", e: (p) => (p.n > 1 ? `${SAYI[p.n]} kez zıpla` : "zıpla"), f: (p) => (p.n > 1 ? `${SAYI[p.n]} kez zıpladı` : "zıpladı"), o: () => "zıplamadı", p: () => ({ n: T.pick([1, 2, 3]) }) },
+    masa: { no: (p) => "masaya zıplama", e: () => "masaya zıpla", f: () => "masaya zıpladı", o: () => "masaya zıplamadı" },
+    kutu: { no: (p) => "kutuya girme", e: () => "kutuya gir", f: () => "kutuya girdi", o: () => "kutuya girmedi" },
+    saklan: { no: (p) => "kutunun arkasına saklanma", e: () => "kutunun arkasına saklan", f: () => "kutunun arkasına saklandı", o: () => "kutunun arkasına saklanmadı" },
+    masaAlt: { no: (p) => "masanın altına girme", e: () => "masanın altına gir", f: () => "masanın altına girdi", o: () => "masanın altına girmedi" },
+    top: { no: (p) => `${RENK[p.renk]} topla oynama`, e: (p) => `${RENK[p.renk]} topla oyna`, f: (p, sv) => `${RENK[p.renk]} topla oynadı`, o: (p) => `${RENK[p.renk]} topla oynamadı`, p: () => ({ renk: T.pick(["kirmizi", "mavi"]) }) },
+    sut: { no: (p) => "sütünü içme", e: () => "sütünü iç", f: () => "sütünü içti", o: () => "sütünü içmedi" },
+    uyku: { no: (p) => "halıda uyuma", e: () => "halıda uyu", f: () => "halıda uyudu", o: () => "halıda uyumadı" },
+    miyav: { no: (p) => "miyavlama", e: (p) => (p.n > 1 ? `${SAYI[p.n]} kez miyavla` : "miyavla"), f: (p) => (p.n > 1 ? `${SAYI[p.n]} kez miyavladı` : "miyavladı"), o: () => "miyavlamadı", p: () => ({ n: T.pick([1, 2, 3]) }) },
+    pencere: { no: (p) => "pencereden bakma", e: () => "pencereden dışarı bak", f: () => "pencereden dışarı baktı", o: () => "pencereden bakmadı" },
+    kos: { no: (p) => "halının etrafında koşma", e: () => "halının etrafında koş", f: () => "halının etrafında koştu", o: () => "halının etrafında koşmadı" },
+    kuyruk: { no: (p) => "kuyruğunu sallama", e: () => "kuyruğunu salla", f: () => "kuyruğunu salladı", o: () => "kuyruğunu sallamadı" },
+    don: { no: (p) => "kendi etrafında dönme", e: (p) => (p.n > 1 ? `kendi etrafında ${SAYI[p.n]} kez dön` : "kendi etrafında dön"), f: (p) => (p.n > 1 ? `kendi etrafında ${SAYI[p.n]} kez döndü` : "kendi etrafında döndü"), o: () => "kendi etrafında dönmedi", p: () => ({ n: T.pick([1, 2]) }) },
+    kase: { no: (p) => "kâseye gitme", e: (p) => (p.hiz === "yavas" ? "kâseye doğru yavaş yavaş yürü" : "kâseye doğru hızlıca koş"), f: (p) => (p.hiz === "yavas" ? "kâseye doğru yavaş yavaş yürüdü" : "kâseye doğru hızlıca koştu"), o: () => "kâseye gitmedi", p: () => ({ hiz: T.pick(["yavas", "hizli"]) }) },
   };
-  const IKILI = [["kutu", "masa"], ["sut", "uyku"], ["top", "miyav"], ["masa", "miyav"], ["sut", "top"], ["kutu", "uyku"]];
-  const iki = (a, b) => `Kedi önce ${EYLEM[a].kisa}, sonra ${EYLEM[b].kisa}.`;
+  const yap = (t, p) => ({ t, p: p || (E[t].p ? E[t].p() : {}) });
+  const uygun = () => Object.keys(E);
+  const cumleBas = (s) => "Kedi " + s;
+  /* tek bir ayrıntıyı bozan değişiklik */
+  function boz(e, sv, yasak, yon) {
+    const CD = yon ? "Yönergede" : "Cümlede";
+    const k = E[e.t];
+    if (sv > 1 && e.p.n) { const n = T.pick([1, 2, 3].filter((x) => x !== e.p.n)); return { e: yap(e.t, { n }), fark: `${CD} ${e.p.n > 1 ? SAYI[e.p.n] + " kez" : "bir kez"} yazıyordu, kedi ${n > 1 ? SAYI[n] + " kez" : "bir kez"} yaptı.` }; }
+    if (sv > 1 && e.p.renk) { const r = e.p.renk === "mavi" ? "kirmizi" : "mavi"; return { e: yap("top", { renk: r }), fark: `${CD} ${RENK[e.p.renk]} top yazıyordu, kedi ${RENK[r]} topla oynadı.` }; }
+    if (sv > 1 && e.p.hiz) { const hz = e.p.hiz === "yavas" ? "hizli" : "yavas"; return { e: yap("kase", { hiz: hz }), fark: `${CD} ${e.p.hiz === "yavas" ? "yavaş yavaş yürüdü" : "hızlıca koştu"} yazıyordu, kedi ${hz === "yavas" ? "yavaş yürüdü" : "koştu"}.` }; }
+    const t = T.pick(uygun().filter((x) => x !== e.t && !yasak.includes(x)));
+    const y = yap(t);
+    return { e: y, fark: `${CD} "${yon ? k.e(e.p) : k.f(e.p, sv)}" yazıyordu, kedi ${E[t].f(y.p, 3)}.` };
+  }
+  const buyuk = (x) => x.charAt(0).toLocaleUpperCase("tr-TR") + x.slice(1);
+  function soruUret(sv, yonerge) {
+    const kip = sv === 4 ? T.pick(["uc", "olumsuz"]) : sv === 3 ? "iki" : "tek";
+    const n = kip === "uc" ? 3 : kip === "iki" ? 2 : 1;
+    let havuz = uygun();
+    if (sv === 2) havuz = havuz.filter((k) => E[k].p);
+    const sec = T.shuffle(havuz.slice()).slice(0, n + (kip === "olumsuz" ? 1 : 0));
+    const dogru = sec.slice(0, n).map((t) => yap(t)), olumsuz = kip === "olumsuz" ? yap(sec[n]) : null;
+    const ff = (e) => (yonerge ? E[e.t].e(e.p) : E[e.t].f(e.p, sv)), nf = (e) => (yonerge ? E[e.t].no(e.p) : E[e.t].o(e.p));
+    let govde;
+    if (kip === "tek") govde = ff(dogru[0]);
+    else if (kip === "iki") govde = `önce ${ff(dogru[0])}, sonra ${ff(dogru[1])}`;
+    else if (kip === "uc") govde = `önce ${ff(dogru[0])}, sonra ${ff(dogru[1])}, en son ${ff(dogru[2])}`;
+    else govde = `${nf(olumsuz)}, ${ff(dogru[0])}`;
+    const cumle = (yonerge ? "Kedi, " : "Kedi ") + govde + ".";
+    const soru = { cumle, dogru, oyun: dogru.slice(), fark: "" };
+    const CD = yonerge ? "Yönergede" : "Cümlede";
+    if (Math.random() < 0.45) {
+      if (olumsuz && Math.random() < 0.6) { soru.oyun = [olumsuz]; soru.fark = `${CD} "${nf(olumsuz)}" yazıyordu ama kedi tam bunu yaptı.`; }
+      else if (n > 1 && Math.random() < 0.45) { const i = T.rand(0, n - 2); soru.oyun = dogru.slice(); [soru.oyun[i], soru.oyun[i + 1]] = [soru.oyun[i + 1], soru.oyun[i]]; soru.fark = `Sıra karıştı. Kedi önce ${E[dogru[i].t].f(dogru[i].p, 3)}, sonra ${E[dogru[i + 1].t].f(dogru[i + 1].p, 3)}.`; }
+      else { const i = T.rand(0, n - 1), b = boz(dogru[i], sv === 1 ? 1 : 2, dogru.map((x) => x.t).concat(olumsuz ? [olumsuz.t] : []), yonerge); soru.oyun = dogru.slice(); soru.oyun[i] = b.e; soru.fark = b.fark; }
+    }
+    soru.dogruMu = JSON.stringify(soru.oyun) === JSON.stringify(soru.dogru);
+    return soru;
+  }
+
   /* sahne yerleşimi (birim: kedi boyu yaklaşık 1) */
-  const P = { ev: 0.1, kutu: -2.75, top: -1.15, sut: 1.45, masa: 2.95, masaY: 1.22, hali: 0.15 };
+  const P = { ev: 0.1, kutu: -2.75, top: -1.55, sut: 1.75, masa: 2.95, masaY: 1.2, hali: 0.15 };
 
   function sahneyiKur(c) {
     const { THREE, sahne, r } = c;
@@ -101,7 +150,7 @@
     const masa = new THREE.Group(); masa.position.set(P.masa, 0, -0.35); sahne.add(masa);
     const tabla = new THREE.Mesh(T.yuvKutu(THREE, 2.1, 0.13, 1.25, 0.05), masaM); tabla.position.y = P.masaY - 0.065; masa.add(tabla);
     [[-0.88, -0.48], [0.88, -0.48], [-0.88, 0.48], [0.88, 0.48]].forEach(([px, pz]) => { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.04, P.masaY - 0.13, 16), masaM); b.position.set(px, (P.masaY - 0.13) / 2, pz); masa.add(b); });
-    const etek = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.12, 1.05), masaM); etek.position.y = P.masaY - 0.19; masa.add(etek);
+    const etek = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.05, 1.05), masaM); etek.position.y = P.masaY - 0.155; masa.add(etek);
     const vazo = new THREE.Mesh(new THREE.LatheGeometry([[0, 0], [0.13, 0], [0.17, 0.12], [0.12, 0.3], [0.07, 0.36], [0.09, 0.42]].map(([a, b]) => new THREE.Vector2(a, b)), 32), MF({ color: 0xf3ede2, roughness: 0.15, clearcoat: 1 })); vazo.position.set(0.62, P.masaY, -0.25); masa.add(vazo);
     const sapM = M({ color: 0x4f8f45, roughness: 0.6 });
     [[0.58, 0.72, -0.24, 0xf0718b], [0.68, 0.66, -0.22, 0xffc94a], [0.63, 0.78, -0.3, 0xf7a3b5]].forEach(([px, py, pz, col]) => { const s2 = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, py - 0.34, 6), sapM); s2.position.set(px, P.masaY + 0.34 + (py - 0.34) / 2, pz); masa.add(s2); const ci = new THREE.Mesh(new THREE.IcosahedronGeometry(0.07, 2), M({ color: col, roughness: 0.55 })); ci.position.set(px, P.masaY + py, pz); masa.add(ci); });
@@ -121,7 +170,7 @@
     kapak(KG, 0.5, 0, KD / 2, "x", 1.95); kapak(KG, 0.5, 0, -KD / 2, "x", 1.7); kapak(KD, 0.45, -KG / 2, 0, "z", 1.85); kapak(KD, 0.45, KG / 2, 0, "z", 2.05);
     kutu.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
     /* süt kâsesi */
-    const kase = new THREE.Group(); kase.position.set(P.sut, 0, 0.55); sahne.add(kase);
+    const kase = new THREE.Group(); kase.position.set(P.sut, 0, 0.85); sahne.add(kase);
     const prof = [[0, 0.01], [0.2, 0.01], [0.24, 0.03], [0.32, 0.16], [0.35, 0.2], [0.33, 0.215], [0.29, 0.17], [0.2, 0.06], [0, 0.06]].map(([a, b]) => new THREE.Vector2(a, b));
     const kaseM = MF({ color: 0xd8414c, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.08 });
     const km = new THREE.Mesh(new THREE.LatheGeometry(prof, 48), kaseM); km.castShadow = true; km.receiveShadow = true; kase.add(km);
@@ -130,8 +179,9 @@
     const sutAyar = (d) => { const yy = lerp(0.075, 0.175, d); sutY.position.y = yy; const rr = lerp(0.215, 0.3, (yy - 0.06) / 0.11); sutY.scale.setScalar(rr); };
     sutAyar(1);
     /* top */
-    const topD = c.doku(512, 256, (x, w, hh) => { const R = ["#FF5A5F", "#FFD84A", "#3FA9F5", "#5DD27A", "#FF5A5F", "#FFD84A", "#3FA9F5", "#5DD27A"]; R.forEach((col, i) => { x.fillStyle = col; x.fillRect(i * w / 8, 0, w / 8 + 1, hh); }); x.fillStyle = "#fff"; x.fillRect(0, hh / 2 - 10, w, 20); x.beginPath(); x.arc(w * 0.25, hh * 0.5, 26, 0, 7); x.arc(w * 0.75, hh * 0.5, 26, 0, 7); x.fill(); });
-    const TR = 0.26, topM = new THREE.Mesh(new THREE.SphereGeometry(TR, 48, 32), MF({ map: topD, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.1 })); topM.castShadow = true; sahne.add(topM);
+    const topDoku = (ana, ikinci) => c.doku(512, 256, (x, w, hh) => { x.fillStyle = ana; x.fillRect(0, 0, w, hh); x.fillStyle = ikinci; x.fillRect(0, hh / 2 - 18, w, 36); x.fillStyle = "#fff"; [0.25, 0.75].forEach((u) => { x.beginPath(); x.arc(w * u, hh * 0.5, 30, 0, 7); x.fill(); }); x.fillStyle = "rgba(255,255,255,.18)"; x.fillRect(0, 0, w, 18); });
+    const TR = 0.26, topYap = (ana, ikinci) => { const m = new THREE.Mesh(new THREE.SphereGeometry(TR, 48, 32), MF({ map: topDoku(ana, ikinci), roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.1 })); m.castShadow = true; sahne.add(m); return m; };
+    const toplarM = { kirmizi: topYap("#E8333C", "#FFD84A"), mavi: topYap("#2F7DE1", "#FFFFFF") };
     /* ışıklar */
     sahne.add(new THREE.HemisphereLight(0xffe9d0, 0x2a1a22, 0.32));
     const spot = new THREE.SpotLight(0xffeccc, 420, 30, 0.5, 0.7, 1.6); spot.position.set(0.6, 8.5, 6.0); spot.target.position.set(0.3, 0.4, 0); sahne.add(spot, spot.target);
@@ -142,7 +192,7 @@
     /* ön ışıklar */
     const ampM = new THREE.MeshBasicMaterial({ color: 0xffe2a0 });
     for (let i = 0; i < 11; i++) { const a = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), ampM); a.position.set(-5 + i * 1, 0.05, 3.2); sahne.add(a); }
-    return { topM, TR, sutAyar, spot };
+    return { toplarM, TR, sutAyar, spot };
   }
 
   arac.render = function (host, api) {
@@ -171,9 +221,12 @@
       kok.updateMatrixWorld(true); kedi.traverse((o) => o.isSkinnedMesh && o.skeleton.update()); const kutuB = new THREE.Box3().setFromObject(kedi, true), boy = kutuB.getSize(new THREE.Vector3()).y, olc = 1.18 / boy;
       kedi.scale.setScalar(olc); kedi.position.y = -kutuB.min.y * olc;
       const B = {}; kedi.traverse((o) => { if (o.isBone) { B[o.name] = o; o.userData.q0 = o.quaternion.clone(); } });
+      const YAT = [["frontleg0", -1.45], ["frontleg1", 0.1], ["frontleg2", 0.5], ["backleg0", -1.1], ["backleg1", 2.2], ["backleg2", -0.6]];
       const mixer = new THREE.AnimationMixer(kedi), yuruA = mixer.clipAction(mod.g.animations[0]); yuruA.play(); yuruA.setEffectiveWeight(0);
       const d = { x: P.ev, y: 0, z: 0.25, yon: 0, yonH: 0, yuru: 0, hiz: 1, sx: 1, sy: 1, yat: 0, egil: 0, basX: 0, basY: 0, kuyruk: 1, pati: 0, gorunur: 1, uyku: 0, zipla: 0 };
-      const top = { x: P.top, y: S.TR, z: 0.35, r: 0 }, sut = { d: 1 };
+      const TOP0 = { kirmizi: [P.top, 0.55], mavi: [-0.95, 1.75] };
+      const YON = { kirmizi: [0.15, 1], mavi: [1, 0.1] };
+      const toplar = { kirmizi: { x: TOP0.kirmizi[0], z: TOP0.kirmizi[1], y: S.TR, r: 0 }, mavi: { x: TOP0.mavi[0], z: TOP0.mavi[1], y: S.TR, r: 0 } }, sut = { d: 1 };
       const ex = new THREE.Vector3(1, 0, 0), ey = new THREE.Vector3(0, 1, 0), ez = new THREE.Vector3(0, 0, 1), q = new THREE.Quaternion();
       const don = (b, ax, a) => { if (!b || !a) return; q.setFromAxisAngle(ax, a); b.quaternion.multiply(q); };
       let t0 = 0, mesgul = false;
@@ -184,20 +237,19 @@
         mixer.update(dt);
         if (d.yuru < 0.01) for (const n in B) B[n].quaternion.copy(B[n].userData.q0);
         /* nefes, baş, kuyruk */
-        const nefes = Math.sin(t0 * (d.uyku ? 1.6 : 2.6)) * (d.uyku ? 0.035 : 0.012);
-        don(B.head, ex, d.basX + Math.sin(t0 * 0.7) * 0.05 * (1 - d.uyku)); don(B.head, ey, d.basY + Math.sin(t0 * 0.45) * 0.12 * (1 - d.uyku) * (1 - d.yuru));
+                don(B.head, ex, d.basX + Math.sin(t0 * 0.7) * 0.05 * (1 - d.uyku)); don(B.head, ey, d.basY + Math.sin(t0 * 0.45) * 0.12 * (1 - d.uyku) * (1 - d.yuru));
         const kh = d.uyku ? 0.05 : 0.22 * d.kuyruk; const ks = Math.sin(t0 * (d.uyku ? 1.2 : 3.2));
         ["tailstart", "tail1", "tail2", "tail3"].forEach((n, i) => { don(B[n], ez, ks * kh * (0.6 + i * 0.3)); if (d.kuyruk < 1) don(B[n], ex, (1 - d.kuyruk) * 0.45); if (d.uyku) don(B[n], ez, 0.35 * d.uyku); });
         if (d.pati) { don(B.frontleg, ex, -1.2 * d.pati); don(B.frontleg1, ex, 0.6 * d.pati); }
-        if (d.yat > 0) { ["frontleg", "R_frontleg"].forEach((n) => don(B[n], ex, -0.9 * d.yat)); ["backleg", "R_backleg"].forEach((n) => don(B[n], ex, 0.7 * d.yat)); }
+        if (d.yat > 0) YAT.forEach(([n, a]) => { don(B[n], ex, a * d.yat); don(B["R_" + n], ex, a * d.yat); });
+        if (d.uyku) { const nf = Math.sin(t0 * 1.7) * 0.03 * d.uyku; don(B.chest, ex, nf); }
         /* gövde */
         d.yonH += (d.yon - d.yonH) * Math.min(1, dt * 9);
         kok.position.set(d.x, d.y, d.z); yonG.rotation.y = d.yonH;
-        yatG.rotation.set(d.egil + d.yat * 0.06, 0, d.yat * 0.1); yatG.position.y = -d.yat * 0.3;
-        kedi.scale.set(olc * d.sx, olc * (d.sy + nefes), olc * d.sx);
-        kedi.visible = d.gorunur > 0.02;
+        yatG.rotation.set(d.egil, 0, 0); yatG.position.y = -d.yat * 0.243;
+                kedi.visible = d.gorunur > 0.02;
         /* top, süt */
-        S.topM.position.set(top.x, top.y, top.z); S.topM.rotation.set(top.r, 0, top.r * 0.35); S.sutAyar(sut.d);
+        for (const k in toplar) { const tp = toplar[k], m = S.toplarM[k]; m.position.set(tp.x, tp.y, tp.z); m.rotation.set(tp.r, 0, tp.r * 0.35); } S.sutAyar(sut.d);
         /* balon ve Zz konumu */
         if (balon.classList.contains("acik") || zz.classList.contains("acik")) { const [bx, by] = yanson(B.head || kedi); balon.style.transform = `translate(${bx + 30}px, ${by - 150}px)`; zz.style.transform = `translate(${bx + 10}px, ${by - 110}px)`; }
       };
@@ -207,63 +259,95 @@
       const bekle = (ms) => new Promise((r) => setTimeout(r, ms));
       const ses = (f, sure = 0.12, tip = "triangle", v = 0.12) => { try { const a = T.sound.unlock(); if (!a) return; const o = a.createOscillator(), g = a.createGain(); o.type = tip; o.frequency.setValueAtTime(f, a.currentTime); o.frequency.exponentialRampToValueAtTime(f * 1.6, a.currentTime + sure); g.gain.setValueAtTime(v, a.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + sure); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + sure + 0.02); } catch (e) {} };
       const miyavSes = () => { try { const a = T.sound.unlock(); if (!a) return; const o = a.createOscillator(), o2 = a.createOscillator(), f = a.createBiquadFilter(), g = a.createGain(), n = a.currentTime; o.type = "sawtooth"; o2.type = "triangle"; f.type = "bandpass"; f.Q.value = 3; [o, o2].forEach((x, i) => { x.frequency.setValueAtTime(520 * (i ? 2 : 1), n); x.frequency.linearRampToValueAtTime(880 * (i ? 2 : 1), n + 0.18); x.frequency.linearRampToValueAtTime(600 * (i ? 2 : 1), n + 0.55); }); f.frequency.setValueAtTime(900, n); f.frequency.linearRampToValueAtTime(1800, n + 0.2); f.frequency.linearRampToValueAtTime(1100, n + 0.55); g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(0.22, n + 0.06); g.gain.exponentialRampToValueAtTime(0.0001, n + 0.6); o.connect(f); o2.connect(f); f.connect(g).connect(a.destination); o.start(); o2.start(); o.stop(n + 0.65); o2.stop(n + 0.65); } catch (e) {} };
-      const yonBak = (hx) => (d.yon = hx > d.x ? Math.PI / 2 : -Math.PI / 2);
-      async function yuru(x, z = d.z, hiz = 1.55) { const x0 = d.x, z0 = d.z, uz = Math.hypot(x - x0, z - z0); if (uz < 0.02) return; d.yon = Math.atan2(x - x0, z - z0); await bekle(140); d.hiz = hiz / 1.25; await tw(160, (t) => (d.yuru = t)); await tw(uz / hiz * 1000, (t) => { d.x = lerp(x0, x, t); d.z = lerp(z0, z, t); }, (t) => t); await tw(180, (t) => (d.yuru = 1 - t)); d.yuru = 0; }
-      async function zipla(x, y, z = d.z, yuk = 1.0, sure = 700) { if (Math.hypot(x - d.x, z - d.z) > 0.05) d.yon = Math.atan2(x - d.x, z - d.z); await tw(170, (t) => { d.sy = 1 - 0.18 * t; d.sx = 1 + 0.08 * t; d.egil = -0.12 * t * Math.sign(x - d.x || 1) * 0; }); ses(330, 0.25, "sine", 0.1); const x0 = d.x, y0 = d.y, z0 = d.z; await tw(sure, (t) => { d.x = lerp(x0, x, t); d.z = lerp(z0, z, t); d.y = lerp(y0, y, t) + Math.sin(t * Math.PI) * yuk; d.sy = 0.82 + 0.3 * Math.sin(t * Math.PI); d.sx = 1.08 - 0.12 * Math.sin(t * Math.PI); d.egil = Math.sin(t * Math.PI * 2) * -0.25; }, (t) => t); d.egil = 0; ses(140, 0.1, "square", 0.04); await tw(130, (t) => { d.sy = 0.82 + 0.18 * t; d.sx = 1.08 - 0.08 * t; }); d.sy = d.sx = 1; }
-      async function oyna(a) {
-        if (a === "masa") { await yuru(P.masa - 1.75, 0.05); await zipla(P.masa - 0.6, P.masaY, -0.3, 1.25, 760); d.yon = 0; await tw(500, (t) => (d.basX = -0.25 * Math.sin(t * Math.PI))); }
-        else if (a === "kutu") { await yuru(P.kutu + 1.8, 0.15); await zipla(P.kutu, 0.06, 0.1, 1.15, 760); d.yon = 0.25; await tw(380, (t) => (d.sy = 1 - 0.12 * Math.sin(t * Math.PI))); for (let i = 0; i < 2; i++) await tw(260, (t) => (d.basY = Math.sin(t * Math.PI) * 0.5 * (i ? -1 : 1))); }
+      async function zipla(x, y, z = d.z, yuk = 1.0, sure = 700) { if (Math.hypot(x - d.x, z - d.z) > 0.05) d.yon = yonA(Math.atan2(x - d.x, z - d.z)); await tw(200, (t) => (d.egil = 0.12 * t)); ses(330, 0.25, "sine", 0.1); const x0 = d.x, y0 = d.y, z0 = d.z; await tw(sure, (t) => { d.x = lerp(x0, x, t); d.z = lerp(z0, z, t); d.y = lerp(y0, y, t) + Math.sin(t * Math.PI) * yuk; d.egil = lerp(-0.3, 0.2, t) * Math.sin(t * Math.PI); }, (t) => t); ses(140, 0.1, "square", 0.04); await tw(160, (t) => (d.egil = 0.08 * (1 - t))); d.egil = 0; }
+      const yonA = (a) => { const k = Math.PI * 2; return a + k * Math.round((d.yonH - a) / k); };
+      const bak = (x, z) => (d.yon = yonA(Math.atan2(x - d.x, z - d.z)));
+      const kameraya = () => (d.yon = yonA(0));
+      async function git(x, z, hiz = 1.55) { const uz = Math.hypot(x - d.x, z - d.z); if (uz < 0.03) return; bak(x, z); await bekle(120); d.hiz = hiz / 1.25; await tw(160, (t) => (d.yuru = t)); const x0 = d.x, z0 = d.z; await tw(uz / hiz * 1000, (t) => { d.x = lerp(x0, x, t); d.z = lerp(z0, z, t); }, (t) => t); await tw(180, (t) => (d.yuru = 1 - t)); d.yuru = 0; }
+      async function yol(noktalar, hiz) { for (const [x, z] of noktalar) await git(x, z, hiz); }
+      const miyavla = async () => { await tw(260, (t) => (d.basX = -0.45 * t)); miyavSes(); balon.classList.remove("acik"); void balon.offsetWidth; balon.classList.add("acik"); await bekle(900); balon.classList.remove("acik"); await tw(260, (t) => (d.basX = -0.45 * (1 - t))); await bekle(150); };
+      async function oyna(e) {
+        await hazirla(); const a = e.t, p = e.p;
+        if (a === "masa") { await git(P.masa - 1.75, 0.05); await zipla(P.masa - 0.6, P.masaY, -0.3, 1.2, 760); kameraya(); await tw(500, (t) => (d.basX = -0.25 * Math.sin(t * Math.PI))); }
+        else if (a === "kutu") { await git(P.kutu + 1.8, 0.15); await zipla(P.kutu, 0.06, 0.1, 1.15, 760); d.yon = yonA(0.25); await bekle(300); for (let i = 0; i < 2; i++) await tw(260, (t) => (d.basY = Math.sin(t * Math.PI) * 0.5 * (i ? -1 : 1))); }
+        else if (a === "saklan") { await yol([[P.kutu + 1.6, -0.75], [P.kutu + 0.2, -0.95]]); kameraya(); await bekle(350); await tw(400, (t) => (d.basY = 0.45 * Math.sin(t * Math.PI))); }
+        else if (a === "masaAlt") { await yol([[P.masa - 1.7, 0.6], [P.masa - 1.45, -0.35]], 1.3); await tw(350, (t) => (d.yat = 0.65 * t)); d.yuru = 0; await git(P.masa - 0.1, -0.35, 0.9); kameraya(); await bekle(300); await tw(400, (t) => (d.basY = -0.35 * Math.sin(t * Math.PI))); }
         else if (a === "top") {
-          await yuru(top.x + 0.78, top.z); yonBak(top.x); await bekle(200);
+          const tp = toplar[p.renk], x0 = tp.x, z0 = tp.z, [ux, uz] = YON[p.renk], ul = Math.hypot(ux, uz), kx = ux / ul, kz = uz / ul;
+          await git(tp.x - kx * 0.72, tp.z - kz * 0.72); bak(tp.x, tp.z); await bekle(220);
           await tw(260, (t) => (d.pati = Math.sin(t * Math.PI))); ses(520, 0.08);
-          const x0 = top.x, z0 = top.z; await tw(1100, (t) => { top.x = lerp(x0, x0 - 0.35, t); top.z = lerp(z0, z0 + 1.05, t); top.r = Math.hypot(top.x - x0, top.z - z0) / S.TR; top.y = S.TR + Math.abs(Math.sin(t * Math.PI * 2)) * 0.22 * (1 - t); }, cik);
-          await yuru(top.x + 0.55, top.z - 0.55, 2.0); yonBak(top.x); d.yon = Math.atan2(top.x - d.x, top.z - d.z); await zipla(top.x + 0.42, 0, top.z - 0.42, 0.45, 480); await tw(240, (t) => (d.pati = Math.sin(t * Math.PI))); ses(600, 0.08);
-          const x1 = top.x, z1 = top.z; await tw(600, (t) => { top.x = lerp(x1, x1 - 0.4, t); top.z = lerp(z1, z1 + 0.25, t); top.r = Math.hypot(top.x - x0, top.z - z0) / S.TR; }, cik);
+          await tw(1000, (t) => { tp.x = x0 + kx * 0.9 * t; tp.z = z0 + kz * 0.9 * t; tp.r = Math.hypot(tp.x - x0, tp.z - z0) / S.TR; tp.y = S.TR + Math.abs(Math.sin(t * Math.PI * 2)) * 0.18 * (1 - t); }, cik);
+          await git(tp.x - kx * 0.62, tp.z - kz * 0.62, 2.0); bak(tp.x, tp.z); await tw(240, (t) => (d.pati = Math.sin(t * Math.PI))); ses(600, 0.08);
+          const x1 = tp.x, z1 = tp.z; await tw(600, (t) => { tp.x = x1 + kx * 0.2 * t; tp.z = z1 + kz * 0.2 * t; tp.r = Math.hypot(tp.x - x0, tp.z - z0) / S.TR; }, cik);
+          kameraya();
         }
-        else if (a === "sut") { await yuru(P.sut - 0.72, 0.55); yonBak(P.sut); await tw(420, (t) => { d.basX = 0.55 * t; d.egil = 0.22 * t; }); for (let i = 0; i < 5; i++) { await tw(220, (t) => (d.basX = 0.55 + 0.1 * Math.sin(t * Math.PI))); ses(900, 0.05, "sine", 0.05); sut.d = Math.max(0.1, sut.d - 0.18); } await tw(420, (t) => { d.basX = 0.55 * (1 - t); d.egil = 0.22 * (1 - t); }); }
-        else if (a === "uyku") { await yuru(P.hali, 0.7); d.yon = 0.35; await bekle(250); await tw(1100, (t) => { d.yat = t; d.basX = 0.42 * t; d.uyku = t; }); zz.classList.add("acik"); await bekle(1600); }
-        else if (a === "miyav") { d.yon = 0; await bekle(250); await tw(300, (t) => (d.basX = -0.45 * t)); miyavSes(); balon.classList.add("acik"); await bekle(1100); await tw(300, (t) => (d.basX = -0.45 * (1 - t))); }
+        else if (a === "sut") { await git(P.sut - 0.72, 0.85); bak(P.sut, 0.85); await tw(420, (t) => { d.basX = 0.55 * t; d.egil = 0.22 * t; }); for (let i = 0; i < 5; i++) { await tw(220, (t) => (d.basX = 0.55 + 0.1 * Math.sin(t * Math.PI))); ses(900, 0.05, "sine", 0.05); sut.d = Math.max(0.1, sut.d - 0.18); } await tw(420, (t) => { d.basX = 0.55 * (1 - t); d.egil = 0.22 * (1 - t); }); }
+        else if (a === "uyku") { await git(P.hali, 0.7); d.yon = yonA(0.35); await bekle(250); await tw(1100, (t) => { d.yat = t; d.basX = 0.42 * t; d.uyku = t; }); zz.classList.add("acik"); await bekle(1600); }
+        else if (a === "miyav") { kameraya(); await bekle(250); for (let i = 0; i < p.n; i++) await miyavla(); }
+        else if (a === "zipla") { kameraya(); await bekle(250); for (let i = 0; i < p.n; i++) { await zipla(d.x, 0, d.z, 0.55, 480); kameraya(); await bekle(160); } }
+        else if (a === "pencere") { await git(0.4, -2.05); d.yon = yonA(Math.PI); await bekle(300); await tw(500, (t) => (d.basX = -0.5 * t)); d.kuyruk = 1.6; await bekle(1300); await tw(400, (t) => (d.basX = -0.5 * (1 - t))); d.kuyruk = 1; }
+        else if (a === "kos") { const cx = P.hali, cz = 0.8, rx = 1.05, rz = 0.8; await git(cx + rx, cz, 2.2); d.hiz = 2.4; await tw(160, (t) => (d.yuru = t)); await tw(3200, (t) => { const u = t * Math.PI * 2; d.x = cx + Math.cos(u) * rx; d.z = cz + Math.sin(u) * rz; d.yon = yonA(Math.atan2(-Math.sin(u) * rx, Math.cos(u) * rz)); }, (t) => t); await tw(200, (t) => (d.yuru = 1 - t)); d.yuru = 0; kameraya(); }
+        else if (a === "kuyruk") { kameraya(); await bekle(250); d.kuyruk = 3.2; await bekle(1800); d.kuyruk = 1; }
+        else if (a === "don") { kameraya(); await bekle(300); const y0 = d.yon; d.hiz = 1.6; d.yuru = 0.6; await tw(1300 * p.n, (t) => { d.yon = y0 + t * Math.PI * 2 * p.n; d.yonH = d.yon; }, io); d.yuru = 0; d.yon = d.yonH = y0; }
+        else if (a === "kase") { await git(P.sut - 0.75, 0.85, p.hiz === "yavas" ? 0.7 : 3.2); bak(P.sut, 0.85); await bekle(300); }
+      }
+      async function hazirla() {
+        balon.classList.remove("acik"); zz.classList.remove("acik");
+        const masaAlti = d.z < -0.2 && Math.abs(d.x - P.masa) < 1.2 && d.y < 0.3;
+        if (d.yat > 0.01 && !masaAlti) { const y0 = d.yat; await tw(600, (t) => { d.yat = y0 * (1 - t); d.uyku = Math.max(0, d.uyku - t); d.basX = 0.42 * (1 - t); }); d.yat = 0; }
+        d.uyku = 0; d.basX = 0; d.basY = 0;
+        if (d.y > 0.3) await zipla(P.masa - 1.6, 0, 0.3, 0.6, 650);
+        else if (Math.abs(d.x - P.kutu) < 0.9 && Math.abs(d.z - 0.1) < 0.6) await zipla(P.kutu + 1.3, 0, 0.3, 1.0, 700);
+        else if (d.z < -0.7 && d.x < P.kutu + 1.2) await git(P.kutu + 1.4, -0.55);
+        else if (d.z < -0.2 && Math.abs(d.x - P.masa) < 1.2) { await git(P.masa - 1.45, -0.35, 0.9); await tw(300, (t) => (d.yat = d.yat * (1 - t))); d.yat = 0; }
       }
       async function sifirla(ani = true) {
-        if (ani) await tw(260, (t) => (d.sx = d.sy = 1 - t));
+        if (ani) {
+          await hazirla();
+          const bas = Object.fromEntries(Object.entries(toplar).map(([k, v]) => [k, [v.x, v.z]])), sd = sut.d;
+          await Promise.all([git(P.ev, 0.25, 1.9), tw(900, (t) => { for (const k in toplar) { const tp = toplar[k], [bx, bz] = bas[k]; tp.x = lerp(bx, TOP0[k][0], t); tp.z = lerp(bz, TOP0[k][1], t); tp.r += 0.04; tp.y = S.TR; } sut.d = lerp(sd, 1, t); })]);
+          kameraya(); await bekle(250);
+        }
         balon.classList.remove("acik"); zz.classList.remove("acik");
-        Object.assign(d, { x: P.ev, y: 0, z: 0.25, yon: 0, yonH: 0, yuru: 0, sx: 1, sy: 1, yat: 0, egil: 0, basX: 0, basY: 0, kuyruk: 1, pati: 0, uyku: 0 });
-        Object.assign(top, { x: P.top, y: S.TR, z: 0.35, r: 0 }); sut.d = 1;
-        if (ani) { d.sx = d.sy = 0; await tw(320, (t) => (d.sx = d.sy = t), (t) => 1 + 2.4 * Math.pow(t - 1, 3) + 1.4 * Math.pow(t - 1, 2)); }
+        Object.assign(d, { x: P.ev, y: 0, z: 0.25, yuru: 0, yat: 0, egil: 0, basX: 0, basY: 0, kuyruk: 1, pati: 0, uyku: 0 });
+        if (!ani) d.yon = d.yonH = 0;
+        for (const k in toplar) Object.assign(toplar[k], { x: TOP0[k][0], z: TOP0[k][1], y: S.TR });
+        sut.d = 1;
       }
-      async function sevin() { d.yon = 0; for (let i = 0; i < 2; i++) await zipla(d.x, d.y, d.z, 0.55, 480); await tw(600, (t) => (d.yon = t * Math.PI * 2)); d.yon = 0; d.yonH = 0; }
-      async function uzul() { d.yon = 0; await tw(450, (t) => { d.basX = 0.45 * t; d.kuyruk = 1 - t; }); await bekle(700); await tw(400, (t) => { d.basX = 0.45 * (1 - t); d.kuyruk = t; }); }
+      async function sevin() { kameraya(); await bekle(200); for (let i = 0; i < 2; i++) { await zipla(d.x, d.y, d.z, 0.5, 460); kameraya(); } await tw(300, (t) => (d.basY = Math.sin(t * Math.PI * 2) * 0.4)); }
+      async function uzul() { kameraya(); await tw(450, (t) => { d.basX = 0.45 * t; d.kuyruk = 1 - t; }); await bekle(700); await tw(400, (t) => { d.basX = 0.45 * (1 - t); d.kuyruk = t; }); d.kuyruk = 1; }
       /* akış */
-      let seviye = 1, soru = null, skor = 0;
-      function yeniSoru() {
-        if (seviye === 1) { const a = T.pick(Object.keys(EYLEM)); soru = { cumle: EYLEM[a].cumle, dogru: [a] }; }
-        else { const [a, b] = T.pick(IKILI); soru = { cumle: iki(a, b), dogru: [a, b] }; }
-        const yanlis = Math.random() < 0.45;
-        if (!yanlis) soru.oyun = soru.dogru.slice();
-        else if (soru.dogru.length === 2 && Math.random() < 0.5) soru.oyun = soru.dogru.slice().reverse();
-        else { soru.oyun = soru.dogru.slice(); const i = T.rand(0, soru.oyun.length - 1); soru.oyun[i] = T.pick(Object.keys(EYLEM).filter((x) => !soru.dogru.includes(x))); }
-        soru.dogruMu = soru.oyun.join() === soru.dogru.join();
-        ciz("oku");
-      }
+      let seviye = 1, yonerge = false, soru = null, skor = 0;
+      const SEV = [[1, "Kısa cümle"], [2, "Ayrıntı"], [3, "İki adım"], [4, "Üç adım (2. sınıf)"]];
+      function yeniSoru() { soru = soruUret(seviye, yonerge); ciz("oku"); }
       function ciz(asama, sonuc) {
-        kart.replaceChildren(h("div.ot-cumle", soru.cumle));
+        kart.replaceChildren(h("div.ot-cumle", soru.cumle)); kart.classList.toggle("kucuk", asama !== "oku");
         const b = (cls, ic, fn, lbl) => h("button.ot-b." + cls, { onclick: fn }, ic ? T.icon(ic) : null, lbl);
+        const sor = yonerge ? "Kedi yönergeyi doğru uyguladı mı?" : "Kedi rolünü doğru yaptı mı?";
         if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, "Okuduk, sahneye çıksın"));
-        else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", "Kedi rolünü oynuyor, dikkatle izleyin..."));
-        else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", "Kedi rolünü doğru yaptı mı?"), b("evet", "check", () => karar(true), "Rolünü doğru yaptı"), b("hayir", "close", () => karar(false), "Rolünü yanlış yaptı"));
-        else if (asama === "sonuc") dugme.replaceChildren(h("div.ot-sonuc" + (sonuc ? ".iyi" : ""), sonuc ? "Harika! Dikkatli okudunuz." : soru.dogruMu ? "Aslında kedi rolünü doğru yaptı. Cümleyi bir daha okuyalım." : "Kedi rolünü yanlış yaptı. Cümle neyi anlatıyordu, bir daha okuyalım."), soru.dogruMu ? null : b("dinle", "eye", dogrusunuGoster, "Doğrusunu göster"), b("oyna", "next", async () => { await sifirla(); yeniSoru(); }, "Yeni cümle"));
-        skorEl.replaceChildren(h("span", "Seviye"), h("div.seg", [[1, "Tek cümle"], [2, "İki olay"]].map(([v, l]) => h("button", { "aria-pressed": String(seviye === v), onclick: async () => { if (mesgul) return; seviye = v; await sifirla(); yeniSoru(); } }, l))), h("b.ot-puan", "⭐ " + String(skor)));
+        else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", yonerge ? "Kedi yönergeyi uyguluyor, dikkatle izleyin..." : "Kedi rolünü oynuyor, dikkatle izleyin..."));
+        else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", sor), b("evet", "check", () => karar(true), yonerge ? "Doğru uyguladı" : "Rolünü doğru yaptı"), b("hayir", "close", () => karar(false), yonerge ? "Yanlış uyguladı" : "Rolünü yanlış yaptı"));
+        else if (asama === "sonuc") {
+          const msg = sonuc ? (soru.dogruMu ? "Harika! Dikkatli okudunuz." : "Harika! Yanlışı yakaladınız. " + soru.fark) : soru.dogruMu ? (yonerge ? "Aslında kedi yönergeyi doğru uyguladı. Bir daha okuyalım." : "Aslında kedi rolünü doğru yaptı. Bir daha okuyalım.") : "Kedi yanlış yaptı. " + soru.fark;
+          dugme.replaceChildren(h("div.ot-sonuc" + (sonuc ? ".iyi" : ""), msg), soru.dogruMu ? null : b("dinle", "eye", dogrusunuGoster, "Doğrusunu göster"), b("oyna", "next", async () => { if (mesgul) return; mesgul = true; await sifirla(); mesgul = false; yeniSoru(); }, "Yeni cümle"));
+        }
+        const degis = async (fn) => { if (mesgul) return; fn(); mesgul = true; await sifirla(); mesgul = false; yeniSoru(); };
+        skorEl.replaceChildren(
+          h("div.seg", [[false, "Cümle oku"], [true, "Yönerge oku"]].map(([v, l]) => h("button", { "aria-pressed": String(yonerge === v), onclick: () => degis(() => (yonerge = v)) }, l))),
+          h("div.seg", SEV.map(([v, l]) => h("button", { "aria-pressed": String(seviye === v), onclick: () => degis(() => (seviye = v)) }, l))),
+          h("b.ot-puan", "⭐ " + String(skor)));
       }
-      async function oynat() { if (mesgul) return; mesgul = true; T.sound.unlock(); ciz("oynuyor"); await sifirla(false); await bekle(300); for (const a of soru.oyun) { await oyna(a); await bekle(550); } mesgul = false; ciz("karar"); }
+      async function oynat() { if (mesgul) return; mesgul = true; T.sound.unlock(); ciz("oynuyor"); await sifirla(true); await bekle(200); for (const e of soru.oyun) { await oyna(e); await bekle(500); } mesgul = false; ciz("karar"); }
+      async function ayaga() { balon.classList.remove("acik"); zz.classList.remove("acik"); if (d.yat) await tw(500, (t) => { d.yat = 1 - t; d.uyku = 1 - t; d.basX = 0.42 * (1 - t); }); d.yat = d.uyku = 0; }
       async function karar(dediDogru) {
         if (mesgul) return; mesgul = true;
         const iyi = dediDogru === soru.dogruMu;
-        if (iyi) { skor++; T.sound.ok(); T.konfeti && T.konfeti(); ciz("sonuc", true); balon.classList.remove("acik"); zz.classList.remove("acik"); if (d.yat) await tw(500, (t) => { d.yat = 1 - t; d.uyku = 1 - t; d.basX = 0.3 * (1 - t); }); await sevin(); }
+        if (iyi) { skor++; T.sound.ok(); T.konfeti && T.konfeti(); ciz("sonuc", true); await ayaga(); if (d.y < 0.3) await sevin(); }
         else { T.sound.no(); ciz("sonuc", false); await uzul(); }
         mesgul = false;
       }
-      async function dogrusunuGoster() { if (mesgul) return; mesgul = true; await sifirla(); for (const a of soru.dogru) { await oyna(a); await bekle(550); } balon.classList.remove("acik"); zz.classList.remove("acik"); if (d.yat) await tw(500, (t) => { d.yat = 1 - t; d.uyku = 1 - t; d.basX = 0; }); await sevin(); mesgul = false; }
-      T._tiyatro = { d, top, sut, oyna, sifirla, kamera, B };
+      async function dogrusunuGoster() { if (mesgul) return; mesgul = true; await sifirla(); for (const e of soru.dogru) { await oyna(e); await bekle(500); } await ayaga(); if (d.y < 0.3) await sevin(); mesgul = false; }
+      T._tiyatro = { d, toplar, sut, oyna, sifirla, kamera, B, soruUret };
       sifirla(false); yeniSoru();
     }
   };

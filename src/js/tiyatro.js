@@ -138,8 +138,8 @@
   }
 
   T.tools["okuma-tiyatrosu"] = {
-    back: "turkce", title: "Okuma tiyatrosu", icon: "text", tone: "grape", grades: [1, 3], grup: "Okuma",
-    short: "Cümleyi oku, kedi sahnede canlandırsın. Rolünü doğru yaptı mı?",
+    back: "turkce", title: "Okuma tiyatrosu", icon: "text", tone: "grape", grades: [1, 2], grup: "Okuma",
+    short: "Cümleyi ya da yönergeyi oku, kedi sahnede canlandırsın. Doğru yaptı mı?",
     render(host) {
       const svg = S("svg", { viewBox: "0 0 1200 620", class: "ot-sahne", role: "img", "aria-label": "Okuma tiyatrosu sahnesi" });
       const kart = h("div.ot-kart"), dugme = h("div.ot-dugme"), skorEl = h("div.ot-skor");

@@ -285,6 +285,7 @@
       document.head.append(s);
     });
   }
+  T.pdfKitaplik = loadPdfJs;
   function setupWorker(lib) {
     if (PDFJS !== PDFJS_CDN) { lib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; return lib; }
     try { const blob = new Blob([`importScripts("${PDFJS}pdf.worker.min.js");`], { type: "text/javascript" }); lib.GlobalWorkerOptions.workerPort = new Worker(URL.createObjectURL(blob)); }

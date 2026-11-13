@@ -1794,3 +1794,4 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .yt-ust, .yt-alt { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
 .yt-b span { display: inline; }
 @media (max-width: 1300px) { .yt-b svg + span { display: none; } .yt-b { padding: 0 10px; } }
+body.yt-acik #layer { z-index: 1000; }

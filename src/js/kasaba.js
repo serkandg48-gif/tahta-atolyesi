@@ -181,7 +181,7 @@
         }
         /* Dükkâna ilk girişte: harfin yazılış yönü ve sesi. Oyun sırasında da açılabilir. */
         function yazilisGoster(d, ilk) {
-          dinlemeDur(); fis.classList.remove("acik");
+          fis.classList.remove("acik");
           const kart = T.harfYazilis(d.l);
           const kapat = () => { pano.remove(); if (ilk) { alt.replaceChildren(); oyunTuru(); } };
           const pano = h("div.ks-yazilis", h("div.ks-yz-bas", h("b", adOf(d.l)), h("span", "Önce harfimizin yazılışına bakalım. Numaralı noktadan başla, ok yönünde yaz.")), kart,
@@ -190,7 +190,7 @@
           kap.parentNode.append(pano);
         }
         function dukkandanCik() {
-          dinlemeDur(); const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove(); if (carkPano) carkPano.hidden = true;
+          const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove(); if (carkPano) carkPano.hidden = true;
           aktif = null; host.querySelector(".ks-sahne").classList.remove("icerde"); rehber.kok.visible = false; musteriler.forEach((k) => { k.kok.visible = false; k.hedef = null; });
           genelKam(); mahalleKur(mahalleI); ustCiz(); altCiz();
         }
@@ -232,7 +232,7 @@
             if (!sorular.length) return null;
             const [cumle, soru, ops, dogru] = T.pick(sorular);
             const ek = b.kelime.filter(kucukMu).filter((w) => oku(w) && !ops.includes(w) && !cumle.toLocaleLowerCase("tr").includes(w));
-            const secenek = ops.concat(ek.length ? [T.pick(ek)] : []);
+            const secenek = ops.concat(ek.length && kucukMu(dogru) ? [T.pick(ek)] : []);
             return { fis: cumle, soz: "Fişimi oku:", soru, dinle: cumle + " " + soru, fisTur: "cumle", secenek: T.shuffle(secenek).map((x) => ({ id: x, gorunum: x })), dogru };
           }
         }
@@ -258,48 +258,15 @@
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),
             h("div.ks-yan",
-              (asama === "kelime" || asama === "cumle") && SR ? (okuBtn = h("button.ks-oku" + (otoDinle ? ".dinliyor" : ""), { onclick: () => (dinleyici ? dinlemeDur() : dinlemeBasla(q, k, d)) }, T.icon("mic"), "Oku")) : null,
               h("button.ot-b.dinle", { onclick: () => (asama === "ses" ? T.harfSesi(d.l) : T.speak(q.dinle || q.fis)) }, T.icon("speaker"), "Dinle"),
               h("button.ot-b.dinle", { onclick: () => yazilisGoster(d, false), "aria-label": "Harfin yazılışı" }, T.icon("pen"), "Yazılış"),
               h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))),
-            duyulan = h("div.ks-duyulan"));
-          if ((asama === "kelime" || asama === "cumle") && SR && otoDinle) dinlemeBasla(q, k, d);
-        }
-        /* Sesli okuma: çocuk fişi okur, tarayıcının konuşma tanıması duyduğunu seçeneklerle eşler.
-           Ses tanıma tarayıcının kendi hizmetidir; öğrenci adı ya da kaydı sitede tutulmaz. */
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let dinleyici = null, otoDinle = false, okuBtn = null, duyulan = null;
-        const norm = (x) => T.trLower(x).replace(/[^a-zçğıöşü ]/g, " ").replace(/\s+/g, " ").trim();
-        const mesafe = (a, b) => { const m = a.length, n = b.length, d = Array.from({ length: m + 1 }, (_, i) => [i]); for (let j = 1; j <= n; j++) d[0][j] = j; for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[m][n]; };
-        const eslesir = (kelimeler, hedef) => kelimeler.some((w) => w === hedef || (hedef.length >= 4 && mesafe(w, hedef) <= 1));
-        function dinlemeDur() { otoDinle = false; if (dinleyici) { try { dinleyici.abort(); } catch (e) {} dinleyici = null; } okuBtn && okuBtn.classList.remove("dinliyor"); }
-        function dinlemeBasla(q, k, d) {
-          if (!SR || dinleyici) return;
-          const r = new SR(); dinleyici = r; otoDinle = true;
-          r.lang = "tr-TR"; r.interimResults = true; r.maxAlternatives = 5; r.continuous = false;
-          okuBtn && okuBtn.classList.add("dinliyor"); duyulan && (duyulan.textContent = "Dinliyorum. Fişi yüksek sesle oku.");
-          let bitti = false;
-          r.onresult = (e) => {
-            const metinler = []; for (let i = 0; i < e.results.length; i++) for (let j = 0; j < e.results[i].length; j++) metinler.push(norm(e.results[i][j].transcript));
-            const kelimeler = [...new Set(metinler.join(" ").split(" ").filter(Boolean))];
-            duyulan && (duyulan.textContent = "Duyduğum: " + (metinler[0] || ""));
-            const sira = [q.secenek.find((x) => x.id === q.dogru), ...q.secenek.filter((x) => x.id !== q.dogru)];
-            const bulunan = sira.find((x) => eslesir(kelimeler, norm(x.id)));
-            const sonMu = e.results[e.results.length - 1].isFinal;
-            if (bulunan && (bulunan.id === q.dogru || sonMu)) {
-              bitti = true; try { r.abort(); } catch (er) {} dinleyici = null; okuBtn && okuBtn.classList.remove("dinliyor");
-              const btn = [...alt.querySelectorAll(".ks-urun")][q.secenek.indexOf(bulunan)];
-              if (btn) sec(btn, bulunan.id === q.dogru, k, d).then(() => { if (bulunan.id !== q.dogru && aktif === d) { otoDinle = true; setTimeout(() => aktif === d && !dinleyici && fis.classList.contains("acik") && dinlemeBasla(q, k, d), 900); } });
-            }
-          };
-          r.onerror = (e) => { if (e.error === "not-allowed" || e.error === "service-not-allowed") { otoDinle = false; T.toast("Mikrofon izni verilmedi. Seçenekler dokunarak da seçilebilir."); } };
-          r.onend = () => { if (dinleyici === r) dinleyici = null; okuBtn && okuBtn.classList.remove("dinliyor"); if (!bitti && duyulan && otoDinle) duyulan.textContent = (duyulan.textContent.startsWith("Duyduğum") ? duyulan.textContent + ". " : "") + "Bir daha okumak için Oku'ya bas."; };
-          try { r.start(); } catch (e) { dinleyici = null; }
+          );
         }
         async function sec(btn, dogru, k, d) {
           if (kilitSec) return;
           if (!dogru) { btn.classList.add("kotu"); T.sound.no(); setTimeout(() => btn.classList.remove("kotu"), 500); if (k.var("hayir")) k.oynat("hayir", { dongu: false }).then(() => k.oynat("bekle")); else { const y0 = k.kok.rotation.y; tw(600, (t) => (k.kok.rotation.y = y0 + Math.sin(t * Math.PI * 4) * 0.35)); } return; }
-          kilitSec = true; btn.classList.add("iyi"); T.sound.ok(); if (dinleyici) { try { dinleyici.abort(); } catch (e) {} dinleyici = null; }
+          kilitSec = true; btn.classList.add("iyi"); T.sound.ok();
           fis.classList.remove("acik");
           rehber.oynat("sevin", { dongu: false }).then(() => aktif && rehber.oynat("bekle"));
           if (k.var("sevin")) { k.oynat("sevin", { dongu: false }); await bekle(1400); } else { await tw(600, (t) => (k.kok.position.y = Math.abs(Math.sin(t * Math.PI * 2)) * 0.35)); k.kok.position.y = 0; }

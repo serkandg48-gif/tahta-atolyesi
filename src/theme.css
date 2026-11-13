@@ -1746,3 +1746,13 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-cark .ks-yan { justify-content: center; }
 .ks-tam { display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(255,255,255,.9); font: 700 15px var(--body); box-shadow: 0 4px 12px rgba(0,0,0,.1); cursor: pointer; }
 .ks-tam svg { width: 18px; height: 18px; }
+/* İsim çarkı: küçük ve solda, karakterleri ve fişi kapatmasın */
+.ks-cark { right: auto; left: 14px; top: 64px; transform: none; width: min(250px, 23%); padding: 10px; gap: 6px; border-radius: 20px; background: rgba(255,255,255,.88); }
+.ks-cark > b { font-size: 17px; }
+.ks-cark-sonuc { font-size: 22px; min-height: 26px; }
+.ks-cark .ks-yeni { height: 42px; padding: 0 14px; font-size: 15px; }
+.ks-cark .ot-b { font-size: 14px; }
+.ks-cark .ks-yan { flex-wrap: wrap; gap: 6px; }
+.ks-cark .ks-yan { flex-wrap: nowrap; }
+.ks-cark .ks-yeni, .ks-cark .ot-b { height: 38px; min-height: 0; padding: 0 12px; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.ks-cark .ks-yeni svg { width: 16px; height: 16px; }

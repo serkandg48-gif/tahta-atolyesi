@@ -1756,3 +1756,11 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-cark .ks-yan { flex-wrap: nowrap; }
 .ks-cark .ks-yeni, .ks-cark .ot-b { height: 38px; min-height: 0; padding: 0 12px; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
 .ks-cark .ks-yeni svg { width: 16px; height: 16px; }
+.ks-fis-resim { font-size: clamp(70px, 8vw, 110px); line-height: 1.1; }
+.ks-cark[data-b="0"] { width: min(190px, 18%); }
+.ks-cark[data-b="1"] { width: min(250px, 23%); }
+.ks-cark[data-b="2"] { width: min(340px, 30%); }
+.ks-cark[data-b="3"] { width: min(460px, 40%); }
+.ks-cark-bas { display: flex; align-items: center; gap: 6px; }
+.ks-cark-bas b { font: 800 17px var(--display); color: #2D4A22; }
+.ks-cb { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #EEF1F5; font: 800 18px var(--body); cursor: pointer; display: grid; place-items: center; }

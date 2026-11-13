@@ -222,7 +222,8 @@
       kedi.scale.setScalar(olc); kedi.position.y = -kutuB.min.y * olc;
       const B = {}; kedi.traverse((o) => { if (o.isBone) { B[o.name] = o; o.userData.q0 = o.quaternion.clone(); } });
       const YAT = [["frontleg0", -1.45], ["frontleg1", 0.1], ["frontleg2", 0.5], ["backleg0", -1.1], ["backleg1", 2.2], ["backleg2", -0.6]];
-      const mixer = new THREE.AnimationMixer(kedi), yuruA = mixer.clipAction(mod.g.animations[0]); yuruA.play(); yuruA.setEffectiveWeight(0);
+      const klip = mod.g.animations[0].clone(); klip.tracks = klip.tracks.filter((t) => !t.name.endsWith(".scale") && !t.name.endsWith(".position"));
+      const mixer = new THREE.AnimationMixer(kedi), yuruA = mixer.clipAction(klip); yuruA.play(); yuruA.setEffectiveWeight(0);
       const d = { x: P.ev, y: 0, z: 0.25, yon: 0, yonH: 0, yuru: 0, hiz: 1, sx: 1, sy: 1, yat: 0, egil: 0, basX: 0, basY: 0, kuyruk: 1, pati: 0, gorunur: 1, uyku: 0, zipla: 0 };
       const TOP0 = { kirmizi: [P.top, 0.55], mavi: [-0.95, 1.75] };
       const YON = { kirmizi: [0.15, 1], mavi: [1, 0.1] };
@@ -246,7 +247,7 @@
         /* gövde */
         d.yonH += (d.yon - d.yonH) * Math.min(1, dt * 9);
         kok.position.set(d.x, d.y, d.z); yonG.rotation.y = d.yonH;
-        yatG.rotation.set(d.egil, 0, 0); yatG.position.y = -d.yat * 0.243;
+        yatG.rotation.set(d.egil, 0, 0); yatG.position.y = -d.yat * 0.243 - d.yuru * 0.16;
                 kedi.visible = d.gorunur > 0.02;
         /* top, süt */
         for (const k in toplar) { const tp = toplar[k], m = S.toplarM[k]; m.position.set(tp.x, tp.y, tp.z); m.rotation.set(tp.r, 0, tp.r * 0.35); } S.sutAyar(sut.d);
@@ -324,7 +325,7 @@
         kart.replaceChildren(h("div.ot-cumle", soru.cumle)); kart.classList.toggle("kucuk", asama !== "oku");
         const b = (cls, ic, fn, lbl) => h("button.ot-b." + cls, { onclick: fn }, ic ? T.icon(ic) : null, lbl);
         const sor = yonerge ? "Kedi yönergeyi doğru uyguladı mı?" : "Kedi rolünü doğru yaptı mı?";
-        if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, "Okuduk, sahneye çıksın"));
+        if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, yonerge ? "Hadi kedi, yap!" : "Hadi kedi, oyna!"));
         else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", yonerge ? "Kedi yönergeyi uyguluyor, dikkatle izleyin..." : "Kedi rolünü oynuyor, dikkatle izleyin..."));
         else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", sor), b("evet", "check", () => karar(true), yonerge ? "Doğru uyguladı" : "Rolünü doğru yaptı"), b("hayir", "close", () => karar(false), yonerge ? "Yanlış uyguladı" : "Rolünü yanlış yaptı"));
         else if (asama === "sonuc") {

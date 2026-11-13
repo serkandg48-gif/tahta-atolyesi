@@ -2336,7 +2336,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="6df0d2da38";
+window.SURUM="50baabf23d";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -12008,19 +12008,50 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
         kaldirimD.wrapS = kaldirimD.wrapT = THREE.RepeatWrapping;
         const yolEgri = (x) => 2.2 + Math.sin(x * 0.12) * 1.1;
         const seritYap = (gen, yukari, mat, ofs) => { const n = 120, g = new THREE.BufferGeometry(), pos = [], uv = [], idx = []; for (let i = 0; i <= n; i++) { const x = -30 + (60 * i) / n, z = yolEgri(x) + ofs; pos.push(x, yukari, z - gen / 2, x, yukari, z + gen / 2); uv.push(x / 2, 0, x / 2, gen / 2); if (i < n) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } } g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); const m = new THREE.Mesh(g, mat); m.receiveShadow = true; sahne.add(m); return m; };
-        seritYap(3.6, 0.03, M({ map: kaldirimD, roughness: 0.85 }), 0);
+        /* taşların kabarıklığı: yükseklik haritasından normal haritası */
+        const kaldirimN = (() => {
+          const S = 256, cv = document.createElement("canvas"); cv.width = cv.height = S; const x = cv.getContext("2d");
+          x.fillStyle = "#000"; x.fillRect(0, 0, S, S);
+          for (let yy = 0; yy < 8; yy++) for (let xx = -1; xx < 9; xx++) { const ox = (yy % 2) * 16, cx = xx * 32 + ox + 16, cy = yy * 32 + 16, g = x.createRadialGradient(cx, cy, 2, cx, cy, 15); g.addColorStop(0, "#fff"); g.addColorStop(0.7, "#bbb"); g.addColorStop(1, "#000"); x.fillStyle = g; x.beginPath(); x.roundRect(cx - 14, cy - 14, 28, 28, 8); x.fill(); }
+          const yuk = x.getImageData(0, 0, S, S).data, out = x.createImageData(S, S), Y = (i, j) => yuk[(((j + S) % S) * S + ((i + S) % S)) * 4] / 255;
+          for (let j = 0; j < S; j++) for (let i = 0; i < S; i++) { const dx = (Y(i - 1, j) - Y(i + 1, j)) * 2.2, dy = (Y(i, j - 1) - Y(i, j + 1)) * 2.2, n = Math.hypot(dx, dy, 1), k = (j * S + i) * 4; out.data[k] = (dx / n * 0.5 + 0.5) * 255; out.data[k + 1] = (dy / n * 0.5 + 0.5) * 255; out.data[k + 2] = (1 / n * 0.5 + 0.5) * 255; out.data[k + 3] = 255; }
+          x.putImageData(out, 0, 0); const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+        })();
+        seritYap(3.6, 0.03, M({ map: kaldirimD, normalMap: kaldirimN, normalScale: new THREE.Vector2(1.4, 1.4), roughness: 0.85 }), 0);
+        /* çimen telleri: sokağın iki yanında, binlerce küçük yaprak (tek çizimde) */
+        {
+          const tel = new THREE.PlaneGeometry(0.05, 0.28, 1, 3); tel.translate(0, 0.14, 0);
+          const p2 = tel.attributes.position; for (let i = 0; i < p2.count; i++) { const yy = p2.getY(i); p2.setX(i, p2.getX(i) * (1 - yy / 0.3)); p2.setZ(i, (yy * yy) * 0.6); }
+          tel.computeVertexNormals();
+          const N = 9000, im = new THREE.InstancedMesh(tel, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, side: THREE.DoubleSide }), N);
+          const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3(), po = new THREE.Vector3(), renk = new THREE.Color();
+          let n = 0;
+          while (n < N) {
+            const x2 = rnd(-26, 26), z2 = rnd(-12, 14), yz = yolEgri(x2);
+            if (Math.abs(z2 - yz) < 2.1 || (z2 > yz - 3.4 && z2 < yz - 1.4) || (z2 > yz - 7.2 && z2 < yz - 3.0 && Math.abs(x2) < 14)) continue;
+            e.set(rnd(-0.25, 0.25), rnd(0, Math.PI), rnd(-0.25, 0.25)); q.setFromEuler(e); const s2 = rnd(0.6, 1.5); sc.set(s2, s2 * rnd(0.8, 1.3), s2); po.set(x2, 0, z2);
+            m4.compose(po, q, sc); im.setMatrixAt(n, m4); renk.setHSL(0.24 + rnd(-0.03, 0.04), 0.5 + rnd(0, 0.2), 0.32 + rnd(0, 0.18)); im.setColorAt(n, renk); n++;
+          }
+          im.receiveShadow = true; sahne.add(im);
+        }
         seritYap(1.2, 0.06, M({ color: 0xdcd3c3, roughness: 0.9 }), -2.4);
         /* ağaçlar, fenerler, banklar, çiçek tarhları */
         const agacM = [M({ color: 0x4f9a4a, roughness: 0.85 }), M({ color: 0x6cb35a, roughness: 0.85 }), M({ color: 0x3f8a5a, roughness: 0.85 })], govM = M({ color: 0x7b4f2a, roughness: 0.9 });
-        const agac = (x, z, s = 1) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); ekle(new THREE.CylinderGeometry(0.14, 0.22, 1.3, 8), govM, [0, 0.65, 0], g); for (let i = 0; i < 4; i++) ekle(new THREE.IcosahedronGeometry(rnd(0.55, 0.8), 1), agacM[i % 3], [rnd(-0.4, 0.4), 1.6 + rnd(0, 0.6), rnd(-0.3, 0.3)], g); sahne.add(g); return g; };
+        /* Meshy'de üretilmiş dokulu modeller: dükkân binaları ve ağaç. Yoksa basit geometriye düşülür. */
+        const hazir = await Promise.allSettled(["dukkan1", "dukkan2", "agac"].map((ad) => T.modelYukle(ad)));
+        const MOD = {}; ["dukkan1", "dukkan2", "agac"].forEach((ad, i) => { if (hazir[i].status === "fulfilled") MOD[ad] = hazir[i].value.g.scene; });
+        const DUKKAN_MOD = ["dukkan1", "dukkan2"].filter((ad) => MOD[ad]);
+        const olcekle = (kaynak, hedef, eksen = "x") => { const k = kaynak.clone(true); k.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); const b3 = new THREE.Box3().setFromObject(k), bo = b3.getSize(new THREE.Vector3()); const sc = hedef / (eksen === "x" ? bo.x : bo.y); k.scale.multiplyScalar(sc); const b4 = new THREE.Box3().setFromObject(k), mer = b4.getCenter(new THREE.Vector3()); k.position.x -= mer.x; k.position.z -= mer.z; k.position.y -= b4.min.y; const g2 = new THREE.Group(); g2.add(k); g2.userData.boyut = b4.getSize(new THREE.Vector3()); return g2; };
+        const agacModel = (x, z, s) => { const g2 = olcekle(MOD.agac, 3.2 * s, "y"); g2.position.set(x, 0, z); g2.rotation.y = rnd(0, Math.PI * 2); sahne.add(g2); return g2; };
+        const agac = (x, z, s = 1) => { if (MOD.agac) return agacModel(x, z, s); const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); ekle(new THREE.CylinderGeometry(0.14, 0.22, 1.3, 8), govM, [0, 0.65, 0], g); for (let i = 0; i < 4; i++) ekle(new THREE.IcosahedronGeometry(rnd(0.55, 0.8), 1), agacM[i % 3], [rnd(-0.4, 0.4), 1.6 + rnd(0, 0.6), rnd(-0.3, 0.3)], g); sahne.add(g); return g; };
         const fenerM = M({ color: 0x2f3e46, roughness: 0.4, metalness: 0.6 }), isikM = new THREE.MeshStandardMaterial({ color: 0xfff3c4, emissive: 0xffd77a, emissiveIntensity: 0.6 });
         const fener = (x, z) => { ekle(new THREE.CylinderGeometry(0.05, 0.08, 2.4, 8), fenerM, [x, 1.2, z]); ekle(new THREE.SphereGeometry(0.2, 12, 10), isikM, [x, 2.5, z]); ekle(new THREE.ConeGeometry(0.26, 0.2, 8), fenerM, [x, 2.72, z]); };
         const ahsapM = M({ color: 0xa0683a, roughness: 0.7 });
         const bank = (x, z, ry) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; ekle(new THREE.BoxGeometry(1.4, 0.08, 0.4), ahsapM, [0, 0.45, 0], g); ekle(new THREE.BoxGeometry(1.4, 0.35, 0.06), ahsapM, [0, 0.7, -0.2], g); [-0.6, 0.6].forEach((px) => ekle(new THREE.BoxGeometry(0.06, 0.45, 0.4), fenerM, [px, 0.22, 0], g)); sahne.add(g); };
         const cicekRenk = [0xff8fab, 0xffd166, 0xc3a6ff, 0xffffff, 0xff6b6b];
         const tarh = (x, z) => { for (let i = 0; i < 9; i++) { const cc = ekle(new THREE.IcosahedronGeometry(0.11, 1), M({ color: cicekRenk[i % 5], roughness: 0.6 }), [x + rnd(-0.6, 0.6), 0.16, z + rnd(-0.25, 0.25)]); ekle(new THREE.CylinderGeometry(0.015, 0.015, 0.15, 4), agacM[1], [cc.position.x, 0.07, cc.position.z]); } };
-        for (let i = 0; i < 24; i++) agac(rnd(-34, 34), rnd(-16, -9), rnd(1, 1.7));
-        for (let i = 0; i < 8; i++) { const x = (i % 2 ? 1 : -1) * rnd(15, 30); agac(x, yolEgri(x) + rnd(4, 9), rnd(0.9, 1.4)); }
+        for (let i = 0; i < 13; i++) agac(-30 + i * 5 + rnd(-1.2, 1.2), rnd(-15, -9), rnd(1.1, 1.7));
+        for (let i = 0; i < 6; i++) { const x = (i % 2 ? 1 : -1) * rnd(15, 30); agac(x, yolEgri(x) + rnd(4, 9), rnd(0.9, 1.4)); }
         for (let i = 0; i < 7; i++) { const x = -13.2 + i * 4.4; fener(x, yolEgri(x) - 3.4); }
         bank(-17, yolEgri(-17) + 2.7, Math.PI); bank(17, yolEgri(17) + 2.7, Math.PI); tarh(-16, yolEgri(-16) - 3); tarh(16, yolEgri(16) - 3);
         /* ışık */
@@ -12035,6 +12066,17 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
         function dukkan(l, i) {
           const [, govde, cati, tip] = YER[l], ad = BUYUK(l) + " sesi", kilit = !acikMi(l);
           const x = -11 + i * 4.4, z = yolEgri(x) - 4.6, g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = Math.sin(x * 0.12) * -0.12; mahalleGrup.add(g);
+          if (DUKKAN_MOD.length) {
+            const modAd = DUKKAN_MOD[i % DUKKAN_MOD.length], TY = { dukkan1: [0.8, 1.5, 0.08], dukkan2: [0.6, 1.35, 0.2] }[modAd] || [0.8, 1.5, 0.08];
+            const bina = olcekle(MOD[modAd], 3.6), bo = bina.userData.boyut; g.add(bina);
+            if (kilit) bina.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.color.setRGB(0.55, 0.55, 0.58); } });
+            const on = 1.25; bina.position.z = on - bo.z / 2;
+            const tab = new THREE.Mesh(new THREE.PlaneGeometry(TY[1], TY[1] / 2), new THREE.MeshStandardMaterial({ map: tabelaDoku(l, ad, kilit), roughness: 0.7 })); tab.position.set(0, bo.y * TY[0], on + TY[2]); g.add(tab);
+            const isik = new THREE.PointLight(0xffc46b, 0, 5, 1.6); isik.position.set(0.4, 1.3, on + 0.6); g.add(isik);
+            const camM = { set emissiveIntensity(v) { isik.intensity = v > 0.5 ? 6 : 0; } }; camM.emissiveIntensity = asamaOf(l) >= 4 ? 1 : 0;
+            const tez = new THREE.Group(); tez.position.set(0.3, 0, 2.6); g.add(tez);
+            return { l, i, g, x, z, kilit, camM, tez };
+          }
           const gm = M({ color: kilit ? 0xcfcfcf : govde, roughness: 0.75 }), cm = M({ color: kilit ? 0x9e9e9e : cati, roughness: 0.6 });
           const camM = new THREE.MeshStandardMaterial({ color: 0xbfe7ff, roughness: 0.1, metalness: 0.2, emissive: 0xffc45c, emissiveIntensity: asamaOf(l) >= 4 ? 0.9 : 0.05 }), kapM = M({ color: 0x6b4226, roughness: 0.6 }), beyaz = M({ color: 0xffffff, roughness: 0.6 });
           const Y = 2.5;

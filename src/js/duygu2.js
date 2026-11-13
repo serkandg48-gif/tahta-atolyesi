@@ -369,34 +369,72 @@
 
   /* =================== 4. BARIŞ YOLU (çatışma çözüm köşesi) =================== */
   tool("catisma", {
-    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım uzlaşır, el sıkışır",
-    render(host) {
-      let adim = 0, a = null, b = null, sayac = 10, t = null;
-      const box = h("div"); host.append(box);
+    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım birbirine yaklaşır, uzlaşır, el sıkışır",
+    render(host, api) {
+      let adim = 0, a = null, b = null, sayac = 10, t = null, secilen = {};
+      const sahneKap = h("div.by-sahne"), box = h("div"); host.append(sahneKap, box);
       T.onLeave(() => clearInterval(t));
       const ADIM = [
-        ["Başlangıç: 10 saniye bekle", "Önce ikiniz de durun. 10 saniye bekleyip nefes alalım."],
-        ["Ne oldu?", "Sırayla anlatın. Konuşan konuşurken diğeri sözünü kesmez."],
-        ["Ben ne hissettim?", "Kendine bak. \"Ben ... olunca ... hissettim.\""],
-        ["Neye ihtiyacım var?", "İhtiyaçlarını anla. \"Benim ihtiyacım ...\""],
-        ["Bunu yapabilir misin?", "Arkadaşından isteyebileceğin bir şey söyle. O da \"evet\" ya da \"şunu yapabilirim\" desin."],
-        ["Tekrarlanırsa ne yapabiliriz?", "Bir dahaki sefer için birlikte bir plan yapın."],
+        ["Dur ve nefes al", "Önce ikiniz de durun. 10 saniye bekleyip nefes alalım."],
+        ["Ne oldu?", "Sırayla anlatın. Konuşan konuşurken diğeri sözünü kesmez.", ["Olan şuydu: ...", "Sen ... yaptığında ben ..."]],
+        ["Ben ne hissettim?", "Kendine bak, duygunu adlandır.", ["Ben ... olunca ... hissettim."], "duygu"],
+        ["Neye ihtiyacım var?", "İhtiyacını söyle.", ["Benim ihtiyacım ..."], ["sıramı beklemek", "oyuna katılmak", "eşyama sorulmadan dokunulmaması", "biraz yalnız kalmak", "dinlenmek", "bir özür"]],
+        ["Bunu yapabilir misin?", "Arkadaşından bir şey iste. O da cevap versin.", ["Bir dahaki sefer ... yapabilir misin?", "Evet, yapabilirim.", "Şunu yapabilirim: ..."]],
+        ["Tekrarlanırsa ne yaparız?", "Bir dahaki sefer için birlikte bir plan yapın.", ["Bir dahaki sefer ... yaparız.", "Önce durup nefes alırız, sonra konuşuruz."]],
         ["El sıkışalım", "Barış ve uzlaşma: el sıkışalım."],
       ];
+      /* 3B yol: iki arkadaş yolun iki ucundan her adımda birbirine yaklaşır */
+      let K = null;
+      T.sahne3(sahneKap, { kamera: [0, 1.45, 5.2], bak: [0, 0.62, 0], fov: 34, env: ["#F4FBFF", "#CFE8C4", "#5F8A4E"], arka: ["#BFE3F7", "#EAF7FF"] }, api).then(async (c) => {
+        if (!c) { sahneKap.remove(); return; }
+        const { THREE, sahne } = c; c.r.shadowMap.enabled = true;
+        sahne.add(new THREE.HemisphereLight(0xffffff, 0x88aa77, 1.4)); const gun = new THREE.DirectionalLight(0xfff2dc, 2.2); gun.position.set(3, 6, 4); gun.castShadow = true; gun.shadow.mapSize.set(1024, 1024); sahne.add(gun);
+        const cim = new THREE.Mesh(new THREE.CircleGeometry(12, 48), new THREE.MeshStandardMaterial({ color: 0x8cc47a, roughness: 1 })); cim.rotation.x = -Math.PI / 2; cim.receiveShadow = true; sahne.add(cim);
+        const izD = c.doku(256, 256, (x, w) => { x.fillStyle = "#EDE3D2"; x.beginPath(); x.arc(w / 2, w / 2, w / 2 - 4, 0, 7); x.fill(); x.fillStyle = "rgba(90,70,50,.35)"; const ayak = (cx, cy, r) => { x.beginPath(); x.ellipse(cx, cy, r * 0.5, r, 0, 0, 7); x.fill(); [[-0.35, -1.25], [0, -1.4], [0.35, -1.25]].forEach(([dx, dy]) => { x.beginPath(); x.arc(cx + dx * r, cy + dy * r, r * 0.16, 0, 7); x.fill(); }); }; ayak(w * 0.38, w * 0.58, 30); ayak(w * 0.62, w * 0.5, 30); });
+        const taslar = ADIM.map((_, i) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.08, 40), [new THREE.MeshStandardMaterial({ color: 0xcdbfa6, roughness: 0.9 }), new THREE.MeshStandardMaterial({ map: izD, roughness: 0.9 }), new THREE.MeshStandardMaterial({ color: 0xcdbfa6 })]); m.receiveShadow = true; sahne.add(m); return m; });
+        /* yol iki uçtan ortaya gelir: 0 (uç) ... 6 (orta) */
+        const xAt = (i) => 3.0 - i * 0.46;
+        taslar.forEach((m, i) => { m.position.set(i === 6 ? 0 : xAt(i), 0.05, 0); });
+        const ayna = ADIM.slice(0, 6).map((_, i) => { const m = taslar[i].clone(); m.position.set(-xAt(i), 0.05, 0); sahne.add(m); return m; });
+        const sol = await T.karakter3B(c, "erkek", { boy: 1.3 }), sag = await T.karakter3B(c, "kiz", { boy: 1.25 });
+        sahne.add(sol.kok, sag.kok);
+        const yer = (i) => (i >= 6 ? 0.36 : xAt(i));
+        sol.kok.position.set(-yer(0), 0.1, 0); sag.kok.position.set(yer(0), 0.1, 0);
+        const yonu = (k, bak) => (k.kok.rotation.y = bak);
+        yonu(sol, 0.5); yonu(sag, -0.5); sol.oynat("dur"); sag.oynat("dur");
+        let hedef = 0;
+        c.kare = (dt) => {
+          sol.guncelle(dt); sag.guncelle(dt);
+          const hx = yer(hedef), yuru = (k, isaret) => { const p = k.kok.position, d = isaret * hx - p.x; if (Math.abs(d) > 0.02) { p.x += Math.sign(d) * Math.min(Math.abs(d), dt * 0.9); if (!k._yuruyor) { k._yuruyor = true; k.kok.rotation.y = d > 0 ? Math.PI / 2 : -Math.PI / 2; k.oynat("yuru"); } } else if (k._yuruyor) { k._yuruyor = false; p.x = isaret * hx; k.kok.rotation.y = hedef >= 6 ? isaret * -Math.PI / 2 : isaret * -0.5; if (hedef >= 6) k.oynat("salla", { dongu: false }).then(() => k.oynat("sevin", { dongu: false })).then(() => k.oynat("dur")); else k.oynat("dur"); } };
+          yuru(sol, -1); yuru(sag, 1);
+          taslar.concat(ayna).forEach((m) => { const i = taslar.includes(m) ? taslar.indexOf(m) : ayna.indexOf(m); const on = i === hedef; m.material[0].emissive = new THREE.Color(on ? 0xffd66b : 0x000000); m.material[0].emissiveIntensity = on ? 0.6 : 0; m.scale.setScalar(on ? 1.08 : 1); });
+        };
+        K = { git: (i) => (hedef = i) };
+        K.git(adim);
+      });
       function ciz() {
-        clearInterval(t);
+        clearInterval(t); K && K.git(adim);
         const st = T.store.activeClass().students;
         const secici = (cur, set, diger) => h("select.in", { onchange: (e) => { set(st.find((x) => x.id === e.target.value) || null); ciz(); } }, h("option", { value: "" }, "Seç"), st.filter((x) => !diger || x.id !== diger.id).map((x) => h("option", { value: x.id, selected: cur && cur.id === x.id ? true : null }, x.name)));
         const A = a ? a.name : "1. arkadaş", B = b ? b.name : "2. arkadaş";
-        const yol = h("div.by-yol", ADIM.map(([l], i) => h("button.by-tas" + (i === adim ? ".on" : i < adim ? ".done" : ""), { onclick: () => { adim = i; ciz(); } }, h("i.ayak.sol"), h("span", l), h("i.ayak.sag"))).reverse());
-        const [baslik, yon] = ADIM[adim];
+        const adimlar = h("div.by-adimlar", ADIM.map(([l], i) => h("button" + (i === adim ? ".on" : i < adim ? ".done" : ""), { onclick: () => { adim = i; ciz(); } }, h("b", i + 1), h("span", l))));
+        const [baslik, yon, bas, ek] = ADIM[adim];
         let ic = [h("h3", baslik), h("p.sb-line", yon)];
         if (adim === 0) {
           const big = h("div.dy-big", sayac);
-          ic.push(big, h("button.btn", { onclick: () => { sayac = 10; big.textContent = sayac; clearInterval(t); t = setInterval(() => { sayac--; big.textContent = Math.max(0, sayac); if (sayac <= 0) { clearInterval(t); T.sound.ok(); } }, 1000); } }, T.icon("timer"), "10 saniye"), h("div.dy-pair", h("label", "Sol ayak izi", secici(a, (x) => (a = x), b)), h("label", "Sağ ayak izi", secici(b, (x) => (b = x), a))), h("p.hint", "İsim seçmek isteğe bağlı ve kaydedilmez."));
-        } else if (adim >= 1 && adim <= 5) ic.push(h("div.dy-ben", h("div", h("b", A), h("p", "Sıra sende.")), h("div", h("b", B), h("p", "Sonra sen."))));
-        else ic = [h("div.dy-bigicon", T.icon("hands")), h("h3", A + " ve " + B + " el sıkıştı!"), h("p.sb-line", "Şimdi nasıl hissediyorsunuz?"), h("button.btn", { onclick: () => { adim = 0; a = b = null; ciz(); } }, T.icon("reset"), "Yeni çatışma")];
-        box.replaceChildren(h("div.by-grid", yol, h("div.dy-step", ic)),
+          ic.push(big, h("button.btn", { onclick: () => { sayac = 10; big.textContent = sayac; clearInterval(t); t = setInterval(() => { sayac--; big.textContent = Math.max(0, sayac); if (sayac <= 0) { clearInterval(t); T.sound.ok(); } }, 1000); } }, T.icon("timer"), "10 saniye"),
+            h("div.dy-pair", h("label", "Soldaki arkadaş", secici(a, (x) => (a = x), b)), h("label", "Sağdaki arkadaş", secici(b, (x) => (b = x), a))), h("p.hint", "İsim seçmek isteğe bağlı ve kaydedilmez."));
+        } else if (adim < 6) {
+          const kisi = (ad, yan) => {
+            const anahtar = adim + ":" + yan, sec = secilen[anahtar];
+            let ekEl = null;
+            if (ek === "duygu") ekEl = h("div.by-cip", ["kizgin", "uzgun", "korkmus", "endiseli", "saskin"].map((k) => h("button", { "aria-pressed": String(sec === k), onclick: () => { secilen[anahtar] = sec === k ? null : k; ciz(); } }, T.yuz(k, 40))));
+            else if (Array.isArray(ek)) ekEl = h("div.by-cip", ek.map((x) => h("button.yazi", { "aria-pressed": String(sec === x), onclick: () => { secilen[anahtar] = sec === x ? null : x; ciz(); } }, x)));
+            return h("div.by-kisi", h("b", ad), h("div.by-bas", bas.map((x) => h("span", x))), ekEl);
+          };
+          ic.push(h("div.dy-ben", kisi(A, "a"), kisi(B, "b")));
+        } else ic = [h("div.dy-bigicon", T.icon("hands")), h("h3", A + " ve " + B + " el sıkıştı!"), h("p.sb-line", "Şimdi nasıl hissediyorsunuz?"), h("button.btn", { onclick: () => { adim = 0; a = b = null; secilen = {}; ciz(); } }, T.icon("reset"), "Yeni çatışma")];
+        box.replaceChildren(adimlar, h("div.dy-step.by-kart", ic),
           h("div.sb-nav", adim > 0 ? h("button.btn.c-chalk", { onclick: () => { adim--; ciz(); } }, T.icon("back"), "Önceki") : h("span"), adim < ADIM.length - 1 ? h("button.btn.big", { onclick: () => { adim++; ciz(); } }, ADIM[adim + 1][0], T.icon("next")) : h("span")));
       }
       ciz();

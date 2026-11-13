@@ -2417,6 +2417,25 @@ body.yt-acik #layer { z-index: 1000; }
 .dy-bnokta { width: 22px; height: 22px; border-radius: 50%; display: inline-block; }
 .dy-ozet { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
 .dy-izle { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 12px; background: #FFF4F2; } .dy-izle small { color: #A03A2E; }
+.dy-sakin { display: grid; gap: 12px; }
+.dy-sakin:fullscreen { background: linear-gradient(#EEF4FC, #DCE8F6); padding: 24px; align-content: start; } .dy-sakin:fullscreen .dy-calm { min-height: calc(100vh - 110px); }
+.dy-nefes-sahne { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 4vw, 60px); }
+.dy-rehber { width: clamp(160px, 22vw, 280px); aspect-ratio: 3 / 4; position: relative; }
+.dy-calm .dy-ballwrap { width: clamp(240px, 30vw, 380px); height: clamp(240px, 30vw, 380px); }
+.dy-ball { background: radial-gradient(circle at 35% 30%, #EAF2FF, #9DBBEA 55%, #6E95D1 85%); box-shadow: 0 0 0 18px rgba(110,149,209,.12), 0 0 0 40px rgba(110,149,209,.06), 0 20px 50px rgba(43,63,107,.22); }
+/* Barış yolu */
+.by-sahne { position: relative; width: 100%; aspect-ratio: 16 / 6; min-height: 220px; border-radius: 20px; overflow: hidden; margin-bottom: 12px; background: linear-gradient(#BFE3F7, #EAF7FF); }
+.by-adimlar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.by-adimlar button { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 12px 6px 6px; font: 700 14px var(--body); cursor: pointer; }
+.by-adimlar button b { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #EEF1F5; }
+.by-adimlar button.on { background: var(--navy); color: #fff; } .by-adimlar button.on b { background: #FFD66B; color: var(--navy); } .by-adimlar button.done b { background: #2FA552; color: #fff; }
+.by-kart { min-height: 0; }
+.by-kisi { display: grid; gap: 8px; align-content: start; }
+.by-bas { display: grid; gap: 6px; } .by-bas span { padding: 8px 12px; border-radius: 12px; background: #F3F6FB; font-size: 18px; }
+.by-cip { display: flex; flex-wrap: wrap; gap: 6px; }
+.by-cip button { border: 2px solid transparent; background: #fff; border-radius: 50%; padding: 2px; cursor: pointer; }
+.by-cip button.yazi { border-radius: 999px; padding: 6px 12px; border-color: var(--line); font: 700 15px var(--body); }
+.by-cip button[aria-pressed="true"] { border-color: var(--navy); background: #EAF0FF; }
 
 </style>
 </head>
@@ -2431,7 +2450,7 @@ body.yt-acik #layer { z-index: 1000; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="0ce0fd7c29";
+window.SURUM="1fa32736d2";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -13706,27 +13725,46 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   /* 3. Sakinleşme köşesi */
   tool("sakinlesme", {
     title: "Sakinleşme köşesi", icon: "sun", tone: "sky", short: "Nefes balonu, 5-4-3-2-1, geriye sayma",
-    render(host) {
-      let mod = "nefes"; const box = h("div"); host.append(box); let timer = null;
+    render(host, api) {
+      let mod = "nefes", turSay = 5; const box = h("div.dy-sakin"); host.append(box); let timer = null;
       T.onLeave(() => clearTimeout(timer));
+      /* rehber: erkek öğrenci balonla birlikte nefes alır (göğsü ve omuzları yükselir) */
+      let rehber = null, nefesHedef = 0, nefesSimdi = 0;
+      const rehberKur = (kap) => {
+        T.sahne3(kap, { kamera: [0, 0.85, 3.3], bak: [0, 0.7, 0], fov: 34, env: ["#FFFFFF", "#DCE8F6", "#6E95D1"] }, api).then(async (c) => {
+          if (!c) return; c.sahne.add(new c.THREE.HemisphereLight(0xffffff, 0x9fb5d6, 2.2)); const L = new c.THREE.DirectionalLight(0xffffff, 1.6); L.position.set(1, 3, 3); c.sahne.add(L);
+          const k = await T.karakter3B(c, "erkek", { boy: 1.35 }).catch(() => null); if (!k) return;
+          k.kok.rotation.y = 0.15; c.sahne.add(k.kok); k.oynat("dur"); rehber = k;
+          const kem = {}; k.model.traverse((o) => { if (o.isBone) kem[o.name] = o; });
+          const gogus = kem.mixamorigSpine2 || kem.mixamorigSpine1, omuz = [kem.mixamorigLeftShoulder, kem.mixamorigRightShoulder].filter(Boolean), q = new c.THREE.Quaternion(), ex = new c.THREE.Vector3(1, 0, 0), ez = new c.THREE.Vector3(0, 0, 1);
+          c.kare = (dt) => { k.guncelle(dt); nefesSimdi += (nefesHedef - nefesSimdi) * Math.min(1, dt * 1.6);
+            if (gogus) { q.setFromAxisAngle(ex, -0.12 * nefesSimdi); gogus.quaternion.multiply(q); }
+            omuz.forEach((b, i) => { q.setFromAxisAngle(ez, (i ? 1 : -1) * 0.14 * nefesSimdi); b.quaternion.multiply(q); }); };
+        });
+      };
+      const tamEkran = () => { try { document.fullscreenElement ? document.exitFullscreen() : (box.requestFullscreen || box.webkitRequestFullscreen).call(box); } catch (e) { T.toast("Bu ortamda tam ekran kapalı"); } };
       function ciz() {
-        clearTimeout(timer);
-        const seg = h("div.seg", [["nefes", "Nefes balonu"], ["duyu", "5-4-3-2-1"], ["say", "Geriye say"]].map(([k, l]) => h("button", { "aria-pressed": String(mod === k), onclick: () => { mod = k; ciz(); } }, l)));
+        clearTimeout(timer); rehber = null; nefesHedef = 0;
+        const seg = h("div.row", h("div.seg", [["nefes", "Nefes balonu"], ["duyu", "5-4-3-2-1"], ["say", "Geriye say"]].map(([k, l]) => h("button", { "aria-pressed": String(mod === k), onclick: () => { mod = k; ciz(); } }, l))),
+          mod === "nefes" ? h("div.seg", [[3, "3 nefes"], [5, "5 nefes"], [10, "10 nefes"]].map(([k, l]) => h("button", { "aria-pressed": String(turSay === k), onclick: () => { turSay = k; ciz(); } }, l))) : null,
+          h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: tamEkran }, T.icon("full"), "Tam ekran"));
         const alan = h("div.dy-calm");
         box.replaceChildren(seg, alan);
         if (mod === "nefes") {
           const top = h("div.dy-ball"), yazi = h("div.dy-breath", "Hazır olunca başla"), say = h("div.dy-count");
           let tur = 0, calisiyor = false;
           const adim = (i) => {
-            const A = [["Burnundan nefes al", 4, 1.0], ["Tut", 2, 1.0], ["Ağzından yavaşça ver", 5, 0.45]];
-            const [t, sn, sc] = A[i % 3];
-            yazi.textContent = t; top.style.transition = `transform ${sn}s ease-in-out`; top.style.transform = `scale(${sc})`;
-            let k = sn; say.textContent = k; const tick = () => { k--; if (k > 0) { say.textContent = k; timer = setTimeout(tick, 1000); } else { if (i % 3 === 2) tur++; if (tur >= 5) { yazi.textContent = "Harika! Şimdi nasıl hissediyorsun?"; say.textContent = ""; calisiyor = false; btn.textContent = "Bir daha"; return; } adim(i + 1); } };
+            const A = [["Burnundan nefes al", 4, 1.0, 1], ["Tut", 2, 1.0, 1], ["Ağzından yavaşça ver", 5, 0.45, 0]];
+            const [t, sn, sc, nf] = A[i % 3];
+            yazi.textContent = t; top.style.transition = `transform ${sn}s ease-in-out`; top.style.transform = `scale(${sc})`; nefesHedef = nf;
+            let k = sn; say.textContent = k; const tick = () => { k--; if (k > 0) { say.textContent = k; timer = setTimeout(tick, 1000); } else { if (i % 3 === 2) tur++; if (tur >= turSay) { yazi.textContent = "Harika! Şimdi nasıl hissediyorsun?"; say.textContent = ""; calisiyor = false; btn.textContent = "Bir daha"; nefesHedef = 0; if (rehber) rehber.oynat("salla", { dongu: false }).then(() => rehber && rehber.oynat("dur")); return; } adim(i + 1); } };
             timer = setTimeout(tick, 1000);
           };
-          const btn = h("button.btn.big", { onclick: () => { if (calisiyor) return; calisiyor = true; tur = 0; btn.textContent = "5 nefes"; adim(0); } }, "Başla");
+          const btn = h("button.btn.big", { onclick: () => { if (calisiyor) return; calisiyor = true; tur = 0; btn.textContent = turSay + " nefes"; adim(0); } }, "Başla");
           top.style.transform = "scale(.45)";
-          alan.append(h("div.dy-ballwrap", top, say), yazi, btn, h("p.hint", "Balon büyürken nefes alıyoruz, küçülürken veriyoruz. 5 tur sürer."));
+          const kap3 = h("div.dy-rehber");
+          alan.append(h("div.dy-nefes-sahne", kap3, h("div.dy-ballwrap", top, say)), yazi, btn, h("p.hint", "Balon büyürken nefes alıyoruz, küçülürken veriyoruz. Arkadaşımız da bizimle nefes alıyor."));
+          rehberKur(kap3);
         } else if (mod === "duyu") {
           const A = [[5, "şey görüyorum", "Etrafına bak, gördüğün 5 şeyi say."], [4, "şeye dokunabiliyorum", "Dokunabildiğin 4 şeyi say."], [3, "ses duyuyorum", "Duyduğun 3 sesi söyle."], [2, "koku alıyorum", "Alabildiğin 2 kokuyu düşün."], [1, "tat hissediyorum", "Ağzındaki 1 tadı düşün."]];
           let i = 0;
@@ -14135,34 +14173,72 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
 
   /* =================== 4. BARIŞ YOLU (çatışma çözüm köşesi) =================== */
   tool("catisma", {
-    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım uzlaşır, el sıkışır",
-    render(host) {
-      let adim = 0, a = null, b = null, sayac = 10, t = null;
-      const box = h("div"); host.append(box);
+    title: "Barış yolu", icon: "hands", tone: "sky", short: "İki arkadaş adım adım birbirine yaklaşır, uzlaşır, el sıkışır",
+    render(host, api) {
+      let adim = 0, a = null, b = null, sayac = 10, t = null, secilen = {};
+      const sahneKap = h("div.by-sahne"), box = h("div"); host.append(sahneKap, box);
       T.onLeave(() => clearInterval(t));
       const ADIM = [
-        ["Başlangıç: 10 saniye bekle", "Önce ikiniz de durun. 10 saniye bekleyip nefes alalım."],
-        ["Ne oldu?", "Sırayla anlatın. Konuşan konuşurken diğeri sözünü kesmez."],
-        ["Ben ne hissettim?", "Kendine bak. \"Ben ... olunca ... hissettim.\""],
-        ["Neye ihtiyacım var?", "İhtiyaçlarını anla. \"Benim ihtiyacım ...\""],
-        ["Bunu yapabilir misin?", "Arkadaşından isteyebileceğin bir şey söyle. O da \"evet\" ya da \"şunu yapabilirim\" desin."],
-        ["Tekrarlanırsa ne yapabiliriz?", "Bir dahaki sefer için birlikte bir plan yapın."],
+        ["Dur ve nefes al", "Önce ikiniz de durun. 10 saniye bekleyip nefes alalım."],
+        ["Ne oldu?", "Sırayla anlatın. Konuşan konuşurken diğeri sözünü kesmez.", ["Olan şuydu: ...", "Sen ... yaptığında ben ..."]],
+        ["Ben ne hissettim?", "Kendine bak, duygunu adlandır.", ["Ben ... olunca ... hissettim."], "duygu"],
+        ["Neye ihtiyacım var?", "İhtiyacını söyle.", ["Benim ihtiyacım ..."], ["sıramı beklemek", "oyuna katılmak", "eşyama sorulmadan dokunulmaması", "biraz yalnız kalmak", "dinlenmek", "bir özür"]],
+        ["Bunu yapabilir misin?", "Arkadaşından bir şey iste. O da cevap versin.", ["Bir dahaki sefer ... yapabilir misin?", "Evet, yapabilirim.", "Şunu yapabilirim: ..."]],
+        ["Tekrarlanırsa ne yaparız?", "Bir dahaki sefer için birlikte bir plan yapın.", ["Bir dahaki sefer ... yaparız.", "Önce durup nefes alırız, sonra konuşuruz."]],
         ["El sıkışalım", "Barış ve uzlaşma: el sıkışalım."],
       ];
+      /* 3B yol: iki arkadaş yolun iki ucundan her adımda birbirine yaklaşır */
+      let K = null;
+      T.sahne3(sahneKap, { kamera: [0, 1.45, 5.2], bak: [0, 0.62, 0], fov: 34, env: ["#F4FBFF", "#CFE8C4", "#5F8A4E"], arka: ["#BFE3F7", "#EAF7FF"] }, api).then(async (c) => {
+        if (!c) { sahneKap.remove(); return; }
+        const { THREE, sahne } = c; c.r.shadowMap.enabled = true;
+        sahne.add(new THREE.HemisphereLight(0xffffff, 0x88aa77, 1.4)); const gun = new THREE.DirectionalLight(0xfff2dc, 2.2); gun.position.set(3, 6, 4); gun.castShadow = true; gun.shadow.mapSize.set(1024, 1024); sahne.add(gun);
+        const cim = new THREE.Mesh(new THREE.CircleGeometry(12, 48), new THREE.MeshStandardMaterial({ color: 0x8cc47a, roughness: 1 })); cim.rotation.x = -Math.PI / 2; cim.receiveShadow = true; sahne.add(cim);
+        const izD = c.doku(256, 256, (x, w) => { x.fillStyle = "#EDE3D2"; x.beginPath(); x.arc(w / 2, w / 2, w / 2 - 4, 0, 7); x.fill(); x.fillStyle = "rgba(90,70,50,.35)"; const ayak = (cx, cy, r) => { x.beginPath(); x.ellipse(cx, cy, r * 0.5, r, 0, 0, 7); x.fill(); [[-0.35, -1.25], [0, -1.4], [0.35, -1.25]].forEach(([dx, dy]) => { x.beginPath(); x.arc(cx + dx * r, cy + dy * r, r * 0.16, 0, 7); x.fill(); }); }; ayak(w * 0.38, w * 0.58, 30); ayak(w * 0.62, w * 0.5, 30); });
+        const taslar = ADIM.map((_, i) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.08, 40), [new THREE.MeshStandardMaterial({ color: 0xcdbfa6, roughness: 0.9 }), new THREE.MeshStandardMaterial({ map: izD, roughness: 0.9 }), new THREE.MeshStandardMaterial({ color: 0xcdbfa6 })]); m.receiveShadow = true; sahne.add(m); return m; });
+        /* yol iki uçtan ortaya gelir: 0 (uç) ... 6 (orta) */
+        const xAt = (i) => 3.0 - i * 0.46;
+        taslar.forEach((m, i) => { m.position.set(i === 6 ? 0 : xAt(i), 0.05, 0); });
+        const ayna = ADIM.slice(0, 6).map((_, i) => { const m = taslar[i].clone(); m.position.set(-xAt(i), 0.05, 0); sahne.add(m); return m; });
+        const sol = await T.karakter3B(c, "erkek", { boy: 1.3 }), sag = await T.karakter3B(c, "kiz", { boy: 1.25 });
+        sahne.add(sol.kok, sag.kok);
+        const yer = (i) => (i >= 6 ? 0.36 : xAt(i));
+        sol.kok.position.set(-yer(0), 0.1, 0); sag.kok.position.set(yer(0), 0.1, 0);
+        const yonu = (k, bak) => (k.kok.rotation.y = bak);
+        yonu(sol, 0.5); yonu(sag, -0.5); sol.oynat("dur"); sag.oynat("dur");
+        let hedef = 0;
+        c.kare = (dt) => {
+          sol.guncelle(dt); sag.guncelle(dt);
+          const hx = yer(hedef), yuru = (k, isaret) => { const p = k.kok.position, d = isaret * hx - p.x; if (Math.abs(d) > 0.02) { p.x += Math.sign(d) * Math.min(Math.abs(d), dt * 0.9); if (!k._yuruyor) { k._yuruyor = true; k.kok.rotation.y = d > 0 ? Math.PI / 2 : -Math.PI / 2; k.oynat("yuru"); } } else if (k._yuruyor) { k._yuruyor = false; p.x = isaret * hx; k.kok.rotation.y = hedef >= 6 ? isaret * -Math.PI / 2 : isaret * -0.5; if (hedef >= 6) k.oynat("salla", { dongu: false }).then(() => k.oynat("sevin", { dongu: false })).then(() => k.oynat("dur")); else k.oynat("dur"); } };
+          yuru(sol, -1); yuru(sag, 1);
+          taslar.concat(ayna).forEach((m) => { const i = taslar.includes(m) ? taslar.indexOf(m) : ayna.indexOf(m); const on = i === hedef; m.material[0].emissive = new THREE.Color(on ? 0xffd66b : 0x000000); m.material[0].emissiveIntensity = on ? 0.6 : 0; m.scale.setScalar(on ? 1.08 : 1); });
+        };
+        K = { git: (i) => (hedef = i) };
+        K.git(adim);
+      });
       function ciz() {
-        clearInterval(t);
+        clearInterval(t); K && K.git(adim);
         const st = T.store.activeClass().students;
         const secici = (cur, set, diger) => h("select.in", { onchange: (e) => { set(st.find((x) => x.id === e.target.value) || null); ciz(); } }, h("option", { value: "" }, "Seç"), st.filter((x) => !diger || x.id !== diger.id).map((x) => h("option", { value: x.id, selected: cur && cur.id === x.id ? true : null }, x.name)));
         const A = a ? a.name : "1. arkadaş", B = b ? b.name : "2. arkadaş";
-        const yol = h("div.by-yol", ADIM.map(([l], i) => h("button.by-tas" + (i === adim ? ".on" : i < adim ? ".done" : ""), { onclick: () => { adim = i; ciz(); } }, h("i.ayak.sol"), h("span", l), h("i.ayak.sag"))).reverse());
-        const [baslik, yon] = ADIM[adim];
+        const adimlar = h("div.by-adimlar", ADIM.map(([l], i) => h("button" + (i === adim ? ".on" : i < adim ? ".done" : ""), { onclick: () => { adim = i; ciz(); } }, h("b", i + 1), h("span", l))));
+        const [baslik, yon, bas, ek] = ADIM[adim];
         let ic = [h("h3", baslik), h("p.sb-line", yon)];
         if (adim === 0) {
           const big = h("div.dy-big", sayac);
-          ic.push(big, h("button.btn", { onclick: () => { sayac = 10; big.textContent = sayac; clearInterval(t); t = setInterval(() => { sayac--; big.textContent = Math.max(0, sayac); if (sayac <= 0) { clearInterval(t); T.sound.ok(); } }, 1000); } }, T.icon("timer"), "10 saniye"), h("div.dy-pair", h("label", "Sol ayak izi", secici(a, (x) => (a = x), b)), h("label", "Sağ ayak izi", secici(b, (x) => (b = x), a))), h("p.hint", "İsim seçmek isteğe bağlı ve kaydedilmez."));
-        } else if (adim >= 1 && adim <= 5) ic.push(h("div.dy-ben", h("div", h("b", A), h("p", "Sıra sende.")), h("div", h("b", B), h("p", "Sonra sen."))));
-        else ic = [h("div.dy-bigicon", T.icon("hands")), h("h3", A + " ve " + B + " el sıkıştı!"), h("p.sb-line", "Şimdi nasıl hissediyorsunuz?"), h("button.btn", { onclick: () => { adim = 0; a = b = null; ciz(); } }, T.icon("reset"), "Yeni çatışma")];
-        box.replaceChildren(h("div.by-grid", yol, h("div.dy-step", ic)),
+          ic.push(big, h("button.btn", { onclick: () => { sayac = 10; big.textContent = sayac; clearInterval(t); t = setInterval(() => { sayac--; big.textContent = Math.max(0, sayac); if (sayac <= 0) { clearInterval(t); T.sound.ok(); } }, 1000); } }, T.icon("timer"), "10 saniye"),
+            h("div.dy-pair", h("label", "Soldaki arkadaş", secici(a, (x) => (a = x), b)), h("label", "Sağdaki arkadaş", secici(b, (x) => (b = x), a))), h("p.hint", "İsim seçmek isteğe bağlı ve kaydedilmez."));
+        } else if (adim < 6) {
+          const kisi = (ad, yan) => {
+            const anahtar = adim + ":" + yan, sec = secilen[anahtar];
+            let ekEl = null;
+            if (ek === "duygu") ekEl = h("div.by-cip", ["kizgin", "uzgun", "korkmus", "endiseli", "saskin"].map((k) => h("button", { "aria-pressed": String(sec === k), onclick: () => { secilen[anahtar] = sec === k ? null : k; ciz(); } }, T.yuz(k, 40))));
+            else if (Array.isArray(ek)) ekEl = h("div.by-cip", ek.map((x) => h("button.yazi", { "aria-pressed": String(sec === x), onclick: () => { secilen[anahtar] = sec === x ? null : x; ciz(); } }, x)));
+            return h("div.by-kisi", h("b", ad), h("div.by-bas", bas.map((x) => h("span", x))), ekEl);
+          };
+          ic.push(h("div.dy-ben", kisi(A, "a"), kisi(B, "b")));
+        } else ic = [h("div.dy-bigicon", T.icon("hands")), h("h3", A + " ve " + B + " el sıkıştı!"), h("p.sb-line", "Şimdi nasıl hissediyorsunuz?"), h("button.btn", { onclick: () => { adim = 0; a = b = null; secilen = {}; ciz(); } }, T.icon("reset"), "Yeni çatışma")];
+        box.replaceChildren(adimlar, h("div.dy-step.by-kart", ic),
           h("div.sb-nav", adim > 0 ? h("button.btn.c-chalk", { onclick: () => { adim--; ciz(); } }, T.icon("back"), "Önceki") : h("span"), adim < ADIM.length - 1 ? h("button.btn.big", { onclick: () => { adim++; ciz(); } }, ADIM[adim + 1][0], T.icon("next")) : h("span")));
       }
       ciz();

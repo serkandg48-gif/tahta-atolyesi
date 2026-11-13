@@ -145,27 +145,46 @@
   /* 3. Sakinleşme köşesi */
   tool("sakinlesme", {
     title: "Sakinleşme köşesi", icon: "sun", tone: "sky", short: "Nefes balonu, 5-4-3-2-1, geriye sayma",
-    render(host) {
-      let mod = "nefes"; const box = h("div"); host.append(box); let timer = null;
+    render(host, api) {
+      let mod = "nefes", turSay = 5; const box = h("div.dy-sakin"); host.append(box); let timer = null;
       T.onLeave(() => clearTimeout(timer));
+      /* rehber: erkek öğrenci balonla birlikte nefes alır (göğsü ve omuzları yükselir) */
+      let rehber = null, nefesHedef = 0, nefesSimdi = 0;
+      const rehberKur = (kap) => {
+        T.sahne3(kap, { kamera: [0, 0.85, 3.3], bak: [0, 0.7, 0], fov: 34, env: ["#FFFFFF", "#DCE8F6", "#6E95D1"] }, api).then(async (c) => {
+          if (!c) return; c.sahne.add(new c.THREE.HemisphereLight(0xffffff, 0x9fb5d6, 2.2)); const L = new c.THREE.DirectionalLight(0xffffff, 1.6); L.position.set(1, 3, 3); c.sahne.add(L);
+          const k = await T.karakter3B(c, "erkek", { boy: 1.35 }).catch(() => null); if (!k) return;
+          k.kok.rotation.y = 0.15; c.sahne.add(k.kok); k.oynat("dur"); rehber = k;
+          const kem = {}; k.model.traverse((o) => { if (o.isBone) kem[o.name] = o; });
+          const gogus = kem.mixamorigSpine2 || kem.mixamorigSpine1, omuz = [kem.mixamorigLeftShoulder, kem.mixamorigRightShoulder].filter(Boolean), q = new c.THREE.Quaternion(), ex = new c.THREE.Vector3(1, 0, 0), ez = new c.THREE.Vector3(0, 0, 1);
+          c.kare = (dt) => { k.guncelle(dt); nefesSimdi += (nefesHedef - nefesSimdi) * Math.min(1, dt * 1.6);
+            if (gogus) { q.setFromAxisAngle(ex, -0.12 * nefesSimdi); gogus.quaternion.multiply(q); }
+            omuz.forEach((b, i) => { q.setFromAxisAngle(ez, (i ? 1 : -1) * 0.14 * nefesSimdi); b.quaternion.multiply(q); }); };
+        });
+      };
+      const tamEkran = () => { try { document.fullscreenElement ? document.exitFullscreen() : (box.requestFullscreen || box.webkitRequestFullscreen).call(box); } catch (e) { T.toast("Bu ortamda tam ekran kapalı"); } };
       function ciz() {
-        clearTimeout(timer);
-        const seg = h("div.seg", [["nefes", "Nefes balonu"], ["duyu", "5-4-3-2-1"], ["say", "Geriye say"]].map(([k, l]) => h("button", { "aria-pressed": String(mod === k), onclick: () => { mod = k; ciz(); } }, l)));
+        clearTimeout(timer); rehber = null; nefesHedef = 0;
+        const seg = h("div.row", h("div.seg", [["nefes", "Nefes balonu"], ["duyu", "5-4-3-2-1"], ["say", "Geriye say"]].map(([k, l]) => h("button", { "aria-pressed": String(mod === k), onclick: () => { mod = k; ciz(); } }, l))),
+          mod === "nefes" ? h("div.seg", [[3, "3 nefes"], [5, "5 nefes"], [10, "10 nefes"]].map(([k, l]) => h("button", { "aria-pressed": String(turSay === k), onclick: () => { turSay = k; ciz(); } }, l))) : null,
+          h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: tamEkran }, T.icon("full"), "Tam ekran"));
         const alan = h("div.dy-calm");
         box.replaceChildren(seg, alan);
         if (mod === "nefes") {
           const top = h("div.dy-ball"), yazi = h("div.dy-breath", "Hazır olunca başla"), say = h("div.dy-count");
           let tur = 0, calisiyor = false;
           const adim = (i) => {
-            const A = [["Burnundan nefes al", 4, 1.0], ["Tut", 2, 1.0], ["Ağzından yavaşça ver", 5, 0.45]];
-            const [t, sn, sc] = A[i % 3];
-            yazi.textContent = t; top.style.transition = `transform ${sn}s ease-in-out`; top.style.transform = `scale(${sc})`;
-            let k = sn; say.textContent = k; const tick = () => { k--; if (k > 0) { say.textContent = k; timer = setTimeout(tick, 1000); } else { if (i % 3 === 2) tur++; if (tur >= 5) { yazi.textContent = "Harika! Şimdi nasıl hissediyorsun?"; say.textContent = ""; calisiyor = false; btn.textContent = "Bir daha"; return; } adim(i + 1); } };
+            const A = [["Burnundan nefes al", 4, 1.0, 1], ["Tut", 2, 1.0, 1], ["Ağzından yavaşça ver", 5, 0.45, 0]];
+            const [t, sn, sc, nf] = A[i % 3];
+            yazi.textContent = t; top.style.transition = `transform ${sn}s ease-in-out`; top.style.transform = `scale(${sc})`; nefesHedef = nf;
+            let k = sn; say.textContent = k; const tick = () => { k--; if (k > 0) { say.textContent = k; timer = setTimeout(tick, 1000); } else { if (i % 3 === 2) tur++; if (tur >= turSay) { yazi.textContent = "Harika! Şimdi nasıl hissediyorsun?"; say.textContent = ""; calisiyor = false; btn.textContent = "Bir daha"; nefesHedef = 0; if (rehber) rehber.oynat("salla", { dongu: false }).then(() => rehber && rehber.oynat("dur")); return; } adim(i + 1); } };
             timer = setTimeout(tick, 1000);
           };
-          const btn = h("button.btn.big", { onclick: () => { if (calisiyor) return; calisiyor = true; tur = 0; btn.textContent = "5 nefes"; adim(0); } }, "Başla");
+          const btn = h("button.btn.big", { onclick: () => { if (calisiyor) return; calisiyor = true; tur = 0; btn.textContent = turSay + " nefes"; adim(0); } }, "Başla");
           top.style.transform = "scale(.45)";
-          alan.append(h("div.dy-ballwrap", top, say), yazi, btn, h("p.hint", "Balon büyürken nefes alıyoruz, küçülürken veriyoruz. 5 tur sürer."));
+          const kap3 = h("div.dy-rehber");
+          alan.append(h("div.dy-nefes-sahne", kap3, h("div.dy-ballwrap", top, say)), yazi, btn, h("p.hint", "Balon büyürken nefes alıyoruz, küçülürken veriyoruz. Arkadaşımız da bizimle nefes alıyor."));
+          rehberKur(kap3);
         } else if (mod === "duyu") {
           const A = [[5, "şey görüyorum", "Etrafına bak, gördüğün 5 şeyi say."], [4, "şeye dokunabiliyorum", "Dokunabildiğin 4 şeyi say."], [3, "ses duyuyorum", "Duyduğun 3 sesi söyle."], [2, "koku alıyorum", "Alabildiğin 2 kokuyu düşün."], [1, "tat hissediyorum", "Ağzındaki 1 tadı düşün."]];
           let i = 0;

@@ -1793,4 +1793,4 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .yt-yazi-kap:hover .yt-tut, .yt-yazi-kap:focus-within .yt-tut { opacity: 1; }
 .yt-ust, .yt-alt { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
 .yt-b span { display: inline; }
-@media (max-width: 1300px) { .yt-b span { display: none; } .yt-b { padding: 0 10px; } }
+@media (max-width: 1300px) { .yt-b svg + span { display: none; } .yt-b { padding: 0 10px; } }

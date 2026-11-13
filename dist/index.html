@@ -2252,7 +2252,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="b851dcc163";
+window.SURUM="66cfaf859f";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -11582,7 +11582,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     model.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; if (o.material) { o.material.metalness = 0; o.material.roughness = Math.max(0.6, o.material.roughness || 0.8); } } });
     const dortAyak = !g.animations.some((a) => /Wave|Cheer|Talk/.test(a.name));
     const klipler = {};
-    g.animations.forEach((a) => { const k = a.clone(); if (dortAyak) k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale") && !t.name.endsWith(".position")); else k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale")); klipler[a.name] = k; });
+    g.animations.forEach((a) => { const k = a.clone(); if (dortAyak) k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale") && !t.name.endsWith(".position")); else { k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale")); k.tracks.forEach((t) => { if (!t.name.endsWith(".position")) return; const kemik = model.getObjectByName(t.name.slice(0, -9)); if (!kemik) return; const v = t.values, x0 = kemik.position.x, z0 = kemik.position.z; for (let i = 0; i < v.length; i += 3) { v[i] = x0; v[i + 2] = z0; } }); } klipler[a.name] = k; });
     const bul = (tur) => { for (const n of KLIP[tur] || [tur]) if (klipler[n]) return klipler[n]; return null; };
     const mixer = new THREE.AnimationMixer(model);
     const kutu = new THREE.Box3(), olcu = (dt) => { kok.updateMatrixWorld(true); model.traverse((o) => o.isSkinnedMesh && o.skeleton.update()); kutu.setFromObject(model, true); return kutu; };
@@ -11745,14 +11745,14 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           dukkanlar = [...MAHALLE[mi][1]].map((l, i) => dukkan(l, i));
         }
         /* karakterler */
-        const [rehber, kedi, kopek, robot, baykus] = await Promise.all([T.karakter3B(c, "sincap", { boy: 1.15 }), T.karakter3B(c, "kedi", { boy: 0.62 }), T.karakter3B(c, "kopek", { boy: 0.7 }), T.karakter3B(c, "robot", { boy: 1.05 }), T.karakter3B(c, "baykus", { boy: 1.0 })]);
+        const [rehber, kedi, kopek, robot, baykus] = await Promise.all([T.karakter3B(c, "sincap", { boy: 1.75 }), T.karakter3B(c, "kedi", { boy: 0.95 }), T.karakter3B(c, "kopek", { boy: 1.05 }), T.karakter3B(c, "robot", { boy: 1.6 }), T.karakter3B(c, "baykus", { boy: 1.45 })]);
         const musteriler = [kedi, robot, kopek, baykus];
         [rehber, ...musteriler].forEach((k) => { sahne.add(k.kok); k.kok.visible = false; });
         mahalleKur(mahalleI);
         /* kamera */
         const kam = { p: new THREE.Vector3(0, 5.2, 15.5), b: new THREE.Vector3(0, 1.4, -2.6), hp: null, hb: null };
         const genelKam = () => { kam.hp = new THREE.Vector3(0, 5.2, 15.5); kam.hb = new THREE.Vector3(0, 1.4, -2.6); };
-        const dukkanKam = (d) => { const w = d.g.localToWorld(new THREE.Vector3(0.6, 0, 2.6)); kam.hp = new THREE.Vector3(w.x + 0.4, 3.0, w.z + 6.4); kam.hb = new THREE.Vector3(w.x + 0.1, 1.15, w.z - 0.6); };
+        const dukkanKam = (d) => { const w = d.g.localToWorld(new THREE.Vector3(0.6, 0, 2.6)); kam.hp = new THREE.Vector3(w.x + 0.3, 2.6, w.z + 5.3); kam.hb = new THREE.Vector3(w.x + 0.1, 1.2, w.z - 0.4); };
         /* dükkâna dokun */
         const cv = kap.querySelector("canvas"), isin = new THREE.Raycaster(), fare = new THREE.Vector2();
         cv.addEventListener("click", (e) => { if (aktif) return; const b = cv.getBoundingClientRect(); fare.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); isin.setFromCamera(fare, kamera); const hit = isin.intersectObjects(dukkanlar.map((d) => d.g), true)[0]; if (!hit) return; const d = dukkanlar.find((d2) => { let p = hit.object; while (p) { if (p === d2.g) return true; p = p.parent; } return false; }); if (d) dukkanGir(d); });
@@ -11762,6 +11762,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
         const yurut = (k, hedef, hiz = 1.8) => new Promise((res) => { k.hedef = { x: hedef.x, z: hedef.z, hiz, res }; k.oynat("yuru"); });
         const cumulative = (l) => ORDER.slice(0, ORDER.indexOf(l) + 1);
         const okur = (w, L) => IO.okWord(w, L);
+        const hecele = (w) => { const v = (ch) => IO.VOW.includes(ch), a = [...w], out = []; let cur = ""; a.forEach((ch, i) => { const sinir = i > 0 && cur && ((!v(ch) && v(a[i + 1] || "") ) || (v(ch) && v(a[i - 1]))); if (sinir && [...cur].some(v)) { out.push(cur); cur = ""; } cur += ch; }); if (cur) { if ([...cur].some(v) || !out.length) out.push(cur); else out[out.length - 1] += cur; } return out; };
         function ustCiz() {
           ust.replaceChildren(h("div.ks-mahalleler", MAHALLE.map(([ad, ls], mi) => h("button.ks-mah" + (mi === mahalleI ? ".on" : ""), { onclick: () => { if (aktif) return; mahalleI = mi; mahalleKur(mi); genelKam(); ustCiz(); altCiz(); } }, h("b", ad), h("span", [...ls].map((l) => h("i" + (asamaOf(l) >= 4 ? ".ok" : ""), l)))))));
         }
@@ -11801,15 +11802,22 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
             const hedef = T.pick(heceler), havuz = new Set(heceler.filter((x) => x !== hedef));
             L.forEach((a) => L.forEach((b) => { const x = a + b; if (x !== hedef && IO.VOW.includes(a) !== IO.VOW.includes(b)) havuz.add(x); }));
             if (havuz.size < 2) { const V = [...IO.VOW], C = ORDER.filter((x) => !IO.VOW.includes(x)).slice(0, 8); (IO.VOW.includes(l) ? C.map((x) => x + l) : V.map((v) => l + v)).concat(C.slice(0, 4).map((x) => x + (IO.VOW.includes(l) ? "a" : hedef.replace(l, "")))).forEach((x) => x !== hedef && x.length === 2 && havuz.add(x)); }
-            const dis = T.shuffle([...havuz]).slice(0, 2); if (dis.length < 2) return null;
-            return { fis: hedef, fisTur: "hece", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, gorunum: x })), dogru: hedef };
+            /* birleştirme: fişte "n + a" yazar, çocuk "na" hecesini seçer. Çeldiriciler: ters sıra ve aynı harfin başka sesliyle hecesi */
+            const ters = hedef[1] + hedef[0], dis = [];
+            if (ters !== hedef) dis.push(ters);
+            const benzer = [...havuz].filter((x) => x !== ters && (x[0] === hedef[0] || x[1] === hedef[1]));
+            T.shuffle(benzer.length ? benzer : [...havuz]).forEach((x) => dis.length < 2 && x !== ters && dis.push(x));
+            if (dis.length < 2) return null;
+            return { fis: hedef[0] + " + " + hedef[1], soz: "Bu iki sesi birleştir, heceyi ver:", dinle: hedef, fisTur: "hece", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, gorunum: x })), dogru: hedef };
           }
           if (asama === "kelime") {
             const resimli = IO.PICS.filter(([w2]) => w2.includes(l) && okur(w2, L)).map(([w2]) => w2);
-            if (resimli.length) { const hedef = T.pick(resimli), dis = T.shuffle(IO.PICS.map(([w2]) => w2).filter((w2) => w2 !== hedef)).slice(0, 2); return { fis: hedef, fisTur: "kelime", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, resim: PIC.get(x) })), dogru: hedef }; }
-            const yazili = IO.WORDS.filter((w2) => w2.includes(l) && okur(w2, L)); if (!yazili.length) return null;
-            const hedef = T.pick(yazili), dis = T.shuffle(IO.WORDS.filter((w2) => w2 !== hedef && okur(w2, L))).slice(0, 2); if (dis.length < 2) return null;
-            return { fis: hedef, fisTur: "kelime", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, gorunum: x })), dogru: hedef };
+            if (resimli.length) { const hedef = T.pick(resimli), dis = T.shuffle(IO.PICS.map(([w2]) => w2).filter((w2) => w2 !== hedef)).slice(0, 2); return { fis: hedef, soz: "Fişi oku, resmini ver:", fisTur: "kelime", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, resim: PIC.get(x) })), dogru: hedef }; }
+            /* resmi olmayan kelimede: fişte heceler ayrı yazar (an + ne), çocuk birleşmiş kelimeyi seçer */
+            const yazili = IO.WORDS.filter((w2) => w2.includes(l) && okur(w2, L) && hecele(w2).length > 1); if (!yazili.length) return null;
+            const hedef = T.pick(yazili), hc = hecele(hedef), karisik = hc.length > 1 ? [hc.slice().reverse().join("")] : [];
+            const dis = karisik.filter((x) => x !== hedef).concat(T.shuffle(IO.WORDS.filter((w2) => w2 !== hedef && okur(w2, L)))).slice(0, 2); if (dis.length < 2) return null;
+            return { fis: hc.join(" + "), soz: "Heceleri birleştir, kelimeyi ver:", dinle: hedef, fisTur: "kelime", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, gorunum: x })), dogru: hedef };
           }
           if (asama === "cumle") {
             const isim = IO.NAMES.filter((n) => okur(n, L)), nesne = IO.PICS.filter(([w2]) => okur(w2, L)).map(([w2]) => w2);
@@ -11817,7 +11825,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
             const ciftler = []; isim.forEach((n) => nesne.forEach((w2) => { if ((T.trLower(n) + w2).includes(l)) ciftler.push([n, w2]); }));
             if (!ciftler.length) return null;
             const [n2, hedef] = T.pick(ciftler), dis = T.shuffle(IO.PICS.map(([w2]) => w2).filter((w2) => w2 !== hedef)).slice(0, 2);
-            return { fis: `${n2}, ${hedef} al.`, fisTur: "cumle", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, resim: PIC.get(x) })), dogru: hedef };
+            return { fis: `${n2}, ${hedef} al.`, soz: "Fişimi oku, istediğimi ver:", fisTur: "cumle", secenek: T.shuffle([hedef, ...dis]).map((x) => ({ id: x, resim: PIC.get(x) })), dogru: hedef };
           }
         }
         const isaretle = (metin, l) => [...metin].map((ch) => (T.trLower(ch) === l ? h("span.ks-ses", ch) : document.createTextNode(ch)));
@@ -11835,11 +11843,11 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           alt.replaceChildren(h("div.ks-ipucu", "Bir müşteri geliyor..."));
           await yurut(k, w, 2.4); if (aktif !== d) return;
           k.kok.rotation.y = d.g.rotation.y - 1.25; k.oynat("bekle");
-          fis.replaceChildren(h("small", asama === "ses" ? q.soz : asama === "hece" ? "Bu heceyi istiyorum:" : asama === "kelime" ? "Bunu istiyorum:" : "Fişimi oku:"), h("b.ks-fis-" + q.fisTur, ...isaretle(q.fis, d.l)));
+          fis.replaceChildren(h("small", q.soz), h("b.ks-fis-" + q.fisTur, ...isaretle(q.fis, d.l)));
           fis.classList.add("acik"); fis._k = k;
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),
-            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => T.speak(asama === "ses" ? T.trLower(q.fis) : q.fis) }, T.icon("speaker"), "Dinle"), h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))));
+            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => T.speak(q.dinle || (asama === "ses" ? T.trLower(q.fis) : q.fis)) }, T.icon("speaker"), "Dinle"), h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))));
         }
         async function sec(btn, dogru, k, d) {
           if (kilitSec) return;
@@ -11887,7 +11895,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
             k.guncelle(dt);
             if (k.hedef) { const p = k.kok.position, dx = k.hedef.x - p.x, dz = k.hedef.z - p.z, dd = Math.hypot(dx, dz); if (dd < 0.06) { const f = k.hedef.res; k.hedef = null; k.oynat("bekle"); f && f(); } else { const st = Math.min(dd, dt * k.hedef.hiz); p.x += (dx / dd) * st; p.z += (dz / dd) * st; let fa = Math.atan2(dx, dz) - k.kok.rotation.y; fa = Math.atan2(Math.sin(fa), Math.cos(fa)); k.kok.rotation.y += fa * Math.min(1, dt * 8); } }
           });
-          if (fis.classList.contains("acik") && fis._k) { fis._k.kok.getWorldPosition(v3); v3.y += fis._k.dortAyak ? 0.95 : 1.3; v3.project(kamera); const b = kap.getBoundingClientRect(); fis.style.transform = `translate(${(v3.x * 0.5 + 0.5) * b.width}px, ${(-v3.y * 0.5 + 0.5) * b.height}px) translate(-50%, -100%)`; }
+          if (fis.classList.contains("acik") && fis._k) { fis._k.kok.getWorldPosition(v3); v3.y += fis._k.dortAyak ? 1.35 : 1.85; v3.project(kamera); const b = kap.getBoundingClientRect(); fis.style.transform = `translate(${(v3.x * 0.5 + 0.5) * b.width}px, ${(-v3.y * 0.5 + 0.5) * b.height}px) translate(-50%, -100%)`; }
         };
         yuk.remove(); ustCiz(); altCiz();
         T._kasaba = { dukkanGir: (l) => dukkanGir(dukkanlar.find((d) => d.l === l)), dukkanlar, soruUret, sec, musteriler, rehber };

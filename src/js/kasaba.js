@@ -137,19 +137,28 @@
         const hecele = (w) => { const v = (ch) => IO.VOW.includes(ch), a = [...w], out = []; let cur = ""; a.forEach((ch, i) => { const sinir = i > 0 && cur && ((!v(ch) && v(a[i + 1] || "") ) || (v(ch) && v(a[i - 1]))); if (sinir && [...cur].some(v)) { out.push(cur); cur = ""; } cur += ch; }); if (cur) { if ([...cur].some(v) || !out.length) out.push(cur); else out[out.length - 1] += cur; } return out; };
         /* Okuyan: sınıf listesinden sırayla rastgele (bugün gelmeyenler hariç) ya da öğretmen seçer */
         let okuyanSirasi = [];
-        function okuyanSec(yeni) {
-          if ((dep().okuyan || "liste") !== "liste") return null;
-          const c = T.store.activeClass(), s = T.store.get(), gun = ((s.attendance || {})[c.id] || {})[T.isoDate()] || {};
-          const gelen = (c.students || []).filter((st) => gun[st.id] !== "yok"); if (!gelen.length) return null;
-          if (!okuyanSirasi.length || yeni) { if (!okuyanSirasi.length) okuyanSirasi = T.shuffle(gelen.map((st) => st.name)); }
-          return okuyanSirasi.shift();
+        /* Okuyacak öğrenciyi çarkla seç. Okuyanlar listeden düşer, herkes okuyunca çark yeniden dolar. */
+        let carkPano = null, ck = null;
+        const kalanlar = () => { const c = T.store.activeClass(), s = T.store.get(), gun = ((s.attendance || {})[c.id] || {})[T.isoDate()] || {}; const gelen = (c.students || []).filter((st) => gun[st.id] !== "yok").map((st) => st.name); if (!okuyanSirasi.length || !okuyanSirasi.some((n) => gelen.includes(n))) okuyanSirasi = gelen.slice(); okuyanSirasi = okuyanSirasi.filter((n) => gelen.includes(n)); return okuyanSirasi; };
+        function okuyanCark() {
+          return new Promise(async (bitir) => {
+            if ((dep().okuyan || "liste") !== "liste") return bitir(null);
+            const liste = kalanlar(); if (!liste.length) return bitir(null);
+            if (!carkPano) { carkPano = h("div.ks-cark", h("b", "Kim okuyacak?"), h("div.ks-cark-kap"), h("div.ks-cark-sonuc"), h("div.ks-yan")); }
+            const sahneEl = host.querySelector(".ks-sahne"); sahneEl.append(carkPano); carkPano.hidden = false;
+            const sonuc = carkPano.querySelector(".ks-cark-sonuc"), yan = carkPano.querySelector(".ks-yan"); sonuc.textContent = "";
+            if (!ck) { ck = await T.cark3B(carkPano.querySelector(".ks-cark-kap"), null, { sure: 3.2, arka: ["#FFFFFF", "#F3EEE4"] }); if (!ck) { carkPano.hidden = true; return bitir(T.pick(liste)); } }
+            ck.kur(liste.map((ad) => ({ ad })));
+            const cevir = () => { if (ck.donuyor()) return; yan.replaceChildren(); const i = Math.floor(Math.random() * liste.length); ck.cevir(i, () => { const ad = liste[i]; sonuc.textContent = ad; T.sound.ok(); okuyanSirasi = okuyanSirasi.filter((n) => n !== ad); setTimeout(() => { carkPano.hidden = true; bitir(ad); }, 1300); }); };
+            yan.replaceChildren(h("button.ks-yeni", { onclick: cevir }, T.icon("turn"), "Çarkı çevir"), h("button.ot-b.dinle", { onclick: () => { carkPano.hidden = true; bitir(null); } }, "Atla"));
+          });
         }
         const tamEkran = () => { const el2 = host.querySelector(".ks-sahne"); try { (document.fullscreenElement ? document.exitFullscreen() : (el2.requestFullscreen || el2.webkitRequestFullscreen).call(el2)); } catch (e) { T.toast("Bu ortamda tam ekran kapalı"); } };
         function ustCiz() {
           const mod = dep().okuyan || "liste";
           ust.replaceChildren(h("div.ks-araclar",
-              h("div.ks-okuyan-sec", h("span", "Okuyan"), h("div.seg", [["liste", "Sınıftan biri"], ["ogretmen", "Öğretmen seçer"]].map(([v, ad]) => h("button", { "aria-pressed": String(v === mod), onclick: () => { depYaz((k) => (k.okuyan = v)); okuyanSirasi = []; ustCiz(); } }, ad)))),
-              h("button.ks-mini", { onclick: tamEkran, "aria-label": "Tam ekran" }, T.icon("full"))),
+              h("div.ks-okuyan-sec", h("span", "Okuyan"), h("div.seg", [["liste", "Çarkla seç"], ["ogretmen", "Öğretmen seçer"]].map(([v, ad]) => h("button", { "aria-pressed": String(v === mod), onclick: () => { depYaz((k) => (k.okuyan = v)); okuyanSirasi = []; ustCiz(); } }, ad)))),
+              h("button.ks-tam", { onclick: tamEkran }, T.icon("full"), "Tam ekran")),
             h("div.ks-mahalleler", MAHALLE.map(([ad, ls], mi) => h("button.ks-mah" + (mi === mahalleI ? ".on" : ""), { onclick: () => { if (aktif) return; mahalleI = mi; mahalleKur(mi); genelKam(); ustCiz(); altCiz(); } }, h("b", ad), h("span", [...ls].map((l) => h("i" + (asamaOf(l) >= 4 ? ".ok" : ""), l)))))));
         }
         function altCiz() {
@@ -181,7 +190,7 @@
           kap.parentNode.append(pano);
         }
         function dukkandanCik() {
-          dinlemeDur(); const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove();
+          dinlemeDur(); const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove(); if (carkPano) carkPano.hidden = true;
           aktif = null; host.querySelector(".ks-sahne").classList.remove("icerde"); rehber.kok.visible = false; musteriler.forEach((k) => { k.kok.visible = false; k.hedef = null; });
           genelKam(); mahalleKur(mahalleI); ustCiz(); altCiz();
         }
@@ -242,7 +251,9 @@
           alt.replaceChildren(h("div.ks-ipucu", "Bir müşteri geliyor..."));
           await yurut(k, w, 2.4); if (aktif !== d) return;
           k.kok.rotation.y = d.g.rotation.y - 1.25; k.oynat("bekle");
-          const okuyan = okuyanSec(); fis.replaceChildren(okuyan ? h("div.ks-okuyan", T.icon("hand"), h("b", okuyan), h("button", { onclick: (e) => { e.stopPropagation(); const y = okuyanSec(true); if (y) fis.querySelector(".ks-okuyan b").textContent = y; } }, "Başkası")) : null, h("small.ok-yazi", q.soz), h("b.ks-fis-" + q.fisTur, ...isaretle(q.fis, d.l)), q.soru ? h("div.ks-fis-soru.ok-yazi", q.soru) : null);
+          alt.replaceChildren(h("div.ks-ipucu", (dep().okuyan || "liste") === "liste" ? "Çarkı çevirip okuyacak arkadaşı seçin." : "Okuyacak öğrenciyi seçin."));
+          const okuyan = await okuyanCark(); if (aktif !== d) return;
+          fis.replaceChildren(okuyan ? h("div.ks-okuyan", T.icon("hand"), h("b", okuyan), h("button", { onclick: async (e) => { e.stopPropagation(); const y = await okuyanCark(); if (y) fis.querySelector(".ks-okuyan b").textContent = y; } }, "Başkası")) : null, h("small.ok-yazi", q.soz), h("b.ks-fis-" + q.fisTur, ...(q.fisTur === "harf" ? [q.fis] : isaretle(q.fis, d.l))), q.soru ? h("div.ks-fis-soru.ok-yazi", q.soru) : null);
           fis.classList.add("acik"); fis._k = k;
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),

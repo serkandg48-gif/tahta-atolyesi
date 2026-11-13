@@ -8,6 +8,26 @@
     const model = m.SkeletonUtils.clone(g.scene); ic.add(model);
     model.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = false; o.frustumCulled = false; if (o.material) { o.material.metalness = 0; o.material.roughness = Math.max(0.6, o.material.roughness || 0.8); } } });
     const dortAyak = !g.animations.some((a) => /Wave|Cheer|Talk/.test(a.name));
+    /* Otomatik iskelette bazı fazla kemikler (ikinci bir kol zinciri, cebe bağlı bir kemik) hiç canlanmaz.
+       Örgü bunlara bağlıyken kol ya da cep yerinde kalıp gerilir. Bu kemiklerin ağırlığı en yakın canlanan kemiğe aktarılır. */
+    if (!dortAyak && !g.userData.agirlikDuzeldi) {
+      g.userData.agirlikDuzeldi = true;
+      const canli = new Set(); g.animations.forEach((a) => a.tracks.forEach((t) => t.name.endsWith(".quaternion") && canli.add(t.name.split(".")[0])));
+      const ELLE = { Bone_055: "mixamorigHips" };
+      g.scene.updateMatrixWorld(true);
+      g.scene.traverse((o) => {
+        if (!o.isSkinnedMesh) return;
+        const kemik = o.skeleton.bones, poz = kemik.map((b) => b.getWorldPosition(new THREE.Vector3()));
+        const esle = kemik.map((b, i) => {
+          if (canli.has(b.name)) return i;
+          if (ELLE[b.name]) { const j = kemik.findIndex((x) => x.name === ELLE[b.name]); if (j >= 0) return j; }
+          let en = i, ed = Infinity; kemik.forEach((x, j) => { if (!canli.has(x.name)) return; const dd = poz[i].distanceTo(poz[j]); if (dd < ed) { ed = dd; en = j; } }); return en;
+        });
+        const si = o.geometry.attributes.skinIndex;
+        for (let v = 0; v < si.count; v++) for (let k = 0; k < 4; k++) { const j = si.getComponent(v, k), y = esle[j]; if (y !== j) si.setComponent(v, k, y); }
+        si.needsUpdate = true;
+      });
+    }
     const klipler = {};
     g.animations.forEach((a) => { const k = a.clone(); if (dortAyak) k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale") && !t.name.endsWith(".position")); else { k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale")); k.tracks.forEach((t) => { if (!t.name.endsWith(".position")) return; const kemik = model.getObjectByName(t.name.slice(0, -9)); if (!kemik) return; const v = t.values, x0 = kemik.position.x, z0 = kemik.position.z; for (let i = 0; i < v.length; i += 3) { v[i] = x0; v[i + 2] = z0; } }); } klipler[a.name] = k; });
     const bul = (tur) => { for (const n of KLIP[tur] || [tur]) if (klipler[n]) return klipler[n]; return null; };

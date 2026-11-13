@@ -564,7 +564,7 @@ input[type="range"] { accent-color: var(--sky); width: 100%; }
 :root { --okuma: "Tahta Harf", "Andika", "Onest", system-ui, sans-serif; }
 /* Tahta Harf: yazılış çizgilerinden üretilen yazı tipi (tools/harf_font.py). Fiş, şık ve yazılış kartı aynı biçimde görünür. */
 @font-face { font-family: "Tahta Harf"; font-display: swap; src: url(vendor/tahta-harf/tahta-harf.woff) format("woff"); }
-.ks-fis b, .ks-urun, .ks-harf, .ks-mah i, .yz-harf, .ok-yazi { font-family: var(--okuma) !important; font-size-adjust: ex-height 0.5; }
+.ks-fis b, .ks-urun, .ks-harf, .ks-mah i, .yz-harf, .ok-yazi { font-family: var(--okuma) !important; }
 /* =====================================================================
    Yeni görünüm (vitrin onaylı): açık zemin, lacivert, Onest yazı tipi.
    Eski tebeşir tahtası stilinin üstüne yazar; bileşen yapısı aynı kalır.
@@ -2274,7 +2274,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-okuyan-sec > span { font: 700 14px var(--body); color: #33402c; }
 .ks-okuyan { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px; font: 700 15px var(--body); color: #1F7A3A; }
 .ks-okuyan svg { width: 18px; height: 18px; }
-.ks-okuyan b { font: 800 20px var(--display) !important; font-size-adjust: none !important; }
+.ks-okuyan b { font: 800 20px var(--display) !important; }
 .ks-okuyan button { pointer-events: auto; border: 0; border-radius: 999px; padding: 3px 10px; background: #EEF1F5; font: 700 13px var(--body); cursor: pointer; }
 .ks-fis { pointer-events: auto; }
 .ks-fis-soru { margin-top: 4px; font-size: clamp(24px, 2.8vw, 36px); font-weight: 700; color: #C46A12; }
@@ -2285,6 +2285,25 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .ks-sahne.icerde .ks-mahalleler { display: none; }
 .ks-sahne .ks-fis { left: 50% !important; top: 70px !important; transform: translateX(-50%) !important; max-width: 60%; white-space: normal; }
 .ks-sahne .ks-fis::after { display: none; }
+
+/* Tahta Harf'in küçük harf yüksekliği okul defteri oranında (büyük harfin yarısı); okunur olsun diye boyutlar büyük */
+.ks-fis b { line-height: 1.25; }
+.ks-fis-harf { font-size: clamp(80px, 9vw, 120px); }
+.ks-fis-hece { font-size: clamp(64px, 7.5vw, 96px); }
+.ks-fis-kelime { font-size: clamp(52px, 6vw, 78px); }
+.ks-fis-cumle { font-size: clamp(38px, 4.4vw, 58px); }
+.ks-fis small { font-size: 22px; }
+.ks-fis-soru { font-size: clamp(32px, 3.6vw, 48px); }
+.ks-urun { font-size: clamp(36px, 4.2vw, 58px); }
+.ks-urun.harf { font-size: clamp(52px, 6.5vw, 84px); }
+.ks-mah i { font-size: 19px; }
+.ks-cark { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); z-index: 6; width: min(380px, 40%); display: grid; gap: 10px; justify-items: center; padding: 16px; border-radius: 24px; background: rgba(255,255,255,.94); box-shadow: 0 14px 34px rgba(0,0,0,.22); }
+.ks-cark > b { font: 800 22px var(--display); color: #2D4A22; }
+.ks-cark-kap { position: relative; width: 100%; aspect-ratio: 1 / 1.05; }
+.ks-cark-sonuc { font: 800 30px var(--display); color: #1F7A3A; min-height: 38px; }
+.ks-cark .ks-yan { justify-content: center; }
+.ks-tam { display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(255,255,255,.9); font: 700 15px var(--body); box-shadow: 0 4px 12px rgba(0,0,0,.1); cursor: pointer; }
+.ks-tam svg { width: 18px; height: 18px; }
 
 </style>
 </head>
@@ -2299,7 +2318,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="3a4e8a5522";
+window.SURUM="3502e19a77";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -11629,6 +11648,26 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
     const model = m.SkeletonUtils.clone(g.scene); ic.add(model);
     model.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = false; o.frustumCulled = false; if (o.material) { o.material.metalness = 0; o.material.roughness = Math.max(0.6, o.material.roughness || 0.8); } } });
     const dortAyak = !g.animations.some((a) => /Wave|Cheer|Talk/.test(a.name));
+    /* Otomatik iskelette bazı fazla kemikler (ikinci bir kol zinciri, cebe bağlı bir kemik) hiç canlanmaz.
+       Örgü bunlara bağlıyken kol ya da cep yerinde kalıp gerilir. Bu kemiklerin ağırlığı en yakın canlanan kemiğe aktarılır. */
+    if (!dortAyak && !g.userData.agirlikDuzeldi) {
+      g.userData.agirlikDuzeldi = true;
+      const canli = new Set(); g.animations.forEach((a) => a.tracks.forEach((t) => t.name.endsWith(".quaternion") && canli.add(t.name.split(".")[0])));
+      const ELLE = { Bone_055: "mixamorigHips" };
+      g.scene.updateMatrixWorld(true);
+      g.scene.traverse((o) => {
+        if (!o.isSkinnedMesh) return;
+        const kemik = o.skeleton.bones, poz = kemik.map((b) => b.getWorldPosition(new THREE.Vector3()));
+        const esle = kemik.map((b, i) => {
+          if (canli.has(b.name)) return i;
+          if (ELLE[b.name]) { const j = kemik.findIndex((x) => x.name === ELLE[b.name]); if (j >= 0) return j; }
+          let en = i, ed = Infinity; kemik.forEach((x, j) => { if (!canli.has(x.name)) return; const dd = poz[i].distanceTo(poz[j]); if (dd < ed) { ed = dd; en = j; } }); return en;
+        });
+        const si = o.geometry.attributes.skinIndex;
+        for (let v = 0; v < si.count; v++) for (let k = 0; k < 4; k++) { const j = si.getComponent(v, k), y = esle[j]; if (y !== j) si.setComponent(v, k, y); }
+        si.needsUpdate = true;
+      });
+    }
     const klipler = {};
     g.animations.forEach((a) => { const k = a.clone(); if (dortAyak) k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale") && !t.name.endsWith(".position")); else { k.tracks = k.tracks.filter((t) => !t.name.endsWith(".scale")); k.tracks.forEach((t) => { if (!t.name.endsWith(".position")) return; const kemik = model.getObjectByName(t.name.slice(0, -9)); if (!kemik) return; const v = t.values, x0 = kemik.position.x, z0 = kemik.position.z; for (let i = 0; i < v.length; i += 3) { v[i] = x0; v[i + 2] = z0; } }); } klipler[a.name] = k; });
     const bul = (tur) => { for (const n of KLIP[tur] || [tur]) if (klipler[n]) return klipler[n]; return null; };
@@ -12014,19 +12053,28 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
         const hecele = (w) => { const v = (ch) => IO.VOW.includes(ch), a = [...w], out = []; let cur = ""; a.forEach((ch, i) => { const sinir = i > 0 && cur && ((!v(ch) && v(a[i + 1] || "") ) || (v(ch) && v(a[i - 1]))); if (sinir && [...cur].some(v)) { out.push(cur); cur = ""; } cur += ch; }); if (cur) { if ([...cur].some(v) || !out.length) out.push(cur); else out[out.length - 1] += cur; } return out; };
         /* Okuyan: sınıf listesinden sırayla rastgele (bugün gelmeyenler hariç) ya da öğretmen seçer */
         let okuyanSirasi = [];
-        function okuyanSec(yeni) {
-          if ((dep().okuyan || "liste") !== "liste") return null;
-          const c = T.store.activeClass(), s = T.store.get(), gun = ((s.attendance || {})[c.id] || {})[T.isoDate()] || {};
-          const gelen = (c.students || []).filter((st) => gun[st.id] !== "yok"); if (!gelen.length) return null;
-          if (!okuyanSirasi.length || yeni) { if (!okuyanSirasi.length) okuyanSirasi = T.shuffle(gelen.map((st) => st.name)); }
-          return okuyanSirasi.shift();
+        /* Okuyacak öğrenciyi çarkla seç. Okuyanlar listeden düşer, herkes okuyunca çark yeniden dolar. */
+        let carkPano = null, ck = null;
+        const kalanlar = () => { const c = T.store.activeClass(), s = T.store.get(), gun = ((s.attendance || {})[c.id] || {})[T.isoDate()] || {}; const gelen = (c.students || []).filter((st) => gun[st.id] !== "yok").map((st) => st.name); if (!okuyanSirasi.length || !okuyanSirasi.some((n) => gelen.includes(n))) okuyanSirasi = gelen.slice(); okuyanSirasi = okuyanSirasi.filter((n) => gelen.includes(n)); return okuyanSirasi; };
+        function okuyanCark() {
+          return new Promise(async (bitir) => {
+            if ((dep().okuyan || "liste") !== "liste") return bitir(null);
+            const liste = kalanlar(); if (!liste.length) return bitir(null);
+            if (!carkPano) { carkPano = h("div.ks-cark", h("b", "Kim okuyacak?"), h("div.ks-cark-kap"), h("div.ks-cark-sonuc"), h("div.ks-yan")); }
+            const sahneEl = host.querySelector(".ks-sahne"); sahneEl.append(carkPano); carkPano.hidden = false;
+            const sonuc = carkPano.querySelector(".ks-cark-sonuc"), yan = carkPano.querySelector(".ks-yan"); sonuc.textContent = "";
+            if (!ck) { ck = await T.cark3B(carkPano.querySelector(".ks-cark-kap"), null, { sure: 3.2, arka: ["#FFFFFF", "#F3EEE4"] }); if (!ck) { carkPano.hidden = true; return bitir(T.pick(liste)); } }
+            ck.kur(liste.map((ad) => ({ ad })));
+            const cevir = () => { if (ck.donuyor()) return; yan.replaceChildren(); const i = Math.floor(Math.random() * liste.length); ck.cevir(i, () => { const ad = liste[i]; sonuc.textContent = ad; T.sound.ok(); okuyanSirasi = okuyanSirasi.filter((n) => n !== ad); setTimeout(() => { carkPano.hidden = true; bitir(ad); }, 1300); }); };
+            yan.replaceChildren(h("button.ks-yeni", { onclick: cevir }, T.icon("turn"), "Çarkı çevir"), h("button.ot-b.dinle", { onclick: () => { carkPano.hidden = true; bitir(null); } }, "Atla"));
+          });
         }
         const tamEkran = () => { const el2 = host.querySelector(".ks-sahne"); try { (document.fullscreenElement ? document.exitFullscreen() : (el2.requestFullscreen || el2.webkitRequestFullscreen).call(el2)); } catch (e) { T.toast("Bu ortamda tam ekran kapalı"); } };
         function ustCiz() {
           const mod = dep().okuyan || "liste";
           ust.replaceChildren(h("div.ks-araclar",
-              h("div.ks-okuyan-sec", h("span", "Okuyan"), h("div.seg", [["liste", "Sınıftan biri"], ["ogretmen", "Öğretmen seçer"]].map(([v, ad]) => h("button", { "aria-pressed": String(v === mod), onclick: () => { depYaz((k) => (k.okuyan = v)); okuyanSirasi = []; ustCiz(); } }, ad)))),
-              h("button.ks-mini", { onclick: tamEkran, "aria-label": "Tam ekran" }, T.icon("full"))),
+              h("div.ks-okuyan-sec", h("span", "Okuyan"), h("div.seg", [["liste", "Çarkla seç"], ["ogretmen", "Öğretmen seçer"]].map(([v, ad]) => h("button", { "aria-pressed": String(v === mod), onclick: () => { depYaz((k) => (k.okuyan = v)); okuyanSirasi = []; ustCiz(); } }, ad)))),
+              h("button.ks-tam", { onclick: tamEkran }, T.icon("full"), "Tam ekran")),
             h("div.ks-mahalleler", MAHALLE.map(([ad, ls], mi) => h("button.ks-mah" + (mi === mahalleI ? ".on" : ""), { onclick: () => { if (aktif) return; mahalleI = mi; mahalleKur(mi); genelKam(); ustCiz(); altCiz(); } }, h("b", ad), h("span", [...ls].map((l) => h("i" + (asamaOf(l) >= 4 ? ".ok" : ""), l)))))));
         }
         function altCiz() {
@@ -12058,7 +12106,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
           kap.parentNode.append(pano);
         }
         function dukkandanCik() {
-          dinlemeDur(); const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove();
+          dinlemeDur(); const yp = host.querySelector(".ks-yazilis"); if (yp) yp.remove(); if (carkPano) carkPano.hidden = true;
           aktif = null; host.querySelector(".ks-sahne").classList.remove("icerde"); rehber.kok.visible = false; musteriler.forEach((k) => { k.kok.visible = false; k.hedef = null; });
           genelKam(); mahalleKur(mahalleI); ustCiz(); altCiz();
         }
@@ -12119,7 +12167,9 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
           alt.replaceChildren(h("div.ks-ipucu", "Bir müşteri geliyor..."));
           await yurut(k, w, 2.4); if (aktif !== d) return;
           k.kok.rotation.y = d.g.rotation.y - 1.25; k.oynat("bekle");
-          const okuyan = okuyanSec(); fis.replaceChildren(okuyan ? h("div.ks-okuyan", T.icon("hand"), h("b", okuyan), h("button", { onclick: (e) => { e.stopPropagation(); const y = okuyanSec(true); if (y) fis.querySelector(".ks-okuyan b").textContent = y; } }, "Başkası")) : null, h("small.ok-yazi", q.soz), h("b.ks-fis-" + q.fisTur, ...isaretle(q.fis, d.l)), q.soru ? h("div.ks-fis-soru.ok-yazi", q.soru) : null);
+          alt.replaceChildren(h("div.ks-ipucu", (dep().okuyan || "liste") === "liste" ? "Çarkı çevirip okuyacak arkadaşı seçin." : "Okuyacak öğrenciyi seçin."));
+          const okuyan = await okuyanCark(); if (aktif !== d) return;
+          fis.replaceChildren(okuyan ? h("div.ks-okuyan", T.icon("hand"), h("b", okuyan), h("button", { onclick: async (e) => { e.stopPropagation(); const y = await okuyanCark(); if (y) fis.querySelector(".ks-okuyan b").textContent = y; } }, "Başkası")) : null, h("small.ok-yazi", q.soz), h("b.ks-fis-" + q.fisTur, ...(q.fisTur === "harf" ? [q.fis] : isaretle(q.fis, d.l))), q.soru ? h("div.ks-fis-soru.ok-yazi", q.soru) : null);
           fis.classList.add("acik"); fis._k = k;
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),

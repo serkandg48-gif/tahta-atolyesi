@@ -2588,7 +2588,7 @@ html.alt-menu #spotify-kutu { bottom: 96px; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="efbf1f3b21";
+window.SURUM="c89a7b61d4";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -16474,7 +16474,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
         h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Kartları geri getir" : "Kartları gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Kartları aç" : "Ders modu"),
         !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
         h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
-        h("button.kp-dugme" + (T.ambiyans && T.ambiyans.aktif() ? ".on" : ""), { onclick: () => T.ambiyans.sec(), title: "Sakin çalışma videoları" }, T.icon("film"), "Sakin çalışma"),
+        h("button.kp-dugme" + (T.ambiyans && T.ambiyans.aktif() ? ".on" : ""), { onclick: () => T.ambiyans.sec(), title: "Odaklanarak çalışma videoları" }, T.icon("film"), "Odaklanarak çalışma"),
         h("button.kp-dugme", { onclick: () => T.hosgeldin(true), title: "Nasıl kullanılır?", "aria-label": "Nasıl kullanılır?" }, "?"),
         h("button.kp-dugme", { onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} }, title: "Tam ekran", "aria-label": "Tam ekran" }, T.icon("full")));
       kok.append(kontroller);
@@ -16541,7 +16541,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       actions: [{ label: "Vazgeç" }, { label: "Uygula", tone: "c-leaf", onClick: () => { ayarYaz((x) => (x.gizli = g)); T.route(); } }] });
   }
 
-  /* ---------- Sakin çalışma: arka planda gerçek görüntülü döngü videoları ve eşlik eden müzik ---------- */
+  /* ---------- Odaklanarak çalışma: arka planda gerçek görüntülü döngü videoları ve eşlik eden müzik ---------- */
   const AMB = [["sisli-orman", "Sisli orman sabahı", "ilham-sabahi"], ["isikli-orman", "Işıklı orman", "yaylilar"], ["sonbahar-ormani", "Sonbahar yolu", "sonbahar-ormani"], ["orman-deresi", "Orman deresi", "sakinles"], ["orman-selalesi", "Orman şelalesi", "mavi-dalgalar"], ["dikey-selale", "Taşlı şelale", "duygu-aynasi"], ["yesil-cayir", "Yeşil çayır", "dag-klasik"], ["bulut-dagi", "Bulutların üstünde", "sinematik"], ["tirtil", "Yaprakta tırtıl", "piyano-vals"], ["kamp-atesi", "Kamp ateşi", "dingin-atmosfer"], ["somine-salon", "Mumlu şömine", "gece-kutuphanesi"], ["somine-kedi", "Şömine başında kedi", "buyulu-piyano"], ["yagmurda-kedi", "Kanepede uyuyan kedi", "sakin-lofi"], ["yildizli-pencere", "Yıldızlı pencere", "kayan-yildizlar"], ["citteki-kedi", "Çitteki kedi", "ozgur-gunler"], ["karli-veranda", "Karlı verandada gitar", "duygu-dengesi"], ["yagmurlu-tren", "Yağmurlu tren yolculuğu", "swing-caz"], ["pencere-kenari", "Pencere kenarında hayal", "ruya-kutuphanesi"], ["dag-gunbatimi", "Pencereden gün batımı", "ruzgar-cello"], ["ay-isigi-bahce", "Ay ışığında bahçe", "chopin-nokturn-op9"], ["mavi-cicekler", "Mavi çiçekler", "fisiltili-yaylilar"], ["papatya-tarlasi", "Papatya tarlası", "chopin-vals"], ["gece-odasi", "Pencereden gece", "chopin-nokturn-20"], ["mum-isigi", "Mum ışığı", "duygu-dengesi"], ["mumlu-kose", "Mumlu köşe", "buyulu-piyano"], ["karli-sokak", "Karlı sokak", "gecenin-icinde"], ["karli-kasaba", "Karlı kasaba", "stride-piyano"]];
   const ambMuzik = (id) => { const k = ayar().ambMuzik || {}; return id in k ? k[id] : (AMB.find((a) => a[0] === id) || [])[2] || ""; };
   const muzikAd = (id) => { const k = KLASIK.find((x) => x[0] === id); return k ? k[1] : "Müziksiz"; };
@@ -16606,7 +16606,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
             ambId ? h("button.btn.c-tomato", { onclick: () => { T.ambiyans.kapat(); ciz(); T.route(); } }, T.icon("close"), "Videoyu kapat") : null));
       };
       ciz();
-      m = T.modal({ title: "Sakin çalışma", wide: true, body: govde, actions: [{ label: "Tamam", onClick: () => T.route() }] });
+      m = T.modal({ title: "Odaklanarak çalışma", wide: true, body: govde, actions: [{ label: "Tamam", onClick: () => T.route() }] });
     },
     tamEkran() {
       if (!ambId) return;
@@ -16614,7 +16614,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       const v = h("video.amb-tam-video", { muted: true, loop: true, playsinline: true, autoplay: true }); v.muted = true; v.src = ambVideo ? ambVideo.src : "";
       if (ambVideo) v.currentTime = ambVideo.currentTime || 0;
       const saat = h("div.amb-saat"), kalan = h("div.amb-kalan");
-      const sure = (dk) => { clearInterval(sayac); if (!dk) { kalan.textContent = ""; return; } const bit = Date.now() + dk * 60000; const tik = () => { const s = Math.max(0, Math.round((bit - Date.now()) / 1000)); kalan.textContent = "Sessiz çalışma " + Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); if (!s) { clearInterval(sayac); kalan.textContent = "Süre doldu"; T.sound.bell && T.sound.bell(); } }; tik(); sayac = setInterval(tik, 1000); };
+      const sure = (dk) => { clearInterval(sayac); if (!dk) { kalan.textContent = ""; return; } const bit = Date.now() + dk * 60000; const tik = () => { const s = Math.max(0, Math.round((bit - Date.now()) / 1000)); kalan.textContent = "Odaklanma " + Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); if (!s) { clearInterval(sayac); kalan.textContent = "Süre doldu"; T.sound.bell && T.sound.bell(); } }; tik(); sayac = setInterval(tik, 1000); };
       const i = () => AMB.findIndex((a) => a[0] === ambId);
       const gec = (d) => { const n = AMB[(Math.max(0, i()) + d + AMB.length) % AMB.length][0]; T.ambiyans.ac(n); v.src = "ambiyans/" + n + ".mp4"; v.play().catch(() => {}); ad.textContent = (AMB.find((a) => a[0] === n) || [])[1] + " · " + muzikAd(ambMuzik(n)); };
       const ad = h("span.amb-ad", ((AMB.find((a) => a[0] === ambId) || [])[1] || "Kendi videom") + " · " + muzikAd(ambId === "ozel" ? "" : ambMuzik(ambId)));
@@ -16808,7 +16808,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       hizli.length ? h("div.dock-hizli", hizli.map((x) => h("button.dock-item", { title: x.l, "aria-current": cur === x.k ? "page" : null, onclick: () => { sonEkle({ t: x.t === "a" ? "a" : "d", k: x.k }); x.ac(); } }, T.icon3d(x.ic), h("span", x.l)))) : null,
       h("span.dock-sep", { "aria-hidden": "true" }),
       h("button.dock-item", { onclick: () => aracAc("bg") }, T.icon3d("bg"), h("span", "Arka plan")),
-      h("button.dock-item", { onclick: () => T.ambiyans.sec() }, T.icon3d("lotus"), h("span", "Sessiz çalışma")),
+      h("button.dock-item", { onclick: () => T.ambiyans.sec() }, T.icon3d("lotus"), h("span", "Odaklanarak çalışma")),
       git("plan", "Plan", "plan"), git("ayarlar", "Ayarlar", "settings"),
       h("button.dock-kucult", { "aria-label": "Menüyü küçült", title: "Menüyü küçült", onclick: () => { dockYaz("ta-dock-kucuk", "1"); dock(cur); } }, T.icon("down")));
   }

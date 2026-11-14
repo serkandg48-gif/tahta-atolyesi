@@ -175,20 +175,20 @@
     const box = h("div"); host.append(box);
     function ciz() {
       const adimlar = def.adimlar;
-      const yan = h("div.ak-steps", adimlar.map((a, j) => h("div.ak-step" + (j < i ? ".done" : j === i && !sonuc ? ".on" : ""), { style: { "--c": a.renk || "var(--navy)" } }, h("span.n", a.no || j + 1), h("div", h("b", a.baslik), h("small", a.soru)))),
+      const yan = h("div.ak-steps", adimlar.map((a, j) => h("div.ak-step" + (j < i ? ".done" : j === i && !sonuc ? ".on" : ""), { style: { "--c": a.renk || "var(--navy)" } }, h("span.n", a.no || j + 1), h("div", h("b", a.baslik), h("small", a.soru)), a.ikon ? T.icon3d(a.ikon, "ak-mini") : null)),
         def.son ? h("div.ak-step" + (sonuc === "son" ? ".on" : ""), { style: { "--c": def.son.renk || "var(--navy)" } }, h("span.n", T.icon("check")), h("div", h("b", def.son.baslik), h("small", def.son.metin))) : null);
       let merkez;
       if (sonuc === "son") merkez = h("div.ak-card.son", def.son.ikon ? def.son.ikon() : null, h("h3", def.son.baslik), h("p", def.son.metin), h("button.btn", { onclick: () => { i = 0; sonuc = null; ciz(); } }, T.icon("reset"), "Baştan"));
-      else if (sonuc) merkez = h("div.ak-card.hayir", h("h3", sonuc.baslik || "Önce bunu yap"), h("p", sonuc.metin), h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { sonuc = null; ciz(); } }, T.icon("back"), "Yaptım, soruya dön"), def.hayirBaslat ? h("button.btn.c-chalk", { onclick: () => { i = 0; sonuc = null; ciz(); } }, "Baştan") : null), def.kova ? def.kova() : null);
+      else if (sonuc) merkez = h("div.ak-card.hayir", sonuc.ikon ? T.icon3d(sonuc.ikon, "ak-buyuk") : null, h("h3", sonuc.baslik || "Önce bunu yap"), h("p", sonuc.metin), h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { sonuc = null; ciz(); } }, T.icon("back"), "Yaptım, soruya dön"), def.hayirBaslat ? h("button.btn.c-chalk", { onclick: () => { i = 0; sonuc = null; ciz(); } }, "Baştan") : null), def.kova ? def.kova() : null);
       else {
         const a = adimlar[i];
-        merkez = h("div.ak-card", { style: { "--c": a.renk || "var(--navy)" } }, h("small.ak-lbl", a.baslik), h("h3", a.soru), a.not ? h("p.hint", a.not) : null,
+        merkez = h("div.ak-card", { style: { "--c": a.renk || "var(--navy)" } }, a.ikon ? T.icon3d(a.ikon, "ak-buyuk") : null, h("small.ak-lbl", a.baslik), h("h3", a.soru), a.not ? h("p.hint", a.not) : null,
           h("div.row", { style: { justifyContent: "center", gap: "14px" } },
             h("button.btn.big.ak-evet", { onclick: () => { T.sound.ok(); if (i + 1 < adimlar.length) i++; else sonuc = "son"; ciz(); } }, T.icon("check"), a.evet || "Evet"),
             h("button.btn.big.ak-hayir", { onclick: () => { sonuc = a.hayir; if (def.onHayir) def.onHayir(a); ciz(); } }, T.icon("close"), a.hayirAd || "Hayır")),
           h("button.btn.sm.c-chalk", { onclick: () => T.speak(a.soru) }, T.icon("speaker"), "Dinle"));
       }
-      box.replaceChildren(def.ust ? def.ust() : null, h("div.ak-wrap", yan, merkez));
+      box.replaceChildren(def.ust ? def.ust() : null, h("div.ak-wrap" + (def.sinif ? "." + def.sinif : ""), yan, merkez));
     }
     ciz();
   }
@@ -207,10 +207,11 @@
     title: "Takıldım, ne yapmalıyım?", icon: "help", tone: "sun", short: "Görevi anlamadığında adım adım yol",
     render(host) {
       akis(host, { ust: () => h("p.sb-line", "Başlangıç: \"Görevi anlamadım ya da ilerleyemiyorum.\""), adimlar: [
-        { baslik: "Adım 1", soru: "Yönergeyi ya da soruyu içinden bir kez daha fısıldayarak okudun mu?", renk: "#2E8B57", hayir: { metin: "Yönergeye dön ve anahtar kelimelerin altını çiz." } },
-        { baslik: "Adım 2", soru: "Masandaki ya da çevrendeki iki farklı arkadaşının nasıl başladığına baktın mı?", renk: "#E0B020", hayir: { metin: "Sessizce gözlem yap." } },
-        { baslik: "Adım 3", soru: "Panodaki örnek çalışma modelini inceledin mi?", renk: "#7A5BC7", hayir: { metin: "Modeli incele ve kendi çalışmanla karşılaştır." } }],
-        son: { baslik: "Sarı yardım kartı", metin: "Masana sarı yardım kartını koy ve öğretmen gelene kadar yapabildiğin diğer adıma geç.", renk: "#E9A23B", ikon: () => kart("#E9A23B", "?") } });
+        { baslik: "Adım 1", soru: "Yönergeyi ya da soruyu içinden bir kez daha fısıldayarak okudun mu?", renk: "#2E8B57", ikon: "kulak", hayir: { metin: "Yönergeye dön ve anahtar kelimelerin altını çiz.", ikon: "kalem" } },
+        { baslik: "Adım 2", soru: "Masandaki ya da çevrendeki iki farklı arkadaşının nasıl başladığına baktın mı?", renk: "#E0B020", ikon: "goz", hayir: { metin: "Sessizce gözlem yap.", ikon: "buyutec" } },
+        { baslik: "Adım 3", soru: "Panodaki örnek çalışma modelini inceledin mi?", renk: "#7A5BC7", ikon: "ornek", hayir: { metin: "Modeli incele ve kendi çalışmanla karşılaştır.", ikon: "scale" } }],
+        sinif: "ak-mantar",
+        son: { baslik: "Sarı yardım kartı", metin: "Masana sarı yardım kartını koy ve öğretmen gelene kadar yapabildiğin diğer adıma geç.", renk: "#E9A23B", ikon: () => T.icon3d("sarikart", "ak-buyuk") } });
     },
   });
   tool("zihin-suzgeci", {
@@ -541,7 +542,7 @@
       const ns = notlar();
       box.replaceChildren(
         def.ust ? def.ust() : null,
-        h("div.np-pano" + (def.raf ? ".raf" : ""), { style: { "--n": def.kolonlar.length } }, def.kolonlar.map(([ad, soru, renk, ikon], ci) => h("div.np-col", { style: { "--c": renk } },
+        h("div.np-pano" + (def.raf ? ".raf" : "") + (def.sinif ? "." + def.sinif : ""), { style: { "--n": def.kolonlar.length } }, def.kolonlar.map(([ad, soru, renk, ikon], ci) => h("div.np-col", { style: { "--c": renk } },
           h("div.np-head", ikon ? ikon() : null, h("div", h("b", ad), soru ? h("span", soru) : null), h("button.btn.sm.icon", { "aria-label": ad + " notu ekle", onclick: () => ekle(ci) }, T.icon("plus"))),
           h("div.np-notes", ns.filter((n) => n.c === ci).map((n) => h("div.np-note", { style: { "--r": n.r, transform: `rotate(${((n.id.charCodeAt(0) % 5) - 2) * 0.8}deg)` } },
             h("p", n.t), (n.e || []).filter(Boolean).map((x, j) => h("small", (def.alanlar[j] || [""])[0] + ": " + x)), n.k ? h("small.np-kim", n.k) : null,
@@ -559,7 +560,8 @@
       const ZAMAN = { gun: ["Bugün", "Yarın"], hafta: ["Bu hafta", "Gelecek hafta"], unite: ["Bu ünitede", "Sonraki ünitede"] };
       const z = (veri("gdt-zaman") || "gun"), [bu, sonra] = ZAMAN[z];
       notPanosu(host, { anahtar: "gdt", ust: () => h("div", h("div.seg", [["gun", "Gün"], ["hafta", "Hafta"], ["unite", "Ünite"]].map(([k, ad]) => h("button", { "aria-pressed": String(k === z), onclick: () => { yaz("gdt-zaman", () => k); host.replaceChildren(); T.tools["gul-diken"].render(host); } }, ad))), h("p.sb-line", bu + " nasıl geçti? Birlikte düşünelim.")), kolonlar: [
-        ["Gül", bu + " neyi iyi yaptık, neyi sevdik, neyle gurur duyduk?", "#C2453A"], ["Diken", bu + " bizi ne zorladı, ne üzdü, ne zor geldi?", "#8A6A3B"], ["Tomurcuk", sonra + " neyi merak ediyoruz, neyi geliştirmek, denemek istiyoruz?", "#2E8B57"]],
+        ["Gül", bu + " neyi iyi yaptık, neyi sevdik, neyle gurur duyduk?", "#C2453A", () => h("div.gd-resim", T.icon3d("gul"), T.icon3d("gul"))], ["Diken", bu + " bizi ne zorladı, ne üzdü, ne zor geldi?", "#5E8B3A", () => h("div.gd-resim", T.icon3d("kaktus"))], ["Tomurcuk", sonra + " neyi merak ediyoruz, neyi geliştirmek, denemek istiyoruz?", "#E0B020", () => h("div.gd-resim", T.icon3d("fide"), T.icon3d("lale"))]],
+        sinif: "gd-pano",
         not: "Her çocuk bir ya da üç kutuya not yazar. İsim isteğe bağlı." });
     },
   });
@@ -602,7 +604,7 @@
   });
 
   /* =================== 6. ÖĞRENME ÇUKURU =================== */
-  const CUKUR = [["Atlama noktası", "Bu kolaymış.", 0.08, 0.28], ["Harika! Öğrenmenin başladığı yer", "Kafam karıştı, yapamıyorum, vazgeçeceğim.", 0.34, 0.72], ["Dip: kaos", "Harika, şu an buradasın. Demek ki öğrenmek üzeresin. Çıkmak için hangi aracı kullanacaksın?", 0.5, 0.86], ["Tırmanış", "Deniyorum, yardım alıyorum, anlıyorum.", 0.7, 0.56], ["Çıkış", "Başardım! Şimdi yeni bir çukura atlayabilirim.", 0.92, 0.26]];
+  const CUKUR = [["Atlama noktası", "Bu kolaymış.", 0.11, 0.27, "havali"], ["Harika! Öğrenmenin başladığı yer", "Kafam karıştı, yapamıyorum, vazgeçeceğim.", 0.2, 0.64], ["Dip: kaos", "Harika, şu an buradasın. Demek ki öğrenmek üzeresin. Çıkmak için hangi aracı kullanacaksın?", 0.5, 0.9, "sersem"], ["Tırmanış", "Deniyorum, yardım alıyorum, anlıyorum.", 0.8, 0.62, "tirmanan"], ["Çıkış", "Başardım! Şimdi yeni bir çukura atlayabilirim.", 0.9, 0.3, "kutlama"]];
   tool("ogrenme-cukuru", {
     title: "Öğrenme çukuru", icon: "pit", tone: "leaf", short: "Zorlanmak başarısızlık değildir!",
     render(host) {
@@ -612,16 +614,16 @@
         const W = 1000, H = 420;
         const svg = S("svg", { viewBox: `0 0 ${W} ${H}`, class: "oc-svg" });
         svg.innerHTML = `<path d="M0 ${H * 0.3} H${W * 0.2} C${W * 0.32} ${H * 0.3} ${W * 0.3} ${H * 0.92} ${W * 0.5} ${H * 0.92} C${W * 0.7} ${H * 0.92} ${W * 0.68} ${H * 0.3} ${W * 0.8} ${H * 0.3} H${W}" fill="none" stroke="#8A6A3B" stroke-width="8"/><path d="M0 ${H * 0.3} H${W * 0.2} C${W * 0.32} ${H * 0.3} ${W * 0.3} ${H * 0.92} ${W * 0.5} ${H * 0.92} C${W * 0.7} ${H * 0.92} ${W * 0.68} ${H * 0.3} ${W * 0.8} ${H * 0.3} H${W} V${H} H0z" fill="#EADBC4"/>`;
-        const durak = CUKUR.map(([ad, soz, x, y], i) => {
+        const durak = CUKUR.map(([ad, soz, x, y, ik], i) => {
           const kimler = Object.entries(kay).filter(([, v]) => v === i).map(([sid]) => T.store.activeClass().students.find((s) => s.id === sid)).filter(Boolean);
           return h("button.oc-durak", { style: { left: x * 100 + "%", top: y * 100 + "%" }, onclick: () => { if (!ogr) { T.speak(soz); return; } const o2 = ogr; yaz("cukur", (o) => { o = o || {}; o[T.isoDate()] = o[T.isoDate()] || {}; o[T.isoDate()][o2] = i; return o; }); ogr = null; T.sound.pop(); ciz(); } },
-            h("b", ad), h("span", soz), h("div.oc-kim", kimler.map((s) => T.avatar(s.name, 28))));
+            ik ? T.icon3d(ik, "oc-ik") : null, h("b", ad), h("span", soz), h("div.oc-kim", kimler.map((s) => T.avatar(s.name, 28))));
         });
         box.replaceChildren(
           h("p.dy-tip", "Adına dokun, sonra şu an bulunduğun yere dokun."),
           h("div.dy-names", ps.map((st) => h("button" + (ogr === st.id ? ".on" : "") + (kay[st.id] != null ? ".done" : ""), { onclick: () => { ogr = st.id; ciz(); } }, T.avatar(st.name, 30), st.name))),
           h("div.oc-wrap", svg, durak),
-          h("div.sb-card", h("h3", "Çıkış için araçlarım"), h("div.oc-arac", ["Arkadaşına sor", "Kitaba bak", "Tekrar dene", "Farklı bir yol bul"].map((x) => h("span.pill.info", { style: { fontSize: "18px", padding: "10px 16px" } }, x)))));
+          h("div.sb-card", h("h3", "Çıkış için araçlarım"), h("div.oc-arac", [["Arkadaşına sor", "konusma"], ["Kitaba bak", "kitap"], ["Tekrar dene", "tekrar"], ["Farklı bir yol bul", "ampul"]].map(([x, ik]) => h("span.oc-arac-kart", T.icon3d(T.IKON3D.has(ik) ? ik : "dusunen", "oc-ik"), x)))));
       }
       ciz();
     },

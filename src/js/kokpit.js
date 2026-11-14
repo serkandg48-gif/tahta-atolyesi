@@ -292,7 +292,7 @@
           g.akis ? null : gunSeridi(false),
           h("div.kp-sol", g.ozet ? null : ozetKart(), g.not ? null : notKart()),
           h("div.kp-orta", g.pin ? null : pinKart()),
-          h("div.kp-sag", g.muzik ? null : muzikKart(), g.kivilcim ? null : kivilcimKart())));
+          h("div.kp-sag", g.kivilcim ? null : kivilcimKart())));
       } else { kok.append(h("div.kp-ders-ust", gunSeridi(true))); }
     },
   };
@@ -371,18 +371,43 @@
   };
   document.addEventListener("pointerdown", ilkDokunus, true); document.addEventListener("keydown", ilkDokunus, true);
   /* Küçük çalar: müzik çalarken sağ altta durur. Görüntüye dokunmadan parça değiştirir, durdurur, listeden seçtirir. */
+  /* Parça listesi: alt şeritteki Müzik düğmesinden ya da çalardan açılır */
+  T.muzikListe = function (kaynak) {
+    const eski = T.$(".mc-liste.yuzen"); if (eski) { eski.remove(); return; }
+    const su = (Muzik.parcaAdi() || "").split(" · ")[0];
+    const sec = (fn) => () => { l.remove(); fn(); };
+    const l = h("div.mc-liste.yuzen",
+      h("div.mc-lbas", h("b", "Müzik"), Muzik.aktif() ? h("button.btn.sm.c-tomato", { onclick: sec(() => Muzik.birak()) }, T.icon("pause"), "Durdur") : null),
+      KLASIK.map(([id, ad, sanatci]) => h("button" + (ad === su ? ".on" : ""), { onclick: sec(() => { T.spotify && T.spotify.kapat(); Muzik.tekParca(id); if (ambId && ambId !== "ozel") ayarYaz((k) => { k.ambMuzik = k.ambMuzik || {}; k.ambMuzik[ambId] = id; }); }) }, h("b", ad), h("small", sanatci))),
+      h("button.mc-ek", { onclick: sec(() => { if (T.spotify.acik()) T.spotify.kapat(); else if (!T.spotify.ac()) T.spotify.baglantiSor(); T.muzikDurum && T.muzikDurum(); }) }, h("b", T.spotify && T.spotify.acik() ? "Spotify'ı kapat" : "Spotify"), h("small", "Kendi çalma listen")),
+      h("label.mc-ek", h("b", "Kendi ses dosyam"), h("small", "Bilgisayardan bir ses dosyası seç"), h("input", { type: "file", accept: "audio/*", hidden: true, onchange: (e) => { const f = e.target.files[0]; if (f) { l.remove(); Muzik.dosya(f); Muzik.cal("ozel"); T.muzikDurum && T.muzikDurum(); } } })),
+      h("div.mc-ses", T.icon("speaker"), h("input", { type: "range", min: 0, max: 1, step: 0.05, value: Muzik.hacimV, "aria-label": "Ses düzeyi", oninput: (e) => Muzik.hacim(+e.target.value) })));
+    document.body.append(l);
+    const r = kaynak.getBoundingClientRect(), W = 290;
+    l.style.left = Math.max(8, Math.min(innerWidth - W - 8, r.left + r.width / 2 - W / 2)) + "px";
+    l.style.bottom = Math.max(8, innerHeight - r.top + 8) + "px";
+    const kapa = (ev) => { if (!l.contains(ev.target) && !kaynak.contains(ev.target)) { l.remove(); document.removeEventListener("pointerdown", kapa, true); } };
+    setTimeout(() => document.addEventListener("pointerdown", kapa, true), 0);
+  };
+  /* Küçük çalar: müzik çalarken ekranda durur, tutamağından sürüklenip istenen yere taşınır (yeri saklanır). */
+  const calarYer = () => { try { return JSON.parse(localStorage.getItem("ta-calar-yer") || "null"); } catch (e) { return null; } };
   T.calarCiz = function () {
     let el = document.getElementById("muzik-calar");
     if (!Muzik.aktif()) { if (el) el.remove(); return; }
-    if (!el) { el = h("div#muzik-calar"); document.body.append(el); }
-    const listeAc = (e) => {
-      e.stopPropagation(); const eski = el.querySelector(".mc-liste"); if (eski) { eski.remove(); return; }
-      const su = (Muzik.parcaAdi() || "").split(" · ")[0];
-      const l = h("div.mc-liste", KLASIK.map(([id, ad, sanatci]) => h("button" + (ad === su ? ".on" : ""), { onclick: () => { Muzik.tekParca(id); if (ambId && ambId !== "ozel") ayarYaz((k) => { k.ambMuzik = k.ambMuzik || {}; k.ambMuzik[ambId] = id; }); } }, h("b", ad), h("small", sanatci))));
-      el.append(l); const kapa = (ev) => { if (!el.contains(ev.target)) { l.remove(); document.removeEventListener("pointerdown", kapa, true); } }; setTimeout(() => document.addEventListener("pointerdown", kapa, true), 0);
-    };
-    el.replaceChildren(
-      h("button.mc-ad", { onclick: listeAc, title: "Parça listesi" }, h("i.mc-dalga", h("i"), h("i"), h("i")), h("span.kp-parca", Muzik.parcaAdi() || "Müzik çalıyor"), T.icon("down")),
+    if (!el) {
+      el = h("div#muzik-calar"); document.body.append(el);
+      const y = calarYer(); if (y) Object.assign(el.style, { left: Math.min(innerWidth - 120, y[0]) + "px", top: Math.min(innerHeight - 60, y[1]) + "px", right: "auto", bottom: "auto" });
+    }
+    const tut = h("span.mc-tut", { title: "Sürükleyip taşı", "aria-hidden": "true" }, h("i"), h("i"), h("i"), h("i"), h("i"), h("i"));
+    tut.addEventListener("pointerdown", (e) => {
+      const b = el.getBoundingClientRect(), dx = e.clientX - b.left, dy = e.clientY - b.top; tut.setPointerCapture(e.pointerId); el.classList.add("tasiniyor");
+      const tasi = (ev) => { const x = Math.max(4, Math.min(innerWidth - b.width - 4, ev.clientX - dx)), y = Math.max(4, Math.min(innerHeight - b.height - 4, ev.clientY - dy)); Object.assign(el.style, { left: x + "px", top: y + "px", right: "auto", bottom: "auto" }); };
+      const bit = () => { el.classList.remove("tasiniyor"); tut.removeEventListener("pointermove", tasi); tut.removeEventListener("pointerup", bit); try { const r = el.getBoundingClientRect(); localStorage.setItem("ta-calar-yer", JSON.stringify([r.left, r.top])); } catch (er) {} };
+      tut.addEventListener("pointermove", tasi); tut.addEventListener("pointerup", bit);
+    });
+    const ad = h("button.mc-ad", { title: "Parça listesi" }, h("i.mc-dalga", h("i"), h("i"), h("i")), h("span.kp-parca", Muzik.parcaAdi() || "Müzik çalıyor"), T.icon("up"));
+    ad.onclick = () => T.muzikListe(ad);
+    el.replaceChildren(tut, ad,
       h("button.mc-b", { "aria-label": "Önceki parça", onclick: () => Muzik.onceki() }, T.icon("back")),
       h("button.mc-b.dur", { "aria-label": "Müziği durdur", onclick: () => Muzik.birak() }, T.icon("pause")),
       h("button.mc-b", { "aria-label": "Sonraki parça", onclick: () => Muzik.sonraki() }, T.icon("next")));

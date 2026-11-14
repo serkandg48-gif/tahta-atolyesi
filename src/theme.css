@@ -2016,3 +2016,14 @@ html.alt-menu #spotify-kutu { bottom: 96px; }
 .mc-liste b { font: 700 14px var(--body); } .mc-liste small { color: var(--ink-soft); font-size: 12px; }
 @media (max-width: 760px) { #muzik-calar { right: 8px; bottom: 78px; } .mc-ad { max-width: 140px; } }
 @media (prefers-reduced-motion: reduce) { .mc-dalga i { animation: none; height: 10px; } }
+.mc-liste.yuzen { position: fixed; z-index: 900; right: auto; width: 290px; animation: mc-gir .2s both; }
+.mc-lbas { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 8px; } .mc-lbas b { font: 800 18px var(--display); color: var(--navy); }
+.mc-ek { border-top: 1px solid var(--line) !important; cursor: pointer; display: grid; padding: 8px 10px; border-radius: 10px; color: var(--ink); text-align: left; background: transparent; border: 0; } .mc-ek:hover { background: #F1F4FA; }
+.mc-ek b { font: 700 14px var(--body); } .mc-ek small { color: var(--ink-soft); font-size: 12px; }
+.mc-ses { display: flex; align-items: center; gap: 8px; padding: 8px 10px 4px; color: var(--ink-soft); } .mc-ses svg { width: 18px; height: 18px; } .mc-ses input { flex: 1; }
+.mc-tut { display: grid; grid-template-columns: 4px 4px; gap: 3px; padding: 8px 4px 8px 8px; cursor: grab; touch-action: none; } .mc-tut i { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.5); }
+#muzik-calar.tasiniyor { cursor: grabbing; opacity: .9; } #muzik-calar.tasiniyor .mc-tut { cursor: grabbing; }
+.dock-muzik.caliyor { background: var(--navy) !important; color: #fff !important; }
+.mc-dalga.buyuk { height: 30px; gap: 4px; align-items: center; } .mc-dalga.buyuk i { width: 5px; }
+.dock-muzik.caliyor .mc-dalga.buyuk i { animation-name: mc-dal2; } @keyframes mc-dal2 { 0%, 100% { height: 8px; } 50% { height: 28px; } }
+.mc-liste button { border: 0; background: transparent; cursor: pointer; font: inherit; } .mc-lbas .btn { white-space: nowrap; display: inline-flex; flex-direction: row; } .mc-liste.yuzen > button:not(.mc-ek) { color: var(--ink); text-align: left; padding: 8px 10px; border-radius: 10px; display: grid; }

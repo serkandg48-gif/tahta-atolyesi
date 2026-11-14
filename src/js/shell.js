@@ -26,7 +26,6 @@
         st.kind === "okul" ? [h("span", "Okulun"), h("b", n + "."), h("span", "günü")] : h("span", st.text),
         h("span.opt", "· " + T.longDate()), sp ? h("span.opt", "· " + sp) : null),
       h("div.tb-right",
-        h("button.chip-btn" + (T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())) ? ".caliyor" : ""), { onclick: () => T.muzikPanel(), "aria-label": "Müzik", title: "Müzik" }, T.icon("music"), h("span.lbl", T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())) ? "Çalıyor" : "Müzik")),
         h("button.chip-btn", { onclick: pickClass, "aria-label": "Sınıf değiştir" }, T.icon("class"), h("span.lbl", c.name)),
         clock));
     const tick = () => { const d = new Date(); clock.textContent = `${T.pad(d.getHours())}:${T.pad(d.getMinutes())}`; };
@@ -126,6 +125,7 @@
       h("span.dock-sep", { "aria-hidden": "true" }),
       h("button.dock-item", { onclick: () => aracAc("bg") }, T.icon3d("bg"), h("span", "Arka plan")),
       h("button.dock-item", { onclick: () => T.ambiyans.sec() }, T.icon3d("lotus"), h("span", "Odaklanarak çalışma")),
+      (() => { const cal = T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())); const b = h("button.dock-item.dock-muzik" + (cal ? ".caliyor" : ""), { onclick: () => T.muzikListe(b) }, cal ? h("i.mc-dalga.buyuk", h("i"), h("i"), h("i")) : T.icon3d("music"), h("span", cal ? "Çalıyor" : "Müzik")); return b; })(),
       git("plan", "Plan", "plan"), git("ayarlar", "Ayarlar", "settings"),
       h("button.dock-kucult", { "aria-label": "Menüyü küçült", title: "Menüyü küçült", onclick: () => { dockYaz("ta-dock-kucuk", "1"); dock(cur); } }, T.icon("down")));
   }
@@ -159,7 +159,7 @@
     if (!anaMi) view.append(h("div.pencere-ust", T.YARDIM[id] ? h("button.pencere-yardim", { onclick: () => T.yardimAc(id), "aria-label": "Bu sayfa ne işe yarar?", title: "Bu sayfa ne işe yarar?" }, "?") : null, h("button.pencere-kapat", { onclick: () => T.go("ana"), "aria-label": "Ana sayfaya dön", title: "Ana sayfaya dön" }, T.icon("close"), h("span", "Ana sayfaya dön"))));
     const cidNow = T.store.get().activeClassId;
     if (T._yuzenCid !== cidNow) { T._yuzenCid = cidNow; const y = T.$("#yuzen"); y.replaceChildren(); T.yuzen.render(y); }
-    T.muzikDurum = () => { topbar(); T.calarCiz && T.calarCiz(); };
+    T.muzikDurum = () => { topbar(); T.calarCiz && T.calarCiz(); const d = T.$(".dock-muzik"); if (d) dock((location.hash.slice(1).split("-")[0]) || "ana"); };
     view.scrollTop = 0;
     view.style.overflow = sec.full ? "hidden" : "auto";
     try { sec.render(view, sub); }

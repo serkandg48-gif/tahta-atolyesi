@@ -2588,7 +2588,7 @@ html.alt-menu #spotify-kutu { bottom: 96px; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="ebe847178b";
+window.SURUM="efbf1f3b21";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -16808,6 +16808,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       hizli.length ? h("div.dock-hizli", hizli.map((x) => h("button.dock-item", { title: x.l, "aria-current": cur === x.k ? "page" : null, onclick: () => { sonEkle({ t: x.t === "a" ? "a" : "d", k: x.k }); x.ac(); } }, T.icon3d(x.ic), h("span", x.l)))) : null,
       h("span.dock-sep", { "aria-hidden": "true" }),
       h("button.dock-item", { onclick: () => aracAc("bg") }, T.icon3d("bg"), h("span", "Arka plan")),
+      h("button.dock-item", { onclick: () => T.ambiyans.sec() }, T.icon3d("lotus"), h("span", "Sessiz çalışma")),
       git("plan", "Plan", "plan"), git("ayarlar", "Ayarlar", "settings"),
       h("button.dock-kucult", { "aria-label": "Menüyü küçült", title: "Menüyü küçült", onclick: () => { dockYaz("ta-dock-kucuk", "1"); dock(cur); } }, T.icon("down")));
   }

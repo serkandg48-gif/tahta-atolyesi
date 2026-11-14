@@ -10,7 +10,7 @@
       host._bar = bar; wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
       wrap.append(bar, host); view.append(wrap); t.render(host); return;
     }
-    const kitapVar = T.kitapDersi && T.kitapDersi(t.back);
+    const kitapVar = false; /* MEB kitabı yalnızca Kitaplar bölümünde açılır */
     const kitapAcik = () => { try { return localStorage.getItem("ta-kitap-acik") === "1"; } catch (e) { return false; } };
     const govde = h("div.arac-govde", host);
     const kitapDugme = kitapVar ? h("button.btn.sm.c-chalk", { "aria-pressed": "false", onclick: () => kitapYap(!govde.classList.contains("kitapli")) }, T.icon("book"), "MEB kitabı") : null;

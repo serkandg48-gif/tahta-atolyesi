@@ -1396,7 +1396,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .sh-takim span { grid-column: 1 / -1; } .sh-takim b { font: 900 clamp(22px, 3vw, 46px) var(--display); } .sh-takim i { font-style: normal; font-size: clamp(18px, 2.2vw, 34px); }
 .sh-takim.t0 b { color: #2E6FB0; } .sh-takim.t1 b { color: #E0742B; } .sh-takim.sirada.t0 { border-color: #2E6FB0; } .sh-takim.sirada.t1 { border-color: #E0742B; }
 /* Kitap üstü kalem katmanı */
-.kk-kap { position: relative; min-height: 0; display: grid; } .kk-kap > iframe { grid-area: 1 / 1; }
+.kk-kap { position: relative; min-height: 0; display: grid; } .kk-kap > iframe, .kk-kap > .dk-pdf { grid-area: 1 / 1; min-height: 0; }
 .kk-cv { grid-area: 1 / 1; width: 100%; height: 100%; pointer-events: none; touch-action: none; border-radius: 12px; }
 .kk-kap.ciz .kk-cv { pointer-events: auto; cursor: crosshair; }
 .kk-arac { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; align-items: center; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .94); box-shadow: 0 4px 14px rgba(20, 30, 60, .18); z-index: 2; flex-wrap: wrap; max-width: calc(100% - 16px); }
@@ -2027,3 +2027,7 @@ html.alt-menu #spotify-kutu { bottom: 96px; }
 .mc-dalga.buyuk { height: 30px; gap: 4px; align-items: center; } .mc-dalga.buyuk i { width: 5px; }
 .dock-muzik.caliyor .mc-dalga.buyuk i { animation-name: mc-dal2; } @keyframes mc-dal2 { 0%, 100% { height: 8px; } 50% { height: 28px; } }
 .mc-liste button { border: 0; background: transparent; cursor: pointer; font: inherit; } .mc-lbas .btn { white-space: nowrap; display: inline-flex; flex-direction: row; } .mc-liste.yuzen > button:not(.mc-ek) { color: var(--ink); text-align: left; padding: 8px 10px; border-radius: 10px; display: grid; }
+.dk-sekme { width: 100%; } .dk-sekme button { flex: 1; } .dk-kitap small { color: var(--ink-soft); font-weight: 500; }
+.dk-sekme button { font-size: 14px; padding-left: 6px; padding-right: 6px; }
+.dk-pdf { height: 100%; min-height: 0; border-radius: 12px; overflow: auto; background: #E9ECF2; display: grid; justify-items: center; align-content: start; gap: 12px; padding: 12px; } .dk-sayfa { background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.15); max-width: 100%; height: auto; }
+html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }

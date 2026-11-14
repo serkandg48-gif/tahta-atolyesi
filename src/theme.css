@@ -1948,3 +1948,55 @@ body.yt-acik #layer { z-index: 1000; }
 .oc-ik.ikon3d { width: 56px; height: 56px; display: block; margin: -40px auto 2px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.2)); }
 .oc-arac { display: flex; flex-wrap: wrap; gap: 12px; } .oc-arac-kart { display: grid; justify-items: center; gap: 4px; padding: 14px 18px 10px; border-radius: 14px; background: #FFF6D6; border: 2px solid #E9C46A; font: 800 17px var(--display); } .oc-arac-kart .oc-ik { margin: 0; }
 .oc-wrap { padding-top: 40px; }
+
+/* =================== Alt menü: tahtanın altında tek şerit, yükselen paneller =================== */
+html.alt-menu .dock, html.alt-menu[data-kademe] .dock {
+  left: 50% !important; right: auto !important; top: auto !important; bottom: 12px; transform: translateX(-50%); width: auto; max-width: calc(100vw - 24px); height: auto;
+  flex-direction: row; align-items: center; gap: 4px; padding: 6px 8px; border-radius: 22px; background: rgba(255,255,255,.94); backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(20,30,50,.18), 0 0 0 1px rgba(20,30,50,.06);
+}
+html.alt-menu .dock .dock-item, html.alt-menu .dock-ana { flex: 0 0 auto; width: auto; min-width: 76px; min-height: 0; height: 66px; padding: 6px 10px; border-radius: 16px; border: 0; background: transparent; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 700 12.5px/1.1 var(--body); color: var(--ink); white-space: nowrap; }
+html.alt-menu .dock .dock-item .ikon3d, html.alt-menu .dock-ana .ikon3d { width: 34px; height: 34px; }
+html.alt-menu .dock .dock-item:hover, html.alt-menu .dock-ana:hover { background: rgba(27,42,74,.07); }
+html.alt-menu .dock .dock-item[aria-current="page"] { background: var(--navy-soft); }
+.dock-ana { position: relative; background: #F1F4FA !important; min-width: 96px !important; }
+.dock-ana > svg { position: absolute; top: 4px; right: 6px; width: 14px; height: 14px; color: var(--ink-soft); transition: transform .2s; }
+.dock-ana[aria-expanded="true"] { background: var(--navy) !important; color: #fff !important; } .dock-ana[aria-expanded="true"] > svg { transform: rotate(180deg); color: #fff; }
+.dock-hizli { display: flex; gap: 2px; }
+html.alt-menu .dock .dock-sep { flex: 0 0 1px; width: 1px; height: 44px; align-self: center; margin: 0 4px; background: var(--line); }
+html.alt-menu .dock-kucult { width: 30px; height: 30px; }
+html.alt-menu .dock.kucuk { left: auto !important; right: 14px !important; transform: none; padding: 6px; border-radius: 50%; }
+/* içerik artık soldan değil alttan boşluk bırakır */
+html.alt-menu .view.pencere { margin: 10px 18px 96px 18px; }
+html.alt-menu .kp-izgara { inset: 66px 18px 96px 18px; }
+html.alt-menu .board-tools, html.alt-menu .toast, html.alt-menu .toasts { bottom: 100px !important; }
+html.alt-menu #spotify-kutu { bottom: 96px; }
+/* yükselen panel */
+.altp { position: fixed; z-index: 880; left: 50%; bottom: 96px; width: min(1100px, calc(100vw - 24px)); max-height: calc(100vh - 170px); overflow: auto; transform: translateX(-50%);
+  background: #fff; border-radius: 24px; box-shadow: 0 24px 60px rgba(20,30,50,.28), 0 0 0 1px rgba(20,30,50,.06); padding: 16px 20px 20px;
+  transform-origin: 50% 100%; animation: altp-ac .28s cubic-bezier(.2,.9,.3,1.15) both; }
+.altp.kapan { animation: altp-kapa .2s ease-in both; }
+@keyframes altp-ac { from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(.94); } }
+@keyframes altp-kapa { to { opacity: 0; transform: translateX(-50%) translateY(20px) scale(.96); } }
+.altp-bas { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; } .altp-bas b { font: 800 24px var(--display); color: var(--navy); }
+.altp-kapat { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #F1F4FA; display: grid; place-items: center; cursor: pointer; align-self: center; } .altp-kapat svg { width: 20px; height: 20px; }
+.altp-gruplar { display: grid; gap: 14px; }
+.altp-grup h3 { margin: 0 0 6px; font: 800 14px var(--body); color: var(--ink-soft); }
+.altp-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.altp-oge { display: grid; justify-items: center; gap: 6px; padding: 14px 8px 12px; border: 0; border-radius: 18px; background: #F6F8FC; cursor: pointer; font: 700 15px/1.2 var(--body); color: var(--ink); text-align: center;
+  animation: altp-oge .3s cubic-bezier(.2,.9,.3,1.2) both; animation-delay: calc(var(--i) * 18ms); transition: transform .12s, background .12s; }
+.altp-oge .ikon3d { width: 54px; height: 54px; }
+.altp-oge:hover { background: #EAF0FF; transform: translateY(-3px); } .altp-oge:active { transform: scale(.96); }
+.altp-oge[aria-current="page"] { background: var(--navy-soft); box-shadow: inset 0 0 0 2px var(--navy); }
+.altp-oge.gizli { opacity: .55; }
+@keyframes altp-oge { from { opacity: 0; transform: translateY(12px) scale(.9); } }
+@media (prefers-reduced-motion: reduce) { .altp, .altp-oge { animation: none; } }
+@media (max-width: 760px) {
+  html.alt-menu .dock { bottom: 6px; padding: 4px; gap: 2px; overflow-x: auto; justify-content: flex-start; }
+  html.alt-menu .dock .dock-item, html.alt-menu .dock-ana { min-width: 62px; height: 58px; padding: 4px 6px; font-size: 11px; }
+  html.alt-menu .dock .dock-item .ikon3d, html.alt-menu .dock-ana .ikon3d { width: 28px; height: 28px; }
+  .dock-hizli { display: none; } html.alt-menu .dock-kucult { display: none; }
+  .altp { bottom: 74px; padding: 12px; } .altp-izgara { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); } .altp-oge .ikon3d { width: 42px; height: 42px; } .altp-oge { font-size: 13px; }
+  html.alt-menu .view.pencere { margin: 6px 6px 76px; } html.alt-menu .kp-izgara { inset: 62px 10px 76px; }
+}

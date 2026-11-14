@@ -48,18 +48,19 @@
         ust.replaceChildren(h("b", ad), h("div.grow"), tamEkran, h("a.btn.sm.c-chalk", { href: u, target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç"));
         solKap.querySelectorAll(".dk-kitap").forEach((b) => b.classList.toggle("on", b.dataset.id === String(id)));
       };
-      const acMeb = (k) => { mebGoster(); sec = k[2]; yerel("ta-kitaplar-sec:" + cid(), sec); goster(url(sec, "pdf"), k[3], sec); };
+      const acMeb = (k) => { sec = k[2]; yerel("ta-kitaplar-sec:" + cid(), sec); if (yerelKitap.has(sec)) { pdfAc("kitaplar/" + sec + ".pdf", k[3], sec); return; } mebGoster(); yerel("ta-kitaplar-sec:" + cid(), sec); goster(url(sec, "pdf"), k[3], sec); };
       /* Yüklenen PDF, tarayıcının PDF eklentisine bırakılmaz (akıllı tahtalardaki Android tarayıcıları çerçevede PDF göstermez); sayfalar pdf.js ile çizilir. */
       const pdfAlan = h("div.dk-pdf"), katman2 = T.kalemKatmani(pdfAlan);
-      let jeton = 0;
-      const acKendi = async (k) => {
-        if (acikUrl) URL.revokeObjectURL(acikUrl); acikUrl = URL.createObjectURL(k.blob); yerel("ta-kitaplar-kendi", k.id);
+      let jeton = 0, yerelKitap = new Set(); const izin = h("p.hint.dk-izin");
+      fetch("kitaplar/liste.json").then((r) => (r.ok ? r.json() : [])).then((l) => { yerelKitap = new Set(l); if (l.length) izin.textContent = "MEB ders kitapları Talim ve Terbiye Kurulu Başkanlığının izniyle bu sitede sunulmaktadır. Kitapların tüm hakları MEB'e aittir."; if (sekme === "meb" && l.length) ciz(); }).catch(() => {});
+      const acKendi = (k) => { if (acikUrl) URL.revokeObjectURL(acikUrl); acikUrl = URL.createObjectURL(k.blob); yerel("ta-kitaplar-kendi", k.id); pdfAc(acikUrl, k.ad, k.id, () => k.blob.arrayBuffer()); };
+      const pdfAc = async (href, adi, id, veri) => {
         if (okuyucu.lastChild !== katman2) { cer.removeAttribute("src"); okuyucu.replaceChildren(ust, katman2); }
-        ust.replaceChildren(h("b", k.ad), h("div.grow"), tamEkran, h("a.btn.sm.c-chalk", { href: acikUrl, target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç"));
-        solKap.querySelectorAll(".dk-kitap").forEach((b) => b.classList.toggle("on", b.dataset.id === String(k.id)));
+        ust.replaceChildren(h("b", adi), h("div.grow"), tamEkran, h("a.btn.sm.c-chalk", { href, target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç"));
+        solKap.querySelectorAll(".dk-kitap").forEach((b) => b.classList.toggle("on", b.dataset.id === String(id)));
         const j = ++jeton; pdfAlan.replaceChildren(h("p.hint", { style: { padding: "20px" } }, "Kitap hazırlanıyor...")); katman2.temizle && katman2.temizle(); pdfAlan.scrollTop = 0;
         try {
-          const lib = await T.pdfKitaplik(); const doc = await lib.getDocument({ data: await k.blob.arrayBuffer() }).promise; if (j !== jeton) return;
+          const lib = await T.pdfKitaplik(); const doc = await lib.getDocument(veri ? { data: await veri() } : { url: href }).promise; if (j !== jeton) return;
           pdfAlan.replaceChildren();
           const gen = Math.max(400, pdfAlan.clientWidth - 24), d = Math.min(2, window.devicePixelRatio || 1);
           for (let n = 1; n <= doc.numPages; n++) {
@@ -112,7 +113,7 @@
       }
       wrap.append(h("div.page-head", h("h1", "Kitaplar"), h("div.sub", "MEB kitapları ya da kendi yüklediğin PDF'ler tahtada açılır, üstüne kalemle yazabilirsin.")),
         h("div.dk-duzen", solKap, okuyucu),
-        h("p.hint", { style: { marginTop: "8px" } }, "MEB kitabı açılmazsa okulun ağı MEB sayfasını engelliyor olabilir. O kitabı MEB'den bir kez indirip Kendi kitaplarım'a yüklersen bağlantı olmadan açılır."));
+        izin, h("p.hint", { style: { marginTop: "8px" } }, "MEB kitabı açılmazsa okulun ağı MEB sayfasını engelliyor olabilir. O kitabı MEB'den bir kez indirip Kendi kitaplarım'a yüklersen bağlantı olmadan açılır."));
       T.onLeave(() => { if (acikUrl) { URL.revokeObjectURL(acikUrl); acikUrl = null; } });
       ciz();
     },

@@ -96,6 +96,11 @@ def main():
         shutil.copytree(SRC / "vendor", ROOT / "dist" / "vendor", dirs_exist_ok=True)
     if (SRC / "ikon3d").exists():
         shutil.copytree(SRC / "ikon3d", ROOT / "dist" / "ikon3d", dirs_exist_ok=True)
+    if (SRC / "kitaplar").exists():
+        shutil.copytree(SRC / "kitaplar", ROOT / "dist" / "kitaplar", dirs_exist_ok=True)
+        import json as _j
+        ids = sorted(int(f.stem) for f in (SRC / "kitaplar").glob("*.pdf") if f.stem.isdigit())
+        (ROOT / "dist" / "kitaplar" / "liste.json").write_text(_j.dumps(ids))
     if (SRC / "muzik").exists():
         shutil.copytree(SRC / "muzik", ROOT / "dist" / "muzik", dirs_exist_ok=True)
     if (SRC / "ambiyans").exists():

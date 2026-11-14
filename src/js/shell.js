@@ -98,8 +98,8 @@
       const D = dersler(), dersK = ["turkce", "matematik", "kesif", "ingilizce", "kitaplar"];
       gruplar = [["Dersler", D.filter((x) => dersK.includes(x.k))], ["Sınıf yaşamı", D.filter((x) => !dersK.includes(x.k)).concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") })]];
     }
-    const p = h("div.altp", { role: "dialog", "aria-label": tur === "arac" ? "Araçlar" : "Dersler" },
-      h("div.altp-bas", h("b", tur === "arac" ? "Araçlar" : "Dersler"), h("span.hint", tur === "arac" ? "Her derste kullanılan sınıf araçları" : "Derse ya da sınıf bölümüne git"), h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
+    const p = h("div.altp", { role: "dialog", "aria-label": tur === "arac" ? "Araçlar" : "Bölümler" },
+      h("div.altp-bas", h("b", tur === "arac" ? "Araçlar" : "Bölümler"), h("span.hint", tur === "arac" ? "Her derste kullanılan sınıf araçları" : "Derslere ve sınıf yaşamı bölümlerine git"), h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
       h("div.altp-gruplar", gruplar.filter(([, l]) => l.length).map(([ad, l]) => h("section.altp-grup", ad ? h("h3", ad) : null, h("div.altp-izgara", l.map((x) => { const b = dugme(x, i++, tur === "arac" ? "a" : "d"); if (x.gizli) b.classList.add("gizli"); return b; }))))));
     document.body.append(p);
     const dis = (e) => { if (!p.isConnected) { document.removeEventListener("pointerdown", dis, true); return; } if (!p.contains(e.target) && !e.target.closest(".dock")) { panelKapat(); document.removeEventListener("pointerdown", dis, true); } };
@@ -118,7 +118,7 @@
     const git = (k, l, ic) => h("button.dock-item", { "aria-current": cur === k ? "page" : null, onclick: () => T.go(k) }, T.icon3d(ic), h("span", l));
     el.replaceChildren(
       git("ana", "Ana sayfa", "home"),
-      ana("arac", "Araçlar", "timer"), ana("ders", "Dersler", "book"),
+      ana("arac", "Araçlar", "timer"), ana("ders", "Bölümler", "book"),
       hizli.length ? h("span.dock-sep", { "aria-hidden": "true" }) : null,
       hizli.length ? h("div.dock-hizli", hizli.map((x) => h("button.dock-item", { title: x.l, "aria-current": cur === x.k ? "page" : null, onclick: () => { sonEkle({ t: x.t === "a" ? "a" : "d", k: x.k }); x.ac(); } }, T.icon3d(x.ic), h("span", x.l)))) : null,
       h("span.dock-sep", { "aria-hidden": "true" }),
@@ -155,7 +155,7 @@
     if (!anaMi) view.append(h("div.pencere-ust", T.YARDIM[id] ? h("button.pencere-yardim", { onclick: () => T.yardimAc(id), "aria-label": "Bu sayfa ne işe yarar?", title: "Bu sayfa ne işe yarar?" }, "?") : null, h("button.pencere-kapat", { onclick: () => T.go("ana"), "aria-label": "Ana sayfaya dön", title: "Ana sayfaya dön" }, T.icon("close"), h("span", "Ana sayfaya dön"))));
     const cidNow = T.store.get().activeClassId;
     if (T._yuzenCid !== cidNow) { T._yuzenCid = cidNow; const y = T.$("#yuzen"); y.replaceChildren(); T.yuzen.render(y); }
-    T.muzikDurum = () => topbar();
+    T.muzikDurum = () => { topbar(); T.calarCiz && T.calarCiz(); };
     view.scrollTop = 0;
     view.style.overflow = sec.full ? "hidden" : "auto";
     try { sec.render(view, sub); }

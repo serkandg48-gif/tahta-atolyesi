@@ -2000,3 +2000,19 @@ html.alt-menu #spotify-kutu { bottom: 96px; }
   .altp { bottom: 74px; padding: 12px; } .altp-izgara { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); } .altp-oge .ikon3d { width: 42px; height: 42px; } .altp-oge { font-size: 13px; }
   html.alt-menu .view.pencere { margin: 6px 6px 76px; } html.alt-menu .kp-izgara { inset: 62px 10px 76px; }
 }
+/* küçük müzik çaları */
+#muzik-calar { position: fixed; z-index: 870; right: 16px; bottom: 100px; display: flex; align-items: center; gap: 4px; padding: 5px; border-radius: 999px; background: rgba(27,42,74,.92); color: #fff; backdrop-filter: blur(10px); box-shadow: 0 8px 22px rgba(20,30,50,.3); animation: altp-ac .3s both; transform: none; }
+@keyframes mc-gir { from { opacity: 0; transform: translateY(10px); } }
+#muzik-calar { animation: mc-gir .3s both; }
+#muzik-calar button { border: 0; background: transparent; color: #fff; cursor: pointer; }
+.mc-ad { display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 12px; border-radius: 999px; font: 700 14px var(--body); max-width: 240px; } .mc-ad:hover { background: rgba(255,255,255,.12) !important; }
+.mc-ad .kp-parca { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .mc-ad svg { width: 14px; height: 14px; flex: none; opacity: .7; }
+.mc-b { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; } .mc-b:hover { background: rgba(255,255,255,.14) !important; } .mc-b svg { width: 18px; height: 18px; }
+.mc-b.dur { background: #fff !important; color: var(--navy) !important; }
+.mc-dalga { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; flex: none; } .mc-dalga i { width: 3px; background: #9FD3FF; border-radius: 2px; animation: mc-dal 1s ease-in-out infinite; } .mc-dalga i:nth-child(2) { animation-delay: .2s; } .mc-dalga i:nth-child(3) { animation-delay: .4s; }
+@keyframes mc-dal { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+.mc-liste { position: absolute; right: 0; bottom: calc(100% + 8px); width: 280px; max-height: 50vh; overflow: auto; padding: 6px; border-radius: 16px; background: #fff; box-shadow: 0 16px 40px rgba(20,30,50,.3); display: grid; gap: 2px; }
+.mc-liste button { color: var(--ink) !important; text-align: left; padding: 8px 10px; border-radius: 10px; display: grid; } .mc-liste button:hover { background: #F1F4FA !important; } .mc-liste button.on { background: var(--navy-soft) !important; }
+.mc-liste b { font: 700 14px var(--body); } .mc-liste small { color: var(--ink-soft); font-size: 12px; }
+@media (max-width: 760px) { #muzik-calar { right: 8px; bottom: 78px; } .mc-ad { max-width: 140px; } }
+@media (prefers-reduced-motion: reduce) { .mc-dalga i { animation: none; height: 10px; } }

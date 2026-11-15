@@ -2031,3 +2031,41 @@ html.alt-menu #spotify-kutu { bottom: 96px; }
 .dk-sekme button { font-size: 14px; padding-left: 6px; padding-right: 6px; }
 .dk-pdf { height: 100%; min-height: 0; border-radius: 12px; overflow: auto; background: #E9ECF2; display: grid; justify-items: center; align-content: start; gap: 12px; padding: 12px; } .dk-sayfa { background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.15); max-width: 100%; height: auto; }
 html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
+/* ---------- Zihinden işlem stratejileri ---------- */
+.mz-oyun { display: grid; gap: 14px; }
+.mz-ust { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.mz-etiket { font: 800 16px var(--display); color: var(--navy); }
+.mz-kutu { display: flex; gap: 6px; align-items: center; font: 700 15px var(--body); }
+.mz-soru { text-align: center; font: 800 clamp(34px, 4.4vw, 56px) var(--display); color: var(--navy); } .mz-soru b { color: #2E7DD1; }
+.mz-durum { text-align: center; font: 700 clamp(17px, 1.7vw, 21px)/1.4 var(--body); color: var(--ink); padding: 10px 14px; border-radius: 14px; background: #F3F6FB; }
+.mz-durum.iyi { background: #E8F7EC; color: #1F7A3A; } .mz-durum.kotu { background: #FDECEA; color: #A3261E; }
+.mz-dogru { width: 100%; height: auto; background: #fff; border-radius: 18px; } .mz-dogru.kucuk { max-width: 460px; background: transparent; }
+.mz-on { font: 800 22px var(--display); fill: #1B2A4A; } .mz-ara { font: 700 20px var(--body); fill: #5B6478; } .mz-ara.kalin { font-weight: 800; fill: #1B2A4A; }
+.mz-zip { font: 800 24px var(--display); } .mz-dogru.kucuk .mz-zip { font-size: 30px; }
+.mz-hedef { fill: #FFD23F; stroke: #B98900; stroke-width: 3; } .mz-bas { fill: #1B2A4A; } .mz-konum { fill: #2E7DD1; stroke: #fff; stroke-width: 3; }
+.mz-yay.yeni { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: mz-ciz .5s ease-out forwards; } @keyframes mz-ciz { to { stroke-dashoffset: 0; } }
+.mz-zipsira { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; } .mz-zipsira > div { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .mz-zipsira small { font: 800 14px var(--body); color: var(--ink-soft); min-width: 40px; }
+.mz-zipla { min-width: 70px; height: 60px; border: 0; border-radius: 16px; background: #EAF2FF; color: #1E5FAF; font: 800 24px var(--display); cursor: pointer; box-shadow: 0 4px 0 #C3D7F2; } .mz-zipla:active { transform: translateY(3px); box-shadow: 0 1px 0 #C3D7F2; }
+.mz-zipsira > div:last-child .mz-zipla { background: #FDECEE; color: #B3263A; box-shadow: 0 4px 0 #F2C3CA; }
+.mz-yollar { background: #FFFBEF; border: 1px solid #F1E2B8; border-radius: 18px; padding: 12px 16px; display: grid; gap: 6px; } .mz-yollar h3 { margin: 0; }
+.mz-yol { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: center; font: 700 18px var(--body); } .mz-yol .mz-dogru { grid-column: 1 / -1; }
+.mz-yan { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: start; } @media (max-width: 900px) { .mz-yan { grid-template-columns: 1fr; } }
+.mz-bag { width: 100%; height: auto; } .mz-bag-t { font: 800 30px var(--display); fill: #1B2A4A; }
+.mz-bag-ust { fill: #FFF4B8; stroke: #1B2A4A; stroke-width: 4; } .mz-bag-alt { fill: #DDEEFF; stroke: #1B2A4A; stroke-width: 4; } .mz-bag-bos { fill: #fff; stroke: #9AA4B5; stroke-width: 3; stroke-dasharray: 8 6; }
+.mz-padkap { display: grid; gap: 6px; justify-items: center; } .mz-padkap small { font: 800 14px var(--body); color: var(--ink-soft); } .mz-padkap.orta { justify-self: center; }
+.mz-pad { display: grid; gap: 8px; width: 260px; } .mz-pad-ekran { height: 64px; border-radius: 14px; background: #fff; border: 2px solid var(--line); display: grid; place-items: center; font: 800 34px var(--display); color: var(--navy); }
+.mz-tuslar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mz-tus { height: 60px; border: 0; border-radius: 14px; background: #F1F4FA; font: 800 26px var(--display); color: var(--navy); cursor: pointer; box-shadow: 0 3px 0 #D6DCE8; } .mz-tus:active { transform: translateY(2px); }
+.mz-tus.tamam { background: #2FA552; color: #fff; box-shadow: 0 3px 0 #1F7A3A; } .mz-tus.sil { background: #FDECEE; color: #B3263A; } .mz-tus.genis { height: 48px; font-size: 18px; }
+.mz-alan { width: 100%; height: auto; } .mz-alan-t { font: 800 26px var(--display); fill: #fff; } .mz-alan-t.kucuk { font-size: 20px; } .mz-alan-t.koyu { fill: #5B6478; } .mz-alan-k { font: 800 24px var(--display); fill: #1B2A4A; }
+.mz-secimler { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.mz-kat { display: grid; justify-items: center; min-width: 96px; padding: 10px 14px; border: 0; border-radius: 16px; background: #EAF2FF; cursor: pointer; box-shadow: 0 4px 0 #C3D7F2; } .mz-kat b { font: 800 26px var(--display); color: #1E5FAF; } .mz-kat small { font: 700 14px var(--body); color: var(--ink-soft); }
+.mz-satirlar { display: grid; gap: 8px; justify-items: center; } .mz-satir { display: flex; align-items: center; gap: 12px; font: 800 26px var(--display); color: var(--navy); } .mz-satir .dogru { color: #1F7A3A; } .mz-satir.toplam { border-top: 3px solid var(--navy); padding-top: 8px; }
+.mz-kucuk-girdi { width: 110px; font: 800 24px var(--display); text-align: center; }
+.mz-serit { width: 100%; height: auto; } .mz-serit-t { font: 800 22px var(--display); fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.25); stroke-width: 2px; }
+.mz-agac { display: grid; justify-items: center; gap: 6px; font: 800 22px var(--display); color: var(--navy); } .mz-agac-alt { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; } .mz-agac-dal { display: grid; justify-items: center; } .mz-agac-dal i { font-style: normal; color: var(--ink-soft); } .mz-agac-dal b { color: #2E7DD1; } .mz-agac-son { color: #1F7A3A; }
+.mz-problem { font: 700 clamp(19px, 2vw, 24px)/1.45 var(--body); background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; margin: 0; }
+.mz-kare { width: min(100%, 380px); height: auto; } .mz-kare-t { font: 800 22px var(--display); fill: #1B2A4A; }
+.mz-abakus { width: 100%; height: auto; background: #fff; border-radius: 18px; } .mz-boncuk { transition: cx .45s cubic-bezier(.3,1.2,.5,1); } .mz-ab-tik { cursor: pointer; }
+.mz-ab-sol { font: 800 22px var(--display); fill: #2E7DD1; } .mz-ab-sayi { font: 800 30px var(--display); fill: #1F7A3A; }
+.mz-girdi-kap { display: inline-flex; gap: 8px; align-items: center; } .mz-girdi-kap .mz-kucuk-girdi { width: 120px; }

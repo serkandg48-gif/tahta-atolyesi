@@ -2070,3 +2070,4 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 .mz-ab-sol { font: 800 22px var(--display); fill: #2E7DD1; } .mz-ab-sayi { font: 800 30px var(--display); fill: #1F7A3A; }
 .mz-girdi-kap { display: inline-flex; gap: 8px; align-items: center; } .mz-girdi-kap .mz-kucuk-girdi { width: 120px; }
 .mz-bag-soru { fill: #FFE9C2; stroke: #E08A00; stroke-width: 4; stroke-dasharray: 10 6; } .mz-bag-t.iki { font-size: 26px; }
+.mz-alan { max-height: 42vh; } .mz-alan-t.golgeli { paint-order: stroke; stroke: rgba(27,42,74,.55); stroke-width: 5px; }

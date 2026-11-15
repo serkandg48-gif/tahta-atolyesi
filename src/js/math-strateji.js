@@ -174,12 +174,22 @@
       function carpCiz() {
         const top = parca.reduce((s, x) => s + x, 0), tamam = top === b;
         const hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
-        const W = 760, s = S("svg", { viewBox: `0 0 ${W} 170`, class: "mz-alan" });
-        const renk = ["#5DADE8", "#F4A261", "#90BE6D", "#E76F51", "#8E7DBE"];
-        let x = 60; const birimW = (W - 90) / b;
-        parca.forEach((p, i) => { const w = p * birimW; s.append(S("rect", { x, y: 40, width: w - 4, height: 110, rx: 8, fill: renk[i % 5], opacity: 0.85 })); const t = S("text", { x: x + w / 2, y: 105, "text-anchor": "middle", class: "mz-alan-t" }); t.textContent = a + " × " + p; s.append(t); const u = S("text", { x: x + w / 2, y: 28, "text-anchor": "middle", class: "mz-alan-k" }); u.textContent = p; s.append(u); x += w; });
-        if (top < b) s.append(S("rect", { x, y: 40, width: (b - top) * birimW - 4, height: 110, rx: 8, fill: "#EEF1F5", stroke: "#C7CFDB", "stroke-dasharray": "8 6" }));
-        const yan = S("text", { x: 30, y: 105, "text-anchor": "middle", class: "mz-alan-k" }); yan.textContent = a; s.append(yan);
+        /* birim kareler: a satır × b sütun, kareler gerçekten kare */
+        const W = 760, u = Math.min((W - 90) / b, 250 / a), Hh = a * u, s = S("svg", { viewBox: `0 0 ${W} ${Hh + 60}`, class: "mz-alan" });
+        const renk = ["#5DADE8", "#F4A261", "#90BE6D", "#E76F51", "#8E7DBE"], y0 = 40;
+        const izgara = (x0, sut, cizgi) => { let d = ""; for (let c = 1; c < sut; c++) d += `M${x0 + c * u} ${y0}V${y0 + Hh}`; for (let r = 1; r < a; r++) d += `M${x0} ${y0 + r * u}H${x0 + sut * u}`; s.append(S("path", { d, stroke: cizgi, "stroke-width": u > 14 ? 1.2 : 0.7, fill: "none" })); };
+        let x = 60;
+        parca.forEach((p, i) => {
+          const w = p * u;
+          s.append(S("rect", { x, y: y0, width: w, height: Hh, fill: renk[i % 5], opacity: 0.85 }));
+          izgara(x, p, "rgba(255,255,255,.75)");
+          s.append(S("rect", { x, y: y0, width: w, height: Hh, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
+          const t = S("text", { x: x + w / 2, y: y0 + Hh / 2 + 9, "text-anchor": "middle", class: "mz-alan-t golgeli" }); t.textContent = a + " × " + p; s.append(t);
+          const k = S("text", { x: x + w / 2, y: 28, "text-anchor": "middle", class: "mz-alan-k" }); k.textContent = p; s.append(k);
+          x += w;
+        });
+        if (top < b) { s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "#F4F6FA" })); izgara(x, b - top, "#D3DAE6"); s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "none", stroke: "#9AA4B5", "stroke-width": 2, "stroke-dasharray": "8 6" })); }
+        const yan = S("text", { x: 30, y: y0 + Hh / 2 + 9, "text-anchor": "middle", class: "mz-alan-k" }); yan.textContent = a; s.append(yan);
         return h("div",
           h("div.mz-soru", a + " × " + b + " = ", h("b", hepsi ? a * b : "?")),
           s,

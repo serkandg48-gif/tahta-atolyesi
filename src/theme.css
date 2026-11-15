@@ -2072,3 +2072,5 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 .mz-bag-soru { fill: #FFE9C2; stroke: #E08A00; stroke-width: 4; stroke-dasharray: 10 6; } .mz-bag-t.iki { font-size: 26px; }
 .mz-alan { max-height: 42vh; } .mz-alan-t.golgeli { paint-order: stroke; stroke: rgba(27,42,74,.55); stroke-width: 5px; }
 .mz-alan { display: block; margin: 0 auto; width: auto; max-width: 100%; }
+.mz-yanyana { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; gap: 30px; } .mz-yanyana .mz-alan { max-height: 48vh; } @media (max-width: 900px) { .mz-yanyana { grid-template-columns: 1fr; } }
+.mz-yanyana .mz-alan { width: min(46vw, 520px); height: auto; max-height: 50vh; }

@@ -164,10 +164,10 @@
   oyun("strateji-carpma-bolme", 3, {
     title: "Çarpma ve bölme", icon: "fraction", grades: [3, 4], short: "Kolay parçalara ayırarak zihinden çarp ve böl",
     render(host) {
-      let tur = "carp", a, b, parca, cevaplar, kalan, bolum;
+      let tur = "carp", a, b, parca, cevaplar, kalan, bolum, toplamOk = false;
       const kap = h("div.mz-oyun"); host.append(kap);
       function yeni() {
-        if (tur === "carp") { a = T.pick([25, 12, 15, 14, 24, 35, 45, 18, 16, 21]); b = T.pick([16, 13, 14, 17, 12, 18, 23, 15]); parca = []; cevaplar = {}; }
+        if (tur === "carp") { a = T.pick([25, 12, 15, 14, 24, 35, 45, 18, 16, 21]); b = T.pick([16, 13, 14, 17, 12, 18, 23, 15]); parca = []; cevaplar = {}; toplamOk = false; }
         else { b = T.pick([14, 16, 18, 26, 12, 15, 24, 32, 7, 13]); const q = T.pick([22, 31, 21, 14, 32, 42, 101, 23, 213, 12]); a = b * q; kalan = a; bolum = []; }
         ciz();
       }
@@ -184,7 +184,7 @@
           s.append(S("rect", { x, y: y0, width: w, height: Hh, fill: renk[i % 5], opacity: 0.85 }));
           izgara(x, p, "rgba(255,255,255,.75)");
           s.append(S("rect", { x, y: y0, width: w, height: Hh, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
-          const t = S("text", { x: x + w / 2, y: y0 + Hh / 2 + 9, "text-anchor": "middle", class: "mz-alan-t golgeli" }); t.textContent = a + " × " + p; s.append(t);
+          (w < 140 ? [a, "×", p] : [a + " × " + p]).forEach((l, j, L) => { const t = S("text", { x: x + w / 2, y: y0 + Hh / 2 + 9 + (j - (L.length - 1) / 2) * 30, "text-anchor": "middle", class: "mz-alan-t golgeli" }); t.textContent = l; s.append(t); });
           const k = S("text", { x: x + w / 2, y: 28, "text-anchor": "middle", class: "mz-alan-k" }); k.textContent = p; s.append(k);
           x += w;
         });
@@ -196,13 +196,13 @@
         const alt = S("text", { x: (60 + xb) / 2, y: yb + 40, "text-anchor": "middle", class: "mz-alan-k" }); alt.textContent = b; s.append(alt);
         s.append(S("path", { d: `M44 ${y0} h-10 V${y0 + Hh} h10`, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
         return h("div",
-          h("div.mz-soru", a + " × " + b + " = ", h("b", hepsi ? a * b : "?")),
-          s,
+          h("div.mz-soru", a + " × " + b + " = ", h("b", toplamOk ? a * b : "?")),
+          h("div" + (tamam ? ".mz-yanyana" : ""), s, tamam ? h("div.mz-satirlar", parca.map((p, i) => h("div.mz-satir", h("span", a + " × " + p + " ="), cevaplar[i] === a * p ? h("b.dogru", a * p) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * p) { cevaplar[i] = a * p; ok(); } else no(); ciz(); })))),
+            hepsi ? h("div.mz-satir.toplam", h("span", parca.map((p) => a * p).join(" + ") + " ="), toplamOk ? h("b.dogru", a * b) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * b) { toplamOk = true; ok(); kutla(); } else no(); ciz(); }))) : null,
+            hepsi && !toplamOk ? h("div.mz-durum", "Şimdi parçaları topla.") : !hepsi ? h("div.mz-durum", "Her parçanın sonucunu yaz.") : null) : null),
           !tamam ? h("div.mz-durum", parca.length ? "Kalan: " + (b - top) + ". " + b + " sayısını parçalamaya devam et." : b + " sayısını kolay parçalara ayır. Örnek: 10 ve " + (b - 10)) : null,
           !tamam ? h("div.mz-secimler", [10, 5, 2, 1, b - top].filter((x, i, l) => x > 0 && x <= b - top && l.indexOf(x) === i).map((x) => h("button.mz-zipla", { onclick: () => { parca.push(x); ciz(); } }, x === b - top && x !== 10 && x !== 5 && x !== 2 && x !== 1 ? "Kalanın hepsi (" + x + ")" : "+" + x))) : null,
-          tamam ? h("div.mz-satirlar", parca.map((p, i) => h("div.mz-satir", h("span", a + " × " + p + " ="), cevaplar[i] === a * p ? h("b.dogru", a * p) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * p) { cevaplar[i] = a * p; ok(); if (parca.every((x, j) => cevaplar[j] === a * x)) kutla(); } else no(); ciz(); })))),
-            hepsi ? h("div.mz-satir.toplam", h("span", parca.map((p) => a * p).join(" + ") + " ="), h("b.dogru", a * b)) : null) : null,
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { parca = []; cevaplar = {}; ciz(); } }, T.icon("reset"), hepsi ? "Başka türlü parçala" : "Baştan")));
+          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { parca = []; cevaplar = {}; toplamOk = false; ciz(); } }, T.icon("reset"), toplamOk ? "Başka türlü parçala" : "Baştan")));
       }
       function bolCiz() {
         const q = bolum.reduce((s, x) => s + x, 0), tamam = kalan === 0;

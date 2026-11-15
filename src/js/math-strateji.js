@@ -77,48 +77,84 @@
   });
 
   /* ================= 2. Sayı bağları ================= */
-  const KESIR = { ekle: ([a, b], [c, d]) => { const n = a * d + c * b, m = b * d, g = (x, y) => (y ? g(y, x % y) : x), k = g(Math.abs(n), m); return [n / k, m / k]; }, oku: (t) => { const [a, b] = t.split("/").map(Number); return b ? [a, b] : [a, 1]; }, yaz: ([a, b]) => (b === 1 ? String(a) : a + "/" + b) };
+  const KESIR = { ekle: ([a, b], [c, d]) => { const n = a * d + c * b, m = b * d, g = (x, y) => (y ? g(y, x % y) : x), k = g(Math.abs(n), m) || 1; return [n / k, m / k]; }, oku: (t) => { const [a, b] = t.split("/").map(Number); return b ? [a, b] : [a, 1]; }, yaz: ([a, b]) => (b === 1 ? String(a) : a + "/" + b) };
   oyun("strateji-sayi-baglari", 2, {
-    title: "Sayı bağları", icon: "dots", grades: [1, 4], short: "Sayıyı parçalara ayır, iki farklı yol bul",
+    title: "Sayı bağları", icon: "dots", grades: [1, 4], short: "Parçala, eksik parçayı ya da bütünü bul",
     render(host) {
-      let tur = "sayi", hedef, parca, yollar, uyari = "";
+      let tur = "yuz", mod = "karisik", buMod, hedef, parca, verilen, eksik, yollar, uyari = "", cozuldu = false;
       const kap = h("div.mz-oyun"); host.append(kap);
-      const birim = () => (tur === "dakika" ? " dk" : "");
-      function yeni() {
-        if (tur === "sayi") hedef = [rnd(13, 98), 1];
-        else if (tur === "basamak") { const l = [1111, 2340, 1205, 3456, 999, 1010, 2222, 4508]; hedef = [T.pick(l), 1]; }
-        else if (tur === "dakika") hedef = [T.pick([75, 90, 105, 120, 135, 150, 165, 80, 145]), 1];
-        else { const l = [[5, 4], [7, 4], [3, 2], [5, 3], [7, 6], [4, 3], [9, 8], [5, 6]]; hedef = T.pick(l); }
-        parca = []; yollar = []; uyari = ""; ciz();
-      }
-      const toplam = () => parca.reduce((s, p) => KESIR.ekle(s, p), [0, 1]);
       const esit = (x, y) => x[0] * y[1] === y[0] * x[1];
-      function ekle(t) {
-        const p = tur === "kesir" ? KESIR.oku(t) : [+t, 1];
-        if (!p[0] || !p[1]) return;
-        const yeniT = KESIR.ekle(toplam(), p);
-        if (yeniT[0] * hedef[1] > hedef[0] * yeniT[1]) { uyari = "Bu parça ile toplam " + KESIR.yaz(hedef) + birim() + " sayısını geçiyor. Daha küçük bir parça dene."; no(); ciz(); return; }
+      const toplamOf = (l) => l.reduce((t, p) => KESIR.ekle(t, p), [0, 1]);
+      /* birim dönüşümü: 60 dk = 1 saat, 100 cm = 1 m; etiket otomatik */
+      const satirlar = ([n, d]) => {
+        if (tur === "kesir") return null;
+        if (tur === "dakika") { const sa = Math.floor(n / 60), dk = n % 60; return [sa ? sa + " saat" : null, dk || !sa ? dk + " dk" : null].filter(Boolean); }
+        if (tur === "metre") { const m = Math.floor(n / 100), cm = n % 100; return [m ? m + " m" : null, cm || !m ? cm + " cm" : null].filter(Boolean); }
+        return [String(n)];
+      };
+      const metin = (p) => (tur === "kesir" ? KESIR.yaz(p) : satirlar(p).join(" "));
+      /* soru üret: parçaları önce seç, bütün onların toplamı */
+      function parcalarUret() {
+        if (tur === "yuz") { const w = rnd(14, 99), x = rnd(2, w - 2); return [[x, 1], [w - x, 1]]; }
+        if (tur === "bin") { const w = rnd(12, 99) * 10, x = rnd(1, w / 10 - 1) * 10 + T.pick([0, 0, 5]); return [[x, 1], [w - x, 1]].filter((p) => p[0] > 0); }
+        if (tur === "dakika") return T.pick([[60, 15], [60, 30], [60, 60], [45, 60], [60, 60, 15], [90, 30], [60, 25], [120, 15], [60, 60, 30], [40, 60]]).map((x) => [x, 1]);
+        if (tur === "metre") return T.pick([[150, 100], [100, 75], [100, 100, 50], [120, 80], [200, 35], [100, 60], [250, 100], [100, 100, 20]]).map((x) => [x, 1]);
+        const d = T.pick([2, 3, 4, 5, 6, 8]), x = rnd(1, d - 1), y = rnd(1, d); return [[x, d], [y, d]];
+      }
+      function yeni() {
+        buMod = mod === "karisik" ? T.pick(["parcala", "eksik", "butun"]) : mod;
+        verilen = parcalarUret(); hedef = toplamOf(verilen); if (verilen.length < 2) return yeni();
+        eksik = buMod === "eksik" ? rnd(0, verilen.length - 1) : -1;
+        parca = []; yollar = []; uyari = ""; cozuldu = false; ciz();
+      }
+      function cevap(t) {
+        const p = tur === "kesir" ? KESIR.oku(t) : [+t, 1]; if (!p[0] || !p[1]) return;
+        if (buMod !== "parcala") {
+          const dogru = buMod === "butun" ? hedef : verilen[eksik];
+          if (esit(p, dogru)) { cozuldu = true; uyari = ""; ok(); kutla(); } else { uyari = metin(p) + " olmadı. Parçalarla bütüne yeniden bak."; no(); }
+          return ciz();
+        }
+        const yeniT = KESIR.ekle(toplamOf(parca), p);
+        if (yeniT[0] * hedef[1] > hedef[0] * yeniT[1]) { uyari = "Bu parça ile toplam " + metin(hedef) + " değerini geçiyor. Daha küçük bir parça dene."; no(); return ciz(); }
         parca.push(p); uyari = "";
-        if (esit(yeniT, hedef)) { ok(); const k = parca.map(KESIR.yaz).sort().join("+"); if (parca.length < 2) uyari = "Sayıyı en az iki parçaya ayıralım."; else if (yollar.includes(k)) uyari = "Bu yolu zaten bulmuştuk. Başka türlü parçala."; else { yollar.push(k); if (yollar.length === 2) kutla(); } }
+        if (esit(yeniT, hedef)) { ok(); const k = parca.map(KESIR.yaz).sort().join("+"); if (parca.length < 2) uyari = "En az iki parçaya ayıralım."; else if (yollar.includes(k)) uyari = "Bu yolu zaten bulmuştuk. Başka türlü parçala."; else { yollar.push(k); if (yollar.length === 2) kutla(); } }
         ciz();
       }
+      function dugum(sv, x, y, p, cls) {
+        if (p && tur === "kesir" && p[1] !== 1) {
+          sv.append(S("ellipse", { cx: x, cy: y, rx: 46, ry: 50, class: cls }));
+          const u = S("text", { x, y: y - 10, "text-anchor": "middle", class: "mz-bag-t" }); u.textContent = p[0];
+          const a2 = S("text", { x, y: y + 34, "text-anchor": "middle", class: "mz-bag-t" }); a2.textContent = p[1];
+          sv.append(u, S("line", { x1: x - 22, y1: y, x2: x + 22, y2: y, stroke: "#1B2A4A", "stroke-width": 4, "stroke-linecap": "round" }), a2); return;
+        }
+        const L = p ? satirlar(p) || [KESIR.yaz(p)] : ["?"], uz = Math.max(...L.map((l) => l.length));
+        sv.append(S("ellipse", { cx: x, cy: y, rx: Math.max(46, uz * 10 + 22), ry: L.length > 1 ? 52 : 46, class: cls }));
+        L.forEach((l, i) => { const t = S("text", { x, y: y + 11 + (i - (L.length - 1) / 2) * 32, "text-anchor": "middle", class: "mz-bag-t" + (L.length > 1 ? " iki" : "") }); t.textContent = l; sv.append(t); });
+      }
       function ciz() {
-        const t = toplam(), tamam = esit(t, hedef) && parca.length > 1;
-        const n = Math.max(2, parca.length), W = 760, ust = S("svg", { viewBox: `0 0 ${W} 260`, class: "mz-bag" });
-        const kx = W / 2;
-        const daire = (x, y, r, metin, cls) => { ust.append(S("ellipse", { cx: x, cy: y, rx: r + Math.max(0, metin.length - 3) * 9, ry: r, class: cls })); const tt = S("text", { x, y: y + 11, "text-anchor": "middle", class: "mz-bag-t" }); tt.textContent = metin; ust.append(tt); };
-        const kutuX = (i) => 80 + (i + 0.5) * ((W - 160) / n);
-        for (let i = 0; i < n; i++) ust.append(S("line", { x1: kx, y1: 92, x2: kutuX(i), y2: 182, stroke: "#1B2A4A", "stroke-width": 3, opacity: parca[i] ? 1 : 0.25 }));
-        daire(kx, 60, 46, KESIR.yaz(hedef) + birim(), "mz-bag-ust");
-        for (let i = 0; i < n; i++) daire(kutuX(i), 210, 36, parca[i] ? KESIR.yaz(parca[i]) + birim() : "?", parca[i] ? "mz-bag-alt" : "mz-bag-bos");
-        const ipucu = { sayi: "Onluk ve birliklere ya da işine yarayan parçalara ayır.", basamak: "Basamaklara ya da kolay hesaplanan parçalara ayır.", dakika: "1 saat = 60 dakika. Saatleri ayırmayı dene.", kesir: "Kesir yazmak için / tuşunu kullan. Örnek: 1/4" }[tur];
+        const altlar = buMod === "parcala" ? parca : verilen, n = Math.max(2, altlar.length), W = 760, sv = S("svg", { viewBox: `0 0 ${W} 290`, class: "mz-bag" });
+        const kx = W / 2, kutuX = (i) => 80 + (i + 0.5) * ((W - 160) / n), ustBil = buMod !== "butun" || cozuldu;
+        for (let i = 0; i < n; i++) sv.append(S("line", { x1: kx, y1: 100, x2: kutuX(i), y2: 192, stroke: "#1B2A4A", "stroke-width": 3, opacity: buMod === "parcala" && !parca[i] ? 0.25 : 1 }));
+        dugum(sv, kx, 60, ustBil ? hedef : null, ustBil ? "mz-bag-ust" : "mz-bag-soru");
+        for (let i = 0; i < n; i++) {
+          let p = altlar[i]; const gizli = buMod === "eksik" && i === eksik && !cozuldu;
+          if (gizli) p = null;
+          dugum(sv, kutuX(i), 232, p, p ? "mz-bag-alt" : buMod === "parcala" ? "mz-bag-bos" : "mz-bag-soru");
+        }
+        const t = toplamOf(parca), parcTamam = buMod === "parcala" && esit(t, hedef) && parca.length > 1;
+        const BIRIM = { dakika: "Dakika olarak yaz. 60 dakika = 1 saat.", metre: "Santimetre olarak yaz. 100 cm = 1 m.", kesir: "Kesir için / tuşunu kullan. Örnek: 3/4" }[tur] || "";
+        let durum;
+        if (buMod === "parcala") durum = parcTamam && !uyari ? "Oldu! " + metin(hedef) + " = " + parca.map(metin).join(" + ") : uyari || "Bütünü parçalara ayır. " + (parca.length ? "Şu ana kadar: " + metin(t) + ". " : "") + BIRIM;
+        else if (cozuldu) durum = metin(hedef) + " = " + verilen.map(metin).join(" + ");
+        else durum = uyari || (buMod === "butun" ? "Parçalar verildi. Bütün kaç? " : "Bütün ve bir parça verildi. Eksik parça kaç? ") + BIRIM;
         kap.replaceChildren(
-          h("div.mz-ust", seg([["sayi", "Sayılar"], ["basamak", "Basamaklar"], ["dakika", "Dakikalar"], ["kesir", "Kesirler"]], tur, (v) => { tur = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni sayı")),
-          h("div.mz-yan", h("div", ust,
-            h("div.mz-durum" + (tamam ? ".iyi" : uyari ? ".kotu" : ""), tamam && !uyari ? "Oldu! " + KESIR.yaz(hedef) + birim() + " = " + parca.map((p) => KESIR.yaz(p) + birim()).join(" + ") : uyari || ("Parçaların toplamı: " + KESIR.yaz(t) + birim() + ". " + ipucu)),
-            h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { disabled: parca.length ? null : true, onclick: () => { parca.pop(); uyari = ""; ciz(); } }, T.icon("back"), "Son parçayı sil"), h("button.btn" + (tamam ? ".c-leaf" : ".c-chalk"), { onclick: () => { parca = []; uyari = ""; ciz(); } }, T.icon("reset"), tamam ? "Başka türlü parçala" : "Temizle")),
-            yollar.length ? h("div.mz-yollar", h("h3", "Bulduğumuz yollar (" + yollar.length + " / 2)"), yollar.map((y, i) => h("div.mz-yol", h("b", (i + 1) + ". yol"), h("span", KESIR.yaz(hedef) + birim() + " = " + y.split("+").join(" + "))))) : null),
-            h("div.mz-padkap", h("small", "Bir parça yaz"), sayiPad(ekle, { kesir: tur === "kesir" }))));
+          h("div.mz-ust", seg([["yuz", "100 içinde"], ["bin", "1000 içinde"], ["dakika", "Saat ve dakika"], ["metre", "Metre ve santimetre"], ["kesir", "Kesirler"]], tur, (v) => { tur = v; yeni(); }),
+            seg([["karisik", "Karışık"], ["parcala", "Parçala"], ["eksik", "Eksik parça"], ["butun", "Bütünü bul"]], mod, (v) => { mod = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni soru")),
+          h("div.mz-yan", h("div", sv,
+            h("div.mz-durum" + ((parcTamam && !uyari) || cozuldu ? ".iyi" : uyari ? ".kotu" : ""), durum),
+            buMod === "parcala" ? h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { disabled: parca.length ? null : true, onclick: () => { parca.pop(); uyari = ""; ciz(); } }, T.icon("back"), "Son parçayı sil"), h("button.btn" + (parcTamam ? ".c-leaf" : ".c-chalk"), { onclick: () => { parca = []; uyari = ""; ciz(); } }, T.icon("reset"), parcTamam ? "Başka türlü parçala" : "Temizle")) : cozuldu ? h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-leaf", { onclick: yeni }, T.icon("next"), "Sıradaki")) : null,
+            buMod === "parcala" && yollar.length ? h("div.mz-yollar", h("h3", "Bulduğumuz yollar (" + yollar.length + " / 2)"), yollar.map((y, i) => h("div.mz-yol", h("b", (i + 1) + ". yol"), h("span", metin(hedef) + " = " + y.split("+").map((x) => metin(KESIR.oku(x))).join(" + "))))) : null),
+            cozuldu ? null : h("div.mz-padkap", h("small", buMod === "parcala" ? "Bir parça yaz" : buMod === "butun" ? "Bütünü yaz" : "Eksik parçayı yaz"), sayiPad(cevap, { kesir: tur === "kesir" }))));
       }
       yeni();
     },

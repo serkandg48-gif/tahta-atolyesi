@@ -175,7 +175,7 @@
         const top = parca.reduce((s, x) => s + x, 0), tamam = top === b;
         const hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
         /* birim kareler: a satır × b sütun, kareler gerçekten kare */
-        const W = 760, u = Math.min((W - 90) / b, 250 / a), Hh = a * u, s = S("svg", { viewBox: `0 0 ${W} ${Hh + 60}`, class: "mz-alan" });
+        const W = 760, u = Math.min((W - 90) / b, 250 / a), Hh = a * u, s = S("svg", { viewBox: `0 0 ${60 + b * u + 20} ${Hh + 100}`, class: "mz-alan" });
         const renk = ["#5DADE8", "#F4A261", "#90BE6D", "#E76F51", "#8E7DBE"], y0 = 40;
         const izgara = (x0, sut, cizgi) => { let d = ""; for (let c = 1; c < sut; c++) d += `M${x0 + c * u} ${y0}V${y0 + Hh}`; for (let r = 1; r < a; r++) d += `M${x0} ${y0 + r * u}H${x0 + sut * u}`; s.append(S("path", { d, stroke: cizgi, "stroke-width": u > 14 ? 1.2 : 0.7, fill: "none" })); };
         let x = 60;
@@ -189,7 +189,12 @@
           x += w;
         });
         if (top < b) { s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "#F4F6FA" })); izgara(x, b - top, "#D3DAE6"); s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "none", stroke: "#9AA4B5", "stroke-width": 2, "stroke-dasharray": "8 6" })); }
-        const yan = S("text", { x: 30, y: y0 + Hh / 2 + 9, "text-anchor": "middle", class: "mz-alan-k" }); yan.textContent = a; s.append(yan);
+        const yan = S("text", { x: 18, y: y0 + Hh / 2 + 9, "text-anchor": "middle", class: "mz-alan-k" }); yan.textContent = a; s.append(yan);
+        /* alt kenar: ikinci çarpanın tamamı, köşeli ayraçla */
+        const yb = y0 + Hh + 14, xb = 60 + b * u;
+        s.append(S("path", { d: `M60 ${yb} v10 H${xb} v-10`, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
+        const alt = S("text", { x: (60 + xb) / 2, y: yb + 40, "text-anchor": "middle", class: "mz-alan-k" }); alt.textContent = b; s.append(alt);
+        s.append(S("path", { d: `M44 ${y0} h-10 V${y0 + Hh} h10`, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
         return h("div",
           h("div.mz-soru", a + " × " + b + " = ", h("b", hepsi ? a * b : "?")),
           s,

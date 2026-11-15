@@ -2709,6 +2709,8 @@ html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button:hover { transform: tr
 html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button[aria-pressed="true"] { background: var(--tr); color: #fff; transform: scale(1.08); box-shadow: 0 4px 0 color-mix(in srgb, var(--tr) 70%, #000), 0 12px 26px color-mix(in srgb, var(--tr) 45%, transparent), 0 0 0 3px #FFD23F; }
 html.alt-menu .view .seg.dk-sekme { margin-left: 0; }
 @media (max-width: 760px) { html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button { font-size: 16px; padding: 10px 14px; } }
+html .view :is(.section-title, .tool-grid, .hint)[hidden] { display: none !important; }
+html.alt-menu .view .bolum-sekme { margin-top: 4px; }
 
 </style>
 </head>
@@ -2723,7 +2725,7 @@ html.alt-menu .view .seg.dk-sekme { margin-left: 0; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="0c3c900f03";
+window.SURUM="8d5a0dcbc3";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -17324,6 +17326,27 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   setInterval(() => { const d = T.isoDate(); if (d !== T._day) { T._day = d; if ((location.hash || "#ana") === "#ana") T.route(); else topbar(); } }, 60000);
   T._day = T.isoDate();
   setTimeout(() => T.hosgeldin && T.hosgeldin(), 700);
+})();
+
+/* Bölüm başlıkları (Okuma, Yazma, Kendini tanıma...) renkli sekmelere dönüşür: bir anda bir bölüm görünür */
+(function () {
+  const h = T.h;
+  function uygula(kap) {
+    if (kap.querySelector(":scope > .bolum-sekme")) return;
+    const basliklar = [...kap.children].filter((e) => e.classList.contains("section-title") && e.nextElementSibling && e.nextElementSibling.classList.contains("tool-grid"));
+    if (basliklar.length < 2) return;
+    const bolumler = basliklar.map((b) => { const parca = [b]; let n = b.nextElementSibling; while (n && !n.classList.contains("section-title")) { if (n.classList.contains("tool-grid") || n.classList.contains("hint")) parca.push(n); else break; n = n.nextElementSibling; } return { ad: (b.querySelector("h2") || b).textContent.trim(), parca }; });
+    const anahtar = "ta-bolum-" + location.hash;
+    let sec = 0; try { sec = Math.min(+sessionStorage.getItem(anahtar) || 0, bolumler.length - 1); } catch (e) {}
+    const goster = (i) => { sec = i; try { sessionStorage.setItem(anahtar, i); } catch (e) {} bolumler.forEach((b, j) => b.parca.forEach((el, k) => { el.hidden = j !== i || k === 0; })); dugmeler.forEach((d, j) => d.setAttribute("aria-selected", String(j === i))); };
+    const dugmeler = bolumler.map((b, i) => h("button", { role: "tab", onclick: () => goster(i) }, b.ad));
+    basliklar[0].before(h("div.tabs.bolum-sekme", { role: "tablist" }, dugmeler));
+    goster(sec);
+  }
+  let bekliyor = false;
+  const tara = () => { bekliyor = false; const v = document.getElementById("view"); if (!v) return; const kaplar = new Set([...v.querySelectorAll(".section-title + .tool-grid")].map((g) => g.parentElement)); kaplar.forEach(uygula); };
+  const izle = () => { const v = document.getElementById("view"); if (!v) return setTimeout(izle, 300); new MutationObserver(() => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(tara); } }).observe(v, { childList: true, subtree: true }); tara(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", izle); else izle();
 })();
 
 </script>

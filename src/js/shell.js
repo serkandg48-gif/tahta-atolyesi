@@ -190,3 +190,24 @@
   T._day = T.isoDate();
   setTimeout(() => T.hosgeldin && T.hosgeldin(), 700);
 })();
+
+/* Bölüm başlıkları (Okuma, Yazma, Kendini tanıma...) renkli sekmelere dönüşür: bir anda bir bölüm görünür */
+(function () {
+  const h = T.h;
+  function uygula(kap) {
+    if (kap.querySelector(":scope > .bolum-sekme")) return;
+    const basliklar = [...kap.children].filter((e) => e.classList.contains("section-title") && e.nextElementSibling && e.nextElementSibling.classList.contains("tool-grid"));
+    if (basliklar.length < 2) return;
+    const bolumler = basliklar.map((b) => { const parca = [b]; let n = b.nextElementSibling; while (n && !n.classList.contains("section-title")) { if (n.classList.contains("tool-grid") || n.classList.contains("hint")) parca.push(n); else break; n = n.nextElementSibling; } return { ad: (b.querySelector("h2") || b).textContent.trim(), parca }; });
+    const anahtar = "ta-bolum-" + location.hash;
+    let sec = 0; try { sec = Math.min(+sessionStorage.getItem(anahtar) || 0, bolumler.length - 1); } catch (e) {}
+    const goster = (i) => { sec = i; try { sessionStorage.setItem(anahtar, i); } catch (e) {} bolumler.forEach((b, j) => b.parca.forEach((el, k) => { el.hidden = j !== i || k === 0; })); dugmeler.forEach((d, j) => d.setAttribute("aria-selected", String(j === i))); };
+    const dugmeler = bolumler.map((b, i) => h("button", { role: "tab", onclick: () => goster(i) }, b.ad));
+    basliklar[0].before(h("div.tabs.bolum-sekme", { role: "tablist" }, dugmeler));
+    goster(sec);
+  }
+  let bekliyor = false;
+  const tara = () => { bekliyor = false; const v = document.getElementById("view"); if (!v) return; const kaplar = new Set([...v.querySelectorAll(".section-title + .tool-grid")].map((g) => g.parentElement)); kaplar.forEach(uygula); };
+  const izle = () => { const v = document.getElementById("view"); if (!v) return setTimeout(izle, 300); new MutationObserver(() => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(tara); } }).observe(v, { childList: true, subtree: true }); tara(); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", izle); else izle();
+})();

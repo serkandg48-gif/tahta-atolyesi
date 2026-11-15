@@ -2151,3 +2151,5 @@ html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button:hover { transform: tr
 html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button[aria-pressed="true"] { background: var(--tr); color: #fff; transform: scale(1.08); box-shadow: 0 4px 0 color-mix(in srgb, var(--tr) 70%, #000), 0 12px 26px color-mix(in srgb, var(--tr) 45%, transparent), 0 0 0 3px #FFD23F; }
 html.alt-menu .view .seg.dk-sekme { margin-left: 0; }
 @media (max-width: 760px) { html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button { font-size: 16px; padding: 10px 14px; } }
+html .view :is(.section-title, .tool-grid, .hint)[hidden] { display: none !important; }
+html.alt-menu .view .bolum-sekme { margin-top: 4px; }

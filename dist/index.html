@@ -2659,6 +2659,22 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 .altp-hepsi { position: absolute; left: 0; top: 0; }
 @media (max-width: 760px) { .altp-grup { grid-template-columns: 1fr; } .altp-grup h3 { text-align: center; } .altp-izgara { justify-content: center; } .altp-hepsi { position: static; } }
 .altp { width: fit-content; min-width: min(640px, calc(100vw - 32px)); max-width: calc(100vw - 32px); } .altp-izgara { flex-wrap: nowrap; } @media (max-width: 1000px) { .altp-izgara { flex-wrap: wrap; } }
+/* iç menü artık tam bir sayfa: alt şeridin üstündeki bütün alanı kaplar */
+.altp-perde { display: none; }
+.altp { left: 0; right: 0; top: 0; bottom: 92px; width: auto !important; min-width: 0 !important; max-width: none !important; max-height: none; transform: none; border-radius: 0;
+  display: grid; align-content: center; justify-items: center; gap: 18px; padding: 40px 24px; overflow-y: auto;
+  background: radial-gradient(1200px 600px at 50% 0%, #FFFFFF, #EEF3FB 60%, #E3EBF7); box-shadow: none; animation: altp-sayfa .32s cubic-bezier(.2,.9,.3,1) both; }
+.altp.kapan { animation: altp-sayfa-k .2s ease-in both; }
+@keyframes altp-sayfa { from { opacity: 0; transform: translateY(40px); } } @keyframes altp-sayfa-k { to { opacity: 0; transform: translateY(30px); } }
+.altp-bas { width: min(1100px, 100%); margin: 0; } .altp-bas b { font-size: clamp(32px, 3.6vw, 48px); }
+.altp-kapat { width: 52px; height: 52px; top: 0; } .altp-kapat svg { width: 24px; height: 24px; }
+.altp-gruplar { gap: 18px; width: fit-content; max-width: 100%; }
+.altp-grup { grid-template-columns: 150px 1fr; } .altp-grup h3 { font-size: 17px; }
+.altp-izgara { gap: 16px; }
+.altp-oge { width: 150px; padding: 20px 8px 16px; border-radius: 26px; font-size: 17px; } .altp-oge .ikon3d { width: 80px; height: 80px; }
+@media (max-height: 820px) { .altp-oge { width: 132px; padding: 14px 6px 12px; } .altp-oge .ikon3d { width: 64px; height: 64px; } .altp { gap: 10px; padding: 20px; } .altp-gruplar { gap: 10px; } }
+@media (max-width: 760px) { .altp { bottom: 72px; padding: 16px 10px; align-content: start; } .altp-oge { width: 104px; } .altp-oge .ikon3d { width: 52px; height: 52px; } }
+.altp.az .altp-oge { width: clamp(150px, 15vw, 210px); padding: 28px 10px 22px; font-size: 21px; gap: 10px; } .altp.az .altp-oge .ikon3d { width: clamp(80px, 8vw, 120px); height: clamp(80px, 8vw, 120px); } .altp.az .altp-izgara { gap: 22px; }
 
 </style>
 </head>
@@ -2673,7 +2689,7 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="2beaee920d";
+window.SURUM="f071239e80";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -17184,7 +17200,8 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
         : [["", D.filter((x) => !dersK.includes(x.k)).concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") })]];
     }
     const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, ölçme, sınıf düzeni ve günlük rutinler"] }[tur];
-    const p = h("div.altp", { role: "dialog", "aria-label": BAS[0] },
+    const az = gruplar.reduce((t, [, l]) => t + l.length, 0) <= 8;
+    const p = h("div.altp" + (az ? ".az" : ""), { role: "dialog", "aria-label": BAS[0] },
       h("div.altp-bas", h("b", BAS[0]), h("span.hint", BAS[1]), tur === "arac" ? h("button.btn.sm.c-chalk.altp-hepsi", { onclick: () => { panelKapat(); aracAc("hepsi"); } }, T.icon("plus"), "Tüm araçlar") : null, h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
       h("div.altp-gruplar", gruplar.filter(([, l]) => l.length).map(([ad, l]) => h("section.altp-grup", ad ? h("h3", ad) : null, h("div.altp-izgara", l.map((x) => { const b = dugme(x, i++, tur === "arac" ? "a" : "d"); if (x.gizli) b.classList.add("gizli"); return b; }))))));
     /* arka plan karartması ve imlece yaklaşınca büyüyen kareler */
@@ -17210,8 +17227,6 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     el.replaceChildren(
       git("ana", "Ana sayfa", "home"),
       ana("arac", "Araçlar", "timer"), ana("ders", "Dersler", "book"), ana("yasam", "Sınıf yaşamı", "heart"),
-      hizli.length ? h("span.dock-sep", { "aria-hidden": "true" }) : null,
-      hizli.length ? h("div.dock-hizli", hizli.map((x) => h("button.dock-item", { title: x.l, "aria-current": cur === x.k ? "page" : null, onclick: () => { sonEkle({ t: x.t === "a" ? "a" : "d", k: x.k }); x.ac(); } }, T.icon3d(x.ic), h("span", x.l)))) : null,
       h("span.dock-sep", { "aria-hidden": "true" }),
       h("button.dock-item", { onclick: () => aracAc("bg") }, T.icon3d("bg"), h("span", "Arka plan")),
       h("button.dock-item", { onclick: () => T.ambiyans.sec() }, T.icon3d("lotus"), h("span", "Odaklanarak çalışma")),

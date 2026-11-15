@@ -2691,43 +2691,6 @@ html.alt-menu .view .tabs button { font-size: 17px; padding: 12px 20px; border-r
 @media (max-width: 760px) { html.alt-menu .tc-wrap { width: 132px; } html.alt-menu .tool-card .ikon3d { width: 56px; height: 56px; } html.alt-menu .tool-card > span small { display: none; } }
 html.alt-menu .view :is(h2, h3, .sec-title):has(+ .tool-grid) { text-align: center; }
 html.alt-menu .view .section-title { justify-content: center; text-align: center; }
-/* Ders sayfaları: televizyon menüsü (kutu yok, arka plan açık, kartlar yatay şeritlerde) */
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) { background: linear-gradient(to top, rgba(10,18,32,.62) 0%, rgba(10,18,32,.38) 45%, rgba(10,18,32,0) 75%) !important; backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none; border: 0; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid)::before { display: none; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) > .view-inner { display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; padding: 18px 28px 14px; max-width: none; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head { order: -1; margin: 6px 0 auto; display: block; text-align: left; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head h1 { color: #fff; font-size: 64px; line-height: 1; text-shadow: 0 4px 24px rgba(0,0,0,.45); }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head .sub { color: rgba(255,255,255,.92); font-size: 17px; max-width: 560px; margin-top: 10px; text-shadow: 0 2px 10px rgba(0,0,0,.5); }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .seg { order: -2; align-self: flex-start; background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); margin: 0 0 14px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .seg button { color: #fff; font-size: 16px; padding: 9px 16px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs { justify-content: flex-start; margin: 0 0 8px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .section-title { justify-content: flex-start; text-align: left; margin: 10px 0 0; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .section-title h2, html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) :is(h2,h3):has(+ .tool-grid) { color: #fff; text-align: left; font-size: 22px; text-shadow: 0 2px 10px rgba(0,0,0,.5); }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .section-title p { color: rgba(255,255,255,.85); }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tool-grid { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; gap: 14px; padding: 14px 8px 18px; margin: 0 -8px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.5) transparent; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tc-wrap { flex: 0 0 168px; scroll-snap-align: start; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tool-card { box-shadow: 0 10px 28px rgba(0,0,0,.28); }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .pencere-ust button, html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .pencere-kapat { background: rgba(255,255,255,.9); }
-@media (max-width: 760px) { html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head h1 { font-size: 40px; } html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tc-wrap { flex-basis: 132px; } }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) { background: linear-gradient(to bottom, rgba(10,18,32,.42) 0%, rgba(10,18,32,0) 32%), linear-gradient(to top, rgba(10,18,32,.66) 0%, rgba(10,18,32,.4) 45%, rgba(10,18,32,0) 78%) !important; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) > .view-inner { padding-bottom: 58px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head h1 { font-size: 54px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head .sub { font-size: 16px; margin-top: 6px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs button { color: #fff; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); text-shadow: 0 1px 4px rgba(0,0,0,.35); font-size: 16px; padding: 10px 16px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs button svg { color: #fff; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs button[aria-selected="true"], html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs button[aria-pressed="true"], html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs button.on, html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs button.active { background: #fff; color: var(--ink); text-shadow: none; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tabs button[aria-selected="true"] svg { color: var(--ink); }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tc-wrap { flex-basis: 156px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tool-card { padding: 14px 10px 12px; gap: 6px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tool-card .ikon3d { width: 58px; height: 58px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tool-card > span { font-size: 16px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tool-card > span small { font-size: 12.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .tool-grid { padding: 10px 8px 12px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .section-title { margin-top: 4px; }
-html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head { padding-bottom: 14px; }
-html.alt-menu .view.pencere:has(.section-title ~ .section-title ~ .section-title) .page-head h1 { font-size: 40px; }
-html.alt-menu .view.pencere:has(.section-title ~ .section-title ~ .section-title) .page-head .sub { display: none; }
 
 </style>
 </head>
@@ -2742,7 +2705,7 @@ html.alt-menu .view.pencere:has(.section-title ~ .section-title ~ .section-title
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="41c7031c3a";
+window.SURUM="39500389e9";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";

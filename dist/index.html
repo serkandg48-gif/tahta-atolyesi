@@ -2641,7 +2641,7 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="e0fcc25f56";
+window.SURUM="8f6660a1ff";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -10697,110 +10697,6 @@ T.yuzen = TahtaYap("ana");
     return h("span.mz-girdi-kap", inp, h("button.btn.sm.c-leaf", { onclick: () => inp.value && onay(inp.value.trim()) }, T.icon("check")));
   }
 
-  /* ================= 4. İlişki ve problem ================= */
-  oyun("strateji-iliski-problem", 4, {
-    title: "İlişki ve problem", icon: "scale", grades: [2, 4], short: "Şerit modeliyle eşitlik, eksilen-çıkan-fark, problem",
-    render(host) {
-      let tur = "esit", veri, durum;
-      const kap = h("div.mz-oyun"); host.append(kap);
-      function yeni() {
-        if (tur === "esit") { const x = rnd(6, 18), y = rnd(2, 8), d = T.pick([-2, -1, 1, 2, 3]); veri = { ust: [x, y], alt: x - d, dogru: y + d }; durum = { k: 0 }; }
-        else if (tur === "fark") { const e = rnd(4, 18) * 5, c = rnd(1, e / 5 - 1) * 5; veri = { e, c, f: e - c, bil: T.pick(["e", "c", "f"]) }; durum = { cozuldu: false }; }
-        else { const n = rnd(2, 4), kalan = T.pick([5, 3, 4, 6, 10]); const kisi = ["babama", "anneme", "ablama", "kardeşime"].slice(0, n); veri = { n, kalan, kisi, top: kalan * 2 ** n }; durum = { adim: 0, cozuldu: false }; }
-        ciz();
-      }
-      const serit = (parcalar, W, birim, y, ops = {}) => { const g = S("g"); let x = 20; parcalar.forEach(([v, renk, etiket]) => { const w = v * birim; g.append(S("rect", { x, y, width: Math.max(4, w - 3), height: 56, rx: 6, fill: renk })); const t = S("text", { x: x + w / 2, y: y + 38, "text-anchor": "middle", class: "mz-serit-t" }); t.textContent = etiket ?? v; g.append(t); x += w; }); return g; };
-      function esitCiz() {
-        const [x, y] = veri.ust, k = durum.k, sol = x + y, sag = veri.alt + k, W = 760, birim = (W - 40) / Math.max(sol, sag, 1) * 0.95;
-        const s = S("svg", { viewBox: `0 0 ${W} 170`, class: "mz-serit" });
-        s.append(serit([[y, "#F08A3C"], [x, "#C9C21E"]], W, birim, 14), serit([[k || 0.001, "#D1495B", k || "?"], [veri.alt, "#2FA552"]], W, birim, 84));
-        const esit = sol === sag;
-        return h("div",
-          h("div.mz-soru", x + " + " + y + " = " + veri.alt + " + ", h("b", esit ? k : "?")),
-          s,
-          h("div.mz-durum" + (esit ? ".iyi" : ""), esit ? (x > veri.alt ? x + "'dan " + veri.alt + "'a " + (x - veri.alt) + " azaldı, bu yüzden " + y + "'den " + k + "'ye " + (k - y) + " arttı." : veri.alt + " daha büyük, bu yüzden öbür parça " + (y - k) + " küçüldü.") : "Kırmızı parçayı büyütüp küçülterek iki şeridi eşitle."),
-          !esit ? h("div.row", { style: { justifyContent: "center" } }, h("button.mz-zipla", { onclick: () => { if (durum.k > 0) { durum.k--; ciz(); } } }, "−1"), h("button.mz-zipla", { onclick: () => { durum.k++; if (veri.alt + durum.k === sol) { ok(); kutla(); } ciz(); } }, "+1")) : null);
-      }
-      function farkCiz() {
-        const { e, c, f, bil } = veri, W = 760, birim = (W - 40) / e, coz = durum.cozuldu;
-        const et = (k, ad, v) => (bil === k && !coz ? ad + ": ?" : ad + ": " + v);
-        const s = S("svg", { viewBox: `0 0 ${W} 170`, class: "mz-serit" });
-        s.append(serit([[e, "#C9C21E", et("e", "Eksilen", e)]], W, birim, 14), serit([[c, "#3C82E8", et("c", "Çıkan", c)], [f, "#D1495B", et("f", "Fark", f)]], W, birim, 84));
-        const dogru = { e, c, f }[bil];
-        return h("div",
-          h("div.mz-soru", bil === "e" ? "? − " + c + " = " + f : bil === "c" ? e + " − ? = " + f : e + " − " + c + " = ?", coz ? h("b", "  (" + dogru + ")") : null),
-          s,
-          h("div.mz-durum" + (coz ? ".iyi" : ""), coz ? "Eksilen = çıkan + fark. " + e + " = " + c + " + " + f : bil === "e" ? "Eksilen, çıkan ile farkın toplamıdır. Şeritlere bak." : "Çıkan ile fark yan yana gelince eksileni oluşturur."),
-          !coz ? h("div.mz-padkap.orta", sayiPad((v) => { if (+v === dogru) { durum.cozuldu = true; ok(); kutla(); } else no(); ciz(); })) : null);
-      }
-      function problemCiz() {
-        const { n, kalan, kisi, top } = veri, ad = durum.adim, coz = durum.cozuldu;
-        const metin = "Paramın yarısını " + kisi[0] + (n > 1 ? ", " + kisi.slice(1).map((k) => "kalanın yarısını " + k).join(", ") : "") + " verdim. Cebimde " + kalan + " TL kaldı. Başlangıçta kaç TL param vardı?";
-        /* kare model: her adımda kalan alan ikiye bölünür (sırayla dikey, yatay) */
-        const W = 360, s = S("svg", { viewBox: `0 0 ${W + 20} ${W + 20}`, class: "mz-kare" });
-        let x = 10, y = 10, w = W, hh = W; const tutar = (i) => top / 2 ** (i + 1);
-        for (let i = 0; i < Math.min(ad, n); i++) {
-          const dikey = i % 2 === 0; let px, py, pw, ph;
-          if (dikey) { pw = w / 2; ph = hh; px = x; py = y; x += pw; w -= pw; } else { pw = w; ph = hh / 2; px = x; py = y; y += ph; hh -= ph; }
-          s.append(S("rect", { x: px, y: py, width: pw, height: ph, fill: ["#BFE0EE", "#FBE3CC", "#D8F0C8", "#EEDCF7"][i], stroke: "#1E66B8", "stroke-width": 4 }));
-          const t = S("text", { x: px + pw / 2, y: py + ph / 2 + 8, "text-anchor": "middle", class: "mz-kare-t" }); t.textContent = coz ? tutar(i) + " TL" : kisi[i].replace(/m[ae]$/, "m").replace("babam", "Baba").replace("annem", "Anne").replace("ablam", "Abla").replace("kardeşim", "Kardeş"); s.append(t);
-        }
-        s.append(S("rect", { x, y, width: w, height: hh, fill: ad >= n ? "#FFF4B8" : "#fff", stroke: "#1E66B8", "stroke-width": 4 }));
-        if (ad >= n) { const t = S("text", { x: x + w / 2, y: y + hh / 2 + 8, "text-anchor": "middle", class: "mz-kare-t" }); t.textContent = kalan + " TL"; s.append(t); }
-        return h("div",
-          h("p.mz-problem", metin),
-          h("div.mz-yan", s, h("div",
-            ad < n ? h("div", h("p.mz-durum", "Bütün paramızı bir kare olarak düşünelim. Her adımda kalanı ikiye bölelim."), h("button.btn.big", { onclick: () => { durum.adim++; ciz(); } }, T.icon("next"), (ad + 1) + ". adım: yarısını " + kisi[ad] + " ver"))
-              : coz ? h("div.mz-durum.iyi", "Evet! " + top + " TL. Her parça bir öncekinin yarısı: " + Array.from({ length: n }, (_, i) => tutar(i)).join(", ") + " ve kalan " + kalan + ".")
-                : h("div", h("p.mz-durum", "Model hazır. En küçük parça " + kalan + " TL. Ondan geriye doğru giderek başlangıçtaki parayı bul."), h("div.mz-padkap.orta", sayiPad((v) => { if (+v === top) { durum.cozuldu = true; ok(); kutla(); } else no(); ciz(); }))))));
-      }
-      function ciz() {
-        kap.replaceChildren(h("div.mz-ust", seg([["esit", "Eşitlik"], ["fark", "Eksilen, çıkan, fark"], ["problem", "Problem modeli"]], tur, (v) => { tur = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni soru")),
-          tur === "esit" ? esitCiz() : tur === "fark" ? farkCiz() : problemCiz());
-      }
-      yeni();
-    },
-  });
-
-  /* ================= 5. Ritmik sayma boncukları ================= */
-  oyun("strateji-ritmik-boncuk", 5, {
-    title: "Ritmik sayma boncukları", icon: "beads", grades: [1, 3], short: "Beşlik ve kalanla ritmik say: 5+1, 10+2, 15+3...",
-    render(host) {
-      let n = 6, acik = 0, tahmin = false;
-      const kap = h("div.mz-oyun"); host.append(kap);
-      function ciz() {
-        const W = 900, satir = 10, s = S("svg", { viewBox: `0 0 ${W} ${satir * 62 + 20}`, class: "mz-abakus" });
-        const kirmizi = Math.min(5, n), mavi = Math.max(0, n - 5);
-        for (let r = 0; r < satir; r++) {
-          const y = 40 + r * 62, on = r < acik;
-          s.append(S("line", { x1: 150, y1: y, x2: W - 20, y2: y, stroke: "#8A93A6", "stroke-width": 4 }));
-          s.append(S("rect", { x: 146, y: y - 26, width: 6, height: 52, fill: "#5B6478" }), S("rect", { x: W - 24, y: y - 26, width: 6, height: 52, fill: "#5B6478" }));
-          for (let i = 0; i < 10; i++) {
-            const solda = on && i < n, cx = solda ? 180 + i * 46 : W - 50 - (9 - i) * 46 - (on ? 0 : 0);
-            const renk = i < 5 ? "#E8483F" : "#F2EDE6";
-            const g = S("circle", { cx: on ? (i < n ? 180 + i * 46 : W - 50 - (9 - i) * 46) : W - 50 - (9 - i) * 46 - (10 - n > 0 ? 0 : 0), cy: y, r: 21, fill: i < 5 ? (solda ? "#E8483F" : "#F4C9C4") : solda ? "#FFFFFF" : "#F2EDE6", stroke: i < 5 ? "#B8322B" : "#C9BFB2", "stroke-width": 2, class: "mz-boncuk" });
-            s.append(g);
-          }
-          if (on) { const t = S("text", { x: 135, y: y + 10, "text-anchor": "end", class: "mz-ab-sol" }); t.textContent = (5 * (r + 1)) + (mavi ? " + " + mavi * (r + 1) : ""); if (n > 5) s.append(t);
-            const t2 = S("rect", { x: 180 + n * 46 + 4, y: y - 26, width: 86, height: 52, rx: 12, fill: "#fff" }); s.append(t2); const t3 = S("text", { x: 180 + n * 46 + 47, "text-anchor": "middle", y: y + 12, class: "mz-ab-sayi" + (tahmin && r === acik - 1 && !satirAcik[r] ? " gizli" : "") }); t3.textContent = tahmin && !satirAcik[r] ? "?" : n * (r + 1); s.append(t3); }
-          const hedefAlan = S("rect", { x: 0, y: y - 30, width: W, height: 60, fill: "transparent", class: "mz-ab-tik" }); hedefAlan.addEventListener("click", () => satirTik(r)); s.append(hedefAlan);
-        }
-        kap.replaceChildren(
-          h("div.mz-ust", h("span.mz-etiket", "Kaçar sayalım?"), seg([2, 3, 4, 5, 6, 7, 8, 9].map((x) => [x, x + "'" + EK[x]]), n, (v) => { n = v; acik = 0; satirAcik = {}; ciz(); }),
-            h("label.mz-kutu", h("input", { type: "checkbox", checked: tahmin ? true : null, onchange: (e) => { tahmin = e.target.checked; ciz(); } }), "Önce tahmin edelim"), h("div.spacer"),
-            h("button.btn.sm.c-chalk", { onclick: () => { acik = 0; satirAcik = {}; ciz(); } }, T.icon("reset"), "Baştan")),
-          h("div.mz-durum", acik === 0 ? "Bir sonraki satıra dokun, " + n + " boncuk sola kaysın." + (n > 5 ? " Her satırda 5 kırmızı ve " + mavi + " beyaz var." : "") : acik === satir ? "10 satır tamam: " + n + " × 10 = " + n * 10 : (tahmin && !satirAcik[acik - 1] ? "Toplam kaç oldu? Tahmin edin, sonra satıra yeniden dokunun." : n + "'" + EK[n] + " sayıyoruz: " + Array.from({ length: acik }, (_, i) => n * (i + 1)).join(", "))),
-          s);
-      }
-      let satirAcik = {};
-      function satirTik(r) {
-        if (r === acik && acik < 10) { acik++; if (!tahmin) { satirAcik[r] = true; T.sound && T.sound.pop && T.sound.pop(); } if (acik === 10 && !tahmin) kutla(); }
-        else if (tahmin && r === acik - 1 && !satirAcik[r]) { satirAcik[r] = true; ok(); if (acik === 10) kutla(); }
-        ciz();
-      }
-      ciz();
-    },
-  });
 })();
 
 /* ---- math-talks.js ---- */

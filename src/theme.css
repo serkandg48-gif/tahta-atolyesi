@@ -2170,18 +2170,3 @@ html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .section-title { mar
 html.alt-menu .view.pencere:has(> .view-inner > .tool-grid) .page-head { padding-bottom: 14px; }
 html.alt-menu .view.pencere:has(.section-title ~ .section-title ~ .section-title) .page-head h1 { font-size: 40px; }
 html.alt-menu .view.pencere:has(.section-title ~ .section-title ~ .section-title) .page-head .sub { display: none; }
-/* iç menüler de televizyon menüsü: arka plan açık, başlık üstte, şeritler altta */
-.altp { background: linear-gradient(to bottom, rgba(10,18,32,.45) 0%, rgba(10,18,32,0) 30%), linear-gradient(to top, rgba(10,18,32,.7) 0%, rgba(10,18,32,.42) 45%, rgba(10,18,32,.08) 80%); backdrop-filter: none; -webkit-backdrop-filter: none;
-  grid-template-rows: auto 1fr; align-content: stretch; justify-items: stretch; padding: 30px 32px 22px; }
-.altp-bas { width: auto; justify-content: flex-start; align-items: center; } .altp-bas b { color: #fff; font-size: clamp(36px, 4.4vw, 60px); text-shadow: 0 4px 24px rgba(0,0,0,.45); }
-.altp-kapat { position: absolute; right: 0; top: 0; background: rgba(255,255,255,.92); }
-.altp-hepsi { position: static; order: 2; margin-left: 14px; }
-.altp-gruplar { align-self: end; width: auto; display: grid; gap: 8px; }
-.altp-grup, .altp-grup:not(:has(h3)) { grid-template-columns: 1fr; gap: 2px; }
-.altp-grup h3 { text-align: left; color: #fff; font-size: 19px; text-shadow: 0 2px 10px rgba(0,0,0,.5); margin: 0; }
-.altp-izgara, .altp.az .altp-izgara { flex-wrap: nowrap !important; justify-content: flex-start !important; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; padding: 10px 8px 14px; margin: 0 -8px; gap: 14px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.5) transparent; }
-.altp-oge { flex: 0 0 auto; scroll-snap-align: start; box-shadow: 0 10px 28px rgba(0,0,0,.28); }
-.altp.az .altp-oge { width: clamp(140px, 13vw, 180px); padding: 22px 10px 18px; font-size: 19px; } .altp.az .altp-oge .ikon3d { width: clamp(70px, 7vw, 100px); height: clamp(70px, 7vw, 100px); }
-@media (max-width: 760px) { .altp { padding: 18px 12px 12px; } .altp-oge, .altp.az .altp-oge { width: 108px; padding: 14px 6px 12px; font-size: 14px; } .altp-oge .ikon3d, .altp.az .altp-oge .ikon3d { width: 52px; height: 52px; } .altp-grup h3 { font-size: 16px; } }
-body:has(> .altp:not(.kapan)) #app > :not(.dock), body:has(> .altp:not(.kapan)) #yuzen { visibility: hidden; }
-@media (max-width: 760px) { .altp { padding-bottom: 62px; } }

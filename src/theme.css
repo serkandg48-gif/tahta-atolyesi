@@ -2143,3 +2143,11 @@ html.alt-menu .view .tabs button:hover { transform: translateY(-3px) scale(1.04)
 html.alt-menu .view .tabs button[aria-selected="true"] { background: var(--tr); color: #fff; transform: scale(1.08); box-shadow: 0 4px 0 color-mix(in srgb, var(--tr) 70%, #000), 0 12px 26px color-mix(in srgb, var(--tr) 45%, transparent), 0 0 0 3px #FFD23F; }
 html.alt-menu .view .tabs button[aria-selected="true"] svg { color: #fff; }
 @media (max-width: 760px) { html.alt-menu .view .tabs button { font-size: 16px; padding: 10px 14px; } }
+/* aynı renkli sekme görünümü: Türkçe, Ölçme, Kitaplar */
+html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 10px auto 22px; padding: 10px; border-radius: 24px; background: rgba(27,42,74,.06); border: 0; width: fit-content; max-width: 100%; }
+html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button { --tr: #3C7DD8; font: 800 19px var(--display); padding: 14px 24px; border-radius: 18px; border: 0; background: #fff; color: var(--tr); box-shadow: 0 4px 0 color-mix(in srgb, var(--tr) 35%, transparent), 0 8px 18px rgba(27,42,74,.12); transition: transform .15s, box-shadow .15s; }
+html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button:nth-child(2) { --tr: #C2453A; } html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button:nth-child(3) { --tr: #2E8B57; }
+html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button:hover { transform: translateY(-3px) scale(1.04); }
+html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button[aria-pressed="true"] { background: var(--tr); color: #fff; transform: scale(1.08); box-shadow: 0 4px 0 color-mix(in srgb, var(--tr) 70%, #000), 0 12px 26px color-mix(in srgb, var(--tr) 45%, transparent), 0 0 0 3px #FFD23F; }
+html.alt-menu .view .seg.dk-sekme { margin-left: 0; }
+@media (max-width: 760px) { html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button { font-size: 16px; padding: 10px 14px; } }

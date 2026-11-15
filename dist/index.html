@@ -2675,6 +2675,22 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 @media (max-height: 820px) { .altp-oge { width: 132px; padding: 14px 6px 12px; } .altp-oge .ikon3d { width: 64px; height: 64px; } .altp { gap: 10px; padding: 20px; } .altp-gruplar { gap: 10px; } }
 @media (max-width: 760px) { .altp { bottom: 72px; padding: 16px 10px; align-content: start; } .altp-oge { width: 104px; } .altp-oge .ikon3d { width: 52px; height: 52px; } }
 .altp.az .altp-oge { width: clamp(150px, 15vw, 210px); padding: 28px 10px 22px; font-size: 21px; gap: 10px; } .altp.az .altp-oge .ikon3d { width: clamp(80px, 8vw, 120px); height: clamp(80px, 8vw, 120px); } .altp.az .altp-izgara { gap: 22px; }
+/* ders sayfalarındaki araç kartları da iç menü gibi: ortalı, büyük ikon, sıralı */
+html.alt-menu .tool-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+html.alt-menu .tc-wrap { width: 168px; position: relative; }
+html.alt-menu .tool-card { width: 100%; height: 100%; min-height: 0; display: grid; justify-items: center; align-content: start; gap: 8px; padding: 20px 10px 16px; text-align: center; border-radius: 26px; border: 0; background: #fff;
+  box-shadow: 0 6px 16px rgba(27,42,74,.10), 0 0 0 1px rgba(27,42,74,.06); transform: scale(var(--b, 1)); transform-origin: 50% 70%; transition: transform .12s ease-out, box-shadow .15s; }
+html.alt-menu .tool-card .ikon3d { width: 76px; height: 76px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.16)); }
+html.alt-menu .tool-card > span { display: grid; gap: 4px; font: 800 17px/1.2 var(--display); color: var(--ink); }
+html.alt-menu .tool-card > span small { font: 600 13px/1.3 var(--body); color: var(--ink-soft); }
+html.alt-menu .tool-card:hover { box-shadow: 0 16px 34px rgba(27,42,74,.2), 0 0 0 3px #FFD23F; transform: scale(var(--b, 1)) translateY(-4px); }
+html.alt-menu .tc-pin { position: absolute; top: 8px; right: 8px; z-index: 2; }
+/* sekmeler daha büyük ve ortalı */
+html.alt-menu .view .tabs { justify-content: center; flex-wrap: wrap; gap: 8px; margin: 6px auto 18px; }
+html.alt-menu .view .tabs button { font-size: 17px; padding: 12px 20px; border-radius: 16px; }
+@media (max-width: 760px) { html.alt-menu .tc-wrap { width: 132px; } html.alt-menu .tool-card .ikon3d { width: 56px; height: 56px; } html.alt-menu .tool-card > span small { display: none; } }
+html.alt-menu .view :is(h2, h3, .sec-title):has(+ .tool-grid) { text-align: center; }
+html.alt-menu .view .section-title { justify-content: center; text-align: center; }
 
 </style>
 </head>
@@ -2689,7 +2705,7 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="f071239e80";
+window.SURUM="39500389e9";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -17214,6 +17230,14 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     setTimeout(() => document.addEventListener("pointerdown", dis, true), 0);
   }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && acikPanel) panelKapat(); });
+  /* ders sayfalarındaki kartlarda da imlece yaklaşınca büyüme */
+  document.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    const g = e.target.closest && e.target.closest(".tool-grid"); const eski = T._buyuyenIzgara;
+    if (eski && eski !== g) eski.querySelectorAll(".tool-card").forEach((o) => o.style.setProperty("--b", 1));
+    T._buyuyenIzgara = g; if (!g) return;
+    g.querySelectorAll(".tool-card").forEach((o) => { const r = o.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)), k = Math.max(0, 1 - d / 240); o.style.setProperty("--b", (1 + k * k * 0.16).toFixed(3)); });
+  }, { passive: true });
   function dock(cur) {
     const el = T.$("#dock");
     document.documentElement.classList.add("alt-menu");

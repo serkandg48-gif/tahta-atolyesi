@@ -113,6 +113,14 @@
     setTimeout(() => document.addEventListener("pointerdown", dis, true), 0);
   }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && acikPanel) panelKapat(); });
+  /* ders sayfalarındaki kartlarda da imlece yaklaşınca büyüme */
+  document.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    const g = e.target.closest && e.target.closest(".tool-grid"); const eski = T._buyuyenIzgara;
+    if (eski && eski !== g) eski.querySelectorAll(".tool-card").forEach((o) => o.style.setProperty("--b", 1));
+    T._buyuyenIzgara = g; if (!g) return;
+    g.querySelectorAll(".tool-card").forEach((o) => { const r = o.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)), k = Math.max(0, 1 - d / 240); o.style.setProperty("--b", (1 + k * k * 0.16).toFixed(3)); });
+  }, { passive: true });
   function dock(cur) {
     const el = T.$("#dock");
     document.documentElement.classList.add("alt-menu");

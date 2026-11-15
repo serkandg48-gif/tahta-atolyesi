@@ -2074,3 +2074,30 @@ html.alt-menu .dk-okuyucu { height: calc(100vh - 250px); }
 .mz-alan { display: block; margin: 0 auto; width: auto; max-width: 100%; }
 .mz-yanyana { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; gap: 30px; } .mz-yanyana .mz-alan { max-height: 48vh; } @media (max-width: 900px) { .mz-yanyana { grid-template-columns: 1fr; } }
 .mz-yanyana .mz-alan { width: min(46vw, 520px); height: auto; max-height: 50vh; }
+/* iç menü: ortada, büyük, dikkat çeken; imlece yaklaşınca büyüme */
+.altp-perde { position: fixed; inset: 0; z-index: 879; background: rgba(15,24,45,.42); backdrop-filter: blur(6px); animation: perde-ac .25s both; } .altp-perde.kapan { animation: perde-kapa .2s both; }
+@keyframes perde-ac { from { opacity: 0; } } @keyframes perde-kapa { to { opacity: 0; } }
+.altp { width: min(1180px, calc(100vw - 32px)); bottom: 104px; padding: 22px 28px 28px; border-radius: 30px; background: linear-gradient(180deg, #FFFFFF, #F4F7FD); box-shadow: 0 30px 80px rgba(10,20,40,.45), 0 0 0 1px rgba(255,255,255,.6) inset; overflow: visible; }
+.altp-bas { justify-content: center; position: relative; margin-bottom: 14px; } .altp-bas b { font-size: 30px; } .altp-bas .hint, .altp-bas .spacer { display: none; }
+.altp-kapat { position: absolute; right: 0; top: -4px; }
+.altp-gruplar { gap: 20px; }
+.altp-grup h3 { text-align: center; font-size: 15px; letter-spacing: .02em; margin-bottom: 10px; }
+.altp-izgara { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.altp-oge { width: 136px; padding: 18px 8px 14px; border-radius: 24px; background: #fff; box-shadow: 0 6px 16px rgba(27,42,74,.10), 0 0 0 1px rgba(27,42,74,.06); font-size: 16px; position: relative;
+  transform: scale(var(--b, 1)); transform-origin: 50% 70%; transition: transform .12s ease-out, box-shadow .15s, background .15s; animation-name: altp-oge2; }
+@keyframes altp-oge2 { from { opacity: 0; transform: translateY(24px) scale(.7); } }
+.altp-oge .ikon3d { width: 76px; height: 76px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.18)); }
+.altp-oge:hover { background: #fff; box-shadow: 0 16px 34px rgba(27,42,74,.22), 0 0 0 3px #FFD23F; transform: scale(var(--b, 1)) translateY(-4px); }
+@media (max-width: 760px) { .altp { bottom: 76px; padding: 14px; } .altp-oge { width: 104px; } .altp-oge .ikon3d { width: 54px; height: 54px; } .altp-bas b { font-size: 22px; } }
+@media (prefers-reduced-motion: reduce) { .altp-oge { transform: none !important; } }
+.altp { max-height: calc(100vh - 124px); overflow-y: auto; overflow-x: hidden; padding: 18px 28px 22px; }
+.altp-gruplar { gap: 10px; } .altp-grup h3 { margin-bottom: 6px; }
+.altp-izgara { gap: 12px; padding: 6px 10px; }
+.altp-oge { width: 122px; padding: 14px 6px 12px; gap: 4px; font-size: 15px; } .altp-oge .ikon3d { width: 62px; height: 62px; }
+.altp-grup { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 6px; }
+.altp-grup:not(:has(h3)) { grid-template-columns: 1fr; }
+.altp-grup h3 { text-align: right; margin: 0; font: 800 15px/1.2 var(--display); color: var(--ink-soft); }
+.altp-izgara { justify-content: flex-start; }
+.altp-hepsi { position: absolute; left: 0; top: 0; }
+@media (max-width: 760px) { .altp-grup { grid-template-columns: 1fr; } .altp-grup h3 { text-align: center; } .altp-izgara { justify-content: center; } .altp-hepsi { position: static; } }
+.altp { width: fit-content; min-width: min(640px, calc(100vw - 32px)); max-width: calc(100vw - 32px); } .altp-izgara { flex-wrap: nowrap; } @media (max-width: 1000px) { .altp-izgara { flex-wrap: wrap; } }

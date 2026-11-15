@@ -85,14 +85,14 @@
   const dersAd = { kitaplar: "Kitaplar", zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" };
   const dersler = () => T.menu().map((m) => ({ k: m[0], l: dersAd[m[0]] || m[1], ic: m[3], gizli: !T.bolumGorunur(m[0]), ac: () => T.go(m[0]) }));
   let acikPanel = null;
-  function panelKapat() { const p = T.$(".altp"); if (p) { p.classList.add("kapan"); setTimeout(() => p.remove(), 220); } acikPanel = null; T.$$(".dock-ana[aria-expanded]").forEach((b) => b.setAttribute("aria-expanded", "false")); }
+  function panelKapat() { T.$$(".altp-perde").forEach((x) => { x.classList.add("kapan"); setTimeout(() => x.remove(), 220); }); const p = T.$(".altp"); if (p) { p.classList.add("kapan"); setTimeout(() => p.remove(), 220); } acikPanel = null; T.$$(".dock-ana[aria-expanded]").forEach((b) => b.setAttribute("aria-expanded", "false")); }
   function panelAc(tur, cur) {
     if (acikPanel === tur) { panelKapat(); return; }
-    T.$$(".altp").forEach((x) => x.remove()); acikPanel = tur;
+    T.$$(".altp, .altp-perde").forEach((x) => x.remove()); acikPanel = tur;
     T.$$(".dock-ana").forEach((b) => b.setAttribute("aria-expanded", String(b.dataset.tur === tur)));
     const dugme = (x, i, tip) => h("button.altp-oge", { style: { "--i": i }, "aria-current": cur === x.k ? "page" : null, onclick: () => { panelKapat(); sonEkle({ t: tip, k: x.k }); x.ac(); } }, T.icon3d(x.ic), h("span", x.l));
     let i = 0, gruplar;
-    if (tur === "arac") gruplar = ARAC_GRUP.map(([ad, l]) => [ad, l.map(aracBilgi).filter(Boolean)]).concat([["", [{ k: "hepsi", l: "Tüm araçlar", ic: "plus", ac: () => aracAc("hepsi") }]]]);
+    if (tur === "arac") gruplar = ARAC_GRUP.map(([ad, l]) => [ad, l.map(aracBilgi).filter(Boolean)]);
     else {
       const D = dersler(), dersK = ["turkce", "matematik", "kesif", "ingilizce", "kitaplar"];
       gruplar = tur === "ders" ? [["", D.filter((x) => dersK.includes(x.k))]]
@@ -100,9 +100,14 @@
     }
     const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, ölçme, sınıf düzeni ve günlük rutinler"] }[tur];
     const p = h("div.altp", { role: "dialog", "aria-label": BAS[0] },
-      h("div.altp-bas", h("b", BAS[0]), h("span.hint", BAS[1]), h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
+      h("div.altp-bas", h("b", BAS[0]), h("span.hint", BAS[1]), tur === "arac" ? h("button.btn.sm.c-chalk.altp-hepsi", { onclick: () => { panelKapat(); aracAc("hepsi"); } }, T.icon("plus"), "Tüm araçlar") : null, h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
       h("div.altp-gruplar", gruplar.filter(([, l]) => l.length).map(([ad, l]) => h("section.altp-grup", ad ? h("h3", ad) : null, h("div.altp-izgara", l.map((x) => { const b = dugme(x, i++, tur === "arac" ? "a" : "d"); if (x.gizli) b.classList.add("gizli"); return b; }))))));
+    /* arka plan karartması ve imlece yaklaşınca büyüyen kareler */
+    const perde = h("div.altp-perde", { onclick: panelKapat }); document.body.append(perde);
     document.body.append(p);
+    const ogeler = [...p.querySelectorAll(".altp-oge")];
+    const buyut = (e) => ogeler.forEach((o) => { const r = o.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)), k = Math.max(0, 1 - d / 260); o.style.setProperty("--b", (1 + k * k * 0.22).toFixed(3)); o.style.zIndex = Math.round(k * 10); });
+    p.addEventListener("pointermove", buyut); p.addEventListener("pointerleave", () => ogeler.forEach((o) => o.style.setProperty("--b", 1)));
     const dis = (e) => { if (!p.isConnected) { document.removeEventListener("pointerdown", dis, true); return; } if (!p.contains(e.target) && !e.target.closest(".dock")) { panelKapat(); document.removeEventListener("pointerdown", dis, true); } };
     setTimeout(() => document.addEventListener("pointerdown", dis, true), 0);
   }

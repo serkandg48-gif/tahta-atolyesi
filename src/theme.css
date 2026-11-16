@@ -2153,3 +2153,12 @@ html.alt-menu .view .seg.dk-sekme { margin-left: 0; }
 @media (max-width: 760px) { html.alt-menu .view .seg:is(.ders-sekme, .dk-sekme) button { font-size: 16px; padding: 10px 14px; } }
 html .view :is(.section-title, .tool-grid, .hint)[hidden] { display: none !important; }
 html.alt-menu .view .bolum-sekme { margin-top: 4px; }
+/* Şeffaf pencereler: arka plan her sayfada görünür, kartlar beyaz ve net kalır */
+.view.pencere, html.alt-menu .view.pencere { background: rgba(255,255,255,.26) !important; backdrop-filter: blur(3px) saturate(1.1); -webkit-backdrop-filter: blur(3px) saturate(1.1); border: 1px solid rgba(255,255,255,.55); box-shadow: 0 20px 60px rgba(20,30,50,.18); }
+.altp { background: rgba(240,245,252,.26); backdrop-filter: blur(3px) saturate(1.1); -webkit-backdrop-filter: blur(3px) saturate(1.1); }
+body:has(> .altp:not(.kapan)) #app > :not(.dock), body:has(> .altp:not(.kapan)) #yuzen { visibility: hidden; }
+.view.pencere .page-head h1, .altp-bas b { text-shadow: 0 0 2px #fff, 0 0 14px rgba(255,255,255,.95), 0 0 28px rgba(255,255,255,.8); }
+.view.pencere .page-head .sub, .view.pencere .page-head p, .view.pencere .hint { color: #1B2A4A; text-shadow: 0 0 2px #fff, 0 0 10px #fff, 0 0 18px rgba(255,255,255,.9); }
+.view.pencere .section-title h2, .altp-grup h3 { text-shadow: 0 0 2px #fff, 0 0 12px #fff, 0 0 22px rgba(255,255,255,.85); }
+html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgba(255,255,255,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.altp .altp-izgara { flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 48px); }

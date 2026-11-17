@@ -2177,3 +2177,7 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .view.pencere .section-title p { background: rgba(255,255,255,.9); color: var(--ink-soft, #44506A); padding: 4px 10px; border-radius: 10px; text-shadow: none; }
 .view.pencere .hint { background: rgba(255,255,255,.9); border-radius: 10px; padding: 6px 12px; width: fit-content; text-shadow: none; }
 .altp-bas b { background: rgba(255,255,255,.92); padding: 6px 22px; border-radius: 18px; text-shadow: none; box-shadow: 0 6px 18px rgba(10,20,40,.22); }
+.altp .altp-hepsi.altp-hepsi { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--navy, #1B2A4A); font: 800 19px/1.1 var(--display) !important; padding: 10px 18px 10px 14px !important; border-radius: 14px; border: 0; background: #fff !important; box-shadow: 0 6px 18px rgba(10,20,40,.28); text-shadow: none; }
+.altp-hepsi svg { width: 22px; height: 22px; padding: 3px; border-radius: 50%; background: #FFD23F; color: var(--navy, #1B2A4A); stroke-width: 3; }
+.altp-hepsi:hover { transform: translateY(-2px); }
+.altp .altp-grup h3 { font-size: 19px; }

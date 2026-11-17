@@ -2739,6 +2739,11 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .altp-hepsi svg { width: 22px; height: 22px; padding: 3px; border-radius: 50%; background: #FFD23F; color: var(--navy, #1B2A4A); stroke-width: 3; }
 .altp-hepsi:hover { transform: translateY(-2px); }
 .altp .altp-grup h3 { font-size: 19px; }
+.dock-ana.dock-muzik { position: relative; }
+.dock-ana.dock-muzik .dock-dalga { position: absolute; top: 4px; right: 8px; display: inline-flex; gap: 2px; align-items: end; height: 12px; }
+.dock-ana.dock-muzik .dock-dalga i { width: 3px; background: #2E8B57; border-radius: 2px; height: 6px; animation: mc-dal2 1s ease-in-out infinite; }
+.dock-ana.dock-muzik .dock-dalga i:nth-child(2) { animation-delay: .2s; } .dock-ana.dock-muzik .dock-dalga i:nth-child(3) { animation-delay: .4s; }
+.dock-ana.dock-muzik.caliyor { background: transparent !important; color: inherit !important; }
 
 </style>
 </head>
@@ -2753,7 +2758,7 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="666a363e18";
+window.SURUM="04f10dd22c";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -2942,7 +2947,7 @@ T.bugununSayisi = function (c = T.store.activeClass()) {
 /* Görünüm: sade (her gün kullanılanlar) ya da tam; gizlenen bölümler ve kartlar. Öğretmene göre, sınıftan bağımsız. */
 T.gorunum = () => { const g = T.store.get().gorunum || {}; return { mod: g.mod || "sade", bolum: g.bolum || [], kart: g.kart || [] }; };
 T.gorunumYaz = (fn) => T.store.update((s) => { s.gorunum = Object.assign({ mod: "sade", bolum: [], kart: [] }, s.gorunum || {}); fn(s.gorunum); });
-T.SADE_GIZLI = ["kultur", "zeka"];
+T.SADE_GIZLI = [];
 T.bolumGorunur = (id) => { const g = T.gorunum(); if (g.bolum.includes(id)) return false; if (g.mod === "sade" && T.SADE_GIZLI.includes(id)) return false; return true; };
 T.kartGizli = (route) => T.gorunum().kart.includes(route);
 /* Konfeti: 2,5 saniyelik kutlama */
@@ -6357,10 +6362,11 @@ T.yuzen = TahtaYap("ana");
     render(view, sub) {
       if (sub && T.tools[sub]) return T.toolPage(view, sub);
       const g = T.store.grade();
+      if (cat === "orta" && g < 5) cat = "his";
       const wrap = h("div.view-inner");
       view.append(wrap);
       wrap.append(h("div.page-head", h("h1", "Matematik"), h("div.sub", "Sınıfın: " + g + ". sınıf. Araçlar sınıf seviyesine göre sıralanır; hepsi her sınıfta açılabilir.")),
-        h("div.tabs", { role: "tablist" }, CATS.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l))));
+        h("div.tabs", { role: "tablist" }, CATS.filter(([k]) => k !== "orta" || g >= 5).map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l))));
       const list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
         .sort((a, b) => (a[1].ilk || 99) - (b[1].ilk || 99) || fitScore(b[1], g) - fitScore(a[1], g));
       wrap.append(h("div.tool-grid", list.map(([k, t]) => T.aracKart("matematik-" + k, Object.assign({}, t, { short: t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "") }), "sun"))));
@@ -10975,7 +10981,7 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
         wrap.append(h("div.page-head", h("h1", (T.dersAdi()[id]) || title), h("div.sub", intro)));
         const g = T.store.grade();
         const list = Object.entries(T.tools).filter(([, t]) => t.back === id).sort((a, b) => (fit(b[1], g) - fit(a[1], g)));
-        const gruplar = {}; list.filter(([, t]) => fit(t, g)).concat(list.filter(([, t]) => !fit(t, g))).forEach((x) => { const gr = fit(x[1], g) ? x[1].grup || "Diğer araçlar" : "Başka sınıflar için"; (gruplar[gr] = gruplar[gr] || []).push(x); });
+        const gruplar = {}; list.filter(([, t]) => fit(t, g)).forEach((x) => { const gr = fit(x[1], g) ? x[1].grup || "Diğer araçlar" : "Başka sınıflar için"; (gruplar[gr] = gruplar[gr] || []).push(x); });
         const tek = Object.keys(gruplar).length === 1;
         const sira = (T.grupSira || {})[id] || [];
         Object.entries(gruplar).sort((a, b) => { const ia = sira.indexOf(a[0]), ib = sira.indexOf(b[0]); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); }).forEach(([gr, l]) => wrap.append(tek ? null : h("div.section-title", h("h2", gr)), h("div.tool-grid", { style: { marginBottom: "18px" } }, l.map(([k, t]) => T.aracKart(id + "-" + k, t, tone)))));
@@ -13717,7 +13723,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
           h("button.btn.sm.c-chalk", { onclick: () => { const nx = ORDER.find((l) => !L.includes(l)); if (nx) { setLearned(L.concat(nx)); T.route(); } } }, T.icon("plus"), "Sıradaki sesi ekle")),
         h("div.row", { style: { gap: "6px" } }, ORDER.map((l) => h("button.btn.sm" + (L.includes(l) ? ".c-sun" : ".c-chalk"), { style: { minWidth: "46px", fontSize: "22px", fontFamily: "var(--display)", opacity: L.includes(l) ? 1 : 0.55 }, "aria-pressed": String(L.includes(l)), onclick: () => { setLearned(L.includes(l) ? L.filter((x) => x !== l) : L.concat(l)); T.route(); } }, l))),
         h("div.hint", `Bu seslerle okunabilecek ${WORDS.filter((w) => okWord(w, L)).length} kelime ve ${SENTENCES.filter((s) => okWord(s, L)).length} cümle var.`)));
-      const groups = [["Kitabım", ["kitap"]], ["Sesi hissedelim", ["ses-kasabasi", "ses-avi", "ses-nerede", "turkce-ses"]], ["Yazalım", ["harf-yaz", "rakam-yaz", "cizgi"]], ["Hece, sözcük, cümle", ["hece-mutfagi", "hece-makinesi", "kelime-kur", "cumle-kur", "turkce-hece"]], ["Okuma ve anlama", ["turkce-okuma-tiyatrosu", "turkce-okuma-hizi", "turkce-metin-uyarla", "turkce-dikte", "turkce-noktalama", "turkce-5n1k", "turkce-hikaye-zarlari"]], ["Matematik", ["matematik-onluk-cerceve", "matematik-rekenrek", "matematik-oyun-esini-bul", "matematik-oyun-hizli-gor", "matematik-oyun-sayi-bagi", "matematik-gunun-sayisi"]]];
+      const groups = [["Kitabım", ["kitap"]], ["Sesi hissedelim", ["ses-kasabasi", "ses-avi", "ses-nerede", "turkce-ses"]], ["Yazalım", ["harf-yaz", "rakam-yaz", "cizgi"]], ["Hece, sözcük, cümle", ["hece-mutfagi", "hece-makinesi", "kelime-kur", "cumle-kur", "turkce-hece"]], ["Okuma ve anlama", ["turkce-okuma-tiyatrosu", "turkce-okuma-hizi", "turkce-metin-uyarla", "turkce-dikte", "turkce-noktalama", "turkce-5n1k", "turkce-hikaye-zarlari"]]];
       wrap.append(h("button.tile.c-tomato", { style: { width: "100%", minHeight: "130px", gridTemplateColumns: "auto 1fr", gridTemplateRows: "auto", alignItems: "center", gap: "20px", marginBottom: "26px", "--tilt": "-0.4deg" }, onclick: () => T.go("birinci-kitap") }, T.icon("turkce", "ic"), h("div", h("h3", "Kitabım"), h("p", { style: { fontSize: "16px" } }, "Ders kitabını tahtada aç. Üzerine yaz, çiz, perdeyle ört, spotla göster. Kelimeye dokununca okunsun ve hecelensin."))));
       groups.shift();
       groups.forEach(([g, ids]) => {
@@ -15173,11 +15179,10 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   const turkceSekme = () => yerel("ta-turkce-sek:" + cid()) || (T.store.grade() <= 1 ? "ilk" : "turkce");
   T.sections.turkce.render = function (view, sub) {
     if (sub && T.tools[sub]) return T.toolPage(view, sub);
-    const sek = turkceSekme();
-    (sek === "ilk" ? T.sections.birinci.render : turkceAsil).call(this, view, sub);
+    /* Tek sekme sırası: 1. sınıfta İlk okuma yazma bölümleri (okuma ve anlama araçları dahil), 2. sınıftan sonra Türkçe bölümleri */
+    if (T.store.grade() > 1) return turkceAsil.call(this, view, sub);
+    T.sections.birinci.render.call(this, view, sub);
     const inner = view.querySelector(".view-inner"); if (!inner) return;
-    inner.prepend(h("div.seg.ders-sekme", { role: "tablist", "aria-label": "Türkçe bölümleri" },
-      [["ilk", "İlk okuma yazma"], ["turkce", "Okuma, anlama, yazma"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(k === sek), onclick: () => { yerel("ta-turkce-sek:" + cid(), k); T.route(); } }, l))));
     const bas = inner.querySelector(".page-head h1"); if (bas) bas.textContent = "Türkçe";
   };
   T.sections.birinci.title = "Türkçe";
@@ -15277,7 +15282,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
       if (hb.length) wrap.append(grupBas(g <= 3 ? "Hayat Bilgisi" : "Sosyal Bilgiler"), kartlar(hb, "sky"));
       if (fen.length) wrap.append(grupBas("Fen Bilimleri"), kartlar(fen, "leaf"));
       const diger = al("sosyal").concat(al("fen")).filter(([, t]) => !fit(t, g));
-      if (diger.length) wrap.append(h("details.ks-diger", h("summary", "Başka sınıflar için " + diger.length + " etkinlik"), kartlar(diger, "chalk")));
+      if (false && diger.length) wrap.append(h("details.ks-diger", h("summary", "Başka sınıflar için " + diger.length + " etkinlik"), kartlar(diger, "chalk")));
       wrap.append(h("p.hint", { style: { marginTop: "8px" } }, "MEB'in ders kitapları ve farklılaştırma etkinlikleri için: ", h("a", { href: "https://tymm.meb.gov.tr/ders-kitaplari", target: "_blank", rel: "noopener" }, "tymm.meb.gov.tr")));
     },
   };
@@ -15565,7 +15570,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     const yon = h("div.rt-yon-kap");
     const yonCiz = () => yon.replaceChildren(h("div.seg", [["cocuk", "Çocuklar için"], ["ogretmen", "Öğretmene"]].map(([k, l]) => h("button", { "aria-pressed": String(sekme.v === k), onclick: () => { sekme.v = k; yonCiz(); } }, l))), sekme.v === "cocuk" ? cocukYonerge(r) : ogretmenYonerge(r));
     yonCiz();
-    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("olcme") }, T.icon("back")), h("h2", r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
+    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("zeka") }, T.icon("back")), h("h2", r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
       h("button.btn.c-sky", { onclick: () => yansit(r) }, T.icon("board"), "Yansıt"),
       h("button.btn.c-chalk", { onclick: () => yazdir(r, true) }, T.icon("plan"), "Boş yazdır"),
       h("button.btn.c-chalk", { onclick: () => yazdir(r, false) }, T.icon("plan"), "Yazılarla yazdır"),
@@ -15582,9 +15587,13 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       if (sub && sub.startsWith("r-")) { const r = rutin(sub.slice(2)); if (r) return rutinSayfasi(view, r); }
       if (sub && sub.startsWith("a-") && T.olcmeAracSayfa && T.olcmeAracSayfa(view, sub.slice(2)) !== false) return;
       const wrap = h("div.view-inner"); view.append(wrap);
-      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama ve düşünmeyi görünür kılan rutinler.")),
-        h("div.seg.ders-sekme", { role: "tablist" }, [["araclar", "Değerlendirme araçları"], ["rutin", "Düşünme rutinleri"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(olcmeSekme() === k), onclick: () => { try { localStorage.setItem("ta-olcme-sek", k); } catch (e) {} T.route(); } }, l))));
-      if (olcmeSekme() === "araclar" && T.olcmeAraclari) { T.olcmeAraclari(wrap); return; }
+      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama.")));
+      if (T.olcmeAraclari) T.olcmeAraclari(wrap);
+    },
+  };
+  /* Düşünme rutinleri listesi: Düşünme sayfasında gösterilir */
+  T.rutinListesi = function (wrap) {
+    {
       const aramaKutu = h("input.in", { placeholder: "Rutin ara, örneğin gör, bakış açısı, köprü", value: ara, "aria-label": "Rutin ara", style: { maxWidth: "420px" } });
       const cipler = h("div.rt-cipler");
       const liste = h("div.rt-liste");
@@ -15602,13 +15611,13 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       wrap.append(h("div.row", { style: { gap: "10px", flexWrap: "wrap", margin: "6px 0 10px" } }, aramaKutu), cipler, liste,
         h("p.hint", { style: { marginTop: "14px" } }, "Rutinler Harvard Project Zero'nun düşünme rutinlerinden, öğretmenin Türkçe kaynaklarına dayanarak uyarlanmıştır."));
       ciz();
-    },
+    }
   };
   T.rutinYazdir = (id, bos) => yazdir(rutin(id), bos);
   /* Başka bölümler (ör. kitap raporları) aynı şablon motorunu kullanır */
   Object.assign(T, { rutinSablon: sablon, rutinCocukYonerge: cocukYonerge, rutinYazdirR: yazdir, rutinYansitR: yansit, rutinTemizle: (rid) => yaz(rid, (x) => (x.v = {})) });
   T.YARDIM = T.YARDIM || {};
-  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları ve düşünme rutinleri.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
+  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları. Düşünme rutinleri Düşünme sayfasında.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
 })();
 
 /* ---- kitap-rapor.js ---- */
@@ -16231,15 +16240,21 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
   ];
 
   T.sections.zeka = {
-    title: "Düşünme soruları", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
+    title: "Düşünme", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
     render(view) {
       const g = T.store.grade();
       const wrap = h("div.view-inner"); view.append(wrap);
+      const sek = (() => { try { return localStorage.getItem("ta-dusunme-sek") || "rutin"; } catch (e) { return "rutin"; } })();
+      const sekme = h("div.seg.ders-sekme", { role: "tablist" }, [["rutin", "Düşünme rutinleri"], ["soru", "Düşünme soruları"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(sek === k), onclick: () => { try { localStorage.setItem("ta-dusunme-sek", k); } catch (e) {} T.route(); } }, l)));
+      if (sek === "rutin" && T.rutinListesi) {
+        wrap.append(h("div.page-head", h("h1", "Düşünme"), h("div.sub", "Düşünmeyi görünür kılan rutinler ve gerçek hayata bağlı akıl yürütme soruları.")), sekme);
+        T.rutinListesi(wrap); return;
+      }
       const list = BANK.filter((b) => g >= b.g[0] && g <= b.g[1]);
       const rest = BANK.filter((b) => !list.includes(b));
       let cur = (list[0] || BANK[0]);
       const holder = h("div");
-      wrap.append(h("div.page-head", h("h1", "Düşünme soruları"), h("div.sub", "Her kart bir gerçek hayat durumu anlatır. Sorular o duruma bağlıdır; ezber değil, akıl yürütme ister.")));
+      wrap.append(h("div.page-head", h("h1", "Düşünme"), h("div.sub", "Her kart bir gerçek hayat durumu anlatır. Sorular o duruma bağlıdır; ezber değil, akıl yürütme ister.")), sekme);
       const pickRow = h("div.row", { style: { marginBottom: "16px" } });
       wrap.append(pickRow, holder);
       function picks() {
@@ -17221,7 +17236,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     return ids.concat("kitaplar", "olcme", "duygu", "kultur", "zeka").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
-  const ARACLAR = [["bg", "Arka plan", "bg"], ["yazitahtasi", "Yazı tahtası", "pen"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["hepsi", "Tüm araçlar", "plus"]];
+  const ARACLAR = [["bg", "Arka plan", "bg"], ["yazitahtasi", "Yazı tahtası", "pen"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim", "palet"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["hepsi", "Tüm araçlar", "plus"]];
   function dockMod() { try { return localStorage.getItem("ta-dock") || "atolye"; } catch (e) { return "atolye"; } }
   function dockYaz(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function aracAc(k) {
@@ -17248,7 +17263,17 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     return { k, l: sabit ? sabit[1] : T.widgets[k].title, ic: (sabit && sabit[2]) || (T.widgets[k] && T.widgets[k].icon), ac: () => aracAc(k) };
   };
   const dersAd = { kitaplar: "Kitaplar", zeka: "Düşünme", duygu: "SDÖ", kultur: "Sınıf düzenimiz", olcme: "Ölçme" };
-  const dersler = () => T.menu().map((m) => ({ k: m[0], l: dersAd[m[0]] || m[1], ic: m[3], gizli: !T.bolumGorunur(m[0]), ac: () => T.go(m[0]) }));
+  const dersIk = { olcme: "chart" };
+  const dersler = () => T.menu().map((m) => ({ k: m[0], l: dersAd[m[0]] || m[1], ic: dersIk[m[0]] || m[3], gizli: !T.bolumGorunur(m[0]), ac: () => T.go(m[0]) }))
+    .concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") }, { k: "plan", l: "Plan", ic: "plan", ac: () => T.go("plan") });
+  /* Alttaki menünün panelleri: her bölüm tek bir yerde durur */
+  const PANEL = { ders: ["turkce", "matematik", "kesif", "ingilizce"], yasam: ["duygu", "kultur", "sabah", "zeka"], ogretmen: ["olcme", "sinif", "plan", "kitaplar"] };
+  let dockOrtam = null;
+  const ortamOgeler = () => [
+    { k: "bg", l: "Arka plan", ic: "bg", ac: () => aracAc("bg") },
+    { k: "odak", l: "Odaklanarak çalışma", ic: "lotus", ac: () => T.ambiyans.sec() },
+    { k: "muzik", l: "Müzik", ic: "music", ac: () => T.muzikListe(dockOrtam || document.body) },
+  ];
   let acikPanel = null;
   function panelKapat() { T.$$(".altp-perde").forEach((x) => { x.classList.add("kapan"); setTimeout(() => x.remove(), 220); }); const p = T.$(".altp"); if (p) { p.classList.add("kapan"); setTimeout(() => p.remove(), 220); } acikPanel = null; T.$$(".dock-ana[aria-expanded]").forEach((b) => b.setAttribute("aria-expanded", "false")); }
   function panelAc(tur, cur) {
@@ -17258,16 +17283,13 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     const dugme = (x, i, tip) => h("button.altp-oge", { style: { "--i": i }, "aria-current": cur === x.k ? "page" : null, onclick: () => { panelKapat(); sonEkle({ t: tip, k: x.k }); x.ac(); } }, T.icon3d(x.ic), h("span", x.l));
     let i = 0, gruplar;
     if (tur === "arac") gruplar = ARAC_GRUP.map(([ad, l]) => [ad, l.map(aracBilgi).filter(Boolean)]);
-    else {
-      const D = dersler(), dersK = ["turkce", "matematik", "kesif", "ingilizce", "kitaplar"];
-      gruplar = tur === "ders" ? [["", D.filter((x) => dersK.includes(x.k))]]
-        : [["", D.filter((x) => !dersK.includes(x.k)).concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") })]];
-    }
-    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, ölçme, sınıf düzeni ve günlük rutinler"] }[tur];
+    else if (tur === "ortam") gruplar = [["", ortamOgeler()]];
+    else { const D = dersler(); gruplar = [["", PANEL[tur].map((k) => D.find((x) => x.k === k)).filter(Boolean)]]; }
+    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, sınıf düzeni, sabah rutini ve düşünme"], ogretmen: ["Öğretmen", "Ölçme, sınıfım, plan ve kitaplar"], ortam: ["Ortam", "Arka plan, odaklanarak çalışma ve müzik"] }[tur];
     const az = gruplar.reduce((t, [, l]) => t + l.length, 0) <= 8;
     const p = h("div.altp" + (az ? ".az" : ""), { role: "dialog", "aria-label": BAS[0] },
       h("div.altp-bas", h("b", BAS[0]), h("span.hint", BAS[1]), tur === "arac" ? h("button.btn.sm.c-chalk.altp-hepsi", { onclick: () => { panelKapat(); aracAc("hepsi"); } }, T.icon("plus"), "Tüm araçlar") : null, h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
-      h("div.altp-gruplar", gruplar.filter(([, l]) => l.length).map(([ad, l]) => h("section.altp-grup", ad ? h("h3", ad) : null, h("div.altp-izgara", l.map((x) => { const b = dugme(x, i++, tur === "arac" ? "a" : "d"); if (x.gizli) b.classList.add("gizli"); return b; }))))));
+      h("div.altp-gruplar", gruplar.filter(([, l]) => l.length).map(([ad, l]) => h("section.altp-grup", ad ? h("h3", ad) : null, h("div.altp-izgara", l.map((x) => { const b = dugme(x, i++, tur === "arac" ? "a" : tur === "ortam" ? "o" : "d"); if (x.gizli) b.classList.add("gizli"); return b; }))))));
     /* arka plan karartması ve imlece yaklaşınca büyüyen kareler */
     const perde = h("div.altp-perde", { onclick: panelKapat }); document.body.append(perde);
     document.body.append(p);
@@ -17298,12 +17320,10 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     const git = (k, l, ic) => h("button.dock-item", { "aria-current": cur === k ? "page" : null, onclick: () => T.go(k) }, T.icon3d(ic), h("span", l));
     el.replaceChildren(
       git("ana", "Ana sayfa", "home"),
-      ana("arac", "Araçlar", "timer"), ana("ders", "Dersler", "book"), ana("yasam", "Sınıf yaşamı", "heart"),
+      ana("arac", "Araçlar", "aletkutusu"), ana("ders", "Dersler", "canta"), ana("yasam", "Sınıf yaşamı", "tokalasma"), ana("ogretmen", "Öğretmen", "teacher"),
       h("span.dock-sep", { "aria-hidden": "true" }),
-      h("button.dock-item", { onclick: () => aracAc("bg") }, T.icon3d("bg"), h("span", "Arka plan")),
-      h("button.dock-item", { onclick: () => T.ambiyans.sec() }, T.icon3d("lotus"), h("span", "Odaklanarak çalışma")),
-      (() => { const cal = T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())); const b = h("button.dock-item.dock-muzik" + (cal ? ".caliyor" : ""), { onclick: () => T.muzikListe(b) }, cal ? h("i.mc-dalga.buyuk", h("i"), h("i"), h("i")) : T.icon3d("music"), h("span", cal ? "Çalıyor" : "Müzik")); return b; })(),
-      git("plan", "Plan", "plan"), git("ayarlar", "Ayarlar", "settings"),
+      (() => { const cal = T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())); const b = ana("ortam", "Ortam", "gundogumu"); b.classList.add("dock-muzik"); if (cal) { b.classList.add("caliyor"); b.prepend(h("i.mc-dalga.dock-dalga", h("i"), h("i"), h("i"))); } dockOrtam = b; return b; })(),
+      git("ayarlar", "Ayarlar", "settings"),
       h("button.dock-kucult", { "aria-label": "Menüyü küçült", title: "Menüyü küçült", onclick: () => { dockYaz("ta-dock-kucuk", "1"); dock(cur); } }, T.icon("down")));
   }
 
@@ -17336,7 +17356,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     if (!anaMi) view.append(h("div.pencere-ust", T.YARDIM[id] ? h("button.pencere-yardim", { onclick: () => T.yardimAc(id), "aria-label": "Bu sayfa ne işe yarar?", title: "Bu sayfa ne işe yarar?" }, "?") : null, h("button.pencere-kapat", { onclick: () => T.go("ana"), "aria-label": "Ana sayfaya dön", title: "Ana sayfaya dön" }, T.icon("close"), h("span", "Ana sayfaya dön"))));
     const cidNow = T.store.get().activeClassId;
     if (T._yuzenCid !== cidNow) { T._yuzenCid = cidNow; const y = T.$("#yuzen"); y.replaceChildren(); T.yuzen.render(y); }
-    T.muzikDurum = () => { topbar(); T.calarCiz && T.calarCiz(); const d = T.$(".dock-muzik"); if (d) dock((location.hash.slice(1).split("-")[0]) || "ana"); };
+    T.muzikDurum = () => { topbar(); T.calarCiz && T.calarCiz(); const d = T.$(".dock-ana[data-tur=ortam]"); if (d) dock((location.hash.slice(1).split("-")[0]) || "ana"); };
     view.scrollTop = 0;
     view.style.overflow = sec.full ? "hidden" : "auto";
     try { sec.render(view, sub); }
@@ -17375,6 +17395,24 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   const tara = () => { bekliyor = false; const v = document.getElementById("view"); if (!v) return; const kaplar = new Set([...v.querySelectorAll(".section-title + .tool-grid")].map((g) => g.parentElement)); kaplar.forEach(uygula); };
   const izle = () => { const v = document.getElementById("view"); if (!v) return setTimeout(izle, 300); new MutationObserver(() => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(tara); } }).observe(v, { childList: true, subtree: true }); tara(); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", izle); else izle();
+})();
+
+/* ---- ikon-duzen.js ---- */
+/* Aynı görünen ikonları ayırır: bir menüde ya da sekmede iki kart aynı resmi taşımasın */
+(function () {
+  ["aletkutusu", "canta", "gundogumu", "palet", "donme", "not", "yapboz", "dusunce", "abakus", "tirtil", "okyay", "dag", "gonye", "timsah", "kutupayisi", "zincir", "carpi", "ari", "ahtapot", "ayi", "insaat", "dedektif", "turta", "atac", "esittir", "yaris", "yumurta", "cikolata", "tavsan", "elmas", "ucgen", "civciv", "damla"].forEach((k) => T.IKON3D.add(k));
+  const YENI = {
+    "5N1K çarkı": "donme", "Noktalama ve büyük harf": "not",
+    "Hangisi farklı?": "yapboz", "Matematik konuşması": "dusunce", "Sayı dizileri": "abakus",
+    "Tırtıl sayıyor": "tirtil", "Sayı doğrusu atışı": "okyay", "Yuvarlama tepesi": "dag", "Alan ve çevre avı": "gonye",
+    "Timsahın ağzı": "timsah", "Kutup yolu": "kutupayisi", "Eşini bul": "zincir", "Çarpma ve bölme": "carpi",
+    "Bilgi arısı": "ari", "Deniz canavarı": "ahtapot", "Ayıyı besle": "ayi", "Örüntü treni": "train", "Küp kulesi": "insaat",
+    "Grafik dedektifi": "dedektif", "Kalanlı paylaşım": "turta", "Sayı bağı": "atac", "İşlem sırası": "esittir",
+    "Asal yarışı": "yaris", "Yumurta kolisi": "yumurta", "Kesir şeritleri": "cikolata", "Tavşanla sayı doğrusu": "tavsan",
+    "Şekil tuvali": "elmas", "Tangram": "ucgen", "Hava takvimi": "gunesbulut", "Yaşam döngüleri": "civciv", "Maddenin hâlleri": "damla",
+  };
+  Object.values(T.tools).forEach((t) => { if (t && YENI[t.title]) t.icon = YENI[t.title]; });
+  if (T.widgets && T.widgets.draw) T.widgets.draw.icon = "palet";
 })();
 
 </script>

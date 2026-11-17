@@ -13,7 +13,7 @@
         wrap.append(h("div.page-head", h("h1", (T.dersAdi()[id]) || title), h("div.sub", intro)));
         const g = T.store.grade();
         const list = Object.entries(T.tools).filter(([, t]) => t.back === id).sort((a, b) => (fit(b[1], g) - fit(a[1], g)));
-        const gruplar = {}; list.filter(([, t]) => fit(t, g)).concat(list.filter(([, t]) => !fit(t, g))).forEach((x) => { const gr = fit(x[1], g) ? x[1].grup || "Diğer araçlar" : "Başka sınıflar için"; (gruplar[gr] = gruplar[gr] || []).push(x); });
+        const gruplar = {}; list.filter(([, t]) => fit(t, g)).forEach((x) => { const gr = fit(x[1], g) ? x[1].grup || "Diğer araçlar" : "Başka sınıflar için"; (gruplar[gr] = gruplar[gr] || []).push(x); });
         const tek = Object.keys(gruplar).length === 1;
         const sira = (T.grupSira || {})[id] || [];
         Object.entries(gruplar).sort((a, b) => { const ia = sira.indexOf(a[0]), ib = sira.indexOf(b[0]); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); }).forEach(([gr, l]) => wrap.append(tek ? null : h("div.section-title", h("h2", gr)), h("div.tool-grid", { style: { marginBottom: "18px" } }, l.map(([k, t]) => T.aracKart(id + "-" + k, t, tone)))));

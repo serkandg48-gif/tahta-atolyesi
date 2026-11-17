@@ -13,11 +13,10 @@
   const turkceSekme = () => yerel("ta-turkce-sek:" + cid()) || (T.store.grade() <= 1 ? "ilk" : "turkce");
   T.sections.turkce.render = function (view, sub) {
     if (sub && T.tools[sub]) return T.toolPage(view, sub);
-    const sek = turkceSekme();
-    (sek === "ilk" ? T.sections.birinci.render : turkceAsil).call(this, view, sub);
+    /* Tek sekme sırası: 1. sınıfta İlk okuma yazma bölümleri (okuma ve anlama araçları dahil), 2. sınıftan sonra Türkçe bölümleri */
+    if (T.store.grade() > 1) return turkceAsil.call(this, view, sub);
+    T.sections.birinci.render.call(this, view, sub);
     const inner = view.querySelector(".view-inner"); if (!inner) return;
-    inner.prepend(h("div.seg.ders-sekme", { role: "tablist", "aria-label": "Türkçe bölümleri" },
-      [["ilk", "İlk okuma yazma"], ["turkce", "Okuma, anlama, yazma"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(k === sek), onclick: () => { yerel("ta-turkce-sek:" + cid(), k); T.route(); } }, l))));
     const bas = inner.querySelector(".page-head h1"); if (bas) bas.textContent = "Türkçe";
   };
   T.sections.birinci.title = "Türkçe";
@@ -117,7 +116,7 @@
       if (hb.length) wrap.append(grupBas(g <= 3 ? "Hayat Bilgisi" : "Sosyal Bilgiler"), kartlar(hb, "sky"));
       if (fen.length) wrap.append(grupBas("Fen Bilimleri"), kartlar(fen, "leaf"));
       const diger = al("sosyal").concat(al("fen")).filter(([, t]) => !fit(t, g));
-      if (diger.length) wrap.append(h("details.ks-diger", h("summary", "Başka sınıflar için " + diger.length + " etkinlik"), kartlar(diger, "chalk")));
+      if (false && diger.length) wrap.append(h("details.ks-diger", h("summary", "Başka sınıflar için " + diger.length + " etkinlik"), kartlar(diger, "chalk")));
       wrap.append(h("p.hint", { style: { marginTop: "8px" } }, "MEB'in ders kitapları ve farklılaştırma etkinlikleri için: ", h("a", { href: "https://tymm.meb.gov.tr/ders-kitaplari", target: "_blank", rel: "noopener" }, "tymm.meb.gov.tr")));
     },
   };

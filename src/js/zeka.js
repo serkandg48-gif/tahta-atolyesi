@@ -44,15 +44,21 @@
   ];
 
   T.sections.zeka = {
-    title: "Düşünme soruları", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
+    title: "Düşünme", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
     render(view) {
       const g = T.store.grade();
       const wrap = h("div.view-inner"); view.append(wrap);
+      const sek = (() => { try { return localStorage.getItem("ta-dusunme-sek") || "rutin"; } catch (e) { return "rutin"; } })();
+      const sekme = h("div.seg.ders-sekme", { role: "tablist" }, [["rutin", "Düşünme rutinleri"], ["soru", "Düşünme soruları"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(sek === k), onclick: () => { try { localStorage.setItem("ta-dusunme-sek", k); } catch (e) {} T.route(); } }, l)));
+      if (sek === "rutin" && T.rutinListesi) {
+        wrap.append(h("div.page-head", h("h1", "Düşünme"), h("div.sub", "Düşünmeyi görünür kılan rutinler ve gerçek hayata bağlı akıl yürütme soruları.")), sekme);
+        T.rutinListesi(wrap); return;
+      }
       const list = BANK.filter((b) => g >= b.g[0] && g <= b.g[1]);
       const rest = BANK.filter((b) => !list.includes(b));
       let cur = (list[0] || BANK[0]);
       const holder = h("div");
-      wrap.append(h("div.page-head", h("h1", "Düşünme soruları"), h("div.sub", "Her kart bir gerçek hayat durumu anlatır. Sorular o duruma bağlıdır; ezber değil, akıl yürütme ister.")));
+      wrap.append(h("div.page-head", h("h1", "Düşünme"), h("div.sub", "Her kart bir gerçek hayat durumu anlatır. Sorular o duruma bağlıdır; ezber değil, akıl yürütme ister.")), sekme);
       const pickRow = h("div.row", { style: { marginBottom: "16px" } });
       wrap.append(pickRow, holder);
       function picks() {

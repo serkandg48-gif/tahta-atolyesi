@@ -185,7 +185,7 @@ T.bugununSayisi = function (c = T.store.activeClass()) {
 /* Görünüm: sade (her gün kullanılanlar) ya da tam; gizlenen bölümler ve kartlar. Öğretmene göre, sınıftan bağımsız. */
 T.gorunum = () => { const g = T.store.get().gorunum || {}; return { mod: g.mod || "sade", bolum: g.bolum || [], kart: g.kart || [] }; };
 T.gorunumYaz = (fn) => T.store.update((s) => { s.gorunum = Object.assign({ mod: "sade", bolum: [], kart: [] }, s.gorunum || {}); fn(s.gorunum); });
-T.SADE_GIZLI = ["kultur", "zeka"];
+T.SADE_GIZLI = [];
 T.bolumGorunur = (id) => { const g = T.gorunum(); if (g.bolum.includes(id)) return false; if (g.mod === "sade" && T.SADE_GIZLI.includes(id)) return false; return true; };
 T.kartGizli = (route) => T.gorunum().kart.includes(route);
 /* Konfeti: 2,5 saniyelik kutlama */

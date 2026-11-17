@@ -2181,3 +2181,8 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .altp-hepsi svg { width: 22px; height: 22px; padding: 3px; border-radius: 50%; background: #FFD23F; color: var(--navy, #1B2A4A); stroke-width: 3; }
 .altp-hepsi:hover { transform: translateY(-2px); }
 .altp .altp-grup h3 { font-size: 19px; }
+.dock-ana.dock-muzik { position: relative; }
+.dock-ana.dock-muzik .dock-dalga { position: absolute; top: 4px; right: 8px; display: inline-flex; gap: 2px; align-items: end; height: 12px; }
+.dock-ana.dock-muzik .dock-dalga i { width: 3px; background: #2E8B57; border-radius: 2px; height: 6px; animation: mc-dal2 1s ease-in-out infinite; }
+.dock-ana.dock-muzik .dock-dalga i:nth-child(2) { animation-delay: .2s; } .dock-ana.dock-muzik .dock-dalga i:nth-child(3) { animation-delay: .4s; }
+.dock-ana.dock-muzik.caliyor { background: transparent !important; color: inherit !important; }

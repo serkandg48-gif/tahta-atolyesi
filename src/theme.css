@@ -2162,3 +2162,18 @@ body:has(> .altp:not(.kapan)) #app > :not(.dock), body:has(> .altp:not(.kapan)) 
 .view.pencere .section-title h2, .altp-grup h3 { text-shadow: 0 0 2px #fff, 0 0 12px #fff, 0 0 22px rgba(255,255,255,.85); }
 html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgba(255,255,255,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .altp .altp-izgara { flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 48px); }
+/* Grup adları: beyaz etiket ve satıra bakan ok */
+.altp-grup { grid-template-columns: auto 1fr; }
+.altp-grup h3 { justify-self: end; display: inline-flex; align-items: center; gap: 8px; text-align: left; white-space: nowrap; background: #fff; color: var(--navy, #1B2A4A); font: 800 17px/1.1 var(--display); padding: 10px 12px 10px 16px; border-radius: 14px; text-shadow: none; box-shadow: 0 6px 18px rgba(10,20,40,.28); }
+.altp-grup h3::after { content: ""; width: 22px; height: 22px; flex: none; border-radius: 50%; background: #FFD23F url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231B2A4A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M13 6l6 6-6 6'/%3E%3C/svg%3E") center/14px no-repeat; }
+@media (max-width: 760px) { .altp-grup { grid-template-columns: 1fr; } .altp-grup h3 { justify-self: center; } .altp-grup h3::after { transform: rotate(90deg); } }
+/* Bütün sitede başlıklar okunur: beyaz etiket, gerekirse ok */
+.view.pencere .page-head { width: fit-content; max-width: 100%; background: rgba(255,255,255,.92); border-radius: 18px; padding: 12px 20px; box-shadow: 0 6px 18px rgba(10,20,40,.22); }
+.view.pencere .page-head :is(h1, .sub, p) { text-shadow: none; }
+.view.pencere .page-head :is(.sub, p) { color: var(--ink-soft, #44506A); }
+.view.pencere .section-title:not([hidden]) { display: flex; }
+.view.pencere .section-title h2, .view.pencere :is(h2, h3):has(+ .tool-grid) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; background: #fff; color: var(--navy, #1B2A4A); padding: 8px 12px 8px 16px; border-radius: 14px; text-shadow: none; box-shadow: 0 6px 18px rgba(10,20,40,.22); }
+.view.pencere .section-title h2::after, .view.pencere :is(h2, h3):has(+ .tool-grid)::after { content: ""; width: 22px; height: 22px; flex: none; border-radius: 50%; transform: rotate(90deg); background: #FFD23F url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231B2A4A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M13 6l6 6-6 6'/%3E%3C/svg%3E") center/14px no-repeat; }
+.view.pencere .section-title p { background: rgba(255,255,255,.9); color: var(--ink-soft, #44506A); padding: 4px 10px; border-radius: 10px; text-shadow: none; }
+.view.pencere .hint { background: rgba(255,255,255,.9); border-radius: 10px; padding: 6px 12px; width: fit-content; text-shadow: none; }
+.altp-bas b { background: rgba(255,255,255,.92); padding: 6px 22px; border-radius: 18px; text-shadow: none; box-shadow: 0 6px 18px rgba(10,20,40,.22); }

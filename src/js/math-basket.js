@@ -238,7 +238,7 @@
   };
 
   T.tools["oyun-basamak-basket"] = {
-    cat: "oyun", ilk: 0, tone: "sun", title: "Basamak basketbolu", icon: "basket", grades: [1, 4],
+    cat: "oyun", ilk: 4, tone: "sun", title: "Basamak basketbolu", icon: "basket", grades: [1, 4],
     short: "Blokların gösterdiği sayıyı bul, doğru topu potaya at",
     render(host, api) {
       T.potaOyunu(host, api, { baslik: "Basamak basketbolu", seviyeler: SEVIYE, ipucu: "Blokları say, sonra at!",

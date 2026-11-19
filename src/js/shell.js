@@ -52,7 +52,7 @@
       kitaplar: ["kitaplar", "Ders kitapları", "MEB kitapları sınıfına göre, tahtada sayfa içinde açılır.", "book", "sky"],
       kultur: ["kultur", "Sınıf düzenimiz", "Basamak duvarı, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };
-    const ids = g <= 1 ? ["turkce", "matematik", "kesif"] : ["turkce", "matematik", "kesif", "ingilizce"];
+    const ids = ["turkce", "matematik"];
     return ids.concat("kitaplar", "olcme", "duygu", "kultur").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
@@ -87,7 +87,7 @@
   const dersler = () => T.menu().map((m) => ({ k: m[0], l: dersAd[m[0]] || m[1], ic: dersIk[m[0]] || m[3], gizli: !T.bolumGorunur(m[0]), ac: () => T.go(m[0]) }))
     .concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") }, { k: "plan", l: "Plan", ic: "plan", ac: () => T.go("plan") });
   /* Alttaki menünün panelleri: her bölüm tek bir yerde durur */
-  const PANEL = { ders: ["turkce", "matematik", "kesif", "ingilizce"], yasam: ["duygu", "kultur", "sabah"], ogretmen: ["olcme", "sinif", "plan", "kitaplar"] };
+  const PANEL = { ders: ["turkce", "matematik"], yasam: ["duygu", "kultur", "sabah"], ogretmen: ["olcme", "sinif", "plan", "kitaplar"] };
   let dockOrtam = null;
   const ortamOgeler = () => [
     { k: "bg", l: "Arka plan", ic: "bg", ac: () => aracAc("bg") },

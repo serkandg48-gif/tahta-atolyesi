@@ -2988,7 +2988,7 @@ body:has(.dn-kok) #muzik-calar { visibility: hidden; }
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="7ae267d4fe";
+window.SURUM="c8ba3a2638";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -6624,10 +6624,10 @@ T.yuzen = TahtaYap("ana");
   };
 
   const CATS = [
-    ["kazanim", "Kazanımlar", "check"], ["his", "Sayı hissi", "dots"], ["oyun", "Oyunlar", "star"], ["manip", "Manipülatifler", "blocks"], ["sim", "Simülasyonlar", "scale"],
+    ["oyun", "Oyunlar", "star"], ["his", "Sayı hissi", "dots"], ["manip", "Manipülatifler", "blocks"], ["sim", "Simülasyonlar", "scale"],
     ["orta", "Ortaokul", "algebra"], ["tuval", "Serbest tuval", "canvas"],
   ];
-  let cat = "kazanim";
+  let cat = "oyun";
   T.sections.matematik = {
     title: "Matematik", icon: "math", tone: "sun",
     desc: "Sayı hissi, manipülatifler, simülasyonlar",
@@ -6639,7 +6639,6 @@ T.yuzen = TahtaYap("ana");
       view.append(wrap);
       wrap.append(h("div.page-head", h("h1", "Matematik"), h("div.sub", "Sınıfın: " + g + ". sınıf. Araçlar sınıf seviyesine göre sıralanır; hepsi her sınıfta açılabilir.")),
         h("div.tabs", { role: "tablist" }, CATS.filter(([k]) => k !== "orta" || g >= 5).map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l))));
-      if (cat === "kazanim") { T.kazanimSekmesi && T.kazanimSekmesi(wrap, "Matematik", g); return; }
       const list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
         .sort((a, b) => (a[1].ilk || 99) - (b[1].ilk || 99) || fitScore(b[1], g) - fitScore(a[1], g));
       wrap.append(h("div.tool-grid", list.map(([k, t]) => T.aracKart("matematik-" + k, Object.assign({}, t, { short: t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "") }), "sun"))));
@@ -11382,7 +11381,7 @@ T.yuzen = TahtaYap("ana");
   };
 
   T.tools["oyun-basamak-basket"] = {
-    cat: "oyun", ilk: 0, tone: "sun", title: "Basamak basketbolu", icon: "basket", grades: [1, 4],
+    cat: "oyun", ilk: 4, tone: "sun", title: "Basamak basketbolu", icon: "basket", grades: [1, 4],
     short: "Blokların gösterdiği sayıyı bul, doğru topu potaya at",
     render(host, api) {
       T.potaOyunu(host, api, { baslik: "Basamak basketbolu", seviyeler: SEVIYE, ipucu: "Blokları say, sonra at!",
@@ -11730,7 +11729,7 @@ T.yuzen = TahtaYap("ana");
     () => { const a = rnd(15, 60), b = rnd(15, 60); return ["Sabah " + a + " litre, akşam " + b + " litre süt sağıldı. Toplam kaç litre süt sağıldı?", a + b, "🥛", 6]; },
     () => { const a = rnd(3, 8), f = rnd(4, 12); return ["Bir torba yem " + f + " lira. Çiftçi " + a + " torba aldı. Kaç lira ödedi?", a * f, "💰", a]; },
   ];
-  oyun("MAT.3.2.6.", { ad: "Problem çiftliği", ikon: "inek", renk: "#3B8E2E", renk2: "#E3F3D5", giris: "Önce problemi oku: ne verilmiş, ne isteniyor?",
+  oyun("MAT.3.2.6.", { ad: "Çiftlik problemleri", ikon: "inek", renk: "#3B8E2E", renk2: "#E3F3D5", giris: "Önce problemi oku: ne verilmiş, ne isteniyor?",
     yeni(a) { const [t, c, em, adet] = PROBLEM[rnd(0, PROBLEM.length - 1)](); a.soru(t); a.sahne.append(h("div.dn-ciftlik", h("div.dn-ahir"), h("div.dn-hayvanlar", Array.from({ length: Math.min(adet, 24) }, () => h("span", em))))); a.tuslar((x) => x === c, { ipucu: "Hangi işlem gerekiyor? Toplama mı, çıkarma mı, çarpma mı, bölme mi?" }); } });
   /* MAT.3.2.7: Problem kurucu */
   oyun("MAT.3.2.7.", { ad: "Problem kurucu", ikon: "kalem", renk: "#2F7FE0", renk2: "#DCEBFF", giris: "Hangi hikâye bu işleme uyar?",
@@ -11918,7 +11917,7 @@ T.yuzen = TahtaYap("ana");
   };
   Object.entries(OY).forEach(([kod, o]) => {
     const kisa = id(kod);
-    T.tools["kd-" + kisa] = { cat: "kazanim-gizli", title: o.ad, icon: o.ikon, tone: "sun", grades: [3, 3], short: kod, render(host) { oyunKabuk(host, Object.assign({ baslik: o.ad }, o)); } };
+    T.tools["kd-" + kisa] = { cat: "oyun", ilk: 10 + Object.keys(OY).indexOf(kod), title: o.ad, icon: o.ikon, tone: "sun", grades: [3, 4], short: o.giris, render(host) { oyunKabuk(host, Object.assign({ baslik: o.ad }, o)); } };
     const ad = (T.ciktilar.bul(kod) || {}).metin || o.ad;
     const k = { ad: o.ad.replace(/^[^:]*: /, "") === o.ad ? o.ad : o.ad, kesfet: KESFET[kod] || [], soru: KONTROL[kod], oyun: { id: "kd-" + kisa, ad: o.ad, ikon: o.ikon } };
     T.KAZANIM_KART[kod] = k;
@@ -18315,7 +18314,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       kitaplar: ["kitaplar", "Ders kitapları", "MEB kitapları sınıfına göre, tahtada sayfa içinde açılır.", "book", "sky"],
       kultur: ["kultur", "Sınıf düzenimiz", "Basamak duvarı, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };
-    const ids = g <= 1 ? ["turkce", "matematik", "kesif"] : ["turkce", "matematik", "kesif", "ingilizce"];
+    const ids = ["turkce", "matematik"];
     return ids.concat("kitaplar", "olcme", "duygu", "kultur").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
@@ -18350,7 +18349,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   const dersler = () => T.menu().map((m) => ({ k: m[0], l: dersAd[m[0]] || m[1], ic: dersIk[m[0]] || m[3], gizli: !T.bolumGorunur(m[0]), ac: () => T.go(m[0]) }))
     .concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") }, { k: "plan", l: "Plan", ic: "plan", ac: () => T.go("plan") });
   /* Alttaki menünün panelleri: her bölüm tek bir yerde durur */
-  const PANEL = { ders: ["turkce", "matematik", "kesif", "ingilizce"], yasam: ["duygu", "kultur", "sabah"], ogretmen: ["olcme", "sinif", "plan", "kitaplar"] };
+  const PANEL = { ders: ["turkce", "matematik"], yasam: ["duygu", "kultur", "sabah"], ogretmen: ["olcme", "sinif", "plan", "kitaplar"] };
   let dockOrtam = null;
   const ortamOgeler = () => [
     { k: "bg", l: "Arka plan", ic: "bg", ac: () => aracAc("bg") },

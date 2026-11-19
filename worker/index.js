@@ -115,7 +115,7 @@ function wav(pcm, rate = 24000) {
   const out = new Uint8Array(44 + n); out.set(new Uint8Array(h), 0); out.set(pcm, 44); return out;
 }
 async function ses(env, metin, istem, ses_) {
-  const modeller = (env.TTS_MODEL ? [env.TTS_MODEL] : []).concat(["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts"]);
+  const modeller = (env.TTS_MODEL ? [env.TTS_MODEL] : []).concat(["gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts", "gemini-3.1-flash-tts-preview"]);
   let son = { fail: "upstream" };
   for (const model of modeller) { const r = await sesModel(env, metin, model, istem, ses_); if (!r.fail) return r; son = r; if (r.fail === "busy") continue; }
   return son;
@@ -165,7 +165,7 @@ const globalOf = (env) => Math.max(1, parseInt(env.GLOBAL_LIMIT, 10) || 400);
 const MAX_IMG = 4, MAX_PROMPT = 24000;
 async function gemini(env, prompt, images) {
   /* Bir model hata verirse ya da yoğunsa sıradakini dener */
-  const modeller = [...new Set([env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.0-flash"].filter(Boolean))];
+  const modeller = [...new Set([env.GEMINI_MODEL, "gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-flash-latest"].filter(Boolean))];
   let son = { fail: "upstream" };
   for (const model of modeller) {
     for (let deneme = 0; deneme < 2; deneme++) {

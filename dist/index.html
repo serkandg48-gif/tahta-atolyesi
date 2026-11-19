@@ -2776,6 +2776,26 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .altp { align-content: safe center; overflow-y: auto; }
 .altp .altp-bas { align-items: center; justify-content: center; width: 100%; position: relative; }
 .altp { padding-bottom: 120px; }
+/* Araçlar menüsü: her grup kendi renkli kutusunda, kartlar düzgün ızgarada */
+.altp .altp-gruplar:has(.altp-grup h3) { width: min(100%, 1000px); display: grid; gap: 14px; justify-self: center; }
+.altp .altp-grup:has(h3) { --g: 60,125,216; display: block; background: rgba(var(--g), .22); border: 2px solid rgba(var(--g), .55); border-radius: 22px; padding: 12px 14px 14px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.altp .altp-grup:has(h3):nth-child(4n+2) { --g: 46,139,87; } .altp .altp-grup:has(h3):nth-child(4n+3) { --g: 222,122,30; } .altp .altp-grup:has(h3):nth-child(4n+4) { --g: 122,91,199; }
+.altp .altp-grup:has(h3) h3 { display: inline-block; margin: 0 0 10px; padding: 6px 14px; border-radius: 12px; background: rgb(var(--g)); color: #fff; font: 800 18px/1.1 var(--display); box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+.altp .altp-grup:has(h3) h3::after { display: none; }
+.altp .altp-grup:has(h3) .altp-izgara { width: 100% !important; justify-content: stretch !important; display: grid !important; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; max-width: none; margin: 0; padding: 0; overflow: visible; }
+.altp .altp-grup:has(h3) .altp-oge { width: auto !important; padding: 12px 6px 10px; font-size: 15px; background: #fff; box-shadow: 0 4px 12px rgba(10,20,40,.14); }
+.altp .altp-grup:has(h3) .altp-oge .ikon3d { width: 48px; height: 48px; }
+@media (max-width: 760px) { .altp .altp-grup:has(h3) .altp-izgara { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .altp .altp-grup:has(h3) .altp-oge { font-size: 13px; padding: 10px 4px 8px; } .altp .altp-grup:has(h3) .altp-oge .ikon3d { width: 42px; height: 42px; } .altp .altp-grup:has(h3) h3 { font-size: 16px; } }
+/* Araçlar menüsü tek ekrana sığsın */
+.altp:has(.altp-grup h3) { padding-top: 18px; }
+.altp:has(.altp-grup h3) .altp-bas { flex-direction: row; gap: 14px; margin-bottom: 4px; }
+.altp:has(.altp-grup h3) .altp-bas b { font-size: 36px; padding: 4px 18px; }
+.altp:has(.altp-grup h3) .altp-gruplar { gap: 10px; }
+.altp .altp-grup:has(h3) { padding: 8px 12px 10px; }
+.altp .altp-grup:has(h3) h3 { margin-bottom: 8px; font-size: 16px; padding: 5px 12px; }
+.altp .altp-grup:has(h3) .altp-oge { padding: 8px 6px 8px; gap: 4px; }
+.altp .altp-grup:has(h3) .altp-oge .ikon3d { width: 40px; height: 40px; }
+@media (max-width: 760px) { .altp:has(.altp-grup h3) .altp-bas { flex-direction: column; gap: 8px; } }
 
 </style>
 </head>
@@ -2790,7 +2810,7 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="8d92679e87";
+window.SURUM="7b9c405a5b";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";

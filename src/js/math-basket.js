@@ -93,11 +93,13 @@
         toplar = BASLA.map(([x, z], i) => topYap(x, z));
         const ray = new THREE.Raycaster(), nk = new THREE.Vector2();
         c.r.domElement.addEventListener("pointerdown", (e) => {
+          e.preventDefault(); try { window.getSelection().removeAllRanges(); } catch (x) {}
           if (kilit) return; const b = c.r.domElement.getBoundingClientRect(); nk.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); ray.setFromCamera(nk, c.kamera);
           const v = ray.intersectObjects(toplar.filter((t) => t.hazir).map((t) => t.m), true)[0]; if (!v) return;
           const t = toplar.find((t) => t.m === v.object || t.m === v.object.parent); if (t) at(t);
         });
         c.r.domElement.style.cursor = "pointer";
+        sahneEl.addEventListener("dblclick", (e) => e.preventDefault()); sahneEl.addEventListener("contextmenu", (e) => e.preventDefault());
         c.kare = kare;
       }
       function topYap(x, z) {

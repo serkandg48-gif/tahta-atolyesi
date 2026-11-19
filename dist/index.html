@@ -2764,6 +2764,9 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .mb-sev:hover { transform: translateY(-3px) scale(1.04); }
 .mb-sahne:fullscreen .mb-kap { max-height: 100vh; height: 100vh; aspect-ratio: auto; }
 @media (max-width: 600px) { .mb-dug span { display: none; } .mb-dug { padding: 10px 12px; } .mb-puan { font-size: 20px; padding: 6px 14px; white-space: nowrap; } .mb-menu-ic { padding: 20px 18px 22px; } .mb-sev { min-width: 200px; } }
+/* oyun sahnelerinde art arda dokununca yazı seçimi ve dokunma vurgusu ekranı soluklaştırmasın */
+.ks-sahne, .ks-sahne * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+.ks-sahne ::selection { background: transparent; }
 
 </style>
 </head>
@@ -2778,7 +2781,7 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="1106c1899c";
+window.SURUM="feeb91b660";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -10984,11 +10987,13 @@ T.yuzen = TahtaYap("ana");
         toplar = BASLA.map(([x, z], i) => topYap(x, z));
         const ray = new THREE.Raycaster(), nk = new THREE.Vector2();
         c.r.domElement.addEventListener("pointerdown", (e) => {
+          e.preventDefault(); try { window.getSelection().removeAllRanges(); } catch (x) {}
           if (kilit) return; const b = c.r.domElement.getBoundingClientRect(); nk.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); ray.setFromCamera(nk, c.kamera);
           const v = ray.intersectObjects(toplar.filter((t) => t.hazir).map((t) => t.m), true)[0]; if (!v) return;
           const t = toplar.find((t) => t.m === v.object || t.m === v.object.parent); if (t) at(t);
         });
         c.r.domElement.style.cursor = "pointer";
+        sahneEl.addEventListener("dblclick", (e) => e.preventDefault()); sahneEl.addEventListener("contextmenu", (e) => e.preventDefault());
         c.kare = kare;
       }
       function topYap(x, z) {

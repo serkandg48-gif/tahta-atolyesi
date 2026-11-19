@@ -122,7 +122,7 @@
       soru: () => { const kagit = karistir([500, 1000, 2000, 5000]).slice(0, rnd(0, 2)), madeni = Array.from({ length: rnd(1, 4) }, () => [100, 100, 50, 25, 10][rnd(0, 4)]), top = [...kagit, ...madeni].reduce((a, b) => a + b, 0);
         return { gorsel: CIZ.para([...kagit, ...madeni], "Toplam kaç lira?"), secenekler: farkli(TL(top), TL(top + 100), TL(top - 50 > 0 ? top - 50 : top + 50), TL(top + 1000)), dogru: TL(top) }; }, ipucu: "Önce kâğıt paraları, sonra madenîleri topla!" },
   };
-  T.KAZANIM_KART = Object.assign(T.KAZANIM_KART || {}, K);
+  T.KAZANIM_KART = Object.assign(T.KAZANIM_KART || {}, K); T.KZ_CIZ = CIZ; T.KZ_FARKLI = farkli; T.KZ_KONTROL = (host, kod, k) => kontrol(host, kod, k);
 
   const id = (kod) => kod.toLowerCase().replace(/\./g, "-").replace(/-$/, "");
   /* Her kazanım için iki gizli araç: oyun (pota) ve kontrol (mini yoklama) */
@@ -168,12 +168,12 @@
     wrap.append(h("div.kz-tema", temalar.map((t, i) => h("button" + (i === temaSec ? ".on" : ""), { onclick: () => { temaSec = i; T.route(); } }, h("small", (i + 1) + ". tema"), t.tema))));
     const tema = temalar[temaSec];
     wrap.append(h("div.kz-liste", tema.c.map((x) => {
-      const k = K[x.kod], kesfet = k ? k.kesfet.map((t) => { const w = T.widgets[t], a = T.tools[t]; if (!w && !a) return null; return h("button.kz-cip", { onclick: () => { T.donusAyarla && T.donusAyarla("matematik", "Kazanımlara dön"); w ? T.board.add(t) : T.go((a.back || "matematik") + "-" + t); } }, T.icon3d((w || a).icon), (w || a).title); }) : [];
+      const k = T.KAZANIM_KART[x.kod], kesfet = k ? k.kesfet.map((t) => { const w = T.widgets[t], a = T.tools[t]; if (!w && !a) return null; return h("button.kz-cip", { onclick: () => { T.donusAyarla && T.donusAyarla("matematik", "Kazanımlara dön"); w ? T.board.add(t) : T.go((a.back || "matematik") + "-" + t); } }, T.icon3d((w || a).icon), (w || a).title); }) : [];
       return h("article.kz-kart" + (k ? "" : ".bos"),
         h("div.kz-bas", h("span.kz-kod", x.kod.replace(/\.$/, "")), h("h3", k ? k.ad : x.metin)), k ? h("p.kz-metin", x.metin) : null,
         k ? h("div.kz-adim",
           h("div.kz-blok.kesfet", h("b", "1. Keşfet"), h("div.kz-cipler", kesfet)),
-          h("div.kz-blok.oyna", h("b", "2. Oyna"), h("button.kz-ana", { onclick: () => { T.donusAyarla && T.donusAyarla("matematik", "Kazanımlara dön"); T.go("matematik-kz-" + id(x.kod)); } }, T.icon3d("basket"), "Pota oyunu")),
+          h("div.kz-blok.oyna", h("b", "2. Oyna"), h("button.kz-ana", { onclick: () => { T.donusAyarla && T.donusAyarla("matematik", "Kazanımlara dön"); T.go("matematik-" + (k.oyun ? k.oyun.id : "kz-" + id(x.kod))); } }, T.icon3d(k.oyun ? k.oyun.ikon : "basket"), k.oyun ? k.oyun.ad : "Pota oyunu")),
           h("div.kz-blok.kontrol", h("b", "3. Kontrol et"), h("button.kz-ana", { onclick: () => { T.donusAyarla && T.donusAyarla("matematik", "Kazanımlara dön"); T.go("matematik-kk-" + id(x.kod)); } }, T.icon3d("tamam"), "5 soruluk yoklama")))
           : h("p.hint", "Bu kazanımın etkinlikleri hazırlanıyor. Şimdilik plan yazabilirsin."),
         h("button.kz-plan", { onclick: () => { T.planOnSecim = { ders, sinif: g, kod: x.kod }; T.go("plan"); } }, T.icon("plan"), "Bu kazanıma plan yaz"));

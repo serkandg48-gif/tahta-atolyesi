@@ -280,7 +280,7 @@
       const kok = h("div.kokpit" + (sade ? ".sade" : ""));
       view.append(kok);
       const kontroller = h("div.kp-kontrol",
-        h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Günümüz bilgilerini geri getir" : "Günümüz bilgilerini gizle, ekranı derse ayır" }, T.icon(sade ? "eyeoff" : "eye"), "Günümüz"),
+        h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Günümüz bilgilerini geri getir" : "Bilgileri gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Günümüz" : "Ders modu"),
         !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
         h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
         h("button.kp-dugme" + (T.ambiyans && T.ambiyans.aktif() ? ".on" : ""), { onclick: () => T.ambiyans.sec(), title: "Odaklanarak çalışma videoları" }, T.icon("film"), "Odaklanarak çalışma"),

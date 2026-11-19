@@ -172,7 +172,7 @@ ${(p.akis || []).map((s) => `<tr><td><b>${esc(s.baslik)}</b><br>${s.dk} dk</td><
     const toolChip = (id) => {
       const w = T.widgets[id], t = T.tools[id];
       if (!w && !t) return null;
-      return h("button.btn.sm.c-chalk", { onclick: () => (w ? T.board.add(id) : T.go((t.back || "matematik") + "-" + id)) }, T.icon((w || t).icon), (w || t).title);
+      return h("button.btn.sm.c-chalk", { onclick: () => { T.donusAyarla && T.donusAyarla("plan", "Plana dön"); w ? T.board.add(id) : T.go((t.back || "matematik") + "-" + id); } }, T.icon((w || t).icon), (w || t).title);
     };
     out.replaceChildren(
       h("div.row", { style: { marginBottom: "14px" } },

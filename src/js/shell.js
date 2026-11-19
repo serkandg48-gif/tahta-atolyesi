@@ -216,3 +216,25 @@
   const izle = () => { const v = document.getElementById("view"); if (!v) return setTimeout(izle, 300); new MutationObserver(() => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(tara); } }).observe(v, { childList: true, subtree: true }); tara(); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", izle); else izle();
 })();
+
+/* Plandan bir araca gidince "Plana dön" düğmesi çıkar; plana dönünce kaldığı yere kaydırır */
+(function () {
+  const h = T.h; let donus = null, dug = null;
+  const kaydirici = () => [document.scrollingElement, document.querySelector(".view"), document.querySelector(".view-inner")].filter(Boolean);
+  T.donusAyarla = (hash, etiket) => { donus = { hash, etiket, y: kaydirici().map((e) => e.scrollTop) }; };
+  const yenile = () => {
+    const burada = location.hash.replace(/^#/, "").split("/")[0];
+    if (!donus) { if (dug) dug.remove(); dug = null; return; }
+    if (burada === donus.hash) {
+      const y = donus.y; donus = null; if (dug) dug.remove(); dug = null;
+      setTimeout(() => kaydirici().forEach((e, i) => { if (y[i]) e.scrollTop = y[i]; }), 120);
+      return;
+    }
+    if (!dug) {
+      dug = h("div.donus-dug", h("button.donus-git", { onclick: () => T.go(donus.hash) }, T.icon("back"), donus.etiket),
+        h("button.donus-kapat", { "aria-label": "Kapat", onclick: () => { donus = null; yenile(); } }, T.icon("close")));
+      document.body.append(dug);
+    }
+  };
+  window.addEventListener("hashchange", () => setTimeout(yenile, 30));
+})();

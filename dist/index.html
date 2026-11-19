@@ -2796,6 +2796,13 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .altp .altp-grup:has(h3) .altp-oge { padding: 8px 6px 8px; gap: 4px; }
 .altp .altp-grup:has(h3) .altp-oge .ikon3d { width: 40px; height: 40px; }
 @media (max-width: 760px) { .altp:has(.altp-grup h3) .altp-bas { flex-direction: column; gap: 8px; } }
+.donus-dug { position: fixed; z-index: 90; top: 78px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 5px; border-radius: 18px; background: #7A3FD1; box-shadow: 0 10px 28px rgba(60,20,120,.35); animation: donus-gir .35s cubic-bezier(.3,1.5,.5,1); }
+.donus-git { display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; color: #fff; font: 800 18px var(--display); padding: 9px 14px; cursor: pointer; border-radius: 14px; }
+.donus-git:hover { background: rgba(255,255,255,.15); }
+.donus-git svg { width: 20px; height: 20px; }
+.donus-kapat { width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(255,255,255,.2); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.donus-kapat svg { width: 14px; height: 14px; }
+@keyframes donus-gir { from { transform: translate(-50%, -20px); opacity: 0; } }
 
 </style>
 </head>
@@ -2810,7 +2817,7 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="a6418cb841";
+window.SURUM="6374146a02";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -16779,7 +16786,7 @@ ${(p.akis || []).map((s) => `<tr><td><b>${esc(s.baslik)}</b><br>${s.dk} dk</td><
     const toolChip = (id) => {
       const w = T.widgets[id], t = T.tools[id];
       if (!w && !t) return null;
-      return h("button.btn.sm.c-chalk", { onclick: () => (w ? T.board.add(id) : T.go((t.back || "matematik") + "-" + id)) }, T.icon((w || t).icon), (w || t).title);
+      return h("button.btn.sm.c-chalk", { onclick: () => { T.donusAyarla && T.donusAyarla("plan", "Plana dön"); w ? T.board.add(id) : T.go((t.back || "matematik") + "-" + id); } }, T.icon((w || t).icon), (w || t).title);
     };
     out.replaceChildren(
       h("div.row", { style: { marginBottom: "14px" } },
@@ -17697,6 +17704,28 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   const tara = () => { bekliyor = false; const v = document.getElementById("view"); if (!v) return; const kaplar = new Set([...v.querySelectorAll(".section-title + .tool-grid")].map((g) => g.parentElement)); kaplar.forEach(uygula); };
   const izle = () => { const v = document.getElementById("view"); if (!v) return setTimeout(izle, 300); new MutationObserver(() => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(tara); } }).observe(v, { childList: true, subtree: true }); tara(); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", izle); else izle();
+})();
+
+/* Plandan bir araca gidince "Plana dön" düğmesi çıkar; plana dönünce kaldığı yere kaydırır */
+(function () {
+  const h = T.h; let donus = null, dug = null;
+  const kaydirici = () => [document.scrollingElement, document.querySelector(".view"), document.querySelector(".view-inner")].filter(Boolean);
+  T.donusAyarla = (hash, etiket) => { donus = { hash, etiket, y: kaydirici().map((e) => e.scrollTop) }; };
+  const yenile = () => {
+    const burada = location.hash.replace(/^#/, "").split("/")[0];
+    if (!donus) { if (dug) dug.remove(); dug = null; return; }
+    if (burada === donus.hash) {
+      const y = donus.y; donus = null; if (dug) dug.remove(); dug = null;
+      setTimeout(() => kaydirici().forEach((e, i) => { if (y[i]) e.scrollTop = y[i]; }), 120);
+      return;
+    }
+    if (!dug) {
+      dug = h("div.donus-dug", h("button.donus-git", { onclick: () => T.go(donus.hash) }, T.icon("back"), donus.etiket),
+        h("button.donus-kapat", { "aria-label": "Kapat", onclick: () => { donus = null; yenile(); } }, T.icon("close")));
+      document.body.append(dug);
+    }
+  };
+  window.addEventListener("hashchange", () => setTimeout(yenile, 30));
 })();
 
 /* ---- ikon-duzen.js ---- */

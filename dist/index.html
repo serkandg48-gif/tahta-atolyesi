@@ -2820,7 +2820,7 @@ body:has(.modal) #muzik-calar, body:has(.modal) .donus-dug { visibility: hidden;
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="67957ece77";
+window.SURUM="559648f9aa";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -17275,7 +17275,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       const kok = h("div.kokpit" + (sade ? ".sade" : ""));
       view.append(kok);
       const kontroller = h("div.kp-kontrol",
-        h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Kartları geri getir" : "Kartları gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Kartları aç" : "Ders modu"),
+        h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Günümüz bilgilerini geri getir" : "Günümüz bilgilerini gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Günümüzü göster" : "Günümüzü gizle"),
         !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
         h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
         h("button.kp-dugme" + (T.ambiyans && T.ambiyans.aktif() ? ".on" : ""), { onclick: () => T.ambiyans.sec(), title: "Odaklanarak çalışma videoları" }, T.icon("film"), "Odaklanarak çalışma"),

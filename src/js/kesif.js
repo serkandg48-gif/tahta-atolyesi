@@ -22,7 +22,7 @@
       const kartlar = [...gecici.querySelectorAll(".tool-grid > *")];
       const gorulen = new Set([...inner.querySelectorAll(".tool-card")].map((c) => c.textContent));
       const yeni = kartlar.filter((k) => !gorulen.has((k.querySelector(".tool-card") || k).textContent));
-      if (yeni.length) inner.append(h("div.section-title", h("h2", "İlk okuma yazma")), h("div.tool-grid", yeni));
+      if (yeni.length) inner.append(h("div.section-title", h("h2", "1. sınıf okuma yazma")), h("div.tool-grid", yeni));
       return;
     }
     T.sections.birinci.render.call(this, view, sub);

@@ -2820,7 +2820,7 @@ body:has(.modal) #muzik-calar, body:has(.modal) .donus-dug { visibility: hidden;
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="ca3fce50fb";
+window.SURUM="768069203d";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -15516,7 +15516,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
       const kartlar = [...gecici.querySelectorAll(".tool-grid > *")];
       const gorulen = new Set([...inner.querySelectorAll(".tool-card")].map((c) => c.textContent));
       const yeni = kartlar.filter((k) => !gorulen.has((k.querySelector(".tool-card") || k).textContent));
-      if (yeni.length) inner.append(h("div.section-title", h("h2", "İlk okuma yazma")), h("div.tool-grid", yeni));
+      if (yeni.length) inner.append(h("div.section-title", h("h2", "1. sınıf okuma yazma")), h("div.tool-grid", yeni));
       return;
     }
     T.sections.birinci.render.call(this, view, sub);

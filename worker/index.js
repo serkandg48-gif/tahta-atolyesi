@@ -164,20 +164,38 @@ const globalOf = (env) => Math.max(1, parseInt(env.GLOBAL_LIMIT, 10) || 400);
 /* ---------- Gemini ---------- */
 const MAX_IMG = 4, MAX_PROMPT = 24000;
 async function gemini(env, prompt, images) {
-  const model = env.GEMINI_MODEL || "gemini-flash-latest";
+  /* Bir model hata verirse ya da yoğunsa sıradakini dener */
+  const modeller = [...new Set([env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.0-flash"].filter(Boolean))];
+  let son = { fail: "upstream" };
+  for (const model of modeller) {
+    for (let deneme = 0; deneme < 2; deneme++) {
+      let r;
+      try { r = await geminiModel(env, model, prompt, images); } catch { r = { fail: "network" }; }
+      if (!r.fail) return r;
+      son = r;
+      if (r.fail === "model" || r.fail === "bad") break;
+      if (deneme === 0 && (r.fail === "busy" || r.fail === "upstream" || r.fail === "network")) { await new Promise((ok) => setTimeout(ok, 900)); continue; }
+      break;
+    }
+  }
+  return son;
+}
+async function geminiModel(env, model, prompt, images) {
   const parts = [{ text: prompt }];
   for (const im of images.slice(0, MAX_IMG)) parts.push({ inline_data: { mime_type: im.mime, data: im.data } });
   const r = await fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-    body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } }),
+    body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: { temperature: 0.7, maxOutputTokens: 20000 } }),
   });
-  if (r.status === 429) return { fail: "busy" };
+  if (r.status === 429 || r.status === 503) return { fail: "busy", status: r.status };
+  if (r.status === 404) return { fail: "model", status: 404 };
+  if (r.status === 400) return { fail: "bad", status: 400 };
   if (!r.ok) return { fail: "upstream", status: r.status };
   const j = await r.json();
   const c = (j.candidates || [])[0];
-  const text = ((c && c.content && c.content.parts) || []).map((p) => p.text || "").join("");
-  if (!text) return { fail: "empty" };
+  const text = ((c && c.content && c.content.parts) || []).filter((p) => !p.thought).map((p) => p.text || "").join("");
+  if (!text) return { fail: "empty", status: (c && c.finishReason) || "bos" };
   return { text };
 }
 
@@ -250,7 +268,7 @@ async function api(request, env, path) {
       await k.iade(gun); await gk.iade(gun);
       const back = { used: q.used - 1, limit: q.limit, left: q.left + 1 };
       if (g.fail === "busy") return json({ error: { code: "busy", message: "Yapay zekâ şu an çok yoğun. Birkaç dakika sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 503);
-      return json({ error: { code: "upstream", message: "Yapay zekâ yanıt vermedi. Biraz sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 502);
+      return json({ error: { code: "upstream", message: "Yapay zekâ yanıt vermedi (" + g.fail + " " + (g.status || "") + "). Biraz sonra tekrar dene, hakkından düşülmedi." }, quota: back }, 502);
     }
     return json({ text: g.text, quota: q });
   }

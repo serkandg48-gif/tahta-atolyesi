@@ -163,14 +163,14 @@ const globalOf = (env) => Math.max(1, parseInt(env.GLOBAL_LIMIT, 10) || 400);
 
 /* ---------- Gemini ---------- */
 const MAX_IMG = 4, MAX_PROMPT = 24000;
-async function gemini(env, prompt, images) {
+async function gemini(env, prompt, images, json) {
   /* Bir model hata verirse ya da yoğunsa sıradakini dener */
   const modeller = [...new Set([env.GEMINI_MODEL, "gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-flash-latest"].filter(Boolean))];
   let son = { fail: "upstream" };
   for (const model of modeller) {
     for (let deneme = 0; deneme < 2; deneme++) {
       let r;
-      try { r = await geminiModel(env, model, prompt, images); } catch { r = { fail: "network" }; }
+      try { r = await geminiModel(env, model, prompt, images, json); } catch { r = { fail: "network" }; }
       if (!r.fail) return r;
       son = r;
       if (r.fail === "model" || r.fail === "bad") break;
@@ -180,13 +180,13 @@ async function gemini(env, prompt, images) {
   }
   return son;
 }
-async function geminiModel(env, model, prompt, images) {
+async function geminiModel(env, model, prompt, images, json) {
   const parts = [{ text: prompt }];
   for (const im of images.slice(0, MAX_IMG)) parts.push({ inline_data: { mime_type: im.mime, data: im.data } });
   const r = await fetch(`${env.GEMINI_BASE || "https://generativelanguage.googleapis.com"}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-    body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: { temperature: 0.7, maxOutputTokens: 20000 } }),
+    body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: Object.assign({ temperature: 0.7, maxOutputTokens: 20000 }, json ? { responseMimeType: "application/json" } : {}) }),
   });
   if (r.status === 429 || r.status === 503) return { fail: "busy", status: r.status };
   if (r.status === 404) return { fail: "model", status: 404 };
@@ -263,7 +263,7 @@ async function api(request, env, path) {
       return json({ error: { code: "global_limit", message: "Sitenin bugünlük ortak yapay zekâ hakkı doldu. Yarın yeniden açılacak, senin hakkından düşülmedi." }, quota: { used: q.used - 1, limit: q.limit, left: q.left + 1 } }, 429);
     }
     let g;
-    try { g = await gemini(env, prompt, images); } catch { g = { fail: "network" }; }
+    try { g = await gemini(env, prompt, images, !!b.json); } catch { g = { fail: "network" }; }
     if (g.fail) {
       await k.iade(gun); await gk.iade(gun);
       const back = { used: q.used - 1, limit: q.limit, left: q.left + 1 };

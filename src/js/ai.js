@@ -85,7 +85,7 @@ T.ai = (function () {
     if (T.auth.user()) return "site";
     return null;
   }
-  async function ask(prompt, { onText, images } = {}) {
+  async function ask(prompt, { onText, images, json } = {}) {
     const m = mode();
     if (m === "claude") {
       const o = { modelTier: "default", onText: onText ? ({ text }) => onText(text) : undefined };
@@ -95,7 +95,7 @@ T.ai = (function () {
     }
     if (m === "site") {
       const imgs = await Promise.all((images || []).map(async (b) => ({ mime: b.type || "image/jpeg", data: await blobB64(await shrink(b)) })));
-      const j = await T.auth.call("/api/ai", { method: "POST", body: JSON.stringify({ prompt, images: imgs }) });
+      const j = await T.auth.call("/api/ai", { method: "POST", body: JSON.stringify({ prompt, images: imgs, json: !!json }) });
       onText && onText(j.text);
       return j.text;
     }
@@ -113,13 +113,39 @@ T.ai = (function () {
       return await new Promise((res) => c.toBlob((x) => res(x || b), "image/jpeg", 0.85));
     } catch (e) { return b; }
   }
+  /* Bozuk JSON'u onarır: dizgi içindeki satır sonları, kaçırılmamış tırnaklar, sondaki virgüller */
+  function onar(t) {
+    let o = "", ic = false;
+    for (let i = 0; i < t.length; i++) {
+      const c = t[i];
+      if (ic) {
+        if (c === "\\") { o += c + (t[i + 1] || ""); i++; continue; }
+        if (c === "\n") { o += "\\n"; continue; }
+        if (c === "\r") continue;
+        if (c === "\t") { o += "\\t"; continue; }
+        if (c === '"') {
+          let j = i + 1; while (j < t.length && /\s/.test(t[j])) j++;
+          if (j >= t.length || ",}]:".includes(t[j])) { ic = false; o += c; } else o += '\\"';
+          continue;
+        }
+        o += c;
+      } else { if (c === '"') ic = true; o += c; }
+    }
+    return o.replace(/,\s*([}\]])/g, "$1");
+  }
   function parseJSON(text) {
     const t = text.replace(/```json|```/g, "");
     const a = t.indexOf("{"), b = t.lastIndexOf("}");
     if (a < 0 || b < a) throw { code: "parse", message: "Yanıt okunamadı. Bir kez daha dene." };
-    return JSON.parse(t.slice(a, b + 1));
+    const govde = t.slice(a, b + 1);
+    try { return JSON.parse(govde); } catch (e) {}
+    try { return JSON.parse(onar(govde)); } catch (e) { throw { code: "parse", message: "Yapay zekânın yanıtı okunamadı. Bir kez daha dene." }; }
   }
-  async function askJSON(prompt, opts) { return parseJSON(await ask(prompt + "\n\nYalnızca geçerli JSON döndür. Açıklama ekleme.", opts)); }
+  async function askJSON(prompt, opts) {
+    const o = Object.assign({}, opts, { json: true });
+    try { return parseJSON(await ask(prompt + "\n\nYalnızca geçerli JSON döndür. Açıklama ekleme. Metinlerin içinde çift tırnak kullanma.", o)); }
+    catch (e) { if (e && e.code === "parse") return parseJSON(await ask(prompt + "\n\nYalnızca geçerli JSON döndür. Metinlerin içinde çift tırnak ve satır sonu kullanma.", o)); throw e; }
+  }
 
   /* Durum kutusu: oturum değişince kendini yeniler. */
   function statusEl() {

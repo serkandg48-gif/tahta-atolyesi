@@ -2820,7 +2820,7 @@ body:has(.modal) #muzik-calar, body:has(.modal) .donus-dug { visibility: hidden;
 <div id="layer"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.SURUM="747632cbc8";
+window.SURUM="67957ece77";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -15898,7 +15898,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
     const yon = h("div.rt-yon-kap");
     const yonCiz = () => yon.replaceChildren(h("div.seg", [["cocuk", "Çocuklar için"], ["ogretmen", "Öğretmene"]].map(([k, l]) => h("button", { "aria-pressed": String(sekme.v === k), onclick: () => { sekme.v = k; yonCiz(); } }, l))), sekme.v === "cocuk" ? cocukYonerge(r) : ogretmenYonerge(r));
     yonCiz();
-    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("zeka") }, T.icon("back")), h("h2", r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
+    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("olcme") }, T.icon("back")), h("h2", r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
       h("button.btn.c-sky", { onclick: () => yansit(r) }, T.icon("board"), "Yansıt"),
       h("button.btn.c-chalk", { onclick: () => yazdir(r, true) }, T.icon("plan"), "Boş yazdır"),
       h("button.btn.c-chalk", { onclick: () => yazdir(r, false) }, T.icon("plan"), "Yazılarla yazdır"),
@@ -15915,8 +15915,9 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       if (sub && sub.startsWith("r-")) { const r = rutin(sub.slice(2)); if (r) return rutinSayfasi(view, r); }
       if (sub && sub.startsWith("a-") && T.olcmeAracSayfa && T.olcmeAracSayfa(view, sub.slice(2)) !== false) return;
       const wrap = h("div.view-inner"); view.append(wrap);
-      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama.")));
-      if (T.olcmeAraclari) T.olcmeAraclari(wrap);
+      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama ve düşünmeyi görünür kılan rutinler.")),
+        h("div.seg.ders-sekme", { role: "tablist" }, [["araclar", "Değerlendirme araçları"], ["rutin", "Düşünme rutinleri"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(olcmeSekme() === k), onclick: () => { try { localStorage.setItem("ta-olcme-sek", k); } catch (e) {} T.route(); } }, l))));
+      if (olcmeSekme() === "rutin") T.rutinListesi(wrap); else if (T.olcmeAraclari) T.olcmeAraclari(wrap);
     },
   };
   /* Düşünme rutinleri listesi: Düşünme sayfasında gösterilir */
@@ -15945,7 +15946,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
   /* Başka bölümler (ör. kitap raporları) aynı şablon motorunu kullanır */
   Object.assign(T, { rutinSablon: sablon, rutinCocukYonerge: cocukYonerge, rutinYazdirR: yazdir, rutinYansitR: yansit, rutinTemizle: (rid) => yaz(rid, (x) => (x.v = {})) });
   T.YARDIM = T.YARDIM || {};
-  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları. Düşünme rutinleri Düşünme sayfasında.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
+  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları ve düşünme rutinleri.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
 })();
 
 /* ---- kitap-rapor.js ---- */
@@ -16570,6 +16571,9 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
   T.sections.zeka = {
     title: "Düşünme", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
     render(view) {
+      /* Düşünme soruları kaldırıldı: eski bağlantılar Ölçme'deki Düşünme rutinlerine gider */
+      try { localStorage.setItem("ta-olcme-sek", "rutin"); } catch (e) {}
+      setTimeout(() => T.go("olcme"), 0); return;
       const g = T.store.grade();
       const wrap = h("div.view-inner"); view.append(wrap);
       const sek = (() => { try { return localStorage.getItem("ta-dusunme-sek") || "rutin"; } catch (e) { return "rutin"; } })();
@@ -17561,7 +17565,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       kultur: ["kultur", "Sınıf düzenimiz", "Basamak duvarı, Etkinliğim bitti, YZ düzeyi, anlama düzeyi.", "trophy", "sun"],
     };
     const ids = g <= 1 ? ["turkce", "matematik", "kesif"] : ["turkce", "matematik", "kesif", "ingilizce"];
-    return ids.concat("kitaplar", "olcme", "duygu", "kultur", "zeka").map((k) => D[k]);
+    return ids.concat("kitaplar", "olcme", "duygu", "kultur").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
   const ARACLAR = [["bg", "Arka plan", "bg"], ["yazitahtasi", "Yazı tahtası", "pen"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim", "palet"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["hepsi", "Tüm araçlar", "plus"]];
@@ -17595,7 +17599,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   const dersler = () => T.menu().map((m) => ({ k: m[0], l: dersAd[m[0]] || m[1], ic: dersIk[m[0]] || m[3], gizli: !T.bolumGorunur(m[0]), ac: () => T.go(m[0]) }))
     .concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") }, { k: "plan", l: "Plan", ic: "plan", ac: () => T.go("plan") });
   /* Alttaki menünün panelleri: her bölüm tek bir yerde durur */
-  const PANEL = { ders: ["turkce", "matematik", "kesif", "ingilizce"], yasam: ["duygu", "kultur", "sabah", "zeka"], ogretmen: ["olcme", "sinif", "plan", "kitaplar"] };
+  const PANEL = { ders: ["turkce", "matematik", "kesif", "ingilizce"], yasam: ["duygu", "kultur", "sabah"], ogretmen: ["olcme", "sinif", "plan", "kitaplar"] };
   let dockOrtam = null;
   const ortamOgeler = () => [
     { k: "bg", l: "Arka plan", ic: "bg", ac: () => aracAc("bg") },
@@ -17613,7 +17617,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     if (tur === "arac") gruplar = ARAC_GRUP.map(([ad, l]) => [ad, l.map(aracBilgi).filter(Boolean)]);
     else if (tur === "ortam") gruplar = [["", ortamOgeler()]];
     else { const D = dersler(); gruplar = [["", PANEL[tur].map((k) => D.find((x) => x.k === k)).filter(Boolean)]]; }
-    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, sınıf düzeni, sabah rutini ve düşünme"], ogretmen: ["Öğretmen", "Ölçme, sınıfım, plan ve kitaplar"], ortam: ["Ortam", "Arka plan, odaklanarak çalışma ve müzik"] }[tur];
+    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, sınıf düzeni ve sabah rutini"], ogretmen: ["Öğretmen", "Ölçme ve düşünme rutinleri, sınıfım, plan, kitaplar"], ortam: ["Ortam", "Arka plan, odaklanarak çalışma ve müzik"] }[tur];
     const az = gruplar.reduce((t, [, l]) => t + l.length, 0) <= 8;
     const p = h("div.altp" + (az ? ".az" : ""), { role: "dialog", "aria-label": BAS[0] },
       h("div.altp-bas", h("b", BAS[0]), h("span.hint", BAS[1]), tur === "arac" ? h("button.btn.sm.c-chalk.altp-hepsi", { onclick: () => { panelKapat(); aracAc("hepsi"); } }, T.icon("plus"), "Tüm araçlar") : null, h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),

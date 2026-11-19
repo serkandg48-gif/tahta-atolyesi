@@ -46,6 +46,9 @@
   T.sections.zeka = {
     title: "Düşünme", icon: "zeka", tone: "pink", desc: "Gerçek hayat durumu, ona bağlı sorular",
     render(view) {
+      /* Düşünme soruları kaldırıldı: eski bağlantılar Ölçme'deki Düşünme rutinlerine gider */
+      try { localStorage.setItem("ta-olcme-sek", "rutin"); } catch (e) {}
+      setTimeout(() => T.go("olcme"), 0); return;
       const g = T.store.grade();
       const wrap = h("div.view-inner"); view.append(wrap);
       const sek = (() => { try { return localStorage.getItem("ta-dusunme-sek") || "rutin"; } catch (e) { return "rutin"; } })();

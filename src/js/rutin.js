@@ -181,7 +181,7 @@
     const yon = h("div.rt-yon-kap");
     const yonCiz = () => yon.replaceChildren(h("div.seg", [["cocuk", "Çocuklar için"], ["ogretmen", "Öğretmene"]].map(([k, l]) => h("button", { "aria-pressed": String(sekme.v === k), onclick: () => { sekme.v = k; yonCiz(); } }, l))), sekme.v === "cocuk" ? cocukYonerge(r) : ogretmenYonerge(r));
     yonCiz();
-    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("zeka") }, T.icon("back")), h("h2", r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
+    wrap.append(h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go("olcme") }, T.icon("back")), h("h2", r.ad), h("span.hint", r.yon === "dikey" ? "A4 dikey" : "A4 yatay"), h("div.grow"),
       h("button.btn.c-sky", { onclick: () => yansit(r) }, T.icon("board"), "Yansıt"),
       h("button.btn.c-chalk", { onclick: () => yazdir(r, true) }, T.icon("plan"), "Boş yazdır"),
       h("button.btn.c-chalk", { onclick: () => yazdir(r, false) }, T.icon("plan"), "Yazılarla yazdır"),
@@ -198,8 +198,9 @@
       if (sub && sub.startsWith("r-")) { const r = rutin(sub.slice(2)); if (r) return rutinSayfasi(view, r); }
       if (sub && sub.startsWith("a-") && T.olcmeAracSayfa && T.olcmeAracSayfa(view, sub.slice(2)) !== false) return;
       const wrap = h("div.view-inner"); view.append(wrap);
-      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama.")));
-      if (T.olcmeAraclari) T.olcmeAraclari(wrap);
+      wrap.append(h("div.page-head", h("h1", "Ölçme ve değerlendirme"), h("div.sub", "Dereceleme ölçeği, kontrol listesi, öz ve akran değerlendirme, hızlı yoklama ve düşünmeyi görünür kılan rutinler.")),
+        h("div.seg.ders-sekme", { role: "tablist" }, [["araclar", "Değerlendirme araçları"], ["rutin", "Düşünme rutinleri"]].map(([k, l]) => h("button", { role: "tab", "aria-pressed": String(olcmeSekme() === k), onclick: () => { try { localStorage.setItem("ta-olcme-sek", k); } catch (e) {} T.route(); } }, l))));
+      if (olcmeSekme() === "rutin") T.rutinListesi(wrap); else if (T.olcmeAraclari) T.olcmeAraclari(wrap);
     },
   };
   /* Düşünme rutinleri listesi: Düşünme sayfasında gösterilir */
@@ -228,5 +229,5 @@
   /* Başka bölümler (ör. kitap raporları) aynı şablon motorunu kullanır */
   Object.assign(T, { rutinSablon: sablon, rutinCocukYonerge: cocukYonerge, rutinYazdirR: yazdir, rutinYansitR: yansit, rutinTemizle: (rid) => yaz(rid, (x) => (x.v = {})) });
   T.YARDIM = T.YARDIM || {};
-  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları. Düşünme rutinleri Düşünme sayfasında.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
+  T.YARDIM.olcme = ["Ölçme ve değerlendirme", "Değerlendirme araçları ve düşünme rutinleri.", ["Dereceleme ölçeği: ölçütleri seç, her öğrenciye 1-3 puan ver; düzey (Geliştirilmeli, Orta, İyi) ve geri bildirim kendiliğinden çıkar.", "Her ölçekten öz değerlendirme, akran değerlendirme formu ve öğrenciye geri bildirim fişleri basabilirsin.", "Hızlı yoklama ile sınıfın ne kadarının anladığını bir dakikada gör.", "Rutine dokun, şablon ve çocuk yönergesi açılır.", "Yansıt ile tahtada tam ekran açılır, kutulara dokunup yazabilirsiniz.", "Boş yazdır ile A4 çalışma kâğıdı olarak basabilirsiniz.", "Yönergeyi düzenle ile soruları sınıfının diline göre değiştirebilirsin."]];
 })();

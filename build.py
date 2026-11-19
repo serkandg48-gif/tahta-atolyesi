@@ -48,6 +48,7 @@ JS_ORDER = [
     "math-vitrin.js",
     "math-strateji.js",
     "math-basket.js",
+    "kazanim-mat3.js",
     "math-talks.js",
     "subjects.js",
     "turkce2.js",

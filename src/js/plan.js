@@ -48,6 +48,15 @@
     /* Öğrenme çıktısı seçici: ders ve sınıf için programdaki çıktılar kendiliğinden gelir. */
     let secili = [];
     const secim = h("div.oc-box");
+    /* Kazanım kartından gelindiyse ders, sınıf, tema ve çıktı hazır seçilir */
+    const on = T.planOnSecim; T.planOnSecim = null;
+    if (on) {
+      if ([...ders.options].some((o) => o.value === on.ders)) ders.value = on.ders;
+      sinif.value = on.sinif;
+      const tl = T.ciktilar.temalar(on.ders, on.sinif) || [];
+      const ti = tl.findIndex((t) => t.c.some((x) => x.kod === on.kod));
+      if (ti >= 0) { secili = [ti + "|" + on.kod]; secim._tema = ti; }
+    }
     const drawSecim = () => {
       const temalar = T.ciktilar.temalar(ders.value, +sinif.value);
       /* Seçim anahtarı "temaSırası|kod": Türkçede aynı kod her temada farklı bileşenlerle geçer. */

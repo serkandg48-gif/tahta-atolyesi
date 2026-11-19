@@ -23,35 +23,35 @@
     return sonuc;
   }
 
-  T.tools["oyun-basamak-basket"] = {
-    cat: "oyun", ilk: 0, tone: "sun", title: "Basamak basketbolu", icon: "basket", grades: [1, 4],
-    short: "Blokların gösterdiği sayıyı bul, doğru topu potaya at",
-    render(host, api) {
+  /* Ortak pota oyunu: cfg = { baslik, seviyeler: [[anahtar, etiket, renk]], soru(seviye) => { gorsel, secenekler, dogru }, ipucu } 
+     gorsel: { tur: "blok", n } ya da { tur: "ciz", oran, ciz(g, w, h) } (panoya çizilen kart) */
+  T.potaOyunu = function (host, api, cfg) {
       const kap = h("div.ks-kap.mb-kap"), yuk = h("div.ot3-yuk", h("div.ot3-yuk-ic"), "Saha hazırlanıyor...");
       const puanEl = h("div.mb-puan"), balon = h("div.mb-balon"), menu = h("div.mb-menu");
       const ust = h("div.mb-ust",
-        h("button.mb-dug", { onclick: () => menuAc() }, T.icon("grid"), h("span", "Seviye")),
+        cfg.seviyeler.length > 1 ? h("button.mb-dug", { onclick: () => menuAc() }, T.icon("grid"), h("span", "Seviye")) : h("span"),
         puanEl,
         h("button.mb-dug", { onclick: () => tamEkran() }, T.icon("full"), h("span", "Tam ekran")));
       const sahneEl = h("div.ks-sahne.mb-sahne", kap, ust, balon, menu, yuk);
       host.append(sahneEl);
       const tamEkran = () => { try { document.fullscreenElement ? document.exitFullscreen() : (sahneEl.requestFullscreen || sahneEl.webkitRequestFullscreen).call(sahneEl); } catch (e) { T.toast && T.toast("Bu ortamda tam ekran kapalı"); } };
-      let seviye = null, soru = 0, dogru = 0, hedef = 0, denendi = false, kilit = true, c = null;
+      let seviye = null, soru = 0, dogru = 0, hedef = null, denendi = false, kilit = true, c = null;
       const puanYaz = () => (puanEl.textContent = "Puan: " + dogru + " / " + soru);
       let balonZ = 0;
       const balonGoster = (t, iyi) => { balon.textContent = t; balon.className = "mb-balon acik" + (iyi ? " iyi" : " uyari"); clearTimeout(balonZ); balonZ = setTimeout(() => (balon.className = "mb-balon"), 1400); };
 
+      const basla = (u) => { seviye = u; soru = 0; dogru = 0; puanYaz(); menu.classList.remove("acik"); yeniSoru(); };
       function menuAc() {
         kilit = true;
-        menu.replaceChildren(h("div.mb-menu-ic", h("b", "Basamak basketbolu"), h("p", "Oyunu seç:"),
-          SEVIYE.map(([u, l, r]) => h("button.mb-sev", { style: { "--r": r }, onclick: () => { seviye = u; soru = 0; dogru = 0; puanYaz(); menu.classList.remove("acik"); yeniSoru(); } }, l))));
+        menu.replaceChildren(h("div.mb-menu-ic", h("b", cfg.baslik), h("p", cfg.soruMetni || "Oyunu seç:"),
+          cfg.seviyeler.map(([u, l, r]) => h("button.mb-sev", { style: { "--r": r }, onclick: () => { seviye = u; soru = 0; dogru = 0; puanYaz(); menu.classList.remove("acik"); yeniSoru(); } }, l))));
         menu.classList.add("acik");
       }
 
       const so = { kamera: [0, 2.8, 10], bak: [0, 2.15, 0], fov: 40, env: ["#FFFFFF", "#BFD9F2", "#2A4A70"], sigdir: 10.05, oran: 1.78 };
       T.sahne3(kap, so, api).then((cc) => {
         if (!cc) { yuk.textContent = "Bu cihazda 3B çizim açılamadı."; return; }
-        c = cc; kur(); yuk.remove(); menuAc();
+        c = cc; kur(); yuk.remove(); cfg.seviyeler.length === 1 ? basla(cfg.seviyeler[0][0]) : menuAc();
       });
 
       /* ---------- sahne ---------- */
@@ -89,7 +89,7 @@
         const yuzey = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshStandardMaterial({ color: 0xF7F9FC, roughness: 0.8 })); yuzey.position.z = 0.051; yuzey.receiveShadow = true; kursu.add(yuzey);
         kursu.userData = { cerceve, yuzey };
         const duzen = () => { const w = c.r.domElement.clientWidth, hh = c.r.domElement.clientHeight; const dikey = w / Math.max(1, hh) < 1.15; so.oran = dikey ? 1.15 : 1.78; dunya.position.x = dikey ? 0.9 : 0; dunya.position.y = dikey ? -1.5 : 0; };
-        duzen(); let rz = 0; new ResizeObserver(() => { duzen(); clearTimeout(rz); rz = setTimeout(() => { if (hedef) bloklariKur(hedef, true); }, 200); }).observe(c.r.domElement);
+        duzen(); let rz = 0; new ResizeObserver(() => { duzen(); clearTimeout(rz); rz = setTimeout(() => { if (hedef) panoKur(hedef.gorsel, true); }, 200); }).observe(c.r.domElement);
         toplar = BASLA.map(([x, z], i) => topYap(x, z));
         const ray = new THREE.Raycaster(), nk = new THREE.Vector2();
         c.r.domElement.addEventListener("pointerdown", (e) => {
@@ -112,8 +112,8 @@
         return { m, yazi, yaziC, yaziD, ev: new THREE.Vector3(x, TOP_R, z), sayi: 0, hazir: false };
       }
       function topYazi(t, n) {
-        t.sayi = n; const g = t.yaziC.getContext("2d"); g.clearRect(0, 0, 256, 128);
-        g.font = "900 " + (String(n).length > 2 ? 84 : 100) + "px 'Fredoka', 'Baloo 2', system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+        n = String(n); t.sayi = n; const g = t.yaziC.getContext("2d"); g.clearRect(0, 0, 256, 128);
+        g.font = "900 " + ([100, 100, 100, 84, 70, 64, 60, 56, 52][n.length] || 46) + "px 'Fredoka', 'Baloo 2', system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
         g.lineWidth = 14; g.strokeStyle = "#3A1C08"; g.strokeText(n, 128, 68); g.fillStyle = "#FFFFFF"; g.fillText(n, 128, 68); t.yaziD.needsUpdate = true;
       }
       /* onluk taban blokları */
@@ -160,16 +160,33 @@
         if (!yenidenDiz) bloklar.userData.t = 0;
       }
 
+      /* Panoya çizilen kart: alan içinde oranı korunur */
+      function kartKur(gv, yenidenDiz) {
+        bloklar.clear();
+        const Z = -1.1, g = gorus(Z), w = c.r.domElement.clientWidth, hh = c.r.domElement.clientHeight, dikey = w / Math.max(1, hh) < 1.15;
+        const alan = dikey ? { x0: g.sol + 0.35, x1: g.sag - 0.35, y0: RIM.y + 1.75, y1: g.ust - 1.25 } : { x0: RIM.x + 1.85, x1: g.sag - 0.45, y0: 1.0, y1: g.ust - 1.25 };
+        const oran = gv.oran || 1.6, aw = alan.x1 - alan.x0 - 0.5, ah = alan.y1 - alan.y0 - 0.5;
+        let W = aw, H = W / oran; if (H > ah) { H = ah; W = H * oran; }
+        const cw = 1024, ch = Math.round(1024 / oran);
+        const d = c.doku(cw, ch, (x) => { x.fillStyle = "#F7F9FC"; x.fillRect(0, 0, cw, ch); gv.ciz(x, cw, ch); });
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshBasicMaterial({ map: d, toneMapped: false })); m.position.set(W / 2, H / 2, 0);
+        bloklar.add(m); bloklar.scale.setScalar(1);
+        const cx = (alan.x0 + alan.x1) / 2, cy = (alan.y0 + alan.y1) / 2;
+        bloklar.position.set(cx - W / 2, cy - H / 2, Z + 0.06);
+        kursu.position.set(cx, cy, Z); kursu.userData.cerceve.scale.set(W + 0.34, H + 0.34, 1); kursu.userData.yuzey.scale.set(W + 0.1, H + 0.1, 1);
+        if (!yenidenDiz) bloklar.userData.t = 0;
+      }
+      const panoKur = (gv, yd) => (gv.tur === "blok" ? bloklariKur(gv.n, yd) : kartKur(gv, yd));
       function yeniSoru() {
-        hedef = sayiSec(seviye); denendi = false;
-        bloklariKur(hedef);
-        const secenek = karistir([hedef, ...celdiriciler(hedef, seviye)]);
-        toplar.forEach((t, i) => { topYazi(t, secenek[i]); t.m.visible = t.yazi.visible = true; t.m.scale.setScalar(1); t.m.position.copy(t.ev).add(new THREE.Vector3(0, 2.5 + i * 0.4, 0)); t.dus = { v: 0 }; t.hazir = false; t.uc = null; });
+        hedef = cfg.soru(seviye); denendi = false;
+        panoKur(hedef.gorsel);
+        const secenek = karistir(hedef.secenekler.slice(0, 3));
+        toplar.forEach((t, i) => { if (i >= secenek.length) { t.m.visible = t.yazi.visible = false; t.hazir = false; t.uc = { faz: "bos" }; return; } topYazi(t, secenek[i]); t.m.visible = t.yazi.visible = true; t.m.scale.setScalar(1); t.m.position.copy(t.ev).add(new THREE.Vector3(0, 2.5 + i * 0.4, 0)); t.dus = { v: 0 }; t.hazir = false; t.uc = null; });
         kilit = false;
       }
       function at(t) {
         t.hazir = false; kilit = true;
-        const iyi = t.sayi === hedef;
+        const iyi = t.sayi === String(hedef.dogru);
         const p0 = t.m.position.clone(), p1 = iyi ? new THREE.Vector3(RIM.x, RIM.y + 0.08, RIM.z) : new THREE.Vector3(RIM.x + 0.52, RIM.y + 0.12, RIM.z + 0.12);
         t.uc = { t: 0, sure: 1.0, p0, p1, H: 2.4, iyi, faz: "uc", v: new THREE.Vector3() };
         T.sound && T.sound.pop && T.sound.pop();
@@ -181,7 +198,7 @@
           T.sound && T.sound.ok && T.sound.ok();
           setTimeout(() => { toplar.forEach((o) => { if (o !== t) { o.uc = { faz: "git", t: 0 }; } }); setTimeout(yeniSoru, 700); }, 1100);
         } else {
-          denendi = true; balonGoster(["Tekrar dene!", "Bir daha dene!", "Blokları say, sonra at!"][rnd(0, 2)], false);
+          denendi = true; balonGoster(["Tekrar dene!", "Bir daha dene!", cfg.ipucu || "Dikkatli bak, sonra at!"][rnd(0, 2)], false);
           T.sound && T.sound.no && T.sound.no(); setTimeout(() => (kilit = false), 500);
         }
       }
@@ -212,11 +229,21 @@
             u.t += dt; t.m.scale.setScalar(Math.max(0.01, 1 - u.t * 3)); if (u.t > 0.34) { t.m.visible = false; t.yazi.visible = false; t.m.scale.setScalar(1); t.uc = { faz: "bos" }; }
           }
           t.yazi.position.set(t.m.position.x, t.m.position.y + 0.02, t.m.position.z + TOP_R + 0.05);
-          t.yazi.scale.set(0.96 * t.m.scale.x, 0.48 * t.m.scale.x, 1);
+          const gen = t.sayi && t.sayi.length > 4 ? 1.5 : 1; t.yazi.scale.set(0.96 * gen * t.m.scale.x, 0.48 * gen * t.m.scale.x, 1);
         });
       }
-      sahneEl.mbAt = (iyi) => { const t = toplar.find((t) => t.hazir && (t.sayi === hedef) === iyi); if (t && !kilit) at(t); return !!t; };
+      sahneEl.mbAt = (iyi) => { const t = toplar.find((t) => t.hazir && (t.sayi === String(hedef && hedef.dogru)) === iyi); if (t && !kilit) at(t); return !!t; };
       puanYaz();
+      if (cfg.seviye) { seviye = cfg.seviye; }
+  };
+
+  T.tools["oyun-basamak-basket"] = {
+    cat: "oyun", ilk: 0, tone: "sun", title: "Basamak basketbolu", icon: "basket", grades: [1, 4],
+    short: "Blokların gösterdiği sayıyı bul, doğru topu potaya at",
+    render(host, api) {
+      T.potaOyunu(host, api, { baslik: "Basamak basketbolu", seviyeler: SEVIYE, ipucu: "Blokları say, sonra at!",
+        soru: (u) => { const n = sayiSec(u); return { gorsel: { tur: "blok", n }, secenekler: [n, ...celdiriciler(n, u)], dogru: n }; } });
     },
   };
+  T.potaYardim = { rnd, karistir, sayiSec, celdiriciler };
 })();

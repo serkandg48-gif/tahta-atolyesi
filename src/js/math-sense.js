@@ -40,10 +40,10 @@
   };
 
   const CATS = [
-    ["his", "Sayı hissi", "dots"], ["oyun", "Oyunlar", "star"], ["manip", "Manipülatifler", "blocks"], ["sim", "Simülasyonlar", "scale"],
+    ["kazanim", "Kazanımlar", "check"], ["his", "Sayı hissi", "dots"], ["oyun", "Oyunlar", "star"], ["manip", "Manipülatifler", "blocks"], ["sim", "Simülasyonlar", "scale"],
     ["orta", "Ortaokul", "algebra"], ["tuval", "Serbest tuval", "canvas"],
   ];
-  let cat = "his";
+  let cat = "kazanim";
   T.sections.matematik = {
     title: "Matematik", icon: "math", tone: "sun",
     desc: "Sayı hissi, manipülatifler, simülasyonlar",
@@ -55,6 +55,7 @@
       view.append(wrap);
       wrap.append(h("div.page-head", h("h1", "Matematik"), h("div.sub", "Sınıfın: " + g + ". sınıf. Araçlar sınıf seviyesine göre sıralanır; hepsi her sınıfta açılabilir.")),
         h("div.tabs", { role: "tablist" }, CATS.filter(([k]) => k !== "orta" || g >= 5).map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l))));
+      if (cat === "kazanim") { T.kazanimSekmesi && T.kazanimSekmesi(wrap, "Matematik", g); return; }
       const list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
         .sort((a, b) => (a[1].ilk || 99) - (b[1].ilk || 99) || fitScore(b[1], g) - fitScore(a[1], g));
       wrap.append(h("div.tool-grid", list.map(([k, t]) => T.aracKart("matematik-" + k, Object.assign({}, t, { short: t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "") }), "sun"))));

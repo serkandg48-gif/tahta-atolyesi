@@ -77,7 +77,7 @@ function TahtaYap(MOD) {
     const w = Object.assign({ id: T.uid(), type, w: ww, h: wh, x: best.x, y: best.y, data: def.init ? def.init() : {} }, init);
     d.widgets.push(w); save();
     if (root && T.$(".board-empty", root)) T.$(".board-empty", root).remove();
-    if (root && root.isConnected) mount(w); else if (mode === "ekran") T.go("ekran");
+    if (root && root.isConnected) { mount(w); sigdir(w); } else if (mode === "ekran") T.go("ekran");
     return w;
   }
   /* En az çakışan boş yeri bul */
@@ -89,6 +89,22 @@ function TahtaYap(MOD) {
       if (o < best.o - 1) best = { x, y, o }; if (o === 0) break outer;
     }
     return best;
+  }
+  /* Yeni açılan araç içeriğini kesmesin: pencere içeriğin boyuna kadar uzar, ekrana sığacak yere kayar */
+  function sigdir(w) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const el = root && root.querySelector(`[data-w="${w.id}"]`); if (!el) return;
+      const govde = el.querySelector(".wd-body"), bas = el.querySelector(".wd-head");
+      const gerek = (bas ? bas.offsetHeight : 40) + govde.scrollHeight + 12;
+      const bw = root.clientWidth, bh = root.clientHeight, ust = bh - 90;
+      if (gerek > w.h + 4) {
+        w.h = Math.min(gerek, ust);
+        /* boya sığmıyorsa ve ekran genişse pencereyi genişlet, içerik yan yana dizilsin */
+        if (gerek > ust && bw > 900 && !w.genisledi) { w.genisledi = true; w.w = Math.min(bw - 40, 1100); w.x = Math.max(10, Math.round((bw - w.w) / 2)); clampInto(w); return sigdir(w); }
+      }
+      else if (w.genisledi && gerek < w.h - 4) w.h = Math.max(gerek, 200);
+      w.y = Math.min(w.y, Math.max(0, ust - w.h)); clampInto(w); save();
+    }));
   }
   function clampInto(w) {
     if (!root) return;

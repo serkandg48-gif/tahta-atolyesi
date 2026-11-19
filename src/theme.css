@@ -2246,3 +2246,5 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .donus-kapat svg { width: 14px; height: 14px; }
 @keyframes donus-gir { from { transform: translate(-50%, -20px); opacity: 0; } }
 body:has(.modal) #muzik-calar, body:has(.modal) .donus-dug { visibility: hidden; }
+.wd-body:has(.bt-grid) { container-type: inline-size; }
+@container (min-width: 760px) { .bt-grid.kucuk { grid-template-columns: 1fr 1fr; } }

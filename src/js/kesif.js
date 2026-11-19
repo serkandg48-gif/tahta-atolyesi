@@ -14,7 +14,17 @@
   T.sections.turkce.render = function (view, sub) {
     if (sub && T.tools[sub]) return T.toolPage(view, sub);
     /* Tek sekme sırası: 1. sınıfta İlk okuma yazma bölümleri (okuma ve anlama araçları dahil), 2. sınıftan sonra Türkçe bölümleri */
-    if (T.store.grade() > 1) return turkceAsil.call(this, view, sub);
+    if (T.store.grade() > 1) {
+      turkceAsil.call(this, view, sub);
+      /* İlk okuma yazma araçları öteki sınıflarda da tek bir sekmede durur (okuma güçlüğü çeken öğrenciler için) */
+      const inner = view.querySelector(".view-inner"); if (!inner) return;
+      const gecici = h("div"); T.sections.birinci.render.call(this, gecici, null);
+      const kartlar = [...gecici.querySelectorAll(".tool-grid > *")];
+      const gorulen = new Set([...inner.querySelectorAll(".tool-card")].map((c) => c.textContent));
+      const yeni = kartlar.filter((k) => !gorulen.has((k.querySelector(".tool-card") || k).textContent));
+      if (yeni.length) inner.append(h("div.section-title", h("h2", "İlk okuma yazma")), h("div.tool-grid", yeni));
+      return;
+    }
     T.sections.birinci.render.call(this, view, sub);
     const inner = view.querySelector(".view-inner"); if (!inner) return;
     const bas = inner.querySelector(".page-head h1"); if (bas) bas.textContent = "Türkçe";

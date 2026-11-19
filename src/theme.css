@@ -2188,7 +2188,7 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .dock-ana.dock-muzik.caliyor { background: transparent !important; color: inherit !important; }
 /* Basamak basketbolu */
 .mb-sahne { background: #1F67C9; }
-.mb-kap { aspect-ratio: auto; height: calc(100vh - 290px); min-height: 380px; max-height: none; }
+.mb-kap { aspect-ratio: auto; height: min(calc(100vh - 290px), 140vw); min-height: 380px; max-height: none; }
 .mb-ust { position: absolute; left: 14px; right: 14px; top: 12px; display: flex; align-items: center; gap: 10px; z-index: 3; pointer-events: none; }
 .mb-ust > * { pointer-events: auto; }
 .mb-dug { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 14px; padding: 10px 16px; background: rgba(255,255,255,.92); color: var(--navy, #1B2A4A); font: 800 17px var(--display); box-shadow: 0 6px 16px rgba(0,0,0,.2); cursor: pointer; }
@@ -2205,3 +2205,4 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 .mb-sev { min-width: 260px; border: 0; border-radius: 16px; padding: 14px 20px; background: var(--r); color: #fff; font: 900 22px var(--display); box-shadow: 0 5px 0 color-mix(in srgb, var(--r) 60%, #000); cursor: pointer; transition: transform .15s; }
 .mb-sev:hover { transform: translateY(-3px) scale(1.04); }
 .mb-sahne:fullscreen .mb-kap { max-height: 100vh; height: 100vh; aspect-ratio: auto; }
+@media (max-width: 600px) { .mb-dug span { display: none; } .mb-dug { padding: 10px 12px; } .mb-puan { font-size: 20px; padding: 6px 14px; white-space: nowrap; } .mb-menu-ic { padding: 20px 18px 22px; } .mb-sev { min-width: 200px; } }

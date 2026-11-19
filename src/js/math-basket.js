@@ -30,9 +30,9 @@
       const kap = h("div.ks-kap.mb-kap"), yuk = h("div.ot3-yuk", h("div.ot3-yuk-ic"), "Saha hazırlanıyor...");
       const puanEl = h("div.mb-puan"), balon = h("div.mb-balon"), menu = h("div.mb-menu");
       const ust = h("div.mb-ust",
-        h("button.mb-dug", { onclick: () => menuAc() }, T.icon("grid"), "Seviye"),
+        h("button.mb-dug", { onclick: () => menuAc() }, T.icon("grid"), h("span", "Seviye")),
         puanEl,
-        h("button.mb-dug", { onclick: () => tamEkran() }, T.icon("full"), "Tam ekran"));
+        h("button.mb-dug", { onclick: () => tamEkran() }, T.icon("full"), h("span", "Tam ekran")));
       const sahneEl = h("div.ks-sahne.mb-sahne", kap, ust, balon, menu, yuk);
       host.append(sahneEl);
       const tamEkran = () => { try { document.fullscreenElement ? document.exitFullscreen() : (sahneEl.requestFullscreen || sahneEl.webkitRequestFullscreen).call(sahneEl); } catch (e) { T.toast && T.toast("Bu ortamda tam ekran kapalı"); } };
@@ -48,16 +48,17 @@
         menu.classList.add("acik");
       }
 
-      T.sahne3(kap, { kamera: [0, 2.8, 10], bak: [0, 2.15, 0], fov: 40, env: ["#FFFFFF", "#BFD9F2", "#2A4A70"], sigdir: 10.05, oran: 1.78 }, api).then((cc) => {
+      const so = { kamera: [0, 2.8, 10], bak: [0, 2.15, 0], fov: 40, env: ["#FFFFFF", "#BFD9F2", "#2A4A70"], sigdir: 10.05, oran: 1.78 };
+      T.sahne3(kap, so, api).then((cc) => {
         if (!cc) { yuk.textContent = "Bu cihazda 3B çizim açılamadı."; return; }
         c = cc; kur(); yuk.remove(); menuAc();
       });
 
       /* ---------- sahne ---------- */
-      let THREE, sahne, cember, file, bloklar, kursu, toplar = [], ucan = [], fileSalla = 0;
+      let THREE, sahne, dunya, cember, file, bloklar, kursu, toplar = [], ucan = [], fileSalla = 0;
       const RIM = { x: -4.0, y: 3.6, z: -0.3 }, TOP_R = 0.38, BASLA = [[-2.3, 2.6], [-0.5, 2.8], [1.3, 2.6]];
       function kur() {
-        THREE = c.THREE; sahne = c.sahne; const r = c.r;
+        THREE = c.THREE; const r = c.r; dunya = new THREE.Group(); c.sahne.add(dunya); sahne = dunya;
         r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.toneMappingExposure = 1.05;
         const duvarD = c.doku(512, 512, (x, w, hh) => { const g = x.createLinearGradient(0, 0, 0, hh); g.addColorStop(0, "#3C9BF0"); g.addColorStop(1, "#1F67C9"); x.fillStyle = g; x.fillRect(0, 0, w, hh); x.fillStyle = "rgba(255,255,255,.05)"; for (let i = 0; i < w; i += 64) x.fillRect(i, 0, 30, hh); });
         const duvar = new THREE.Mesh(new THREE.PlaneGeometry(40, 16), new THREE.MeshStandardMaterial({ map: duvarD, roughness: 0.95 })); duvar.position.set(0, 6, -3); duvar.receiveShadow = true; sahne.add(duvar);
@@ -67,8 +68,8 @@
         const cizgiM = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const yay = new THREE.Mesh(new THREE.RingGeometry(2.6, 2.7, 64, 1, -Math.PI / 2, Math.PI), cizgiM); yay.rotation.x = -Math.PI / 2; yay.position.set(-4.0, 0.006, -1.4); sahne.add(yay);
         const orta = new THREE.Mesh(new THREE.RingGeometry(1.3, 1.4, 64), cizgiM); orta.rotation.x = -Math.PI / 2; orta.position.set(2.6, 0.006, 1.6); sahne.add(orta);
-        sahne.add(new THREE.HemisphereLight(0xffffff, 0x8a6a40, 1.0));
-        const gun = new THREE.DirectionalLight(0xffffff, 2.2); gun.position.set(3, 9, 7); gun.castShadow = true; gun.shadow.mapSize.set(2048, 2048); Object.assign(gun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -4 }); gun.shadow.bias = -0.0004; sahne.add(gun);
+        c.sahne.add(new THREE.HemisphereLight(0xffffff, 0x8a6a40, 1.0));
+        const gun = new THREE.DirectionalLight(0xffffff, 2.2); gun.position.set(3, 9, 7); gun.castShadow = true; gun.shadow.mapSize.set(2048, 2048); Object.assign(gun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -4 }); gun.shadow.bias = -0.0004; c.sahne.add(gun);
         /* pota */
         const direk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 5.2, 20), new THREE.MeshStandardMaterial({ color: 0x8C96A3, metalness: 0.8, roughness: 0.35 })); direk.position.set(RIM.x, 2.6, -2.2); direk.castShadow = true; sahne.add(direk);
         const kol = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 1.2), direk.material); kol.position.set(RIM.x, 4.3, -1.6); sahne.add(kol);
@@ -82,10 +83,13 @@
         file = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.32, 0.75, 32, 1, true), new THREE.MeshStandardMaterial({ map: fileD, transparent: true, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 0.9 }));
         file.position.set(RIM.x, RIM.y - 0.38, RIM.z); sahne.add(file);
         bloklar = new THREE.Group(); sahne.add(bloklar);
-        /* blokların durduğu kürsü */
+        /* blokların asıldığı duvar panosu */
         kursu = new THREE.Group(); sahne.add(kursu);
-        const ayak = new THREE.Mesh(new THREE.BoxGeometry(1, 1.3, 1.1), new THREE.MeshStandardMaterial({ color: 0xF4F6FA, roughness: 0.6 })); ayak.position.y = 0.65; ayak.castShadow = ayak.receiveShadow = true; kursu.add(ayak);
-        const kapak = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.12, 1.16), new THREE.MeshStandardMaterial({ color: 0xFFD23F, roughness: 0.5 })); kapak.position.y = 1.36; kapak.receiveShadow = true; kursu.add(kapak);
+        const cerceve = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.1), new THREE.MeshStandardMaterial({ color: 0xFFD23F, roughness: 0.5 })); cerceve.castShadow = true; kursu.add(cerceve);
+        const yuzey = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshStandardMaterial({ color: 0xF7F9FC, roughness: 0.8 })); yuzey.position.z = 0.051; yuzey.receiveShadow = true; kursu.add(yuzey);
+        kursu.userData = { cerceve, yuzey };
+        const duzen = () => { const w = c.r.domElement.clientWidth, hh = c.r.domElement.clientHeight; const dikey = w / Math.max(1, hh) < 1.15; so.oran = dikey ? 1.15 : 1.78; dunya.position.x = dikey ? 0.9 : 0; dunya.position.y = dikey ? -1.5 : 0; };
+        duzen(); let rz = 0; new ResizeObserver(() => { duzen(); clearTimeout(rz); rz = setTimeout(() => { if (hedef) bloklariKur(hedef, true); }, 200); }).observe(c.r.domElement);
         toplar = BASLA.map(([x, z], i) => topYap(x, z));
         const ray = new THREE.Raycaster(), nk = new THREE.Vector2();
         c.r.domElement.addEventListener("pointerdown", (e) => {
@@ -114,26 +118,44 @@
       const izgara = (renk, koyu) => c.doku(64, 64, (x, w) => { x.fillStyle = renk; x.fillRect(0, 0, w, w); x.strokeStyle = koyu; x.lineWidth = 5; x.strokeRect(2.5, 2.5, w - 5, w - 5); x.fillStyle = "rgba(255,255,255,.18)"; x.fillRect(6, 6, w - 12, 10); });
       let DOK = null;
       function malz(tur, rx, ry) { const t = DOK[tur].clone(); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); t.needsUpdate = true; return new THREE.MeshStandardMaterial({ map: t, roughness: 0.5 }); }
-      function bloklariKur(n) {
+      /* Kameranın gördüğü alanı z düzleminde bulur */
+      function gorus(z) {
+        const ray = new THREE.Raycaster(), pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), -z), out = new THREE.Vector3(), r = {};
+        [[-1, 0, "sol"], [1, 0, "sag"], [0, 1, "ust"], [0, -1, "alt"]].forEach(([x, y, k]) => { ray.setFromCamera(new THREE.Vector2(x, y), c.kamera); ray.ray.intersectPlane(pl, out); r[k] = k === "sol" || k === "sag" ? out.x - dunya.position.x : out.y - dunya.position.y; });
+        return r;
+      }
+      function bloklariKur(n, yenidenDiz) {
         if (!DOK) DOK = { y: izgara("#3F7BE6", "#1E4BA8"), o: izgara("#2FB24C", "#16752C"), b: izgara("#E2403A", "#9C1E1A") };
         bloklar.clear();
         const u = 0.2, yuz = Math.floor(n / 100), on = Math.floor((n % 100) / 10), bir = n % 10;
-        const parca = [];
         const plaka = () => new THREE.Mesh(new THREE.BoxGeometry(10 * u, 10 * u, u), [malz("y", 1, 10), malz("y", 1, 10), malz("y", 10, 1), malz("y", 10, 1), malz("y", 10, 10), malz("y", 10, 10)]);
         const cubuk = () => new THREE.Mesh(new THREE.BoxGeometry(u, 10 * u, u), [malz("o", 1, 10), malz("o", 1, 10), malz("o", 1, 1), malz("o", 1, 1), malz("o", 1, 10), malz("o", 1, 10)]);
         const kup = () => new THREE.Mesh(new THREE.BoxGeometry(u, u, u), malz("b", 1, 1));
+        /* yerleşim alanı: yatay ekranda potanın sağı, dikey ekranda potanın üstü */
+        const Z = -1.1, g = gorus(Z), w = c.r.domElement.clientWidth, hh = c.r.domElement.clientHeight, dikey = w / Math.max(1, hh) < 1.15;
+        const alan = dikey ? { x0: g.sol + 0.35, x1: g.sag - 0.35, y0: RIM.y + 1.75, y1: g.ust - 1.25 } : { x0: RIM.x + 1.85, x1: g.sag - 0.45, y0: 1.0, y1: g.ust - 1.25 };
+        /* plakalar ızgara, yanına çubuklar ve beşerli küpler; en büyük ölçeği veren sütun sayısı seçilir */
+        const B = 10 * u, ara = 0.06, onW = on ? on * (u + 0.12) - 0.12 : 0, birW = bir ? Math.ceil(bir / 5) * (u + 0.08) - 0.08 : 0;
+        let en = null;
+        for (let sut = 1; sut <= Math.max(1, yuz); sut++) {
+          const sat = yuz ? Math.ceil(yuz / sut) : 0, pW = yuz ? sut * B + (sut - 1) * ara : 0, pH = sat * B + Math.max(0, sat - 1) * ara;
+          const W = pW + (pW && onW ? 0.4 : 0) + onW + ((pW || onW) && birW ? 0.35 : 0) + birW, H = Math.max(pH, on ? B : 0, bir ? Math.min(5, bir) * (u + 0.08) : 0);
+          const olc = Math.min((alan.x1 - alan.x0 - 0.5) / Math.max(W, 0.3), (alan.y1 - alan.y0 - 0.5) / Math.max(H, 0.3), 2.2);
+          if (!en || olc > en.olc) en = { sut, sat, pW, pH, W, H, olc };
+        }
+        const { sut, pW, W, H, olc } = en, parca = [];
         let x = 0;
-        for (let i = 0; i < yuz; i++) { const m = plaka(); m.position.set(x + 5 * u + i * 0.46, 5 * u, -i * 0.22); parca.push(m); }
-        if (yuz) x += 10 * u + (yuz - 1) * 0.46 + 0.45;
-        for (let i = 0; i < on; i++) { const m = cubuk(); m.position.set(x + u / 2, 5 * u, 0); parca.push(m); x += u + 0.1; }
-        if (on) x += 0.35;
-        for (let i = 0; i < bir; i++) { const sut = Math.floor(i / 5), sat = i % 5; const m = kup(); m.position.set(x + u / 2 + sut * (u + 0.08), u / 2 + sat * (u + 0.08), 0); parca.push(m); }
-        if (bir) x += Math.ceil(bir / 5) * (u + 0.08);
+        for (let i = 0; i < yuz; i++) { const sx = i % sut, sy = Math.floor(i / sut); const m = plaka(); m.position.set(sx * (B + ara) + B / 2, H - B / 2 - sy * (B + ara), 0); parca.push(m); }
+        if (yuz) x = pW + (onW ? 0.4 : 0);
+        for (let i = 0; i < on; i++) { const m = cubuk(); m.position.set(x + u / 2 + i * (u + 0.12), B / 2, 0); parca.push(m); }
+        if (on) x += onW + (birW ? 0.35 : 0); else if (yuz && birW) x += 0.35;
+        for (let i = 0; i < bir; i++) { const sx = Math.floor(i / 5), sy = i % 5; const m = kup(); m.position.set(x + u / 2 + sx * (u + 0.08), u / 2 + sy * (u + 0.08), 0); parca.push(m); }
         parca.forEach((m) => { m.castShadow = true; m.receiveShadow = true; bloklar.add(m); });
-        const genis = Math.max(0.5, x), olcek = Math.min(1.25, 5.4 / genis);
-        bloklar.scale.setScalar(olcek); bloklar.position.set(3.5 - (genis * olcek) / 2, 1.42, -0.9);
-        kursu.scale.set(genis * olcek + 0.7, 1, 1); kursu.position.set(3.5, 0, -0.9);
-        bloklar.userData.t = 0;
+        const cx = (alan.x0 + alan.x1) / 2, cy = (alan.y0 + alan.y1) / 2;
+        bloklar.scale.setScalar(olc); bloklar.position.set(cx - (W * olc) / 2, cy - (H * olc) / 2, Z + 0.2);
+        const pw = W * olc + 0.5, ph = H * olc + 0.5;
+        kursu.position.set(cx, cy, Z); kursu.userData.cerceve.scale.set(pw + 0.24, ph + 0.24, 1); kursu.userData.yuzey.scale.set(pw, ph, 1);
+        if (!yenidenDiz) bloklar.userData.t = 0;
       }
 
       function yeniSoru() {

@@ -2209,3 +2209,12 @@ html.alt-menu .view :is(.tabs, .seg.ders-sekme, .seg.dk-sekme) { background: rgb
 /* oyun sahnelerinde art arda dokununca yazı seçimi ve dokunma vurgusu ekranı soluklaştırmasın */
 .ks-sahne, .ks-sahne * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
 .ks-sahne ::selection { background: transparent; }
+/* menülerde grup adları kartların üstünde, ortada; ok aşağıyı gösterir */
+.altp .altp-grup, .altp .altp-grup:not(:has(h3)) { grid-template-columns: 1fr; justify-items: center; gap: 8px; }
+.altp .altp-grup h3 { justify-self: center; margin: 6px 0 0; }
+.altp .altp-grup h3::after { transform: rotate(90deg); }
+.altp .altp-bas { flex-direction: column; gap: 10px; }
+.altp .altp-hepsi.altp-hepsi { position: static; order: 2; }
+.altp { align-content: safe center; overflow-y: auto; }
+.altp .altp-bas { align-items: center; justify-content: center; width: 100%; position: relative; }
+.altp { padding-bottom: 120px; }

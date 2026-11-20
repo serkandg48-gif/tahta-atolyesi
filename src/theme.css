@@ -2738,3 +2738,21 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .rp-satir.simdi p { font-size: clamp(1.8rem, 3.6vw, 2.8rem); }
 .rp-satir.simdi .rp-kim span { font-size: 1.2rem; padding: 2px 14px; }
 .rp-kontrol { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+
+/* Zaman kapsülü */
+.zk { display: grid; justify-items: center; }
+.zk-kart { background: #fff; border-radius: 26px; padding: 28px 32px; display: grid; gap: 12px; width: min(820px, 100%); justify-items: stretch; }
+.zk-kart h2, .zk-kart > p { text-align: center; } .zk-kart > .hint { margin: 0; }
+.zk-zarf { font-size: 90px; line-height: 1; text-align: center; justify-self: center; position: relative; background: none; border: 0; cursor: default; }
+.zk-zarf.titre { cursor: pointer; animation: zk-titre 1.4s ease-in-out infinite; font-size: 140px; }
+@keyframes zk-titre { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-8deg) scale(1.05); } 40% { transform: rotate(8deg) scale(1.05); } 60% { transform: rotate(0); } }
+.zk-muhur { position: absolute; right: -8px; bottom: 0; font-size: 40px; font-style: normal; }
+.zk-kalan { font: 800 1.6rem var(--display); color: #8C5BB8; margin: 0; }
+.zk-kart .btn { justify-self: center; }
+.zk-kisi { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 6px; margin-top: 8px; }
+.zk-kisi label { display: grid; grid-template-columns: 80px 1fr; gap: 6px; align-items: center; }
+.zk-acik { background: #fffaf0; border-radius: 26px; padding: 30px 36px; display: grid; gap: 16px; width: min(900px, 100%); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+.zk-bolum h3 { color: #8C5BB8; } .zk-bolum p { margin: 4px 0 0; white-space: pre-wrap; font-size: 1.15rem; line-height: 1.55; }
+.zk-sozler { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 6px; }
+.zk-sozler div { background: #fff; border-radius: 12px; padding: 10px 12px; } .zk-sozler p { margin: 2px 0 0; font-size: 1rem; }
+.kp-satir.kapsul { background: #f3e9ff !important; }

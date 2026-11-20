@@ -133,3 +133,70 @@
     },
   };
 })();
+
+/* ---------- Zaman kapsülü: 100. gün ya da son okul haftası açılmak üzere mühürlenir ---------- */
+(function () {
+  const { h } = T;
+  const cid = () => T.store.get().activeClassId;
+  const kapsul = () => { const s = T.store.get(); s.kapsul = s.kapsul || {}; return s.kapsul[cid()] || null; };
+  const yaz = (v) => T.store.update((s) => { s.kapsul = s.kapsul || {}; s.kapsul[cid()] = v; });
+  /* n. okul gününün tarihi ve son okul günü */
+  const okulGunu = (n) => { const d = new Date(); d.setMonth(8, 1); if (new Date().getMonth() < 7) d.setFullYear(d.getFullYear() - 1); let say = 0; for (let i = 0; i < 400; i++) { if (T.cal.isSchoolDay(d)) { say++; if (say === n) return T.isoDate(d); } d.setDate(d.getDate() + 1); } return null; };
+  const sonGun = () => { const d = new Date(); d.setMonth(5, 30); if (new Date().getMonth() >= 7) d.setFullYear(d.getFullYear() + 1); for (let i = 0; i < 60; i++) { if (T.cal.isSchoolDay(d)) return T.isoDate(d); d.setDate(d.getDate() - 1); } return T.isoDate(d); };
+  const uzun = (iso) => new Date(iso + "T00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+  const hazir = (k) => k && !k.acildi && T.isoDate() >= k.acilis;
+  T.kapsulSatiri = () => { const k = kapsul(); if (!hazir(k)) return null; return h("button.kp-satir.kapsul", { onclick: () => T.go("kultur-zaman-kapsulu") }, h("span", "✉️"), "Zaman kapsülü", h("b", "Açılmaya hazır!")); };
+
+  T.hafizaEkle && T.hafizaEkle("zaman-kapsulu");
+  T.tools["zaman-kapsulu"] = {
+    back: "kultur", grades: [1, 8], title: "Zaman kapsülü", icon: "lock", ikon3: "kasa", tone: "grape", short: "Bugünü mühürle, 100. günde ya da yıl sonunda açın",
+    render(host) {
+      const kap = h("div.zk"); host.append(kap);
+      function ciz() {
+        const k = kapsul();
+        if (!k) {
+          let hedef = "100";
+          const g100 = okulGunu(100), son = sonGun(), bugun = T.isoDate();
+          const alan = (ph, r = 3) => h("textarea.in", { rows: r, placeholder: ph });
+          const not = alan("Sınıf notu: Şu an neler yapıyoruz, neyi seviyoruz, neyi merak ediyoruz?"), hedefler = alan("Yıl hedeflerimiz: Yıl sonunda neyi yapabiliyor olmak istiyoruz?"), tahmin = alan("Tahminlerimiz: 100. günde kaç cm uzamış olacağız? Hangi kitabı bitirmiş olacağız?");
+          const ogr = T.store.activeClass().students;
+          const kisisel = h("div.zk-kisi", ogr.map((x) => h("label", h("span", x.name.split(" ")[0]), h("input.in", { "data-id": x.id, placeholder: "Kendine bir söz ya da tahmin", maxlength: 90 }))));
+          const sec = h("div.seg", [["100", "100. günde" + (g100 ? " (" + uzun(g100) + ")" : "")], ["son", "Son okul haftasında (" + uzun(son) + ")"]].map(([v, l]) => h("button", { "aria-pressed": String(v === hedef), disabled: v === "100" && (!g100 || g100 <= bugun) ? true : null, onclick: (e) => { hedef = v; [...sec.children].forEach((b) => b.setAttribute("aria-pressed", String(b === e.currentTarget))); } }, l)));
+          if (!g100 || g100 <= bugun) hedef = "son";
+          kap.replaceChildren(h("div.zk-kart", h("div.zk-zarf", "✉️"), h("h2", "Zaman kapsülümüzü hazırlayalım"),
+            h("p.hint", "Yazdıklarınız mühürlenir ve açılış gününe kadar kimse göremez. O gün ana sayfada bir zarf belirir."),
+            h("b", "Ne zaman açalım?"), sec, not, hedefler, tahmin,
+            h("details", h("summary", "Her öğrenci kendine bir söz yazsın (isteğe bağlı)"), kisisel),
+            h("button.btn.c-grape", { onclick: async () => {
+              const ic = { not: not.value.trim(), hedef: hedefler.value.trim(), tahmin: tahmin.value.trim(), kisi: {} };
+              kisisel.querySelectorAll("input").forEach((i) => { if (i.value.trim()) ic.kisi[i.dataset.id] = i.value.trim(); });
+              if (!ic.not && !ic.hedef && !ic.tahmin && !Object.keys(ic.kisi).length) return T.toast("Kapsüle en az bir şey yazın");
+              if (!(await T.confirm("Kapsülü mühürle", "Mühürlendikten sonra açılış gününe kadar içi görünmez. Mühürleyelim mi?", "Mühürle"))) return;
+              yaz({ hedef, acilis: hedef === "100" ? g100 : son, muhur: bugun, icerik: ic }); T.sound.ok && T.sound.ok(); ciz();
+            } }, T.icon("lock"), "Mühürle")));
+          return;
+        }
+        if (!hazir(k) && !k.acildi) {
+          const kalan = (() => { let n = 0; const d = new Date(); while (T.isoDate(d) < k.acilis && n < 400) { d.setDate(d.getDate() + 1); if (T.cal.isSchoolDay(d)) n++; } return n; })();
+          kap.replaceChildren(h("div.zk-kart.muhurlu", h("div.zk-zarf.kapali", "✉️", h("i.zk-muhur", "🔒")), h("h2", "Kapsülümüz mühürlü"),
+            h("p", uzun(k.muhur) + " tarihinde mühürlendi. " + uzun(k.acilis) + " günü açılacak."),
+            h("p.zk-kalan", kalan + " okul günü kaldı"),
+            h("button.btn.sm.c-chalk", { onclick: async () => { if (await T.confirm("Kapsülü sil", "Kapsül açılmadan silinsin mi? İçindekiler kaybolur.", "Sil")) { yaz(null); ciz(); } } }, "Kapsülü sil")));
+          return;
+        }
+        if (!k.acildi) {
+          kap.replaceChildren(h("div.zk-kart.hazir", h("button.zk-zarf.titre", { "aria-label": "Zarfı aç", onclick: () => { k.acildi = T.isoDate(); yaz(k); T.sound.ok && T.sound.ok(); ciz(); } }, "✉️"), h("h2", "Açılma günü geldi!"), h("p", "Zarfa dokun, birlikte açalım.")));
+          return;
+        }
+        const ic = k.icerik, ad = (id) => (T.store.activeClass().students.find((x) => x.id === id) || {}).name || "";
+        const bolum = (b, m) => (m ? h("section.zk-bolum", h("h3", b), h("p", m)) : null);
+        kap.replaceChildren(h("div.zk-acik", h("h2", uzun(k.muhur) + " tarihinden bize mektup"),
+          bolum("Sınıf notumuz", ic.not), bolum("Yıl hedeflerimiz", ic.hedef), bolum("Tahminlerimiz", ic.tahmin),
+          Object.keys(ic.kisi || {}).length ? h("section.zk-bolum", h("h3", "Kendimize sözlerimiz"), h("div.zk-sozler", Object.entries(ic.kisi).map(([id, m]) => h("div", h("b", ad(id)), h("p", m))))) : null,
+          h("p.hint", "Hangisi gerçekleşti? Hangisinde yanıldık? Şimdi neyi farklı yazardık?"),
+          h("button.btn.sm.c-chalk", { onclick: async () => { if (await T.confirm("Yeni kapsül", "Bu kapsül silinip yenisi hazırlansın mı?", "Yeni kapsül")) { yaz(null); ciz(); } } }, T.icon("plus"), "Yeni kapsül hazırla")));
+      }
+      ciz();
+    },
+  };
+})();

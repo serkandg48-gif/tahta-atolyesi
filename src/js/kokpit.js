@@ -206,7 +206,8 @@
         h("button.kp-satir", { onclick: () => T.gorevliPenceresi(c), title: "Görevlileri gör ve düzenle" }, T.icon("trophy"), "Görevliler", gv.length ? h("span.kp-yuzler", gv.slice(0, 4).map(([, st]) => T.avatar(st.name, 26))) : h("b", "Ekle")),
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
         h("button.kp-satir", { onclick: () => T.go("sabah-sayi"), title: "Dokun, sayıyı değiştir" }, T.icon("spark"), "Bugünün sayısı", h("b", T.bugununSayisi(c))),
-        sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));
+        sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null,
+        T.kapsulSatiri ? T.kapsulSatiri() : null));
   }
   /* Kartpostal ve başka özetler için günün bilgileri */
   T.gununOzeti = function () {

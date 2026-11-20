@@ -1,4 +1,4 @@
-window.SURUM="f5b8824565";
+window.SURUM="92898f1e6d";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -2300,6 +2300,7 @@ function TahtaYap(MOD) {
         const w = T.widgets[k];
         return T.h("button.btn.icon.c-chalk", { title: w.title, "aria-label": w.title + " ekle", onclick: () => add(k) }, T.icon(w.icon));
       }),
+      T.h("button.btn.c-grape", { title: "Hazır ve kayıtlı ekran düzenleri", onclick: () => T.sahnePenceresi && T.sahnePenceresi() }, T.icon("plan"), "Sahneler"),
       T.h("button.btn.icon.c-chalk", { title: "Arka plan", "aria-label": "Arka planı değiştir", onclick: pickBg }, T.icon("bg")),
       T.h("button.btn.icon.c-chalk", { title: "Tam ekran", "aria-label": "Tam ekran", onclick: fullscreen }, T.icon("full")),
       T.h("button.btn.icon.c-tomato", { title: "Tahtayı temizle", "aria-label": "Tahtayı temizle", onclick: clearAll }, T.icon("trash"))
@@ -2435,7 +2436,19 @@ function TahtaYap(MOD) {
     });
     save(); T.go("ekran");
   }
-  return { render, add, setup, BGS, openTray: () => openTray(), aktif: () => !!(root && root.isConnected) };
+  /* Sahne: araçları oransal konum ve boyutlarıyla kur (0-1 arası x, y, w, h) */
+  function sahneKur(list, bg) {
+    const d = data(); d.widgets.forEach((w) => w._destroy && w._destroy()); d.widgets = []; if (bg) d.bg = bg;
+    const v = T.$("#view"), bw = v ? v.clientWidth : window.innerWidth, bh = (v ? v.clientHeight : window.innerHeight - 170) - 90;
+    list.forEach((it) => { const def = T.widgets[it.type]; if (!def) return;
+      d.widgets.push({ id: T.uid(), type: it.type, title: it.title, x: Math.round(it.x * bw) + 10, y: Math.round(it.y * bh) + 10, w: Math.round(it.w * bw) - 20, h: Math.round(it.h * bh) - 20, data: Object.assign(def.init ? def.init() : {}, it.data || {}) }); });
+    save(); if (root && root.isConnected) T.route(); else T.go("ekran");
+  }
+  function sahneAl() {
+    const d = data(), v = T.$("#view"), bw = v ? v.clientWidth : window.innerWidth, bh = (v ? v.clientHeight : window.innerHeight - 170) - 90;
+    return { bg: d.bg, list: d.widgets.map((w) => ({ type: w.type, title: w.title, x: +((w.x - 10) / bw).toFixed(3), y: +((w.y - 10) / bh).toFixed(3), w: +((w.w + 20) / bw).toFixed(3), h: +((w.h + 20) / bh).toFixed(3), data: w.data })) };
+  }
+  return { render, add, setup, sahneKur, sahneAl, BGS, openTray: () => openTray(), aktif: () => !!(root && root.isConnected) };
 }
 T.board = TahtaYap("ekran");
 T.yuzen = TahtaYap("ana");
@@ -14860,7 +14873,8 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
           h("button.btn.sm.c-chalk", { onclick: () => yazdir(formOlcek(o, true), "yatay") }, T.icon("plan"), "Sonuçları yazdır"),
           h("button.btn.sm.c-chalk", { onclick: () => yazdir(geriFisleri(o), "dikey") }, T.icon("plan"), "Geri bildirim fişleri"),
           h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, false), ozForm(o, false)), "dikey") }, T.icon("plan"), "Öz değerlendirme formu"),
-          h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, true), ozForm(o, true)), "dikey") }, T.icon("plan"), "Akran değerlendirme formu")));
+          h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, true), ozForm(o, true)), "dikey") }, T.icon("plan"), "Akran değerlendirme formu"),
+          h("button.btn.sm.c-sky", { title: "Ölçütleri meslektaşlarınla paylaş (puanlar paylaşılmaz)", onclick: () => T.sablonPaylas && T.sablonPaylas("olcek", { tur: o.tur, ad: o.ad, ders: o.ders, kriter: o.kriter }, o.ad) }, T.icon("qr"), "Paylaş")));
     };
     ciz();
   }
@@ -15673,6 +15687,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       h("b", { style: { fontSize: "18px" } }, p.baslik),
       h("div.row", h("button.btn.sm.c-sun", { onclick: () => { current = p; tab = "gunluk"; T.route(); } }, "Aç"),
         h("button.btn.sm.c-chalk", { onclick: () => T.board.setup(boardFor(p)) }, T.icon("board"), "Ekranı kur"),
+        h("button.btn.sm.c-sky", { title: "Planı meslektaşlarınla paylaş", onclick: () => { const c = Object.assign({}, p); delete c.id; T.sablonPaylas && T.sablonPaylas("plan", c, p.baslik); } }, T.icon("qr"), "Paylaş"),
         h("button.btn.sm.icon.c-tomato", { "aria-label": "Sil", onclick: () => { T.store.update((st) => (st.plans = st.plans.filter((x) => x.id !== p.id))); T.route(); } }, T.icon("trash")))))));
   }
 })();
@@ -16560,7 +16575,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   const ARAC_GRUP = [
     ["Zaman", ["timer", "dogazaman", "stopwatch", "clock", "takvim", "!besDakika|5 dakika kaldı|stopwatch"]],
     ["Seçim ve gruplar", ["name", "dice", "groups", "istasyon", "sozagi"]],
-    ["Sınıf düzeni", ["traffic", "noise", "orman", "dikkat", "sira", "mola", "bitirdim", "!derseInis|Derse iniş|lotus", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
+    ["Sınıf düzeni", ["traffic", "noise", "orman", "dikkat", "sira", "mola", "bitirdim", "!derseInis|Derse iniş|lotus", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock", "!ogrenciBoyu|Öğrenci boyu|hand"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "yavasbakis", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];
   const sonlar = () => { try { return JSON.parse(localStorage.getItem("ta-son") || "[]"); } catch (e) { return []; } };
@@ -16920,7 +16935,7 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
     const sonuc = h("div.ts-sonuc");
     const govde = h("div.ts",
       h("p.hint", { style: { margin: 0 } }, "Evde hazırladığını sabah tahtaya taşı. Hesap gerekmez: bilgiler bağlantının içinde durur, sunucuya gönderilmez. Öğrenci adları bağlantıya eklenmez."),
-      planlar.length ? h("div", h("b", "Planlar"), h("div.ts-planlar", planlar.map((p) => h("label.ts-plan", h("input", { type: "checkbox", checked: sec.has(p.id) ? true : null, onchange: (e) => (e.target.checked ? sec.add(p.id) : sec.delete(p.id)) }), h("span", p.title || p.konu || "Plan", h("small", (p.ders || "") + (p.at ? " · " + new Date(p.at).toLocaleDateString("tr-TR") : "")))))))
+      planlar.length ? h("div", h("b", "Planlar"), h("div.ts-planlar", planlar.map((p) => h("label.ts-plan", h("input", { type: "checkbox", checked: sec.has(p.id) ? true : null, onchange: (e) => (e.target.checked ? sec.add(p.id) : sec.delete(p.id)) }), h("span", p.baslik || p.title || "Plan", h("small", (p.ders || "") + (p.at ? " · " + new Date(p.at).toLocaleDateString("tr-TR") : "")))))))
         : h("p.hint", "Kaydedilmiş planın yok. Plan bölümünde hazırlayıp kaydedebilirsin."),
       h("b", "Not"), not, h("b", "Günün sorusu"), soru, h("b", "Çıkış bileti"), bilet, sonuc);
     const uret = async () => {
@@ -16956,5 +16971,87 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
   }
   if (location.hash.startsWith("#tasi=")) { const p = location.hash.slice(6); history.replaceState(null, "", location.pathname + "#ana"); addEventListener("load", () => setTimeout(() => gelen(p), 900)); }
   addEventListener("hashchange", () => { if (location.hash.startsWith("#tasi=")) { const p = location.hash.slice(6); history.replaceState(null, "", location.pathname + "#ana"); T.route && T.route(); gelen(p); } });
-  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Evden tahtaya taşı", ic: "qr", ac: () => T.tasiPenceresi(), ek: "Plan, not ve soruyu bağlantıyla taşı" });
+  /* Zümre içi paylaşım: ölçek, plan, soru listesi ya da sahne bir bağlantıya dönüşür; açan öğretmen kendi sitesine alır */
+  const TURAD = { olcek: "Ölçek", plan: "Plan", sorular: "Soru listesi", sahne: "Ekran sahnesi" };
+  T.sablonPaylas = async function (tur, nesne, ad) {
+    const p = await paketle({ v: 1, sablon: tur, ad: ad || "", veri: nesne }), url = location.origin + location.pathname + "#al=" + p;
+    const qr = h("div.ts-qr");
+    T.modal({ title: TURAD[tur] + " paylaş", body: h("div.ts", h("p.hint", { style: { margin: 0 } }, "Bu bağlantıyı açan öğretmen " + (ad ? "\"" + ad + "\" " : "") + TURAD[tur].toLocaleLowerCase("tr") + " şablonunu kendi sitesine alır. Öğrenci adı ve puanlar bağlantıda yer almaz."),
+      h("div.row", { style: { gap: "6px" } }, h("input.in", { value: url, readonly: true, onclick: (e) => e.target.select(), style: { flex: 1 } }), h("button.btn.sm.c-sky", { onclick: () => navigator.clipboard && navigator.clipboard.writeText(url).then(() => T.toast("Bağlantı kopyalandı")) }, "Kopyala")),
+      h("button.btn.sm.c-chalk", { style: { justifySelf: "start" }, onclick: () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify({ sablon: tur, ad, veri: nesne }, null, 1)], { type: "application/json" })); a.download = (ad || tur).replace(/[^\wçğıöşüÇĞİÖŞÜ -]/g, "").slice(0, 40) + ".tahta.json"; a.click(); } }, T.icon("download"), "Dosya olarak indir"), qr), actions: [{ label: "Kapat" }] });
+    if (url.length <= 2300 && window.QRCode) { try { new window.QRCode(qr, { text: url, width: 220, height: 220, correctLevel: window.QRCode.CorrectLevel.L }); } catch (e) {} }
+  };
+  function sablonAl(o) {
+    const v = o.veri || {};
+    T.modal({ title: "Paylaşılan " + (TURAD[o.sablon] || "şablon").toLocaleLowerCase("tr"), body: h("p", { style: { margin: 0 } }, (o.ad ? "\"" + o.ad + "\" " : "") + "sitene eklensin mi?"),
+      actions: [{ label: "Vazgeç" }, { label: "Ekle", tone: "c-leaf", onClick: () => {
+        T.store.update((s) => {
+          const cid = s.activeClassId;
+          if (o.sablon === "plan") s.plans.unshift(Object.assign({}, v, { id: T.uid(), at: Date.now() }));
+          else if (o.sablon === "olcek") { s.olcmeArac = s.olcmeArac || {}; const c = (s.olcmeArac[cid] = s.olcmeArac[cid] || { olcekler: [] }); c.olcekler = c.olcekler || []; c.olcekler.unshift({ id: "o" + Date.now().toString(36), tur: v.tur || "olcek", ad: v.ad || "Paylaşılan ölçek", ders: v.ders || "", kriter: (v.kriter || []).slice(0, 20), puan: {}, tarih: T.isoDate() }); }
+          else if (o.sablon === "sorular") { s.kokpit = s.kokpit || {}; s.kokpit.ozelKivilcim = s.kokpit.ozelKivilcim || {}; s.kokpit.ozelKivilcim[cid] = (v.sorular || [])[0] || ""; s.kokpit.kivilcimI = -1; }
+        });
+        if (o.sablon === "sahne") { try { const l = JSON.parse(localStorage.getItem("ta-sahneler") || "[]"); l.unshift({ ad: o.ad || "Paylaşılan sahne", bg: v.bg, list: v.list || [] }); localStorage.setItem("ta-sahneler", JSON.stringify(l.slice(0, 24))); } catch (e) {} }
+        T.toast("Eklendi"); T.go(o.sablon === "plan" ? "plan" : o.sablon === "olcek" ? "olcme" : o.sablon === "sahne" ? "ekran" : "ana");
+      } }] });
+  }
+  const alKontrol = async () => { if (!location.hash.startsWith("#al=")) return; const p = location.hash.slice(4); history.replaceState(null, "", location.pathname + "#ana"); try { sablonAl(await coz(p)); } catch (e) { T.toast("Paylaşım bağlantısı okunamadı"); } };
+  if (location.hash.startsWith("#al=")) addEventListener("load", () => setTimeout(alKontrol, 900));
+  addEventListener("hashchange", alKontrol);
+  T.sablonDosyaAl = (f) => f.text().then((t) => sablonAl(JSON.parse(t))).catch(() => T.toast("Dosya okunamadı"));
+
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Paylaşılan şablon dosyasını aç", ic: "download", ac: () => { const i = h("input", { type: "file", accept: ".json,application/json", onchange: (e) => e.target.files[0] && T.sablonDosyaAl(e.target.files[0]) }); i.click(); }, ek: ".tahta.json" }, { ad: "Evden tahtaya taşı", ic: "qr", ac: () => T.tasiPenceresi(), ek: "Plan, not ve soruyu bağlantıyla taşı" });
+})();
+
+/* ---- ekran-sahne.js ---- */
+/* Ders ekranı sahneleri: sık kullanılan araç düzenleri tek dokunuşla kurulur, öğretmen kendi düzenini de saklar.
+   Yan yana ekran: iki aracı üst üste binmeden 50/50 ya da 70/30 böler. Öğrenci boyu: ekranı aşağı indirir. */
+(function () {
+  const { h } = T;
+  const A = "ta-sahneler";
+  const kayitli = () => { try { return JSON.parse(localStorage.getItem(A) || "[]"); } catch (e) { return []; } };
+  const kaydet = (l) => { try { localStorage.setItem(A, JSON.stringify(l)); } catch (e) { T.toast("Kaydedilemedi"); } };
+  const HAZIR = [
+    ["Grup çalışması", "groups", [{ type: "groups", x: 0, y: 0, w: 0.55, h: 1 }, { type: "timer", x: 0.55, y: 0, w: 0.45, h: 0.55 }, { type: "noise", x: 0.55, y: 0.55, w: 0.45, h: 0.45 }]],
+    ["Sessiz okuma", "book", [{ type: "dogazaman", x: 0, y: 0, w: 0.6, h: 1, data: { sahne: "cicek", total: 900, left: 900 } }, { type: "text", x: 0.6, y: 0, w: 0.4, h: 0.55, data: { text: "Sessiz okuma zamanı\nKitabını seç, yerine otur, okumaya başla." } }, { type: "orman", x: 0.6, y: 0.55, w: 0.4, h: 0.45 }]],
+    ["İstasyonlar", "groups", [{ type: "istasyon", x: 0, y: 0, w: 0.72, h: 1 }, { type: "noise", x: 0.72, y: 0, w: 0.28, h: 0.55 }, { type: "traffic", x: 0.72, y: 0.55, w: 0.28, h: 0.45 }]],
+    ["Sınıf tartışması", "talk", [{ type: "sozagi", x: 0, y: 0, w: 0.6, h: 1 }, { type: "name", x: 0.6, y: 0, w: 0.4, h: 0.6 }, { type: "timer", x: 0.6, y: 0.6, w: 0.4, h: 0.4 }]],
+    ["Bireysel çalışma", "pen", [{ type: "text", x: 0, y: 0, w: 0.5, h: 0.6, data: { text: "Bugünkü görevimiz\n1. \n2. \n3. " } }, { type: "timer", x: 0.5, y: 0, w: 0.5, h: 0.6 }, { type: "traffic", x: 0, y: 0.6, w: 0.5, h: 0.4 }, { type: "noise", x: 0.5, y: 0.6, w: 0.5, h: 0.4 }]],
+  ];
+  T.sahnePenceresi = function () {
+    const govde = h("div.sh");
+    const ciz = () => {
+      const l = kayitli();
+      govde.replaceChildren(
+        h("b", "Hazır sahneler"), h("div.sh-izgara", HAZIR.map(([ad, ic, list]) => h("button.sh-kart", { onclick: () => { m.close(); T.board.sahneKur(list); } }, T.icon3d(ic), h("span", ad), h("small", list.map((x) => (T.widgets[x.type] || {}).title).filter(Boolean).join(", "))))),
+        h("b", "Benim sahnelerim"),
+        l.length ? h("div.sh-izgara", l.map((x, i) => h("div.sh-kart.kendi", h("button.sh-ac", { onclick: () => { m.close(); T.board.sahneKur(x.list, x.bg); } }, T.icon3d("star"), h("span", x.ad), h("small", x.list.length + " araç")),
+          h("button.sh-sil.pay", { "aria-label": x.ad + " sahnesini paylaş", title: "Paylaş", onclick: () => T.sablonPaylas && T.sablonPaylas("sahne", { bg: x.bg, list: x.list }, x.ad) }, "↗"),
+          h("button.sh-sil", { "aria-label": x.ad + " sahnesini sil", onclick: async () => { if (await T.confirm("Sahneyi sil", x.ad + " silinsin mi?", "Sil")) { const y = kayitli(); y.splice(i, 1); kaydet(y); ciz(); } } }, "×")))) : h("p.hint", { style: { margin: 0 } }, "Ders ekranında araçları istediğin gibi yerleştir, sonra aşağıdan sakla."),
+        h("div.row", { style: { gap: "8px" } }, (() => { const inp = h("input.in", { placeholder: "Şu anki düzenin adı, ör. Kesir dersi", maxlength: 40 }); return [inp, h("button.btn.c-leaf", { onclick: () => { const v = T.board.sahneAl(); if (!v.list.length) return T.toast("Ders ekranında araç yok"); const y = kayitli(); y.unshift({ ad: inp.value.trim() || "Sahnem " + (y.length + 1), bg: v.bg, list: v.list }); kaydet(y.slice(0, 24)); T.toast("Sahne saklandı"); ciz(); } }, T.icon("save"), "Şu anki düzeni sakla")]; })()),
+        h("b", "Yan yana ekran"), h("p.hint", { style: { margin: 0 } }, "İki aracı üst üste binmeden yan yana kur."), yanYana());
+    };
+    const m = T.modal({ title: "Sahneler", wide: true, body: govde, actions: [{ label: "Kapat" }] });
+    ciz();
+  };
+  /* Yan yana: soldaki ve sağdaki aracı seç, oranı seç */
+  function yanYana() {
+    const secenek = Object.entries(T.widgets).filter(([, w]) => w.title).sort((a, b) => a[1].title.localeCompare(b[1].title, "tr"));
+    const sol = h("select.in", { "aria-label": "Sol araç" }, secenek.map(([k, w]) => h("option", { value: k, selected: k === "text" ? true : null }, w.title)));
+    const sag = h("select.in", { "aria-label": "Sağ araç" }, secenek.map(([k, w]) => h("option", { value: k, selected: k === "draw" ? true : null }, w.title)));
+    let oran = 0.5;
+    const seg = h("div.seg", [[0.5, "50 / 50"], [0.7, "70 / 30"], [0.3, "30 / 70"]].map(([v, l]) => h("button", { "aria-pressed": String(v === oran), onclick: (e) => { oran = v; [...seg.children].forEach((b) => b.setAttribute("aria-pressed", String(b === e.currentTarget))); } }, l)));
+    return h("div.sh-yan", sol, sag, seg, h("button.btn.c-sky", { onclick: () => { T.$$(".modal-wrap, #layer > .scrim").forEach((x) => x.remove()); T.board.sahneKur([{ type: sol.value, x: 0, y: 0, w: oran, h: 1 }, { type: sag.value, x: oran, y: 0, w: 1 - oran, h: 1 }]); } }, "Yan yana kur"));
+  }
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Ders ekranı sahneleri", ic: "plan", ac: () => { T.go("ekran"); setTimeout(T.sahnePenceresi, 300); }, ek: "Grup çalışması, sessiz okuma, yan yana ekran" });
+
+  /* Öğrenci boyu: küçük öğrenciler üst köşelere uzanamaz; sayfa ekranın alt bölümüne iner */
+  T.ogrenciBoyu = function (on) {
+    const html = document.documentElement; on = on == null ? !html.classList.contains("ogrenci-boyu") : on;
+    html.classList.toggle("ogrenci-boyu", on);
+    let d = document.getElementById("boy-dug");
+    if (on && !d) document.body.append(h("button#boy-dug", { onclick: () => T.ogrenciBoyu(false), title: "Normal boya dön" }, "⬆ Normal boy"));
+    if (!on && d) d.remove();
+  };
+  T.ekKomutlar.push({ ad: "Öğrenci boyu", ic: "hand", ac: () => T.ogrenciBoyu(), ek: "Ekranı aşağı indir, küçükler uzansın" });
 })();

@@ -271,6 +271,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       h("b", { style: { fontSize: "18px" } }, p.baslik),
       h("div.row", h("button.btn.sm.c-sun", { onclick: () => { current = p; tab = "gunluk"; T.route(); } }, "Aç"),
         h("button.btn.sm.c-chalk", { onclick: () => T.board.setup(boardFor(p)) }, T.icon("board"), "Ekranı kur"),
+        h("button.btn.sm.c-sky", { title: "Planı meslektaşlarınla paylaş", onclick: () => { const c = Object.assign({}, p); delete c.id; T.sablonPaylas && T.sablonPaylas("plan", c, p.baslik); } }, T.icon("qr"), "Paylaş"),
         h("button.btn.sm.icon.c-tomato", { "aria-label": "Sil", onclick: () => { T.store.update((st) => (st.plans = st.plans.filter((x) => x.id !== p.id))); T.route(); } }, T.icon("trash")))))));
   }
 })();

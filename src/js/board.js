@@ -36,6 +36,7 @@ function TahtaYap(MOD) {
         const w = T.widgets[k];
         return T.h("button.btn.icon.c-chalk", { title: w.title, "aria-label": w.title + " ekle", onclick: () => add(k) }, T.icon(w.icon));
       }),
+      T.h("button.btn.c-grape", { title: "Hazır ve kayıtlı ekran düzenleri", onclick: () => T.sahnePenceresi && T.sahnePenceresi() }, T.icon("plan"), "Sahneler"),
       T.h("button.btn.icon.c-chalk", { title: "Arka plan", "aria-label": "Arka planı değiştir", onclick: pickBg }, T.icon("bg")),
       T.h("button.btn.icon.c-chalk", { title: "Tam ekran", "aria-label": "Tam ekran", onclick: fullscreen }, T.icon("full")),
       T.h("button.btn.icon.c-tomato", { title: "Tahtayı temizle", "aria-label": "Tahtayı temizle", onclick: clearAll }, T.icon("trash"))
@@ -171,7 +172,19 @@ function TahtaYap(MOD) {
     });
     save(); T.go("ekran");
   }
-  return { render, add, setup, BGS, openTray: () => openTray(), aktif: () => !!(root && root.isConnected) };
+  /* Sahne: araçları oransal konum ve boyutlarıyla kur (0-1 arası x, y, w, h) */
+  function sahneKur(list, bg) {
+    const d = data(); d.widgets.forEach((w) => w._destroy && w._destroy()); d.widgets = []; if (bg) d.bg = bg;
+    const v = T.$("#view"), bw = v ? v.clientWidth : window.innerWidth, bh = (v ? v.clientHeight : window.innerHeight - 170) - 90;
+    list.forEach((it) => { const def = T.widgets[it.type]; if (!def) return;
+      d.widgets.push({ id: T.uid(), type: it.type, title: it.title, x: Math.round(it.x * bw) + 10, y: Math.round(it.y * bh) + 10, w: Math.round(it.w * bw) - 20, h: Math.round(it.h * bh) - 20, data: Object.assign(def.init ? def.init() : {}, it.data || {}) }); });
+    save(); if (root && root.isConnected) T.route(); else T.go("ekran");
+  }
+  function sahneAl() {
+    const d = data(), v = T.$("#view"), bw = v ? v.clientWidth : window.innerWidth, bh = (v ? v.clientHeight : window.innerHeight - 170) - 90;
+    return { bg: d.bg, list: d.widgets.map((w) => ({ type: w.type, title: w.title, x: +((w.x - 10) / bw).toFixed(3), y: +((w.y - 10) / bh).toFixed(3), w: +((w.w + 20) / bw).toFixed(3), h: +((w.h + 20) / bh).toFixed(3), data: w.data })) };
+  }
+  return { render, add, setup, sahneKur, sahneAl, BGS, openTray: () => openTray(), aktif: () => !!(root && root.isConnected) };
 }
 T.board = TahtaYap("ekran");
 T.yuzen = TahtaYap("ana");

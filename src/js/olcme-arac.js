@@ -93,7 +93,8 @@
           h("button.btn.sm.c-chalk", { onclick: () => yazdir(formOlcek(o, true), "yatay") }, T.icon("plan"), "Sonuçları yazdır"),
           h("button.btn.sm.c-chalk", { onclick: () => yazdir(geriFisleri(o), "dikey") }, T.icon("plan"), "Geri bildirim fişleri"),
           h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, false), ozForm(o, false)), "dikey") }, T.icon("plan"), "Öz değerlendirme formu"),
-          h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, true), ozForm(o, true)), "dikey") }, T.icon("plan"), "Akran değerlendirme formu")));
+          h("button.btn.sm.c-chalk", { onclick: () => yazdir(h("div", ozForm(o, true), ozForm(o, true)), "dikey") }, T.icon("plan"), "Akran değerlendirme formu"),
+          h("button.btn.sm.c-sky", { title: "Ölçütleri meslektaşlarınla paylaş (puanlar paylaşılmaz)", onclick: () => T.sablonPaylas && T.sablonPaylas("olcek", { tur: o.tur, ad: o.ad, ders: o.ders, kriter: o.kriter }, o.ad) }, T.icon("qr"), "Paylaş")));
     };
     ciz();
   }

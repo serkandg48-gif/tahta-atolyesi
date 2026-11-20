@@ -1,4 +1,4 @@
-window.SURUM="2ecd89b8f7";
+window.SURUM="7481735ebd";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -14752,6 +14752,9 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
               g.kart.length ? h("div", h("b", "Gizlediğin kartlar"), h("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" } }, g.kart.map((r) => h("button.btn.sm.c-chalk", { onclick: () => { T.gorunumYaz((x) => (x.kart = x.kart.filter((y) => y !== r))); T.route(); } }, T.icon("eye"), kartAd(r)))),
                 h("button.btn.sm.c-chalk", { style: { marginTop: "8px" }, onclick: () => { T.gorunumYaz((x) => (x.kart = [])); T.route(); } }, "Hepsini geri aç")) : h("p.hint", { style: { margin: 0 } }, "Bir etkinlik kartının köşesindeki göz simgesiyle o kartı gizleyebilirsin."));
           })(),
+          h("section.paper", { style: { padding: "20px", display: "grid", gap: "12px" } }, h("h2", { style: { fontSize: "22px" } }, "Okuma kolaylığı"),
+            h("div.seg", [[false, "Kapalı"], [true, "Açık"]].map(([v, l]) => h("button", { "aria-pressed": String(T.okumaKolay() === v), onclick: () => { T.okumaKolayYap(v); T.route(); } }, l))),
+            h("p.hint", { style: { margin: 0 } }, "Okumakta zorlanan öğrenciler için. Harfleri birbirinden kolay ayırt edilen bir yazı tipine geçer, harf, sözcük ve satır aralıkları genişler. Bütün sitede geçerlidir.")),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Ben ve okulum"),
             field("Adım", inp("teacher", "Örnek: Ayşe Öğretmen"), "Ana sayfadaki selamlamada kullanılır."),
             field("Okulum", inp("school", "Örnek: Cumhuriyet İlkokulu")),
@@ -15708,4 +15711,13 @@ addEventListener("keydown", (e) => {
   addEventListener("hashchange", () => { const bol = (x) => (x || "#ana").slice(1).split("-")[0]; if (kilitli() && kilitHash && bol(location.hash) !== bol(kilitHash)) history.replaceState(null, "", kilitHash) || T.route(); }, true);
   addEventListener("keydown", (e) => { if (kilitli() && ((e.ctrlKey || e.metaKey) || e.key === "/" || e.key === "b" || e.key === "B" || e.key === "Escape")) { e.stopImmediatePropagation(); if (e.ctrlKey || e.metaKey || e.key === "/") e.preventDefault(); } }, true);
   T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Öğrenci modu (kilit)", ic: "lock", ac: () => T.kilit(), ek: "Menü ve kapatma düğmeleri gizlenir" });
+})();
+
+/* Okuma kolaylığı: okumakta zorlanan öğrenciler için harfleri ayırt etmesi kolay yazı tipi, geniş harf ve satır aralığı */
+(function () {
+  const anahtar = "ta-okuma-kolay";
+  T.okumaKolay = () => { try { return localStorage.getItem(anahtar) === "1"; } catch (e) { return false; } };
+  T.okumaKolayYap = (on) => { try { on ? localStorage.setItem(anahtar, "1") : localStorage.removeItem(anahtar); } catch (e) {} document.documentElement.classList.toggle("okuma-kolay", !!on); };
+  document.documentElement.classList.toggle("okuma-kolay", T.okumaKolay());
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Okuma kolaylığı aç veya kapat", ic: "book", ac: () => { const on = !T.okumaKolay(); T.okumaKolayYap(on); T.toast(on ? "Okuma kolaylığı açık" : "Okuma kolaylığı kapalı"); }, ek: "Geniş aralık, kolay ayırt edilen harfler" });
 })();

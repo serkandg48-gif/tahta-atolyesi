@@ -3021,3 +3021,9 @@ html.kilitli .pencere-ust, html.kilitli .tc-pin, html.kilitli .tc-gizle, html.ki
 #kilit-dug .kl-halka { position: absolute; inset: 0; background: #E9A23B; transform: scaleX(0); transform-origin: left; z-index: -1; }
 #kilit-dug.basili .kl-halka { transform: scaleX(1); transition: transform 2s linear; }
 #kilit-dug { isolation: isolate; }
+
+/* Okuma kolaylığı */
+html.okuma-kolay { --body: "Andika", system-ui, sans-serif; --display: "Andika", system-ui, sans-serif; }
+html.okuma-kolay body { letter-spacing: .035em; word-spacing: .16em; }
+html.okuma-kolay p, html.okuma-kolay li, html.okuma-kolay textarea, html.okuma-kolay .metin, html.okuma-kolay [contenteditable] { line-height: 1.75 !important; }
+html.okuma-kolay em, html.okuma-kolay i:not([class]) { font-style: normal; }

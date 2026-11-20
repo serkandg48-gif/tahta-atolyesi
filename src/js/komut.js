@@ -87,3 +87,12 @@
   addEventListener("keydown", (e) => { if (kilitli() && ((e.ctrlKey || e.metaKey) || e.key === "/" || e.key === "b" || e.key === "B" || e.key === "Escape")) { e.stopImmediatePropagation(); if (e.ctrlKey || e.metaKey || e.key === "/") e.preventDefault(); } }, true);
   T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Öğrenci modu (kilit)", ic: "lock", ac: () => T.kilit(), ek: "Menü ve kapatma düğmeleri gizlenir" });
 })();
+
+/* Okuma kolaylığı: okumakta zorlanan öğrenciler için harfleri ayırt etmesi kolay yazı tipi, geniş harf ve satır aralığı */
+(function () {
+  const anahtar = "ta-okuma-kolay";
+  T.okumaKolay = () => { try { return localStorage.getItem(anahtar) === "1"; } catch (e) { return false; } };
+  T.okumaKolayYap = (on) => { try { on ? localStorage.setItem(anahtar, "1") : localStorage.removeItem(anahtar); } catch (e) {} document.documentElement.classList.toggle("okuma-kolay", !!on); };
+  document.documentElement.classList.toggle("okuma-kolay", T.okumaKolay());
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Okuma kolaylığı aç veya kapat", ic: "book", ac: () => { const on = !T.okumaKolay(); T.okumaKolayYap(on); T.toast(on ? "Okuma kolaylığı açık" : "Okuma kolaylığı kapalı"); }, ek: "Geniş aralık, kolay ayırt edilen harfler" });
+})();

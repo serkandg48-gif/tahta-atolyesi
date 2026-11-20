@@ -20,12 +20,12 @@
       const s = T.store.get(), c = T.store.activeClass();
       const wrap = h("div.view-inner");
       view.append(wrap);
-      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["dogum", "Doğum günleri", "star"], ["getirdi", "Kim getirdi?", "check"], ["liste", "Sınıf listesi", "edit"]];
+      const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["nabiz", "Bu hafta", "chart"], ["dogum", "Doğum günleri", "star"], ["getirdi", "Kim getirdi?", "check"], ["liste", "Sınıf listesi", "edit"]];
       wrap.append(
         h("div.page-head", h("h1", c.name + " sınıfı"), h("div.sub", c.students.length + " öğrenci. Kayıtlar bu cihazda tutulur; Google ile giriş açılınca bütün cihazlarında görünecek."), h("div.grow"), classPicker()),
         h("div.tabs", { role: "tablist" }, tabs.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(tab === k), onclick: () => { tab = k; T.route(); } }, T.icon(ic), l))));
       const area = h("div"); wrap.append(area);
-      ({ yoklama, puan, oturma, gorev, gecmis, dogum, liste, getirdi: T.kimGetirdi })[tab](area, s, c);
+      ({ yoklama, puan, oturma, gorev, gecmis, nabiz, dogum, liste, getirdi: T.kimGetirdi })[tab](area, s, c);
     },
   };
 
@@ -34,6 +34,33 @@
     return h("div.seg", s.classes.map((c) => h("button", { "aria-pressed": String(c.id === s.activeClassId), onclick: () => { T.store.update((st) => (st.activeClassId = c.id)); T.applyTheme(); T.route(); } }, c.name)));
   }
   T.classPicker = classPicker;
+
+  /* ---------- Bu hafta: sınıfın nabzı. Devam, geri bildirim ve duygu kayıtlarından kısa bir özet ---------- */
+  function nabiz(area, s, c) {
+    const gunler = []; for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); if (T.cal.isSchoolDay(d)) gunler.push(T.isoDate(d)); }
+    const att = s.attendance[c.id] || {}, ad = (sid) => (c.students.find((x) => x.id === sid) || {}).name || "?";
+    const yok = {}, oran = gunler.map((g) => { const a = att[g] || {}, v = Object.values(a); v.length && Object.entries(a).forEach(([sid, d]) => { if (d === "yok") yok[sid] = (yok[sid] || 0) + 1; }); return [g, v.length ? Math.round(v.filter((x) => x !== "yok").length / v.length * 100) : null]; });
+    const bas = gunler.length ? new Date(gunler[0] + "T00:00").getTime() : Date.now() - 7 * 864e5;
+    const log = (s.behaviorLog[c.id] || []).filter((x) => x.t >= bas);
+    const arti = log.filter((x) => x.d > 0), eksi = log.filter((x) => x.d < 0);
+    const etiket = {}; arti.forEach((x) => (etiket[x.label] = (etiket[x.label] || 0) + 1));
+    const olumluAlan = new Set(arti.map((x) => x.sid)), almayan = c.students.filter((x) => !olumluAlan.has(x.id));
+    const zor = {}; let duyguSay = 0;
+    gunler.forEach((g) => Object.entries((s.duygu || {})[c.id + ":" + g] || {}).forEach(([sid, x]) => { duyguSay++; if (["kizgin", "uzgun", "korkmus", "endiseli"].includes(x.d)) zor[sid] = (zor[sid] || 0) + 1; }));
+    const kart = (baslik, ...ic) => h("div.paper.nb-kart", h("h3", baslik), ...ic);
+    const gunAd = (g) => new Date(g + "T00:00").toLocaleDateString("tr-TR", { weekday: "short" });
+    const liste = (l, bos) => l.length ? h("p.nb-adlar", l.join(", ")) : h("p.hint", bos);
+    const sayfa = h("div.nb",
+      kart("Devam", oran.some(([, o]) => o != null) ? h("div.nb-cubuklar", oran.map(([g, o]) => h("div.nb-cubuk", h("i", { style: { height: (o || 0) + "%" } }), h("b", o == null ? "-" : "%" + o), h("small", gunAd(g))))) : h("p.hint", "Bu hafta yoklama alınmamış."),
+        Object.entries(yok).filter(([, n]) => n >= 2).length ? h("div", h("b", "İki gün ve daha fazla gelmeyenler"), liste(Object.entries(yok).filter(([, n]) => n >= 2).map(([sid, n]) => ad(sid) + " (" + n + ")"), "")) : null),
+      kart("Geri bildirim", h("p", arti.length + " olumlu, " + eksi.length + " geliştirilecek geri bildirim."),
+        Object.keys(etiket).length ? h("p.hint", "En çok: " + Object.entries(etiket).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([l, n]) => l + " (" + n + ")").join(", ")) : null,
+        arti.length ? h("b", "Bu hafta hiç olumlu geri bildirim almayanlar") : null, arti.length ? liste(almayan.map((x) => x.name), "Herkes en az bir kez olumlu geri bildirim aldı.") : h("p.hint", "Davranış puanı sekmesinden verilen geri bildirimler burada toplanır.")),
+      kart("Duygular", duyguSay ? h("p", duyguSay + " duygu kaydı.") : h("p.hint", "Bu hafta Duygumetre ile kayıt yapılmamış."),
+        Object.entries(zor).filter(([, n]) => n >= 2).length ? h("div", h("b", "İki kez ve daha fazla zor bir duygu seçenler"), liste(Object.entries(zor).filter(([, n]) => n >= 2).map(([sid, n]) => ad(sid) + " (" + n + ")"), ""), h("p.hint", "Bir sohbet fırsatı olabilir.")) : null));
+    area.append(h("div.row", { style: { gap: "8px", marginBottom: "12px" } }, h("p.hint", { style: { margin: 0, flex: 1 } }, "Son yedi günün okul günlerinden özet. Yalnızca bu cihazdaki kayıtlardan hazırlanır."),
+      h("button.btn.sm.c-chalk", { onclick: () => T.yazdir(h("div", h("h1", c.name + " · Bu hafta"), h("p", new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })), sayfa.cloneNode(true))) }, T.icon("download"), "Yazdır")), sayfa);
+  }
 
   /* ---------- Yoklama ---------- */
   function yoklama(area, s, c) {

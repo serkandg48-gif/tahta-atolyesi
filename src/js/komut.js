@@ -124,3 +124,34 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
   };
   const v = document.getElementById("view"); if (v) new MutationObserver(ekle).observe(v, { childList: true, subtree: false });
 })();
+
+/* Etkinlik şeridinin sağ ucu: tam ekran, saat ve "Diğer" menüsü (ders ekranına kısayol burada) */
+T.seritSonu = function (id) {
+  const h = T.h;
+  const saat = h("span.serit-saat"); const yaz = () => { if (!saat.isConnected && saat._b) return clearInterval(saat._iv); saat._b = true; const d = new Date(); saat.textContent = T.pad(d.getHours()) + ":" + T.pad(d.getMinutes()); };
+  yaz(); saat._iv = setInterval(yaz, 15000);
+  const diger = h("button.btn.icon.c-chalk", { "aria-label": "Diğer", title: "Diğer", onclick: (e) => {
+    const eski = document.querySelector(".serit-menu"); if (eski) return eski.remove();
+    const r = e.currentTarget.getBoundingClientRect();
+    const m = h("div.serit-menu", { style: { top: r.bottom + 6 + "px", right: Math.max(8, innerWidth - r.right) + "px" } },
+      h("button", { onclick: () => { m.remove(); T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }); T.toast("Ders ekranına eklendi"); } }, T.icon("board"), "Ders ekranına kısayol"),
+      T.kisayolEkle ? h("button", { onclick: () => { m.remove(); T.kisayolEkle(id); } }, T.icon("pin"), "Ana sayfaya kısayol") : null,
+      h("button", { onclick: () => { m.remove(); T.ogrenciBoyu && T.ogrenciBoyu(); } }, T.icon("hand"), "Öğrenci boyu"));
+    document.body.append(m);
+    const kapa = (ev) => { if (!m.contains(ev.target)) { m.remove(); document.removeEventListener("pointerdown", kapa, true); } }; setTimeout(() => document.addEventListener("pointerdown", kapa, true), 0);
+  } }, "⋯");
+  const tam = h("button.btn.icon.c-chalk", { "aria-label": "Tam ekran", title: "Tam ekran", onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} } }, T.icon("full"));
+  return h("div.serit-son", diger, tam, saat);
+};
+
+/* Kartları düzenle: raptiye ve gizleme düğmeleri yalnızca bu mod açıkken (ya da fareyle üzerine gelince) görünür */
+(function () {
+  const ekle = () => {
+    const bas = document.querySelector("#view .page-head"); if (!bas || bas.querySelector(".kart-duzenle-dug") || !document.querySelector("#view .tc-pin, #view .tc-gizle")) return;
+    const on = () => document.documentElement.classList.contains("kart-duzenle");
+    const b = T.h("button.kart-duzenle-dug", { "aria-pressed": String(on()), onclick: () => { document.documentElement.classList.toggle("kart-duzenle"); b.setAttribute("aria-pressed", String(on())); b.lastChild.textContent = on() ? "Bitti" : "Kartları düzenle"; } }, T.icon("edit"), T.h("span", on() ? "Bitti" : "Kartları düzenle"));
+    bas.append(b);
+  };
+  const v = document.getElementById("view"); if (v) new MutationObserver(() => setTimeout(ekle, 0)).observe(v, { childList: true });
+  addEventListener("hashchange", () => document.documentElement.classList.remove("kart-duzenle"));
+})();

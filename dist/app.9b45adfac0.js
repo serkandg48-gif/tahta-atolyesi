@@ -1,4 +1,4 @@
-window.SURUM="f487aa1f77";
+window.SURUM="9b45adfac0";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -3664,9 +3664,9 @@ T.yuzen = TahtaYap("ana");
     const wrap = h("div.view-inner");
     const host = h("div.stage-wrap");
     if (t.compact) {
-      const bar = h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")));
-      host._bar = bar; wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
-      wrap.append(bar, host); view.append(wrap); t.render(host); return;
+      const bar = h("div.stage-bar.tek-serit", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")), h("h2", t.title), h("div.grow"), h("div.serit-yuva"), T.seritSonu ? T.seritSonu(id) : null);
+      host._bar = bar.querySelector(".serit-yuva"); wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
+      wrap.append(bar, host); view.append(wrap); const pu = view.querySelector(".pencere-ust"); if (pu) bar.append(pu); t.render(host); return;
     }
     const kitapVar = false; /* MEB kitabı yalnızca Kitaplar bölümünde açılır */
     const kitapAcik = () => { try { return localStorage.getItem("ta-kitap-acik") === "1"; } catch (e) { return false; } };
@@ -3678,11 +3678,13 @@ T.yuzen = TahtaYap("ana");
       govde.classList.toggle("kitapli", ac); wrap.classList.toggle("genis", ac); if (kitapDugme) kitapDugme.setAttribute("aria-pressed", String(ac));
       if (ac) govde.append(T.kitapPaneli(t.back, () => kitapYap(false)));
     };
-    wrap.append(h("div.stage-bar",
+    const bar = h("div.stage-bar.tek-serit",
       h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")),
-      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"), kitapDugme,
-      h("button.btn.sm.c-chalk", { onclick: () => T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }) }, T.icon("board"), "Ders ekranına kısayol")), govde);
+      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"), kitapDugme, h("div.serit-yuva"),
+      T.seritSonu ? T.seritSonu(id) : null);
+    wrap.append(bar, govde);
     view.append(wrap);
+    const pu = view.querySelector(".pencere-ust"); if (pu) bar.append(pu);
     t.render(host);
     if (kitapVar && kitapAcik()) kitapYap(true);
   };
@@ -14943,7 +14945,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       h("h2.oa-bas", "Ölçeklerim"),
       ol.length ? h("div.oa-liste", ol.map((o) => { const n = T.store.activeClass().students.filter((st) => duzey(o, (o.puan || {})[st.id])).length; return h("button.oa-satir", { onclick: () => T.go("olcme-a-" + o.id) }, h("b", o.ad), h("span", (o.tur === "liste" ? "Kontrol listesi" : "Dereceleme ölçeği") + (o.ders ? " · " + o.ders : "")), h("span", tarihYaz(o.tarih)), h("span", n + " / " + T.store.activeClass().students.length + " puanlandı")); }))
         : h("div.oa-bos", h("p.hint", "Henüz ölçek yok. Hazır ölçütlerden biriyle başlayabilirsin: " + SABLON.slice(0, 4).map((x) => x[0]).join(", ") + "."), h("button.btn.c-sun", { onclick: () => yeniOlcek("olcek") }, T.icon("plus"), "Hazır ölçütle ölçek kur")),
-      h("p.hint", { style: { marginTop: "12px" } }, "Düzeyler MEB'in biçimlendirici değerlendirme kılavuzlarındaki gibi "Geliştirilmeli", "Orta" ve "İyi" olarak hesaplanır: Toplam puan aralığı üçe bölünür."));
+      h("p.hint", { style: { marginTop: "12px" } }, "Düzeyler MEB'in biçimlendirici değerlendirme kılavuzlarındaki gibi \"Geliştirilmeli\", \"Orta\" ve \"İyi\" olarak hesaplanır: Toplam puan aralığı üçe bölünür."));
   };
   T.olcmeAracSayfa = function (view, id) {
     if (id === "yoklama") return yoklamaSayfasi(view);
@@ -16045,7 +16047,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     baglantiSor(sonra) {
       const url = h("input.in", { placeholder: "https://open.spotify.com/playlist/...", value: ayar().spotify || "" });
       T.modal({ title: "Spotify çalma listesi", body: h("div", { style: { display: "grid", gap: "10px" } },
-        h("p", "Spotify'da çalma listesinde "Paylaş", sonra "Bağlantıyı kopyala" de ve buraya yapıştır. Albüm ya da şarkı bağlantısı da olur."), url,
+        h("p", "Spotify'da çalma listesinde \"Paylaş\", sonra \"Bağlantıyı kopyala\" de ve buraya yapıştır. Albüm ya da şarkı bağlantısı da olur."), url,
         h("p.hint", "Bu tarayıcıda Spotify hesabına giriş yaptıysan şarkılar tam çalar, giriş yapmadıysan kısa önizleme çalar. Bağlantı yalnızca bu cihazda saklanır.")),
         actions: [{ label: "Vazgeç" }, { label: "Çal", tone: "c-leaf", onClick: () => { const u = url.value.trim(); if (!spotifyEmbed(u)) { T.toast("Spotify bağlantısı tanınmadı"); return false; } ayarYaz((x) => (x.spotify = u)); T.spotify.ac(u); sonra && sonra(); } }] });
       setTimeout(() => url.focus(), 50);
@@ -16060,11 +16062,11 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     ["Merak sorusu", "Bir karınca kendi ağırlığının kaç katını taşıyabilir?", "Önce tahmin edin. Karıncalar kendi ağırlıklarının çok katını taşıyabilir. Bunu birlikte araştırın."],
     ["Merak sorusu", "Kediler karanlıkta nasıl görür?", "Gözlerinin arkasındaki özel bir tabaka az ışığı yansıtır. Ama tamamen karanlıkta onlar da göremez."],
     ["Merak sorusu", "Arılar balı nasıl yapar?", "Çiçeklerden topladıkları nektarı kovanda işleyip suyunu azaltırlar. Böylece nektar yavaş yavaş bala dönüşür."],
-    ["Felsefi soru", "Bir arkadaşın sana bir kez yalan söylerse yine de arkadaşın olur mu?", "Doğru ya da yanlış cevap yok. Fikrini söyle, sonra "Neden böyle düşünüyorsun?" diye arkadaşına sor."],
+    ["Felsefi soru", "Bir arkadaşın sana bir kez yalan söylerse yine de arkadaşın olur mu?", "Doğru ya da yanlış cevap yok. Fikrini söyle, sonra \"Neden böyle düşünüyorsun?\" diye arkadaşına sor."],
     ["Felsefi soru", "Bir şeyin adil olduğunu nasıl anlarız?", "Herkesin aynı şeyi alması mı adil, herkesin ihtiyacı kadar alması mı? Örnekle konuşun."],
     ["Felsefi soru", "Hiç konuşmadan bir arkadaşına teşekkür edebilir misin?", "Yollarını bulun, bugün en az birini deneyin."],
     ["Felsefi soru", "Hayvanlar da bizim gibi düşünür mü?", "Gözlemlerinizden örnek verin. Hangi davranış düşündüklerini gösteriyor olabilir?"],
-    ["Felsefi soru", "Mutluluk bir kutuda saklanabilir mi?", "Seni mutlu eden bir anı hatırla. O anı nasıl "saklıyorsun"?"],
+    ["Felsefi soru", "Mutluluk bir kutuda saklanabilir mi?", "Seni mutlu eden bir anı hatırla. O anı nasıl \"saklıyorsun\"?"],
     ["Günün kelimesi", "merak", "Bir şeyi öğrenme, bilme isteği. Bugün neyi merak ediyorsun?"],
     ["Günün kelimesi", "sabır", "Bir şeyin olmasını kızmadan, sakin bekleyebilmek. Bugün nerede sabırlı olabilirsin?"],
     ["Günün kelimesi", "cesaret", "Korkulu bir durumda da doğru olanı yapabilme gücü. Cesaret gösterdiğin bir anı anlat."],
@@ -16185,61 +16187,12 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     ciz(); const iv = setInterval(ciz, 20000); T.onLeave(() => clearInterval(iv));
     return box;
   }
-  function akisKart() {
-    const rows = T.gunAkisi ? T.gunAkisi() : [];
-    const box = h("section.kp-kart.kp-akis", { "aria-label": "Günün akışı" });
-    const ciz = () => {
-      const m = new Date().getHours() * 60 + new Date().getMinutes(); const dk = T.akisDk;
-      const dersler = rows.filter((r) => r.tur === "ders"); const kalan = dersler.filter((r) => dk(r.s) > m).length;
-      const son = rows.length ? dk(rows[rows.length - 1].s) : 0;
-      box.replaceChildren(
-        h("div.kp-baslik", T.icon("clock"), "Şimdi ne yapıyoruz?", h("span.kp-kalan", !rows.length ? "Bugün ders yok" : m >= son ? "Dersler bitti" : "Çıkışa " + kalan + " ders"), h("button.kp-mini", { onclick: () => T.go("sabah-akis"), "aria-label": "Akışı düzenle" }, T.icon("edit"))),
-        rows.length ? h("div.kp-serit", rows.map((r) => { const su = dk(r.b) <= m && m < dk(r.s), gecti = dk(r.s) <= m; return h("div.kp-slot." + r.tur + (su ? ".su" : gecti ? ".gecti" : ""), h("small", r.b), h("b", r.ad)); })) : h("p.hint", "Günün akışını Sabah rutininden yazabilirsin."));
-      const su = box.querySelector(".kp-slot.su"); if (su) su.scrollIntoView({ block: "nearest", inline: "center" });
-    };
-    ciz(); const iv = setInterval(ciz, 30000); T.onLeave(() => clearInterval(iv));
-    return box;
-  }
   function notKart() {
     const k = ayar(); const metin = (k.not || {})[cid()] || "";
     const alan = h("div.kp-not-ic", { contenteditable: "true", "aria-label": "Hızlı not", "data-yer": "Bugünün hedefi ya da hatırlatma..." }); alan.textContent = metin;
     alan.addEventListener("paste", (e) => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData("text/plain"); document.execCommand("insertText", false, t); });
     alan.addEventListener("input", () => ayarYaz((x) => { x.not = x.not || {}; x.not[cid()] = alan.innerText; }));
     return h("section.kp-kart.kp-not", { "aria-label": "Hızlı not" }, alan);
-  }
-  function muzikKart() {
-    const MOD = [["klasik", "Klasik müzik"], ["spotify", "Spotify"], ["ozel", "Kendi sesim"]];
-    const box = h("section.kp-kart.kp-muzik", { "aria-label": "Müzik" });
-    const cv = h("canvas.kp-dalga", { width: 280, height: 44 });
-    let raf;
-    const ciz = () => {
-      const a = Muzik.aktif();
-      box.replaceChildren(h("div.kp-baslik", T.icon("music"), "Müzik", a ? h("button.kp-mini", { onclick: () => { Muzik.birak(); ciz(); }, "aria-label": "Durdur" }, T.icon("pause")) : null),
-        h("div.kp-modlar", MOD.map(([k, l]) => h("button" + (a === k || (k === "spotify" && T.spotify.acik()) ? ".on" : ""), { onclick: () => {
-          if (k === "spotify") { if (T.spotify.acik()) T.spotify.kapat(); else if (!T.spotify.ac()) T.spotify.baglantiSor(ciz); ciz(); return; }
-          if (a === k) { Muzik.birak(); ciz(); return; }
-          T.spotify.kapat();
-          if (k === "ozel" && !Muzik.ozelVar()) { ozelSes(); return; }
-          Muzik.cal(k); ciz();
-        } }, l))),
-        a ? cv : null,
-        a === "klasik" ? h("div.kp-calar", h("button.kp-mini", { "aria-label": "Önceki parça", onclick: () => Muzik.onceki() }, T.icon("back")), h("span.kp-parca", Muzik.parcaAdi()), h("button.kp-mini", { "aria-label": "Sonraki parça", onclick: () => Muzik.sonraki() }, T.icon("next"))) : null,
-        T.spotify.acik() || ayar().spotify ? h("button.kp-link", { onclick: () => T.spotify.baglantiSor(ciz) }, "Spotify bağlantısını değiştir") : null,
-        h("div.row", { style: { gap: "8px" } }, h("span.hint", "Ses"), h("input", { type: "range", min: 0, max: 1, step: 0.05, value: Muzik.hacimV, style: { flex: 1 }, oninput: (e) => Muzik.hacim(+e.target.value), "aria-label": "Ses düzeyi" }), h("button.kp-mini", { onclick: ozelSes, title: "Kendi sesini ekle", "aria-label": "Kendi sesini ekle" }, T.icon("plus"))));
-      cancelAnimationFrame(raf); if (a) dalga();
-    };
-    function dalga() {
-      const an = Muzik.analyser(); if (!an) return; const d = new Uint8Array(an.fftSize); const g = cv.getContext("2d");
-      const f = () => { an.getByteTimeDomainData(d); g.clearRect(0, 0, 280, 44); g.strokeStyle = "#1B2A4A"; g.lineWidth = 2; g.beginPath(); for (let i = 0; i < 280; i++) { const v = d[Math.floor((i / 280) * d.length)] / 128 - 1; g[i ? "lineTo" : "moveTo"](i, 22 + v * 40); } g.stroke(); raf = requestAnimationFrame(f); };
-      f();
-    }
-    function ozelSes() {
-      const url = h("input.in", { placeholder: "https://... .mp3 bağlantısı" });
-      T.modal({ title: "Kendi sesini ekle", body: h("div", { style: { display: "grid", gap: "10px" } }, h("label.btn.c-chalk", { style: { cursor: "pointer", justifySelf: "start" } }, T.icon("download"), "Ses dosyası seç", h("input", { type: "file", accept: "audio/*", style: { display: "none" }, onchange: (e) => { const f = e.target.files[0]; if (f) { Muzik.dosya(f); Muzik.cal("ozel"); ciz(); T.$$("#layer > .scrim").forEach((x) => x.remove()); } } })), url, h("p.hint", "Seçtiğin dosya bu oturum boyunca çalar. Bağlantı verirsen kaydedilir.")),
-        actions: [{ label: "Vazgeç" }, { label: "Çal", tone: "c-leaf", onClick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return false; } ayarYaz((x) => (x.muzikUrl = u)); Muzik.cal("ozel"); ciz(); } }] });
-    }
-    ciz(); T.onLeave(() => cancelAnimationFrame(raf));
-    return box;
   }
 
   /* ---------- Ana sayfa ---------- */
@@ -16253,8 +16206,6 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       const kontroller = h("div.kp-kontrol",
         h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Günün bilgilerini geri getir" : "Bilgileri gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Bugün" : "Ders modu"),
         !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
-        h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
-        h("button.kp-dugme" + (T.ambiyans && T.ambiyans.aktif() ? ".on" : ""), { onclick: () => T.ambiyans.sec(), title: "Odaklanarak çalışma videoları" }, T.icon("film"), "Odaklanarak çalışma"),
         h("button.kp-dugme", { onclick: () => T.hosgeldin(true), title: "Nasıl kullanılır?", "aria-label": "Nasıl kullanılır?" }, "?"),
         h("button.kp-dugme", { onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} }, title: "Tam ekran", "aria-label": "Tam ekran" }, T.icon("full")));
       kok.append(kontroller);
@@ -16333,14 +16284,8 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     ambVideo.src = src; ambVideo.play().catch(() => {});
     document.body.classList.add("amb-acik");
   }
-  /* Müzik varsayılan olarak açık: arka plan videosu varsa ilk dokunuşta onun müziği başlar (tarayıcı dokunmadan ses çalmaya izin vermez).
-     Öğretmen durdurursa bu tercih saklanır, bir daha kendiliğinden başlamaz. */
+  /* Müzik kendiliğinden başlamaz; öğretmen Ortam'dan ya da çalardan başlatır. */
   const muzikBaslat = () => { const mz = ambId && ambId !== "ozel" ? ambMuzik(ambId) : ""; if (mz) Muzik.tekParca(mz); else Muzik.cal("klasik"); T.muzikDurum && T.muzikDurum(); };
-  const ilkDokunus = () => {
-    document.removeEventListener("pointerdown", ilkDokunus, true); document.removeEventListener("keydown", ilkDokunus, true);
-    setTimeout(() => { if (ambId && ambId !== "ozel" && !ayar().muzikKapali && !Muzik.aktif() && !(T.spotify && T.spotify.acik()) && ambMuzik(ambId)) muzikBaslat(); }, 50);
-  };
-  document.addEventListener("pointerdown", ilkDokunus, true); document.addEventListener("keydown", ilkDokunus, true);
   /* Küçük çalar: müzik çalarken sağ altta durur. Görüntüye dokunmadan parça değiştirir, durdurur, listeden seçtirir. */
   /* Parça listesi: alt şeritteki Müzik düğmesinden ya da çalardan açılır */
   T.muzikListe = function (kaynak) {
@@ -16561,7 +16506,6 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
   const ARACLAR = [["bg", "Arka plan", "bg"], ["yazitahtasi", "Yazı tahtası", "pen"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim", "palet"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["hepsi", "Tüm araçlar", "plus"]];
-  function dockMod() { try { return localStorage.getItem("ta-dock") || "atolye"; } catch (e) { return "atolye"; } }
   function dockYaz(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function aracAc(k) {
     if (k === "bg") { T.arkaPlanSec(); return; }
@@ -16601,7 +16545,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   ];
   let acikPanel = null;
   function panelKapat() { T.$$(".altp-perde").forEach((x) => { x.classList.add("kapan"); setTimeout(() => x.remove(), 220); }); const p = T.$(".altp"); if (p) { p.classList.add("kapan"); setTimeout(() => p.remove(), 220); } acikPanel = null; T.$$(".dock-ana[aria-expanded]").forEach((b) => b.setAttribute("aria-expanded", "false")); }
-  function panelAc(tur, cur) {
+  function panelAc(tur, cur, kaynak) {
     if (acikPanel === tur) { panelKapat(); return; }
     T.$$(".altp, .altp-perde").forEach((x) => x.remove()); acikPanel = tur;
     T.$$(".dock-ana").forEach((b) => b.setAttribute("aria-expanded", String(b.dataset.tur === tur)));
@@ -16609,39 +16553,34 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     let i = 0, gruplar;
     if (tur === "arac") gruplar = ARAC_GRUP.map(([ad, l]) => [ad, l.map(aracBilgi).filter(Boolean)]);
     else if (tur === "ortam") gruplar = [["", ortamOgeler()]];
+    else if (tur === "diger") { const D = dersler(); gruplar = [["Öğretmen", PANEL.ogretmen.map((k) => D.find((x) => x.k === k)).filter(Boolean)], ["Diğer", [{ k: "ortam", l: "Ortam", ic: "gundogumu", ac: () => setTimeout(() => panelAc("ortam", cur), 0) }, { k: "ayarlar", l: "Ayarlar", ic: "settings", ac: () => T.go("ayarlar") }]]]; }
     else { const D = dersler(); gruplar = [["", PANEL[tur].map((k) => D.find((x) => x.k === k)).filter(Boolean)]]; }
-    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, sınıf düzeni ve sabah rutini"], ogretmen: ["Öğretmen", "Ölçme ve düşünme rutinleri, sınıfım, plan, kitaplar, yerine gelecek öğretmene notlar"], ortam: ["Ortam", "Arka plan, odaklanarak çalışma ve müzik"] }[tur];
+    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, sınıf düzeni ve sabah rutini"], ogretmen: ["Öğretmen", "Ölçme ve düşünme rutinleri, sınıfım, plan, kitaplar, yerine gelecek öğretmene notlar"], ortam: ["Ortam", "Arka plan, odaklanarak çalışma ve müzik"], diger: ["Diğer", "Öğretmen, ortam ve ayarlar"] }[tur];
     const az = gruplar.reduce((t, [, l]) => t + l.length, 0) <= 8;
     const p = h("div.altp" + (az ? ".az" : ""), { role: "dialog", "aria-label": BAS[0] },
       h("div.altp-bas", h("b", BAS[0]), h("span.hint", BAS[1]), tur === "arac" ? h("button.btn.sm.c-chalk.altp-hepsi", { onclick: () => { panelKapat(); aracAc("hepsi"); } }, T.icon("plus"), "Tüm araçlar") : null, h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
       h("div.altp-gruplar", gruplar.filter(([, l]) => l.length).map(([ad, l]) => h("section.altp-grup", ad ? h("h3", ad) : null, h("div.altp-izgara", l.map((x) => { const b = dugme(x, i++, tur === "arac" ? "a" : tur === "ortam" ? "o" : "d"); if (x.gizli) b.classList.add("gizli"); return b; }))))));
     /* arka plan karartması ve imlece yaklaşınca büyüyen kareler */
-    const perde = h("div.altp-perde", { onclick: panelKapat }); document.body.append(perde);
+    const kucukMenu = ["ders", "yasam", "ogretmen"].includes(tur) && innerWidth > 760;
+    if (kucukMenu) {
+      p.classList.add("pop");
+      const r = (kaynak || T.$(`.dock-ana[data-tur=${tur}]`) || document.body).getBoundingClientRect();
+      p.style.setProperty("--x", Math.round(r.left + r.width / 2) + "px"); p.style.setProperty("--alt", Math.round(innerHeight - r.top + 12) + "px");
+    } else { const perde = h("div.altp-perde", { onclick: panelKapat }); document.body.append(perde); }
+    if (tur === "arac") p.classList.add("bento");
     document.body.append(p);
-    const ogeler = [...p.querySelectorAll(".altp-oge")];
-    const buyut = (e) => ogeler.forEach((o) => { const r = o.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)), k = Math.max(0, 1 - d / 260); o.style.setProperty("--b", (1 + k * k * 0.22).toFixed(3)); o.style.zIndex = Math.round(k * 10); });
-    p.addEventListener("pointermove", buyut); p.addEventListener("pointerleave", () => ogeler.forEach((o) => o.style.setProperty("--b", 1)));
     const dis = (e) => { if (!p.isConnected) { document.removeEventListener("pointerdown", dis, true); return; } if (!p.contains(e.target) && !e.target.closest(".dock")) { panelKapat(); document.removeEventListener("pointerdown", dis, true); } };
     setTimeout(() => document.addEventListener("pointerdown", dis, true), 0);
   }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && acikPanel) panelKapat(); });
-  /* ders sayfalarındaki kartlarda da imlece yaklaşınca büyüme */
-  document.addEventListener("pointermove", (e) => {
-    if (e.pointerType !== "mouse") return;
-    const g = e.target.closest && e.target.closest(".tool-grid"); const eski = T._buyuyenIzgara;
-    if (eski && eski !== g) eski.querySelectorAll(".tool-card").forEach((o) => o.style.setProperty("--b", 1));
-    T._buyuyenIzgara = g; if (!g) return;
-    g.querySelectorAll(".tool-card").forEach((o) => { const r = o.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)), k = Math.max(0, 1 - d / 240); o.style.setProperty("--b", (1 + k * k * 0.16).toFixed(3)); });
-  }, { passive: true });
   function dock(cur) {
     const el = T.$("#dock");
     document.documentElement.classList.add("alt-menu");
     panelKapat();
-    const kucuk = (() => { try { return localStorage.getItem("ta-dock-kucuk") === "1"; } catch (e) { return false; } })();
+    const kucuk = T._aracSayfa ? !T._dockGecici : (() => { try { return localStorage.getItem("ta-dock-kucuk") === "1"; } catch (e) { return false; } })();
     el.classList.toggle("kucuk", kucuk);
-    if (kucuk) { el.replaceChildren(h("button.dock-ac", { "aria-label": "Menüyü aç", title: "Menüyü aç", onclick: () => { dockYaz("ta-dock-kucuk", "0"); dock(cur); } }, T.icon("grid"))); return; }
-    const hizli = sonlar().filter((x) => x.k !== "bg").map((x) => x.t === "a" ? aracBilgi(x.k) && Object.assign(aracBilgi(x.k), { t: "a" }) : (dersler().find((d) => d.k === x.k) || null)).filter(Boolean).slice(0, 4);
-    const ana = (tur, l, ic) => h("button.dock-ana", { "data-tur": tur, "aria-expanded": "false", onclick: () => panelAc(tur, cur) }, T.icon3d(ic), h("span", l), T.icon("up"));
+    if (kucuk) { el.replaceChildren(h("button.dock-ac", { "aria-label": "Menüyü aç", title: "Menüyü aç", onclick: () => { if (T._aracSayfa) T._dockGecici = true; else dockYaz("ta-dock-kucuk", "0"); dock(cur); } }, T.icon("grid"))); return; }
+    const ana = (tur, l, ic) => h("button.dock-ana", { "data-tur": tur, "aria-expanded": "false", onclick: (e) => panelAc(tur, cur, e.currentTarget) }, T.icon3d(ic), h("span", l));
     const git = (k, l, ic) => h("button.dock-item", { "aria-current": cur === k ? "page" : null, onclick: () => T.go(k) }, T.icon3d(ic), h("span", l));
     el.replaceChildren(
       git("ana", "Ana sayfa", "home"),
@@ -16649,7 +16588,8 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       h("span.dock-sep", { "aria-hidden": "true" }),
       (() => { const cal = T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())); const b = ana("ortam", "Ortam", "gundogumu"); b.classList.add("dock-muzik"); if (cal) { b.classList.add("caliyor"); b.prepend(h("i.mc-dalga.dock-dalga", h("i"), h("i"), h("i"))); } dockOrtam = b; return b; })(),
       git("ayarlar", "Ayarlar", "settings"),
-      h("button.dock-kucult", { "aria-label": "Menüyü küçült", title: "Menüyü küçült", onclick: () => { dockYaz("ta-dock-kucuk", "1"); dock(cur); } }, T.icon("down")));
+      (() => { const b = ana("diger", "Diğer", "settings"); b.classList.add("dock-diger"); return b; })(),
+      h("button.dock-kucult", { "aria-label": "Menüyü küçült", title: "Menüyü küçült", onclick: () => { if (T._aracSayfa) T._dockGecici = false; else dockYaz("ta-dock-kucuk", "1"); dock(cur); } }, T.icon("down")));
   }
 
   /* ---------- Ana sayfa ---------- */
@@ -16670,6 +16610,13 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     T.applyTheme();
     document.documentElement.classList.toggle("kokpitte", sec === T.sections.ana);
     document.documentElement.classList.toggle("ekranda", id === "ekran");
+    /* Etkinlik sayfası: üst çubuk gizlenir, alt menü köşeye küçülür; sahne nefes alır */
+    const aracSayfa = !!(sub && T.tools[sub] && sec !== T.sections.ana);
+    if (T._sonRota !== raw) T._dockGecici = false; T._sonRota = raw;
+    T._aracSayfa = aracSayfa;
+    document.documentElement.classList.toggle("arac-sayfa", aracSayfa);
+    const ogrenciEkrani = aracSayfa && (T.tools[sub].cat === "oyun" || ["turkce", "birinci"].includes(T.tools[sub].back || ""));
+    document.documentElement.classList.toggle("ogrenci-yazi", ogrenciEkrani);
     topbar();
     dock(T.sections[id] ? id : "ana");
     const view = T.$("#view");
@@ -16911,6 +16858,37 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
     bas.append(T.h("button.kaldigin", { onclick: () => T.go(b + "-" + k.id), title: "En son açtığın etkinlik" }, T.icon("turn"), T.h("span", "Kaldığın yer: ", T.h("b", T.tools[k.id].title)), bugun ? null : T.h("small", gun.toLocaleDateString("tr-TR", { day: "numeric", month: "short" }))));
   };
   const v = document.getElementById("view"); if (v) new MutationObserver(ekle).observe(v, { childList: true, subtree: false });
+})();
+
+/* Etkinlik şeridinin sağ ucu: tam ekran, saat ve "Diğer" menüsü (ders ekranına kısayol burada) */
+T.seritSonu = function (id) {
+  const h = T.h;
+  const saat = h("span.serit-saat"); const yaz = () => { if (!saat.isConnected && saat._b) return clearInterval(saat._iv); saat._b = true; const d = new Date(); saat.textContent = T.pad(d.getHours()) + ":" + T.pad(d.getMinutes()); };
+  yaz(); saat._iv = setInterval(yaz, 15000);
+  const diger = h("button.btn.icon.c-chalk", { "aria-label": "Diğer", title: "Diğer", onclick: (e) => {
+    const eski = document.querySelector(".serit-menu"); if (eski) return eski.remove();
+    const r = e.currentTarget.getBoundingClientRect();
+    const m = h("div.serit-menu", { style: { top: r.bottom + 6 + "px", right: Math.max(8, innerWidth - r.right) + "px" } },
+      h("button", { onclick: () => { m.remove(); T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }); T.toast("Ders ekranına eklendi"); } }, T.icon("board"), "Ders ekranına kısayol"),
+      T.kisayolEkle ? h("button", { onclick: () => { m.remove(); T.kisayolEkle(id); } }, T.icon("pin"), "Ana sayfaya kısayol") : null,
+      h("button", { onclick: () => { m.remove(); T.ogrenciBoyu && T.ogrenciBoyu(); } }, T.icon("hand"), "Öğrenci boyu"));
+    document.body.append(m);
+    const kapa = (ev) => { if (!m.contains(ev.target)) { m.remove(); document.removeEventListener("pointerdown", kapa, true); } }; setTimeout(() => document.addEventListener("pointerdown", kapa, true), 0);
+  } }, "⋯");
+  const tam = h("button.btn.icon.c-chalk", { "aria-label": "Tam ekran", title: "Tam ekran", onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} } }, T.icon("full"));
+  return h("div.serit-son", diger, tam, saat);
+};
+
+/* Kartları düzenle: raptiye ve gizleme düğmeleri yalnızca bu mod açıkken (ya da fareyle üzerine gelince) görünür */
+(function () {
+  const ekle = () => {
+    const bas = document.querySelector("#view .page-head"); if (!bas || bas.querySelector(".kart-duzenle-dug") || !document.querySelector("#view .tc-pin, #view .tc-gizle")) return;
+    const on = () => document.documentElement.classList.contains("kart-duzenle");
+    const b = T.h("button.kart-duzenle-dug", { "aria-pressed": String(on()), onclick: () => { document.documentElement.classList.toggle("kart-duzenle"); b.setAttribute("aria-pressed", String(on())); b.lastChild.textContent = on() ? "Bitti" : "Kartları düzenle"; } }, T.icon("edit"), T.h("span", on() ? "Bitti" : "Kartları düzenle"));
+    bas.append(b);
+  };
+  const v = document.getElementById("view"); if (v) new MutationObserver(() => setTimeout(ekle, 0)).observe(v, { childList: true });
+  addEventListener("hashchange", () => document.documentElement.classList.remove("kart-duzenle"));
 })();
 
 /* ---- tasi.js ---- */

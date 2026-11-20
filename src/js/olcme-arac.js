@@ -163,7 +163,7 @@
       h("h2.oa-bas", "Ölçeklerim"),
       ol.length ? h("div.oa-liste", ol.map((o) => { const n = T.store.activeClass().students.filter((st) => duzey(o, (o.puan || {})[st.id])).length; return h("button.oa-satir", { onclick: () => T.go("olcme-a-" + o.id) }, h("b", o.ad), h("span", (o.tur === "liste" ? "Kontrol listesi" : "Dereceleme ölçeği") + (o.ders ? " · " + o.ders : "")), h("span", tarihYaz(o.tarih)), h("span", n + " / " + T.store.activeClass().students.length + " puanlandı")); }))
         : h("div.oa-bos", h("p.hint", "Henüz ölçek yok. Hazır ölçütlerden biriyle başlayabilirsin: " + SABLON.slice(0, 4).map((x) => x[0]).join(", ") + "."), h("button.btn.c-sun", { onclick: () => yeniOlcek("olcek") }, T.icon("plus"), "Hazır ölçütle ölçek kur")),
-      h("p.hint", { style: { marginTop: "12px" } }, "Düzeyler MEB'in biçimlendirici değerlendirme kılavuzlarındaki gibi "Geliştirilmeli", "Orta" ve "İyi" olarak hesaplanır: Toplam puan aralığı üçe bölünür."));
+      h("p.hint", { style: { marginTop: "12px" } }, "Düzeyler MEB'in biçimlendirici değerlendirme kılavuzlarındaki gibi \"Geliştirilmeli\", \"Orta\" ve \"İyi\" olarak hesaplanır: Toplam puan aralığı üçe bölünür."));
   };
   T.olcmeAracSayfa = function (view, id) {
     if (id === "yoklama") return yoklamaSayfasi(view);

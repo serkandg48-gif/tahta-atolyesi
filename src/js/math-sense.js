@@ -6,9 +6,9 @@
     const wrap = h("div.view-inner");
     const host = h("div.stage-wrap");
     if (t.compact) {
-      const bar = h("div.stage-bar", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")));
-      host._bar = bar; wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
-      wrap.append(bar, host); view.append(wrap); t.render(host); return;
+      const bar = h("div.stage-bar.tek-serit", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")), h("h2", t.title), h("div.grow"), h("div.serit-yuva"), T.seritSonu ? T.seritSonu(id) : null);
+      host._bar = bar.querySelector(".serit-yuva"); wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
+      wrap.append(bar, host); view.append(wrap); const pu = view.querySelector(".pencere-ust"); if (pu) bar.append(pu); t.render(host); return;
     }
     const kitapVar = false; /* MEB kitabı yalnızca Kitaplar bölümünde açılır */
     const kitapAcik = () => { try { return localStorage.getItem("ta-kitap-acik") === "1"; } catch (e) { return false; } };
@@ -20,11 +20,13 @@
       govde.classList.toggle("kitapli", ac); wrap.classList.toggle("genis", ac); if (kitapDugme) kitapDugme.setAttribute("aria-pressed", String(ac));
       if (ac) govde.append(T.kitapPaneli(t.back, () => kitapYap(false)));
     };
-    wrap.append(h("div.stage-bar",
+    const bar = h("div.stage-bar.tek-serit",
       h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")),
-      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"), kitapDugme,
-      h("button.btn.sm.c-chalk", { onclick: () => T.board.add("toollink", { data: { tool: id }, w: 280, h: 170 }) }, T.icon("board"), "Ders ekranına kısayol")), govde);
+      h("h2", t.title), t.desc ? h("span.hint", t.desc) : null, h("div.grow"), kitapDugme, h("div.serit-yuva"),
+      T.seritSonu ? T.seritSonu(id) : null);
+    wrap.append(bar, govde);
     view.append(wrap);
+    const pu = view.querySelector(".pencere-ust"); if (pu) bar.append(pu);
     t.render(host);
     if (kitapVar && kitapAcik()) kitapYap(true);
   };

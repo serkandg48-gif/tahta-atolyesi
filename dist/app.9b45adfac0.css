@@ -3357,3 +3357,90 @@ html.ogrenci-boyu #topbar { opacity: .4; }
 /* kalem katmanı ile kazanım kontrol aynı sınıf adını paylaşıyordu: kalem katmanını ayır */
 .kk-kap:has(> .kk-cv) { max-width: none; gap: 0; justify-items: stretch; margin: 0; }
 .kk-kap > .kf-cer { grid-area: 1 / 1; min-height: 0; }
+
+/* =================== Tasarım rehberi (Kasım) =================== */
+/* Rakamlar titremesin */
+body { font-variant-numeric: tabular-nums; font-feature-settings: "cv05" 1, "cv08" 1, "tnum" 1; }
+/* Öğrenciye dönük oyun ve okuma ekranlarında harfleri net ayrılan yazı */
+html.ogrenci-yazi .stage-wrap, html.ogrenci-yazi .arac-govde { --body: "Andika", system-ui, sans-serif; --display: "Andika", system-ui, sans-serif; font-family: "Andika", system-ui, sans-serif; }
+/* Etkinlik sayfası: üst çubuk yok, tek şerit */
+html.arac-sayfa #topbar { display: none !important; }
+html.arac-sayfa #app { grid-template-rows: 0 1fr; }
+html.arac-sayfa { --top-h: 0px; }
+html.arac-sayfa .view.pencere { margin-top: 10px; }
+.stage-bar.tek-serit { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.stage-bar.tek-serit .serit-yuva { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stage-bar.tek-serit .serit-yuva:empty { display: none; }
+.stage-bar.tek-serit .pencere-ust { position: static; float: none; margin: 0; order: 99; }
+.serit-son { display: flex; align-items: center; gap: 6px; }
+.serit-son > .btn.icon { font-size: 1.3rem; font-weight: 800; }
+.serit-saat { font: 800 1.15rem var(--display); color: var(--navy); padding: 0 6px; }
+.serit-menu { position: fixed; z-index: 9000; background: #fff; border-radius: 16px; box-shadow: 0 14px 34px rgba(20,30,50,.22); padding: 6px; display: grid; min-width: 220px; }
+.serit-menu button { display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 10px 12px; border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; text-align: left; }
+.serit-menu button:hover { background: #f2f5fb; } .serit-menu .ic { width: 20px; height: 20px; }
+/* Alt menü: küçük menüler dokunulan düğmenin üstünde açılır */
+.altp.pop { left: var(--x) !important; right: auto !important; top: auto !important; bottom: var(--alt) !important; transform: translateX(-50%) !important; width: max-content !important; max-width: calc(100vw - 24px) !important; padding: 16px 18px 18px !important;
+  border-radius: 26px !important; background: #fff !important; box-shadow: 0 20px 50px rgba(20,30,50,.28) !important; display: block !important; animation: pop-ac .2s cubic-bezier(.2,.9,.3,1.2) both !important; max-height: none !important; }
+@keyframes pop-ac { from { opacity: 0; transform: translateX(-50%) translateY(12px) scale(.96); } }
+.altp.pop .altp-bas { margin-bottom: 10px; justify-content: flex-start; } .altp.pop .altp-bas b { font-size: 20px; }
+.altp.pop .altp-kapat { width: 36px; height: 36px; top: -2px; }
+.altp.pop .altp-grup { grid-template-columns: 1fr; }
+.altp.pop .altp-izgara { gap: 10px; padding: 0; flex-wrap: nowrap; }
+.altp.pop .altp-oge, .altp.pop.az .altp-oge { width: 128px; padding: 14px 6px 12px; font-size: 15px; gap: 6px; } .altp.pop .altp-oge .ikon3d, .altp.pop.az .altp-oge .ikon3d { width: 58px; height: 58px; }
+/* Araçlar: dört kategori dengeli 2x2 kutu */
+.altp.bento .altp-gruplar { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: min(1180px, 100%); }
+.altp.bento .altp-grup { display: grid; grid-template-columns: 1fr !important; align-content: start; gap: 10px; background: rgba(255,255,255,.75); border-radius: 24px; padding: 14px 16px 16px; box-shadow: 0 0 0 1px rgba(27,42,74,.06); }
+.altp.bento .altp-grup h3 { text-align: left !important; }
+.altp.bento .altp-izgara { flex-wrap: wrap !important; justify-content: flex-start !important; padding: 0; gap: 10px; }
+.altp.bento .altp-oge { width: 118px; padding: 12px 6px 10px; font-size: 15px; } .altp.bento .altp-oge .ikon3d { width: 56px; height: 56px; }
+@media (max-width: 900px) { .altp.bento .altp-gruplar { grid-template-columns: 1fr; } }
+/* Kartlar: sakin yükselme, daha geniş kart, raptiye yalnızca düzenlerken */
+html.alt-menu .view .tool-card, .altp-oge { transform: none; }
+html.alt-menu .view .tool-card:hover, .altp-oge:hover { transform: translateY(-3px) !important; box-shadow: 0 14px 28px rgba(27,42,74,.16), 0 0 0 1px rgba(27,42,74,.06) !important; }
+html.alt-menu .view .tc-wrap { width: clamp(200px, 17vw, 236px); }
+html.alt-menu .view .tool-card > span small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tc-pin, .tc-gizle { opacity: 0 !important; pointer-events: none; transition: opacity .15s; }
+@media (hover: hover) { .tc-wrap:hover .tc-pin, .tc-wrap:hover .tc-gizle { opacity: 1 !important; pointer-events: auto; } }
+html.kart-duzenle .tc-pin, html.kart-duzenle .tc-gizle { opacity: 1 !important; pointer-events: auto; }
+.tc-pin.on { opacity: 1 !important; pointer-events: auto; }
+.kart-duzenle-dug { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 999px; padding: 8px 14px; background: rgba(27,42,74,.06); color: var(--navy); font: inherit; font-weight: 700; cursor: pointer; }
+.kart-duzenle-dug[aria-pressed=true] { background: var(--navy); color: #fff; } .kart-duzenle-dug .ic { width: 16px; height: 16px; }
+/* Sekmeler: seçili sekme renkli, diğerleri sade; mobilde tek satır kayar */
+html.alt-menu .view .tabs button:not([aria-selected="true"]) { color: var(--ink-soft); box-shadow: 0 2px 0 rgba(27,42,74,.10), 0 6px 14px rgba(27,42,74,.06); }
+html.alt-menu .view .tabs button:not([aria-selected="true"]) svg { color: var(--ink-soft); }
+html.alt-menu .view .tabs button:not([aria-selected="true"]):hover { color: var(--tr); transform: translateY(-2px); }
+html.alt-menu .view .tabs button[aria-selected="true"] { transform: none; }
+@media (max-width: 760px) { html.alt-menu .view .tabs { flex-wrap: nowrap !important; overflow-x: auto; justify-content: flex-start !important; scrollbar-width: none; padding-bottom: 6px; } html.alt-menu .view .tabs button { flex: none; } }
+/* Ana sayfa kartları daha opak: parlak arka planda okunur */
+.kp-kart { background: rgba(255,251,244,.9) !important; border: 1px solid rgba(255,255,255,.85) !important; }
+body:has(> .altp.pop:not(.kapan)) #app > :not(.dock), body:has(> .altp.pop:not(.kapan)) #yuzen { visibility: visible; }
+html.arac-sayfa #view { grid-row: 2; }
+.altp.bento .altp-izgara > .altp-oge { flex: none; width: 112px !important; }
+.altp.pop .altp-bas b { background: none !important; padding: 0 !important; box-shadow: none !important; }
+.altp.bento .altp-izgara { display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; grid-template-columns: none !important; }
+html.arac-sayfa .view.pencere { margin-bottom: 16px; }
+html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
+.altp.bento .altp-grup:has(h3) .altp-izgara.altp-izgara { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)) !important; gap: 10px; max-width: none; }
+.altp.bento .altp-grup:has(h3) .altp-izgara > .altp-oge { width: auto !important; }
+/* Mobil alt menü: en çok beş öğe, kalanlar Diğer çekmecesinde */
+.dock-diger { display: none !important; }
+@media (max-width: 760px) {
+  .dock .dock-ana[data-tur=ogretmen], .dock .dock-ana[data-tur=ortam], .dock .dock-item:has(+ .dock-diger), .dock .dock-sep, .dock .dock-kucult { display: none !important; }
+  .dock-diger { display: grid !important; }
+  .dock { overflow: visible !important; }
+}
+@media (max-width: 760px) {
+  .dock, html[data-kademe="ortaokul"] .dock { width: calc(100vw - 16px) !important; max-width: none !important; justify-content: space-between; gap: 2px !important; padding: 6px !important; }
+  .dock .dock-item, .dock .dock-ana { flex: 1 1 0; min-width: 0 !important; width: auto !important; padding: 6px 2px !important; }
+  .dock .dock-item span, .dock .dock-ana span { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .dock .dock-ana[data-tur=yasam] span { font-size: 0 !important; } .dock .dock-ana[data-tur=yasam] span::after { content: "Sınıf"; font-size: 11px; }
+  html.alt-menu .view .tc-wrap { width: calc(50% - 8px) !important; }
+  html.alt-menu .view .tool-card { padding: 14px 8px 12px !important; } html.alt-menu .view .tool-card .ikon3d { width: 54px !important; height: 54px !important; }
+  html.alt-menu .view .tool-card > span { font-size: 15px !important; }
+}
+@media (max-width: 760px) {
+  #topbar .daychalk { display: none !important; }
+  #topbar .tb-right { gap: 6px; } #topbar .clock { font-size: 18px; }
+  .view.pencere { margin-left: 6px !important; margin-right: 6px !important; max-width: calc(100vw - 12px); overflow-x: hidden !important; }
+  .view .view-inner { max-width: 100%; }
+}

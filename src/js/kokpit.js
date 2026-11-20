@@ -128,7 +128,7 @@
     baglantiSor(sonra) {
       const url = h("input.in", { placeholder: "https://open.spotify.com/playlist/...", value: ayar().spotify || "" });
       T.modal({ title: "Spotify çalma listesi", body: h("div", { style: { display: "grid", gap: "10px" } },
-        h("p", "Spotify'da çalma listesinde "Paylaş", sonra "Bağlantıyı kopyala" de ve buraya yapıştır. Albüm ya da şarkı bağlantısı da olur."), url,
+        h("p", "Spotify'da çalma listesinde \"Paylaş\", sonra \"Bağlantıyı kopyala\" de ve buraya yapıştır. Albüm ya da şarkı bağlantısı da olur."), url,
         h("p.hint", "Bu tarayıcıda Spotify hesabına giriş yaptıysan şarkılar tam çalar, giriş yapmadıysan kısa önizleme çalar. Bağlantı yalnızca bu cihazda saklanır.")),
         actions: [{ label: "Vazgeç" }, { label: "Çal", tone: "c-leaf", onClick: () => { const u = url.value.trim(); if (!spotifyEmbed(u)) { T.toast("Spotify bağlantısı tanınmadı"); return false; } ayarYaz((x) => (x.spotify = u)); T.spotify.ac(u); sonra && sonra(); } }] });
       setTimeout(() => url.focus(), 50);
@@ -143,11 +143,11 @@
     ["Merak sorusu", "Bir karınca kendi ağırlığının kaç katını taşıyabilir?", "Önce tahmin edin. Karıncalar kendi ağırlıklarının çok katını taşıyabilir. Bunu birlikte araştırın."],
     ["Merak sorusu", "Kediler karanlıkta nasıl görür?", "Gözlerinin arkasındaki özel bir tabaka az ışığı yansıtır. Ama tamamen karanlıkta onlar da göremez."],
     ["Merak sorusu", "Arılar balı nasıl yapar?", "Çiçeklerden topladıkları nektarı kovanda işleyip suyunu azaltırlar. Böylece nektar yavaş yavaş bala dönüşür."],
-    ["Felsefi soru", "Bir arkadaşın sana bir kez yalan söylerse yine de arkadaşın olur mu?", "Doğru ya da yanlış cevap yok. Fikrini söyle, sonra "Neden böyle düşünüyorsun?" diye arkadaşına sor."],
+    ["Felsefi soru", "Bir arkadaşın sana bir kez yalan söylerse yine de arkadaşın olur mu?", "Doğru ya da yanlış cevap yok. Fikrini söyle, sonra \"Neden böyle düşünüyorsun?\" diye arkadaşına sor."],
     ["Felsefi soru", "Bir şeyin adil olduğunu nasıl anlarız?", "Herkesin aynı şeyi alması mı adil, herkesin ihtiyacı kadar alması mı? Örnekle konuşun."],
     ["Felsefi soru", "Hiç konuşmadan bir arkadaşına teşekkür edebilir misin?", "Yollarını bulun, bugün en az birini deneyin."],
     ["Felsefi soru", "Hayvanlar da bizim gibi düşünür mü?", "Gözlemlerinizden örnek verin. Hangi davranış düşündüklerini gösteriyor olabilir?"],
-    ["Felsefi soru", "Mutluluk bir kutuda saklanabilir mi?", "Seni mutlu eden bir anı hatırla. O anı nasıl "saklıyorsun"?"],
+    ["Felsefi soru", "Mutluluk bir kutuda saklanabilir mi?", "Seni mutlu eden bir anı hatırla. O anı nasıl \"saklıyorsun\"?"],
     ["Günün kelimesi", "merak", "Bir şeyi öğrenme, bilme isteği. Bugün neyi merak ediyorsun?"],
     ["Günün kelimesi", "sabır", "Bir şeyin olmasını kızmadan, sakin bekleyebilmek. Bugün nerede sabırlı olabilirsin?"],
     ["Günün kelimesi", "cesaret", "Korkulu bir durumda da doğru olanı yapabilme gücü. Cesaret gösterdiğin bir anı anlat."],
@@ -268,61 +268,12 @@
     ciz(); const iv = setInterval(ciz, 20000); T.onLeave(() => clearInterval(iv));
     return box;
   }
-  function akisKart() {
-    const rows = T.gunAkisi ? T.gunAkisi() : [];
-    const box = h("section.kp-kart.kp-akis", { "aria-label": "Günün akışı" });
-    const ciz = () => {
-      const m = new Date().getHours() * 60 + new Date().getMinutes(); const dk = T.akisDk;
-      const dersler = rows.filter((r) => r.tur === "ders"); const kalan = dersler.filter((r) => dk(r.s) > m).length;
-      const son = rows.length ? dk(rows[rows.length - 1].s) : 0;
-      box.replaceChildren(
-        h("div.kp-baslik", T.icon("clock"), "Şimdi ne yapıyoruz?", h("span.kp-kalan", !rows.length ? "Bugün ders yok" : m >= son ? "Dersler bitti" : "Çıkışa " + kalan + " ders"), h("button.kp-mini", { onclick: () => T.go("sabah-akis"), "aria-label": "Akışı düzenle" }, T.icon("edit"))),
-        rows.length ? h("div.kp-serit", rows.map((r) => { const su = dk(r.b) <= m && m < dk(r.s), gecti = dk(r.s) <= m; return h("div.kp-slot." + r.tur + (su ? ".su" : gecti ? ".gecti" : ""), h("small", r.b), h("b", r.ad)); })) : h("p.hint", "Günün akışını Sabah rutininden yazabilirsin."));
-      const su = box.querySelector(".kp-slot.su"); if (su) su.scrollIntoView({ block: "nearest", inline: "center" });
-    };
-    ciz(); const iv = setInterval(ciz, 30000); T.onLeave(() => clearInterval(iv));
-    return box;
-  }
   function notKart() {
     const k = ayar(); const metin = (k.not || {})[cid()] || "";
     const alan = h("div.kp-not-ic", { contenteditable: "true", "aria-label": "Hızlı not", "data-yer": "Bugünün hedefi ya da hatırlatma..." }); alan.textContent = metin;
     alan.addEventListener("paste", (e) => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData("text/plain"); document.execCommand("insertText", false, t); });
     alan.addEventListener("input", () => ayarYaz((x) => { x.not = x.not || {}; x.not[cid()] = alan.innerText; }));
     return h("section.kp-kart.kp-not", { "aria-label": "Hızlı not" }, alan);
-  }
-  function muzikKart() {
-    const MOD = [["klasik", "Klasik müzik"], ["spotify", "Spotify"], ["ozel", "Kendi sesim"]];
-    const box = h("section.kp-kart.kp-muzik", { "aria-label": "Müzik" });
-    const cv = h("canvas.kp-dalga", { width: 280, height: 44 });
-    let raf;
-    const ciz = () => {
-      const a = Muzik.aktif();
-      box.replaceChildren(h("div.kp-baslik", T.icon("music"), "Müzik", a ? h("button.kp-mini", { onclick: () => { Muzik.birak(); ciz(); }, "aria-label": "Durdur" }, T.icon("pause")) : null),
-        h("div.kp-modlar", MOD.map(([k, l]) => h("button" + (a === k || (k === "spotify" && T.spotify.acik()) ? ".on" : ""), { onclick: () => {
-          if (k === "spotify") { if (T.spotify.acik()) T.spotify.kapat(); else if (!T.spotify.ac()) T.spotify.baglantiSor(ciz); ciz(); return; }
-          if (a === k) { Muzik.birak(); ciz(); return; }
-          T.spotify.kapat();
-          if (k === "ozel" && !Muzik.ozelVar()) { ozelSes(); return; }
-          Muzik.cal(k); ciz();
-        } }, l))),
-        a ? cv : null,
-        a === "klasik" ? h("div.kp-calar", h("button.kp-mini", { "aria-label": "Önceki parça", onclick: () => Muzik.onceki() }, T.icon("back")), h("span.kp-parca", Muzik.parcaAdi()), h("button.kp-mini", { "aria-label": "Sonraki parça", onclick: () => Muzik.sonraki() }, T.icon("next"))) : null,
-        T.spotify.acik() || ayar().spotify ? h("button.kp-link", { onclick: () => T.spotify.baglantiSor(ciz) }, "Spotify bağlantısını değiştir") : null,
-        h("div.row", { style: { gap: "8px" } }, h("span.hint", "Ses"), h("input", { type: "range", min: 0, max: 1, step: 0.05, value: Muzik.hacimV, style: { flex: 1 }, oninput: (e) => Muzik.hacim(+e.target.value), "aria-label": "Ses düzeyi" }), h("button.kp-mini", { onclick: ozelSes, title: "Kendi sesini ekle", "aria-label": "Kendi sesini ekle" }, T.icon("plus"))));
-      cancelAnimationFrame(raf); if (a) dalga();
-    };
-    function dalga() {
-      const an = Muzik.analyser(); if (!an) return; const d = new Uint8Array(an.fftSize); const g = cv.getContext("2d");
-      const f = () => { an.getByteTimeDomainData(d); g.clearRect(0, 0, 280, 44); g.strokeStyle = "#1B2A4A"; g.lineWidth = 2; g.beginPath(); for (let i = 0; i < 280; i++) { const v = d[Math.floor((i / 280) * d.length)] / 128 - 1; g[i ? "lineTo" : "moveTo"](i, 22 + v * 40); } g.stroke(); raf = requestAnimationFrame(f); };
-      f();
-    }
-    function ozelSes() {
-      const url = h("input.in", { placeholder: "https://... .mp3 bağlantısı" });
-      T.modal({ title: "Kendi sesini ekle", body: h("div", { style: { display: "grid", gap: "10px" } }, h("label.btn.c-chalk", { style: { cursor: "pointer", justifySelf: "start" } }, T.icon("download"), "Ses dosyası seç", h("input", { type: "file", accept: "audio/*", style: { display: "none" }, onchange: (e) => { const f = e.target.files[0]; if (f) { Muzik.dosya(f); Muzik.cal("ozel"); ciz(); T.$$("#layer > .scrim").forEach((x) => x.remove()); } } })), url, h("p.hint", "Seçtiğin dosya bu oturum boyunca çalar. Bağlantı verirsen kaydedilir.")),
-        actions: [{ label: "Vazgeç" }, { label: "Çal", tone: "c-leaf", onClick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return false; } ayarYaz((x) => (x.muzikUrl = u)); Muzik.cal("ozel"); ciz(); } }] });
-    }
-    ciz(); T.onLeave(() => cancelAnimationFrame(raf));
-    return box;
   }
 
   /* ---------- Ana sayfa ---------- */
@@ -336,8 +287,6 @@
       const kontroller = h("div.kp-kontrol",
         h("button.kp-dugme" + (sade ? ".on" : ""), { onclick: () => { ayarYaz((x) => (x.sade = !x.sade)); T.route(); }, title: sade ? "Günün bilgilerini geri getir" : "Bilgileri gizle, ekranı derse ayır" }, T.icon(sade ? "eye" : "board"), sade ? "Bugün" : "Ders modu"),
         !sade ? h("button.kp-dugme", { onclick: kartSec, title: "Kartları seç" }, T.icon("grid"), "Kartlar") : null,
-        h("button.kp-dugme", { onclick: T.arkaPlanSec, title: "Arka planı değiştir" }, T.icon("bg"), "Arka plan"),
-        h("button.kp-dugme" + (T.ambiyans && T.ambiyans.aktif() ? ".on" : ""), { onclick: () => T.ambiyans.sec(), title: "Odaklanarak çalışma videoları" }, T.icon("film"), "Odaklanarak çalışma"),
         h("button.kp-dugme", { onclick: () => T.hosgeldin(true), title: "Nasıl kullanılır?", "aria-label": "Nasıl kullanılır?" }, "?"),
         h("button.kp-dugme", { onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) {} }, title: "Tam ekran", "aria-label": "Tam ekran" }, T.icon("full")));
       kok.append(kontroller);
@@ -416,14 +365,8 @@
     ambVideo.src = src; ambVideo.play().catch(() => {});
     document.body.classList.add("amb-acik");
   }
-  /* Müzik varsayılan olarak açık: arka plan videosu varsa ilk dokunuşta onun müziği başlar (tarayıcı dokunmadan ses çalmaya izin vermez).
-     Öğretmen durdurursa bu tercih saklanır, bir daha kendiliğinden başlamaz. */
+  /* Müzik kendiliğinden başlamaz; öğretmen Ortam'dan ya da çalardan başlatır. */
   const muzikBaslat = () => { const mz = ambId && ambId !== "ozel" ? ambMuzik(ambId) : ""; if (mz) Muzik.tekParca(mz); else Muzik.cal("klasik"); T.muzikDurum && T.muzikDurum(); };
-  const ilkDokunus = () => {
-    document.removeEventListener("pointerdown", ilkDokunus, true); document.removeEventListener("keydown", ilkDokunus, true);
-    setTimeout(() => { if (ambId && ambId !== "ozel" && !ayar().muzikKapali && !Muzik.aktif() && !(T.spotify && T.spotify.acik()) && ambMuzik(ambId)) muzikBaslat(); }, 50);
-  };
-  document.addEventListener("pointerdown", ilkDokunus, true); document.addEventListener("keydown", ilkDokunus, true);
   /* Küçük çalar: müzik çalarken sağ altta durur. Görüntüye dokunmadan parça değiştirir, durdurur, listeden seçtirir. */
   /* Parça listesi: alt şeritteki Müzik düğmesinden ya da çalardan açılır */
   T.muzikListe = function (kaynak) {

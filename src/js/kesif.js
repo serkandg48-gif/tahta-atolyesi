@@ -140,7 +140,7 @@
     ["İletişim ve sosyal farkındalık", "SDB2.1, SDB2.3", ["iltifat", "seninle-mi"]],
     ["Sorumlu karar verme", "SDB3.3", ["sorun-boyutu", "catisma"]],
   ];
-  const KULTUR = [
+  const KULTUR = T.KULTUR = [
     ["Öğrenmeyi görünür kılma", ["anlama-duzeyi", "bump-it-up"]],
     ["Sınıf düzeni", ["bitirdim", "yz-duzeyi"]],
     ["Yansıtma panoları", ["calma-listesi", "bookflix"]],

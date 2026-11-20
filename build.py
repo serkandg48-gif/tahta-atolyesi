@@ -65,6 +65,7 @@ JS_ORDER = [
     "duygu.js",
     "duygu2.js",
     "kesif.js",
+    "sinif-hafiza.js",
     "rutin-veri.js",
     "rutin.js",
     "kitap-rapor.js",

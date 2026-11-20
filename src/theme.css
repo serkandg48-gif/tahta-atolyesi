@@ -2916,3 +2916,14 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .bn-balon.parca.a rect { fill: #dcefff; } .bn-balon.parca.b rect { fill: #ffeccc; } .bn-balon.parca.c rect { fill: #dcf6e3; } .bn-balon.parca.d rect { fill: #ffe0ea; } .bn-balon.bos rect { fill: #f6f6f6; stroke-dasharray: 8 6; }
 .ponpon { animation: pp-nefes 3.4s ease-in-out infinite; transform-box: fill-box; }
 @keyframes pp-nefes { 50% { translate: 0 -3px; } }
+
+/* Oyun sahneleri ve Ponpon rehber */
+.dn-kok.sahneli { background-size: cover; background-position: center; }
+.dn-kok.sahneli .dn-sahne, .dn-kok.sahneli .dn-soru { position: relative; }
+.dn-kok.sahneli .dn-ana { background: transparent; }
+.dn-kok.sahneli .dn-pp .pp-rehber { width: 170px; }
+.dn-pp .pp-rehber { width: 150px; height: auto; overflow: visible; }
+.dn-pp { animation: dn-sal 3s ease-in-out infinite; transform-origin: 50% 100%; }
+.dn-pp.zipla { animation: pp-zipla .6s cubic-bezier(.3,1.6,.5,1); }
+@keyframes pp-zipla { 40% { transform: translateY(-22px) scale(1.06, .96); } }
+.dn-pp .ponpon { animation: none; }

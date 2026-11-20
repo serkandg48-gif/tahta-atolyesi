@@ -1,4 +1,4 @@
-window.SURUM="040b9606c3";
+window.SURUM="e1807e4ac1";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -5968,130 +5968,66 @@ T.yuzen = TahtaYap("ana");
 })();
 
 /* ---- oyun-sahne.js ---- */
-/* Oyunların arka plan sahneleri: her oyun temasına göre canlı, gerçekçi bir dünya.
-   Sahne içeriğin arkasında "cover" ölçekle çizilir; maskot (çayırda tavşan) doğru ve yanlışa tepki verir. */
+/* Oyun sahneleri: her oyunun arkasında elle çizilmiş, yumuşak renkli bir mekân.
+   Market, mutfak, çiftlik, bahçe, atölye, sınıf ve sanat odası. Ön plandaki oyun okunur kalsın diye renkler sakin. */
 (function () {
-  const Sh = T.Sahne, W = Sh.W, H = Sh.H, ZEMIN = 700;
-  const TEMA = {
-    "kutup-yolu": "kutup", "onu-tamamla": "kutup", "hacim": "kutup",
-    "deniz-canavari": "deniz", "timsah": "deniz", "solucan": "cayir",
-    "lav": "volkan", "islem-sirasi": "volkan",
-    "asal-yaris": "gece", "sifre": "gece", "carpan": "gece", "kalanli": "gece",
+  const ortak = `<defs>
+    <linearGradient id="sz-gok" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fcdf2"/><stop offset="1" stop-color="#e8f6ff"/></linearGradient>
+    <radialGradient id="sz-isik" cx="50%" cy="0%" r="90%"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="sz-tahta" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9a06a"/><stop offset="1" stop-color="#b4784a"/></linearGradient>
+    <filter id="sz-bulan"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>`;
+  const raf = (y, renkler, n, seed) => { let s = "", r = seed; const rn = () => ((r = (r * 9301 + 49297) % 233280) / 233280); for (let i = 0; i < n; i++) { const x = 40 + i * (1120 / n) + rn() * 20, w = 30 + rn() * 36, h = 40 + rn() * 50, c = renkler[i % renkler.length]; s += `<rect x="${x}" y="${y - h}" width="${w}" height="${h}" rx="7" fill="${c}"/><rect x="${x + 5}" y="${y - h + 8}" width="${w - 10}" height="${Math.min(14, h / 4)}" rx="3" fill="#fff" opacity=".55"/>`; } return s; };
+  const S = {
+    market: `<rect width="1200" height="700" fill="#fff4e6"/><rect y="0" width="1200" height="70" fill="#f28f6b"/>${Array.from({ length: 13 }, (_, i) => `<path d="M${i * 100} 70 q50 46 100 0Z" fill="${i % 2 ? "#fff" : "#f8b394"}"/>`).join("")}
+      <g filter="url(#sz-bulan)" opacity=".85">${[200, 330, 460].map((y) => `<rect x="20" y="${y}" width="1160" height="14" rx="4" fill="#c98a5a"/>`).join("")}
+      ${raf(200, ["#ff8a80", "#ffd166", "#7bdcb5", "#8ecae6", "#cdb4db"], 16, 3)}${raf(330, ["#ffb703", "#90be6d", "#f4978e", "#80ced7", "#e9c46a"], 16, 7)}${raf(460, ["#a2d2ff", "#ffafcc", "#bde0fe", "#f9c74f", "#43aa8b"], 16, 11)}</g>
+      <rect y="560" width="1200" height="140" fill="#e9d5bd"/>${Array.from({ length: 12 }, (_, i) => `<rect x="${i * 100}" y="560" width="100" height="140" fill="${i % 2 ? "#e2c9ab" : "#efdcc4"}"/>`).join("")}<rect width="1200" height="700" fill="url(#sz-isik)"/>`,
+    mutfak: `<rect width="1200" height="700" fill="#fff1e0"/>${Array.from({ length: 24 }, (_, i) => Array.from({ length: 7 }, (_, j) => `<rect x="${i * 50}" y="${j * 50 + 180}" width="48" height="48" rx="4" fill="${(i + j) % 2 ? "#ffffff" : "#f7e4cf"}"/>`).join("")).join("")}
+      <g filter="url(#sz-bulan)"><rect x="40" y="30" width="420" height="140" rx="16" fill="#9ed8c3"/><rect x="60" y="48" width="180" height="104" rx="10" fill="#b8e6d6"/><rect x="260" y="48" width="180" height="104" rx="10" fill="#b8e6d6"/><circle cx="230" cy="100" r="6" fill="#f2c14e"/><circle cx="270" cy="100" r="6" fill="#f2c14e"/>
+      <rect x="760" y="30" width="400" height="140" rx="16" fill="#9ed8c3"/><rect x="780" y="48" width="170" height="104" rx="10" fill="#b8e6d6"/><rect x="970" y="48" width="170" height="104" rx="10" fill="#b8e6d6"/>
+      <rect x="520" y="40" width="180" height="120" rx="14" fill="#cfeeff" stroke="#e8c79a" stroke-width="10"/><path d="M610 40v120M520 100h180" stroke="#e8c79a" stroke-width="7"/>
+      <circle cx="560" cy="250" r="34" fill="#f6c06b"/><circle cx="640" cy="250" r="26" fill="#ef8f6a"/><path d="M90 240h70v60h-70z" fill="#ffd9a8"/><path d="M1000 230q40-30 80 0v70h-80z" fill="#f2a65a"/></g>
+      <rect y="540" width="1200" height="160" fill="url(#sz-tahta)"/><rect y="536" width="1200" height="12" fill="#c98a5a"/>`,
+    ciftlik: `<rect width="1200" height="700" fill="url(#sz-gok)"/><circle cx="1040" cy="110" r="60" fill="#fff3b0"/><circle cx="1040" cy="110" r="90" fill="#fff3b0" opacity=".35"/>
+      <g fill="#fff" opacity=".9"><ellipse cx="220" cy="120" rx="80" ry="28"/><ellipse cx="280" cy="100" rx="60" ry="34"/><ellipse cx="640" cy="80" rx="70" ry="24"/><ellipse cx="690" cy="66" rx="48" ry="28"/></g>
+      <path d="M0 420 C200 340 380 380 560 350 C760 320 960 380 1200 340 V700 H0Z" fill="#a9d68c"/>
+      <g filter="url(#sz-bulan)"><path d="M780 420 L780 270 L880 210 L980 270 L980 420Z" fill="#d9534f"/><path d="M770 276 L880 200 L990 276" stroke="#fff" stroke-width="14" fill="none" stroke-linejoin="round"/><rect x="845" y="320" width="70" height="100" fill="#fff"/><path d="M845 320l70 100M915 320l-70 100" stroke="#d9534f" stroke-width="8"/>
+      <rect x="1010" y="300" width="60" height="120" rx="30" fill="#c9c3b8"/><path d="M1010 300q30-40 60 0" fill="#9e9789"/></g>
+      <path d="M0 500 C260 450 520 490 760 460 C960 436 1080 470 1200 456 V700 H0Z" fill="#8cc56f"/>
+      ${Array.from({ length: 16 }, (_, i) => `<rect x="${i * 80}" y="470" width="12" height="70" rx="4" fill="#e6c9a0"/>`).join("")}<rect y="486" width="1200" height="10" fill="#e6c9a0"/><rect y="514" width="1200" height="10" fill="#e6c9a0"/>
+      <path d="M0 600 C300 560 700 610 1200 570 V700 H0Z" fill="#79b65b"/>`,
+    bahce: `<rect width="1200" height="700" fill="url(#sz-gok)"/><g fill="#fff" opacity=".9"><ellipse cx="300" cy="110" rx="90" ry="28"/><ellipse cx="360" cy="92" rx="60" ry="32"/><ellipse cx="900" cy="140" rx="80" ry="24"/></g>
+      <path d="M0 380 C220 330 420 370 640 340 C860 310 1020 360 1200 330 V700 H0Z" fill="#b7df9a"/>
+      <g filter="url(#sz-bulan)">${[[90, 360], [230, 330], [1080, 340], [960, 310]].map(([x, y]) => `<rect x="${x - 8}" y="${y - 10}" width="16" height="50" fill="#9b6b43"/><circle cx="${x}" cy="${y - 40}" r="46" fill="#6fb25a"/><circle cx="${x - 26}" cy="${y - 20}" r="30" fill="#7fc267"/><circle cx="${x + 28}" cy="${y - 24}" r="32" fill="#63a750"/>`).join("")}</g>
+      <path d="M0 470 C300 430 600 480 900 450 C1040 436 1120 452 1200 446 V700 H0Z" fill="#9fd07f"/>
+      ${Array.from({ length: 30 }, (_, i) => `<circle cx="${(i * 97) % 1200}" cy="${560 + (i * 37) % 120}" r="7" fill="${["#ffd166", "#ff8fab", "#ffffff", "#cdb4db"][i % 4]}"/>`).join("")}`,
+    atolye: `<rect width="1200" height="700" fill="#e7eef7"/><rect x="0" y="0" width="1200" height="420" fill="#dbe6f2"/>
+      <g filter="url(#sz-bulan)" opacity=".9"><rect x="60" y="60" width="440" height="260" rx="14" fill="#c9a77d"/>${Array.from({ length: 9 }, (_, i) => Array.from({ length: 5 }, (_, j) => `<circle cx="${90 + i * 48}" cy="${90 + j * 48}" r="4" fill="#8a6a46"/>`).join("")).join("")}
+      <path d="M120 120h70v16h-70z" fill="#7a8ca3"/><circle cx="300" cy="180" r="40" fill="none" stroke="#f2a541" stroke-width="16" stroke-dasharray="14 10"/><circle cx="410" cy="140" r="26" fill="none" stroke="#7ab3e8" stroke-width="12" stroke-dasharray="10 8"/><path d="M140 240l60-40 20 30-60 40z" fill="#e57373"/>
+      <rect x="760" y="80" width="200" height="140" rx="14" fill="#cfeeff" stroke="#9fb3c8" stroke-width="10"/><path d="M860 80v140M760 150h200" stroke="#9fb3c8" stroke-width="7"/>
+      <circle cx="1080" cy="160" r="54" fill="none" stroke="#b0bdcc" stroke-width="18" stroke-dasharray="16 12"/></g>
+      <rect y="440" width="1200" height="260" fill="#c4d2e1"/><rect y="430" width="1200" height="20" fill="#9fb3c8"/>${Array.from({ length: 6 }, (_, i) => `<rect x="${i * 200 + 20}" y="470" width="160" height="200" rx="12" fill="#b6c6d8"/><rect x="${i * 200 + 80}" y="490" width="40" height="10" rx="5" fill="#8fa3bb"/>`).join("")}`,
+    sinif: `<rect width="1200" height="700" fill="#fdf3e3"/><rect y="520" width="1200" height="180" fill="#e8cfa9"/>${Array.from({ length: 13 }, (_, i) => `<rect x="${i * 96}" y="520" width="4" height="180" fill="#dcbf95"/>`).join("")}
+      <g filter="url(#sz-bulan)"><rect x="260" y="60" width="680" height="300" rx="16" fill="#2f5d50" stroke="#b5835a" stroke-width="18"/><path d="M320 140h160M320 190h240M620 140q40-30 80 0" stroke="#fff" stroke-width="6" opacity=".5" fill="none" stroke-linecap="round"/>
+      <rect x="40" y="120" width="160" height="380" rx="10" fill="#c98a5a"/>${[0, 1, 2, 3].map((j) => `<rect x="40" y="${200 + j * 90}" width="160" height="10" fill="#a86c3f"/>` + [0, 1, 2, 3, 4].map((i) => `<rect x="${52 + i * 28}" y="${140 + j * 90}" width="22" height="58" rx="3" fill="${["#ef6f6c", "#6cb4ee", "#f6c453", "#7bc67e", "#b58ce6"][(i + j) % 5]}"/>`).join("")).join("")}
+      <rect x="1000" y="120" width="160" height="200" rx="12" fill="#cfeeff" stroke="#e8c79a" stroke-width="10"/><path d="M1080 120v200M1000 220h160" stroke="#e8c79a" stroke-width="7"/>
+      ${Array.from({ length: 8 }, (_, i) => `<path d="M${280 + i * 85} 30 l30 30 l30 -30" fill="${["#ff8fab", "#ffd166", "#8ecae6", "#90be6d"][i % 4]}"/>`).join("")}<path d="M260 30h700" stroke="#b5835a" stroke-width="3"/></g>`,
+    sanat: `<rect width="1200" height="700" fill="#fbeef6"/><rect y="520" width="1200" height="180" fill="#ead7e6"/>
+      <g filter="url(#sz-bulan)"><path d="M120 520 L200 140 L280 520" stroke="#b5835a" stroke-width="12" fill="none"/><rect x="120" y="170" width="160" height="200" rx="6" fill="#fff" stroke="#e0c9a6" stroke-width="8"/><circle cx="170" cy="240" r="30" fill="#ffd166"/><path d="M135 340q50-70 130 0" fill="#90be6d"/>
+      <ellipse cx="1000" cy="250" rx="110" ry="150" fill="#cfe8ff" stroke="#d9b36c" stroke-width="16"/><path d="M940 180q30-30 50-20" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" opacity=".8"/>
+      ${["#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#9b5de5"].map((c, i) => `<circle cx="${480 + i * 70}" cy="${110 + (i % 2) * 30}" r="${26 + (i % 3) * 6}" fill="${c}" opacity=".55"/>`).join("")}
+      <path d="M520 520q40-60 80 0z" fill="#9b5de5" opacity=".6"/><path d="M640 520q30-40 60 0z" fill="#ef476f" opacity=".6"/></g>`,
   };
-  Sh.oyunTemasi = (id) => TEMA[id] || "cayir";
-
-  /* ---------- Kutup ---------- */
-  const kar = Array.from({ length: 140 }, (_, i) => ({ x: Math.random() * W, y: Math.random() * H, r: 1 + Math.random() * 3.2, v: 25 + Math.random() * 50, s: Math.random() * 6 }));
-  function kutup(ctx, t) {
-    const g = ctx.createLinearGradient(0, 0, 0, ZEMIN); g.addColorStop(0, "#0E2A4D"); g.addColorStop(0.45, "#2D5F8F"); g.addColorStop(1, "#BFDDF0"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    /* kuzey ışıkları */
-    ctx.save(); ctx.globalCompositeOperation = "lighter";
-    for (let k = 0; k < 3; k++) { ctx.beginPath(); for (let x = 0; x <= W; x += 20) { const y = 140 + k * 50 + Math.sin(x / 210 + t * 0.4 + k) * 40 + Math.sin(x / 90 + t * 0.7) * 12; x ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } for (let x = W; x >= 0; x -= 20) ctx.lineTo(x, 260 + k * 50 + Math.sin(x / 170 + t * 0.3 + k) * 50); ctx.closePath();
-      const a = ctx.createLinearGradient(0, 120, 0, 360); a.addColorStop(0, ["rgba(90,255,180,0)", "rgba(120,200,255,0)", "rgba(190,120,255,0)"][k]); a.addColorStop(0.5, ["rgba(90,255,180,.22)", "rgba(120,200,255,.16)", "rgba(190,120,255,.12)"][k]); a.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = a; ctx.fill(); }
-    ctx.restore();
-    /* dağlar */
-    [[0.0, 520, 250, "#DDEAF5", "#9DB8D3", 2.1], [0.0, 600, 180, "#F4F9FD", "#B9CFE3", 5.3]].forEach(([, taban, gen, r1, r2, tohum]) => {
-      const gg = ctx.createLinearGradient(0, taban - gen, 0, taban + 60); gg.addColorStop(0, r1); gg.addColorStop(1, r2); ctx.fillStyle = gg; ctx.beginPath(); ctx.moveTo(0, H);
-      for (let x = 0; x <= W; x += 40) ctx.lineTo(x, taban - gen * (0.4 + 0.6 * Math.abs(Math.sin(x / 300 + tohum)) * (0.7 + 0.3 * Math.sin(x / 77 + tohum)))); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
-    });
-    /* buz zemini */
-    const bz = ctx.createLinearGradient(0, ZEMIN - 40, 0, H); bz.addColorStop(0, "#EAF5FC"); bz.addColorStop(1, "#A9CBE4"); ctx.fillStyle = bz; ctx.fillRect(0, ZEMIN - 40, W, H);
-    ctx.strokeStyle = "rgba(120,160,200,.35)"; ctx.lineWidth = 2; for (let i = 0; i < 14; i++) { const x = Sh.hash(i) * W, y = ZEMIN + Sh.hash(i + 3) * 180; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 60 * Sh.hash(i + 5), y + 20 * Sh.hash(i + 6)); ctx.lineTo(x + 100 * Sh.hash(i + 7), y - 10); ctx.stroke(); }
-    ctx.fillStyle = "rgba(255,255,255,.5)"; ctx.fillRect(0, ZEMIN - 40, W, 6);
-    /* kar */
-    kar.forEach((k) => { k.y += k.v / 60; k.x += Math.sin(t + k.s) * 0.4; if (k.y > H) { k.y = -5; k.x = Math.random() * W; } ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, Math.PI * 2); ctx.fill(); });
-  }
-  /* ---------- Deniz ---------- */
-  const kabarcik = Array.from({ length: 40 }, () => ({ x: Math.random() * W, y: Math.random() * H, r: 2 + Math.random() * 7, v: 30 + Math.random() * 60 }));
-  const baliklar = Array.from({ length: 7 }, (_, i) => ({ y: 200 + i * 70, v: 40 + Math.random() * 70, x: Math.random() * W, yon: i % 2 ? 1 : -1, s: 0.6 + Math.random() * 0.8, renk: [["#FFB347", "#E0742B"], ["#7FD1FF", "#2E6FB0"], ["#FFE066", "#D9A400"], ["#FF8FB1", "#C2457A"]][i % 4] }));
-  function balik(ctx, x, y, s, yon, renk, t) {
-    ctx.save(); ctx.translate(x, y); ctx.scale(s * yon, s);
-    const g = ctx.createLinearGradient(0, -18, 0, 18); g.addColorStop(0, renk[0]); g.addColorStop(1, renk[1]); ctx.fillStyle = g;
-    ctx.beginPath(); ctx.ellipse(0, 0, 34, 17, 0, 0, Math.PI * 2); ctx.fill();
-    const k = Math.sin(t * 9) * 6; ctx.beginPath(); ctx.moveTo(-28, 0); ctx.lineTo(-52, -16 + k); ctx.lineTo(-52, 16 + k); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.beginPath(); ctx.ellipse(4, -6, 18, 5, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(20, -4, 5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#123"; ctx.beginPath(); ctx.arc(21, -4, 2.6, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-  }
-  function deniz(ctx, t) {
-    const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#5CC6E8"); g.addColorStop(0.5, "#1B7FB3"); g.addColorStop(1, "#0B3E66"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    /* ışık huzmeleri */
-    ctx.save(); ctx.globalCompositeOperation = "lighter";
-    for (let i = 0; i < 7; i++) { const x = 150 + i * 230 + Math.sin(t * 0.3 + i) * 40; const gr = ctx.createLinearGradient(0, 0, 0, H * 0.9); gr.addColorStop(0, "rgba(220,250,255,.22)"); gr.addColorStop(1, "rgba(220,250,255,0)"); ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x - 30, 0); ctx.lineTo(x + 30, 0); ctx.lineTo(x + 140, H * 0.9); ctx.lineTo(x - 40, H * 0.9); ctx.closePath(); ctx.fill(); }
-    ctx.restore();
-    /* yüzey dalgası */
-    ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.beginPath(); ctx.moveTo(0, 0); for (let x = 0; x <= W; x += 20) ctx.lineTo(x, 18 + Math.sin(x / 60 + t * 2) * 6); ctx.lineTo(W, 0); ctx.fill();
-    baliklar.forEach((b) => { b.x += b.yon * b.v / 60; if (b.x > W + 80) b.x = -80; if (b.x < -80) b.x = W + 80; balik(ctx, b.x, b.y + Math.sin(t + b.y) * 10, b.s, b.yon, b.renk, t); });
-    /* kum */
-    const kz = ctx.createLinearGradient(0, ZEMIN, 0, H); kz.addColorStop(0, "#E8D39C"); kz.addColorStop(1, "#B8975B"); ctx.fillStyle = kz; ctx.beginPath(); ctx.moveTo(0, H); for (let x = 0; x <= W; x += 20) ctx.lineTo(x, ZEMIN + Math.sin(x / 140) * 18 + Math.sin(x / 47) * 5); ctx.lineTo(W, H); ctx.fill();
-    /* yosun ve mercan */
-    for (let i = 0; i < 16; i++) { const x = Sh.hash(i) * W, b = 120 + Sh.hash(i + 1) * 160, y = ZEMIN + 10 + Sh.hash(i + 2) * 40; ctx.strokeStyle = i % 3 ? "#2F8F5B" : "#4DB37A"; ctx.lineWidth = 9; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(x, y); for (let j = 1; j <= 8; j++) ctx.lineTo(x + Math.sin(t * 1.2 + j * 0.6 + i) * j * 3, y - (b * j) / 8); ctx.stroke(); }
-    for (let i = 0; i < 6; i++) { const x = Sh.hash(i + 30) * W, y = ZEMIN + 40; ctx.fillStyle = ["#FF7A6B", "#FFA35C", "#F06292"][i % 3]; for (let j = 0; j < 5; j++) { ctx.beginPath(); ctx.ellipse(x + (j - 2) * 14, y - 20 - Math.abs(j - 2) * -8, 9, 30 - Math.abs(j - 2) * 6, (j - 2) * 0.3, 0, Math.PI * 2); ctx.fill(); } }
-    kabarcik.forEach((k) => { k.y -= k.v / 60; k.x += Math.sin(t * 2 + k.r) * 0.5; if (k.y < -10) { k.y = H + 10; k.x = Math.random() * W; } ctx.strokeStyle = "rgba(255,255,255,.6)"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, Math.PI * 2); ctx.stroke(); ctx.fillStyle = "rgba(255,255,255,.5)"; ctx.beginPath(); ctx.arc(k.x - k.r * 0.35, k.y - k.r * 0.35, k.r * 0.3, 0, Math.PI * 2); ctx.fill(); });
-  }
-  /* ---------- Volkan ---------- */
-  const kor = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 30 + Math.random() * 80, r: 1 + Math.random() * 3 }));
-  function volkan(ctx, t) {
-    const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#2A0F1F"); g.addColorStop(0.5, "#7A2418"); g.addColorStop(1, "#E2592A"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    /* volkan */
-    ctx.fillStyle = "#2B1A1A"; ctx.beginPath(); ctx.moveTo(380, ZEMIN); ctx.lineTo(720, 260); ctx.lineTo(880, 260); ctx.lineTo(1240, ZEMIN); ctx.closePath(); ctx.fill();
-    const tepe = ctx.createRadialGradient(800, 260, 10, 800, 260, 260); tepe.addColorStop(0, "rgba(255,170,60," + (0.75 + 0.2 * Math.sin(t * 3)) + ")"); tepe.addColorStop(1, "rgba(255,90,30,0)"); ctx.fillStyle = tepe; ctx.beginPath(); ctx.arc(800, 260, 260, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "rgba(255,120,40,.8)"; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(790, 265); ctx.quadraticCurveTo(770 + Math.sin(t) * 10, 450, 720, ZEMIN); ctx.stroke();
-    /* duman */
-    for (let i = 0; i < 6; i++) { const yy = ((t * 30 + i * 60) % 360), x = 800 + Math.sin(i + t * 0.3) * 40 + yy * 0.3; ctx.fillStyle = "rgba(60,40,40," + (0.35 * (1 - yy / 360)) + ")"; ctx.beginPath(); ctx.arc(x, 230 - yy, 40 + yy * 0.25, 0, Math.PI * 2); ctx.fill(); }
-    /* kayalık zemin ve lav nehri */
-    ctx.fillStyle = "#1E1414"; ctx.beginPath(); ctx.moveTo(0, H); for (let x = 0; x <= W; x += 30) ctx.lineTo(x, ZEMIN - 20 + Sh.hash(x) * 30); ctx.lineTo(W, H); ctx.fill();
-    const lv = ctx.createLinearGradient(0, H - 90, 0, H); lv.addColorStop(0, "#FFD166"); lv.addColorStop(0.4, "#FF7A1A"); lv.addColorStop(1, "#B8260F"); ctx.fillStyle = lv; ctx.beginPath(); ctx.moveTo(0, H); for (let x = 0; x <= W; x += 20) ctx.lineTo(x, H - 70 + Math.sin(x / 80 + t * 1.5) * 8); ctx.lineTo(W, H); ctx.fill();
-    kor.forEach((k) => { k.y -= k.v / 60; k.x += Math.sin(t * 3 + k.r) * 0.6; if (k.y < -5) { k.y = H; k.x = Math.random() * W; } ctx.fillStyle = "rgba(255," + (150 + Math.floor(k.r * 30)) + ",60," + (0.5 + k.r / 8) + ")"; ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, Math.PI * 2); ctx.fill(); });
-  }
-  /* ---------- Gece ---------- */
-  const yildiz = Array.from({ length: 160 }, () => ({ x: Math.random() * W, y: Math.random() * 560, r: Math.random() * 1.8 + 0.3, f: Math.random() * 6 }));
-  const atesbocegi = Array.from({ length: 24 }, () => ({ x: Math.random() * W, y: 500 + Math.random() * 300, f: Math.random() * 6 }));
-  function gece(ctx, t) {
-    const g = ctx.createLinearGradient(0, 0, 0, ZEMIN); g.addColorStop(0, "#070B24"); g.addColorStop(0.6, "#1B2A5C"); g.addColorStop(1, "#3D4F86"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    yildiz.forEach((s) => { ctx.fillStyle = "rgba(255,255,255," + (0.5 + 0.5 * Math.sin(t * 2 + s.f)) + ")"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill(); });
-    const ay = ctx.createRadialGradient(1280, 150, 10, 1280, 150, 160); ay.addColorStop(0, "rgba(255,250,225,1)"); ay.addColorStop(0.3, "rgba(255,245,210,.9)"); ay.addColorStop(0.32, "rgba(255,245,210,.25)"); ay.addColorStop(1, "rgba(255,245,210,0)"); ctx.fillStyle = ay; ctx.beginPath(); ctx.arc(1280, 150, 160, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "rgba(200,195,170,.35)"; [[1265, 140, 9], [1295, 168, 6], [1300, 128, 5]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); });
-    [[560, 160, "#1F2D52", 3.1], [640, 110, "#16223F", 6.2]].forEach(([taban, gen, r, tohum]) => { ctx.fillStyle = r; ctx.beginPath(); ctx.moveTo(0, H); for (let x = 0; x <= W; x += 14) ctx.lineTo(x, taban - gen * (0.55 + 0.25 * Math.sin(x / 260 + tohum) + 0.2 * Math.sin(x / 113 + tohum * 2.3))); ctx.lineTo(W, H); ctx.fill(); });
-    ctx.fillStyle = "#0F1830"; ctx.fillRect(0, ZEMIN, W, H);
-    atesbocegi.forEach((a, i) => { const x = a.x + Math.sin(t * 0.6 + a.f) * 40, y = a.y + Math.cos(t * 0.8 + a.f) * 20, p = 0.5 + 0.5 * Math.sin(t * 3 + a.f); const gg = ctx.createRadialGradient(x, y, 0, x, y, 14); gg.addColorStop(0, "rgba(230,255,140," + p + ")"); gg.addColorStop(1, "rgba(230,255,140,0)"); ctx.fillStyle = gg; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.fill(); });
-  }
-  /* ---------- Çayır (tavşanlı) ---------- */
-  function cayir(ctx, t, m) {
-    Sh.gok(ctx, t, 0, ZEMIN); Sh.tepeler(ctx, 0, ZEMIN); Sh.zemin(ctx, 0, t, ZEMIN); Sh.cicekler(ctx, 0, t, ZEMIN);
-    Sh.kelebek(ctx, ((t * 50 + 200) % (W + 300)) - 150, 360 + Math.sin(t * 0.9) * 60, t);
-    Sh.onPlan(ctx, 0, t);
-  }
-  const CIZ = { cayir, kutup, deniz, volkan, gece };
-
-  /* Arka planı kur: kap içeriğin arkasında; dönen nesne tepki(ok) verir */
-  Sh.arkaPlan = (kap, tema) => {
-    const cv = T.h("canvas.oy-arka", { "aria-hidden": "true" }); kap.prepend(cv);
-    const ctx = cv.getContext("2d"), P = Sh.parcacik();
-    const m = { x: 150, y: ZEMIN + 80, sq: 1, kirp: 0, sonKirp: 3, mutlu: 0, kulak: 0, zip: 0 };
-    let son = performance.now(), zaman = 0, i = 0;
-    const azalt = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const dongu = (z) => {
-      if (!cv.isConnected) return;
-      const dt = Math.min(0.05, (z - son) / 1000); son = z; zaman += azalt ? dt * 0.15 : dt;
-      if (i++ % 20 === 0) { const r = kap.getBoundingClientRect(), d = Math.min(1.5, window.devicePixelRatio || 1); const w = Math.round(r.width * d), hh = Math.round(r.height * d); if (w && (cv.width !== w || cv.height !== hh)) { cv.width = w; cv.height = hh; } }
-      m.sonKirp -= dt; m.kirp = m.sonKirp < 0 ? 1 : 0; if (m.sonKirp < -0.13) m.sonKirp = 2 + Math.random() * 3;
-      m.mutlu *= 0.985; m.kulak *= 0.97;
-      if (m.zip > 0) { m.zip -= dt; const p = 1 - m.zip / 0.6; m.y = ZEMIN + 80 - Math.sin(Math.min(1, p) * Math.PI) * 120; m.sq = 1 + 0.12 * Math.sin(p * Math.PI); if (m.zip <= 0) { m.y = ZEMIN + 80; m.sq = 0.8; P.toz(m.x, ZEMIN + 80); } } else m.sq += (1 - m.sq) * Math.min(1, dt * 10);
-      P.guncelle(dt);
-      const sc = Math.max(cv.width / W, cv.height / H), ox = (cv.width - W * sc) / 2, oy = cv.height - H * sc;
-      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#9DD0F5"; ctx.fillRect(0, 0, cv.width, cv.height);
-      ctx.setTransform(sc, 0, 0, sc, ox, oy);
-      (CIZ[tema] || cayir)(ctx, zaman, m); P.ciz(ctx); Sh.vinyet(ctx);
-      requestAnimationFrame(dongu);
-    };
-    requestAnimationFrame((z) => { son = z; dongu(z); });
-    return {
-      tepki(ok) {
-        if (ok) { m.mutlu = 1; m.zip = 0.6; Sh.ses.dogru(); P.kutla(W / 2, 420); }
-        else { m.kulak = 0.5; Sh.ses.yanlis(); }
-      },
-    };
+  T.oyunSahnesi = (ad) => (S[ad] ? "url(\"data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">${ortak}${S[ad]}</svg>`) + "\")" : null);
+  /* hangi oyun hangi sahnede */
+  T.OYUN_SAHNE = { "Market kasası: tahmin et": "market", "Market kasası: para üstü": "market", "Fide bahçesi": "bahce", "Kurabiye paylaşımı": "mutfak", "Sayı makinesi": "atolye", "Çiftlik problemleri": "ciftlik",
+    "Problem kurucu": "sinif", "Eşitlik terazisi": "atolye", "Cisim dedektifi": "atolye", "Şekil kutuları": "sinif", "Nokta tahtası": "sinif", "Karınca turu": "bahce", "Limonata standı": "mutfak",
+    "Ayna avcısı": "sanat", "Ayna boyama": "sanat", "Kodla ve aynala": "atolye", "Sınıf anketi": "sinif" };
+  /* Ponpon'u tek başına bir SVG olarak çiz (rehber köşesi için) */
+  T.ponponSvg = function (yuz) {
+    const s = T.svg("svg", { viewBox: "-150 -175 300 330", class: "dn-svg pp-rehber" });
+    s.innerHTML = T.PONPON_DEFS; const pp = T.ponpon(0, 0, { yuz, kollar: [[-112, 70], [112, 70]], bak: [0, 4] }); s.append(pp.govde, pp.eller); return s;
   };
 })();
 
@@ -8595,6 +8531,70 @@ T.yuzen = TahtaYap("ana");
   };
 })();
 
+/* ---- oyun-sahne.js ---- */
+/* Oyun sahneleri: her oyunun arkasında elle çizilmiş, yumuşak renkli bir mekân.
+   Market, mutfak, çiftlik, bahçe, atölye, sınıf ve sanat odası. Ön plandaki oyun okunur kalsın diye renkler sakin. */
+(function () {
+  const ortak = `<defs>
+    <linearGradient id="sz-gok" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fcdf2"/><stop offset="1" stop-color="#e8f6ff"/></linearGradient>
+    <radialGradient id="sz-isik" cx="50%" cy="0%" r="90%"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="sz-tahta" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9a06a"/><stop offset="1" stop-color="#b4784a"/></linearGradient>
+    <filter id="sz-bulan"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>`;
+  const raf = (y, renkler, n, seed) => { let s = "", r = seed; const rn = () => ((r = (r * 9301 + 49297) % 233280) / 233280); for (let i = 0; i < n; i++) { const x = 40 + i * (1120 / n) + rn() * 20, w = 30 + rn() * 36, h = 40 + rn() * 50, c = renkler[i % renkler.length]; s += `<rect x="${x}" y="${y - h}" width="${w}" height="${h}" rx="7" fill="${c}"/><rect x="${x + 5}" y="${y - h + 8}" width="${w - 10}" height="${Math.min(14, h / 4)}" rx="3" fill="#fff" opacity=".55"/>`; } return s; };
+  const S = {
+    market: `<rect width="1200" height="700" fill="#fff4e6"/><rect y="0" width="1200" height="70" fill="#f28f6b"/>${Array.from({ length: 13 }, (_, i) => `<path d="M${i * 100} 70 q50 46 100 0Z" fill="${i % 2 ? "#fff" : "#f8b394"}"/>`).join("")}
+      <g filter="url(#sz-bulan)" opacity=".85">${[200, 330, 460].map((y) => `<rect x="20" y="${y}" width="1160" height="14" rx="4" fill="#c98a5a"/>`).join("")}
+      ${raf(200, ["#ff8a80", "#ffd166", "#7bdcb5", "#8ecae6", "#cdb4db"], 16, 3)}${raf(330, ["#ffb703", "#90be6d", "#f4978e", "#80ced7", "#e9c46a"], 16, 7)}${raf(460, ["#a2d2ff", "#ffafcc", "#bde0fe", "#f9c74f", "#43aa8b"], 16, 11)}</g>
+      <rect y="560" width="1200" height="140" fill="#e9d5bd"/>${Array.from({ length: 12 }, (_, i) => `<rect x="${i * 100}" y="560" width="100" height="140" fill="${i % 2 ? "#e2c9ab" : "#efdcc4"}"/>`).join("")}<rect width="1200" height="700" fill="url(#sz-isik)"/>`,
+    mutfak: `<rect width="1200" height="700" fill="#fff1e0"/>${Array.from({ length: 24 }, (_, i) => Array.from({ length: 7 }, (_, j) => `<rect x="${i * 50}" y="${j * 50 + 180}" width="48" height="48" rx="4" fill="${(i + j) % 2 ? "#ffffff" : "#f7e4cf"}"/>`).join("")).join("")}
+      <g filter="url(#sz-bulan)"><rect x="40" y="30" width="420" height="140" rx="16" fill="#9ed8c3"/><rect x="60" y="48" width="180" height="104" rx="10" fill="#b8e6d6"/><rect x="260" y="48" width="180" height="104" rx="10" fill="#b8e6d6"/><circle cx="230" cy="100" r="6" fill="#f2c14e"/><circle cx="270" cy="100" r="6" fill="#f2c14e"/>
+      <rect x="760" y="30" width="400" height="140" rx="16" fill="#9ed8c3"/><rect x="780" y="48" width="170" height="104" rx="10" fill="#b8e6d6"/><rect x="970" y="48" width="170" height="104" rx="10" fill="#b8e6d6"/>
+      <rect x="520" y="40" width="180" height="120" rx="14" fill="#cfeeff" stroke="#e8c79a" stroke-width="10"/><path d="M610 40v120M520 100h180" stroke="#e8c79a" stroke-width="7"/>
+      <circle cx="560" cy="250" r="34" fill="#f6c06b"/><circle cx="640" cy="250" r="26" fill="#ef8f6a"/><path d="M90 240h70v60h-70z" fill="#ffd9a8"/><path d="M1000 230q40-30 80 0v70h-80z" fill="#f2a65a"/></g>
+      <rect y="540" width="1200" height="160" fill="url(#sz-tahta)"/><rect y="536" width="1200" height="12" fill="#c98a5a"/>`,
+    ciftlik: `<rect width="1200" height="700" fill="url(#sz-gok)"/><circle cx="1040" cy="110" r="60" fill="#fff3b0"/><circle cx="1040" cy="110" r="90" fill="#fff3b0" opacity=".35"/>
+      <g fill="#fff" opacity=".9"><ellipse cx="220" cy="120" rx="80" ry="28"/><ellipse cx="280" cy="100" rx="60" ry="34"/><ellipse cx="640" cy="80" rx="70" ry="24"/><ellipse cx="690" cy="66" rx="48" ry="28"/></g>
+      <path d="M0 420 C200 340 380 380 560 350 C760 320 960 380 1200 340 V700 H0Z" fill="#a9d68c"/>
+      <g filter="url(#sz-bulan)"><path d="M780 420 L780 270 L880 210 L980 270 L980 420Z" fill="#d9534f"/><path d="M770 276 L880 200 L990 276" stroke="#fff" stroke-width="14" fill="none" stroke-linejoin="round"/><rect x="845" y="320" width="70" height="100" fill="#fff"/><path d="M845 320l70 100M915 320l-70 100" stroke="#d9534f" stroke-width="8"/>
+      <rect x="1010" y="300" width="60" height="120" rx="30" fill="#c9c3b8"/><path d="M1010 300q30-40 60 0" fill="#9e9789"/></g>
+      <path d="M0 500 C260 450 520 490 760 460 C960 436 1080 470 1200 456 V700 H0Z" fill="#8cc56f"/>
+      ${Array.from({ length: 16 }, (_, i) => `<rect x="${i * 80}" y="470" width="12" height="70" rx="4" fill="#e6c9a0"/>`).join("")}<rect y="486" width="1200" height="10" fill="#e6c9a0"/><rect y="514" width="1200" height="10" fill="#e6c9a0"/>
+      <path d="M0 600 C300 560 700 610 1200 570 V700 H0Z" fill="#79b65b"/>`,
+    bahce: `<rect width="1200" height="700" fill="url(#sz-gok)"/><g fill="#fff" opacity=".9"><ellipse cx="300" cy="110" rx="90" ry="28"/><ellipse cx="360" cy="92" rx="60" ry="32"/><ellipse cx="900" cy="140" rx="80" ry="24"/></g>
+      <path d="M0 380 C220 330 420 370 640 340 C860 310 1020 360 1200 330 V700 H0Z" fill="#b7df9a"/>
+      <g filter="url(#sz-bulan)">${[[90, 360], [230, 330], [1080, 340], [960, 310]].map(([x, y]) => `<rect x="${x - 8}" y="${y - 10}" width="16" height="50" fill="#9b6b43"/><circle cx="${x}" cy="${y - 40}" r="46" fill="#6fb25a"/><circle cx="${x - 26}" cy="${y - 20}" r="30" fill="#7fc267"/><circle cx="${x + 28}" cy="${y - 24}" r="32" fill="#63a750"/>`).join("")}</g>
+      <path d="M0 470 C300 430 600 480 900 450 C1040 436 1120 452 1200 446 V700 H0Z" fill="#9fd07f"/>
+      ${Array.from({ length: 30 }, (_, i) => `<circle cx="${(i * 97) % 1200}" cy="${560 + (i * 37) % 120}" r="7" fill="${["#ffd166", "#ff8fab", "#ffffff", "#cdb4db"][i % 4]}"/>`).join("")}`,
+    atolye: `<rect width="1200" height="700" fill="#e7eef7"/><rect x="0" y="0" width="1200" height="420" fill="#dbe6f2"/>
+      <g filter="url(#sz-bulan)" opacity=".9"><rect x="60" y="60" width="440" height="260" rx="14" fill="#c9a77d"/>${Array.from({ length: 9 }, (_, i) => Array.from({ length: 5 }, (_, j) => `<circle cx="${90 + i * 48}" cy="${90 + j * 48}" r="4" fill="#8a6a46"/>`).join("")).join("")}
+      <path d="M120 120h70v16h-70z" fill="#7a8ca3"/><circle cx="300" cy="180" r="40" fill="none" stroke="#f2a541" stroke-width="16" stroke-dasharray="14 10"/><circle cx="410" cy="140" r="26" fill="none" stroke="#7ab3e8" stroke-width="12" stroke-dasharray="10 8"/><path d="M140 240l60-40 20 30-60 40z" fill="#e57373"/>
+      <rect x="760" y="80" width="200" height="140" rx="14" fill="#cfeeff" stroke="#9fb3c8" stroke-width="10"/><path d="M860 80v140M760 150h200" stroke="#9fb3c8" stroke-width="7"/>
+      <circle cx="1080" cy="160" r="54" fill="none" stroke="#b0bdcc" stroke-width="18" stroke-dasharray="16 12"/></g>
+      <rect y="440" width="1200" height="260" fill="#c4d2e1"/><rect y="430" width="1200" height="20" fill="#9fb3c8"/>${Array.from({ length: 6 }, (_, i) => `<rect x="${i * 200 + 20}" y="470" width="160" height="200" rx="12" fill="#b6c6d8"/><rect x="${i * 200 + 80}" y="490" width="40" height="10" rx="5" fill="#8fa3bb"/>`).join("")}`,
+    sinif: `<rect width="1200" height="700" fill="#fdf3e3"/><rect y="520" width="1200" height="180" fill="#e8cfa9"/>${Array.from({ length: 13 }, (_, i) => `<rect x="${i * 96}" y="520" width="4" height="180" fill="#dcbf95"/>`).join("")}
+      <g filter="url(#sz-bulan)"><rect x="260" y="60" width="680" height="300" rx="16" fill="#2f5d50" stroke="#b5835a" stroke-width="18"/><path d="M320 140h160M320 190h240M620 140q40-30 80 0" stroke="#fff" stroke-width="6" opacity=".5" fill="none" stroke-linecap="round"/>
+      <rect x="40" y="120" width="160" height="380" rx="10" fill="#c98a5a"/>${[0, 1, 2, 3].map((j) => `<rect x="40" y="${200 + j * 90}" width="160" height="10" fill="#a86c3f"/>` + [0, 1, 2, 3, 4].map((i) => `<rect x="${52 + i * 28}" y="${140 + j * 90}" width="22" height="58" rx="3" fill="${["#ef6f6c", "#6cb4ee", "#f6c453", "#7bc67e", "#b58ce6"][(i + j) % 5]}"/>`).join("")).join("")}
+      <rect x="1000" y="120" width="160" height="200" rx="12" fill="#cfeeff" stroke="#e8c79a" stroke-width="10"/><path d="M1080 120v200M1000 220h160" stroke="#e8c79a" stroke-width="7"/>
+      ${Array.from({ length: 8 }, (_, i) => `<path d="M${280 + i * 85} 30 l30 30 l30 -30" fill="${["#ff8fab", "#ffd166", "#8ecae6", "#90be6d"][i % 4]}"/>`).join("")}<path d="M260 30h700" stroke="#b5835a" stroke-width="3"/></g>`,
+    sanat: `<rect width="1200" height="700" fill="#fbeef6"/><rect y="520" width="1200" height="180" fill="#ead7e6"/>
+      <g filter="url(#sz-bulan)"><path d="M120 520 L200 140 L280 520" stroke="#b5835a" stroke-width="12" fill="none"/><rect x="120" y="170" width="160" height="200" rx="6" fill="#fff" stroke="#e0c9a6" stroke-width="8"/><circle cx="170" cy="240" r="30" fill="#ffd166"/><path d="M135 340q50-70 130 0" fill="#90be6d"/>
+      <ellipse cx="1000" cy="250" rx="110" ry="150" fill="#cfe8ff" stroke="#d9b36c" stroke-width="16"/><path d="M940 180q30-30 50-20" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" opacity=".8"/>
+      ${["#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#9b5de5"].map((c, i) => `<circle cx="${480 + i * 70}" cy="${110 + (i % 2) * 30}" r="${26 + (i % 3) * 6}" fill="${c}" opacity=".55"/>`).join("")}
+      <path d="M520 520q40-60 80 0z" fill="#9b5de5" opacity=".6"/><path d="M640 520q30-40 60 0z" fill="#ef476f" opacity=".6"/></g>`,
+  };
+  T.oyunSahnesi = (ad) => (S[ad] ? "url(\"data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">${ortak}${S[ad]}</svg>`) + "\")" : null);
+  /* hangi oyun hangi sahnede */
+  T.OYUN_SAHNE = { "Market kasası: tahmin et": "market", "Market kasası: para üstü": "market", "Fide bahçesi": "bahce", "Kurabiye paylaşımı": "mutfak", "Sayı makinesi": "atolye", "Çiftlik problemleri": "ciftlik",
+    "Problem kurucu": "sinif", "Eşitlik terazisi": "atolye", "Cisim dedektifi": "atolye", "Şekil kutuları": "sinif", "Nokta tahtası": "sinif", "Karınca turu": "bahce", "Limonata standı": "mutfak",
+    "Ayna avcısı": "sanat", "Ayna boyama": "sanat", "Kodla ve aynala": "atolye", "Sınıf anketi": "sinif" };
+  /* Ponpon'u tek başına bir SVG olarak çiz (rehber köşesi için) */
+  T.ponponSvg = function (yuz) {
+    const s = T.svg("svg", { viewBox: "-150 -175 300 330", class: "dn-svg pp-rehber" });
+    s.innerHTML = T.PONPON_DEFS; const pp = T.ponpon(0, 0, { yuz, kollar: [[-112, 70], [112, 70]], bak: [0, 4] }); s.append(pp.govde, pp.eller); return s;
+  };
+})();
+
 /* ---- math-strateji.js ---- */
 /* Zihinden işlem stratejileri: beş oyun, Matematik > Oyunlar sekmesinin en başında.
    Ortak fikir: sayıyı parçala, ilişkiyi gör, aynı sonuca farklı yollarla var. */
@@ -9285,18 +9285,21 @@ T.yuzen = TahtaYap("ana");
     let tur = 0, dogru = 0, ilk = true;
     const puan = h("div.dn-puan"), turEl = h("div.dn-tur"), soru = h("div.dn-soru"), balon = h("div.dn-balon");
     const sahne = h("div.dn-sahne"), alt = h("div.dn-alt");
+    const rehber = h("div.dn-pp", T.ponponSvg ? T.ponponSvg("gulen") : baykus());
+    const yuzAyarla = (y) => { if (!T.ponponSvg) return; rehber.replaceChildren(T.ponponSvg(y)); };
     const kok = h("div.dn-kok", { style: { "--dn": o.renk || "#2F7FE0", "--dn2": o.renk2 || "#BFE3FF" } },
       h("div.dn-ust", turEl, h("b.dn-baslik", o.baslik), puan, h("button.dn-tam", { "aria-label": "Tam ekran", title: "Tam ekran", onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : kok.requestFullscreen(); } catch (e) {} } }, T.icon("full"))),
-      h("div.dn-gov", h("div.dn-rehber", baykus(), balon), h("div.dn-ana", soru, sahne, alt)));
+      h("div.dn-gov", h("div.dn-rehber", rehber, balon), h("div.dn-ana", soru, sahne, alt)));
     host.append(kok);
-    if (o.arka) kok.style.backgroundImage = o.arka;
+    const sahneArka = T.oyunSahnesi && T.oyunSahnesi(o.sahne || (T.OYUN_SAHNE || {})[o.baslik]);
+    if (o.arka) kok.style.backgroundImage = o.arka; else if (sahneArka) { kok.style.backgroundImage = sahneArka; kok.classList.add("sahneli"); }
     const yaz = () => { puan.textContent = "⭐ " + dogru; turEl.textContent = "Tur " + Math.min(tur + 1, TUR) + " / " + TUR; };
     let bz = 0;
     const konus = (t, tip = "") => { balon.textContent = t; balon.className = "dn-balon acik " + tip; clearTimeout(bz); if (tip) bz = setTimeout(() => (balon.className = "dn-balon acik"), 2200); };
     const api = {
       sahne, alt, soru: (t) => (soru.textContent = t ? t.charAt(0).toLocaleUpperCase("tr") + t.slice(1) : ""), konus,
-      dogru(msg) { if (ilk) dogru++; yaz(); konus(msg || ["Harika!", "Süpersin!", "Tam isabet!", "Bravo!"][rnd(0, 3)], "iyi"); T.sound && T.sound.ok && T.sound.ok(); kok.classList.add("zipla"); setTimeout(() => kok.classList.remove("zipla"), 600); setTimeout(api.sonraki, 1500); },
-      yanlis(msg) { ilk = false; konus(msg || ["Tekrar dene!", "Bir daha bak!"][rnd(0, 1)], "uyari"); T.sound && T.sound.no && T.sound.no(); sahne.classList.add("salla"); setTimeout(() => sahne.classList.remove("salla"), 450); },
+      dogru(msg) { if (ilk) dogru++; yaz(); yuzAyarla("gulen"); rehber.classList.remove("zipla"); void rehber.offsetWidth; rehber.classList.add("zipla"); konus(msg || ["Harika!", "Süpersin!", "Tam isabet!", "Bravo!"][rnd(0, 3)], "iyi"); T.sound && T.sound.ok && T.sound.ok(); kok.classList.add("zipla"); setTimeout(() => kok.classList.remove("zipla"), 600); setTimeout(api.sonraki, 1500); },
+      yanlis(msg) { ilk = false; yuzAyarla("sasirmis"); setTimeout(() => yuzAyarla("dusunen"), 1400); konus(msg || ["Tekrar dene!", "Bir daha bak!"][rnd(0, 1)], "uyari"); T.sound && T.sound.no && T.sound.no(); sahne.classList.add("salla"); setTimeout(() => sahne.classList.remove("salla"), 450); },
       sonraki() {
         tur++; ilk = true;
         if (tur >= TUR) return bitir();

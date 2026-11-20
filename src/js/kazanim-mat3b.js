@@ -30,18 +30,21 @@
     let tur = 0, dogru = 0, ilk = true;
     const puan = h("div.dn-puan"), turEl = h("div.dn-tur"), soru = h("div.dn-soru"), balon = h("div.dn-balon");
     const sahne = h("div.dn-sahne"), alt = h("div.dn-alt");
+    const rehber = h("div.dn-pp", T.ponponSvg ? T.ponponSvg("gulen") : baykus());
+    const yuzAyarla = (y) => { if (!T.ponponSvg) return; rehber.replaceChildren(T.ponponSvg(y)); };
     const kok = h("div.dn-kok", { style: { "--dn": o.renk || "#2F7FE0", "--dn2": o.renk2 || "#BFE3FF" } },
       h("div.dn-ust", turEl, h("b.dn-baslik", o.baslik), puan, h("button.dn-tam", { "aria-label": "Tam ekran", title: "Tam ekran", onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : kok.requestFullscreen(); } catch (e) {} } }, T.icon("full"))),
-      h("div.dn-gov", h("div.dn-rehber", baykus(), balon), h("div.dn-ana", soru, sahne, alt)));
+      h("div.dn-gov", h("div.dn-rehber", rehber, balon), h("div.dn-ana", soru, sahne, alt)));
     host.append(kok);
-    if (o.arka) kok.style.backgroundImage = o.arka;
+    const sahneArka = T.oyunSahnesi && T.oyunSahnesi(o.sahne || (T.OYUN_SAHNE || {})[o.baslik]);
+    if (o.arka) kok.style.backgroundImage = o.arka; else if (sahneArka) { kok.style.backgroundImage = sahneArka; kok.classList.add("sahneli"); }
     const yaz = () => { puan.textContent = "⭐ " + dogru; turEl.textContent = "Tur " + Math.min(tur + 1, TUR) + " / " + TUR; };
     let bz = 0;
     const konus = (t, tip = "") => { balon.textContent = t; balon.className = "dn-balon acik " + tip; clearTimeout(bz); if (tip) bz = setTimeout(() => (balon.className = "dn-balon acik"), 2200); };
     const api = {
       sahne, alt, soru: (t) => (soru.textContent = t ? t.charAt(0).toLocaleUpperCase("tr") + t.slice(1) : ""), konus,
-      dogru(msg) { if (ilk) dogru++; yaz(); konus(msg || ["Harika!", "Süpersin!", "Tam isabet!", "Bravo!"][rnd(0, 3)], "iyi"); T.sound && T.sound.ok && T.sound.ok(); kok.classList.add("zipla"); setTimeout(() => kok.classList.remove("zipla"), 600); setTimeout(api.sonraki, 1500); },
-      yanlis(msg) { ilk = false; konus(msg || ["Tekrar dene!", "Bir daha bak!"][rnd(0, 1)], "uyari"); T.sound && T.sound.no && T.sound.no(); sahne.classList.add("salla"); setTimeout(() => sahne.classList.remove("salla"), 450); },
+      dogru(msg) { if (ilk) dogru++; yaz(); yuzAyarla("gulen"); rehber.classList.remove("zipla"); void rehber.offsetWidth; rehber.classList.add("zipla"); konus(msg || ["Harika!", "Süpersin!", "Tam isabet!", "Bravo!"][rnd(0, 3)], "iyi"); T.sound && T.sound.ok && T.sound.ok(); kok.classList.add("zipla"); setTimeout(() => kok.classList.remove("zipla"), 600); setTimeout(api.sonraki, 1500); },
+      yanlis(msg) { ilk = false; yuzAyarla("sasirmis"); setTimeout(() => yuzAyarla("dusunen"), 1400); konus(msg || ["Tekrar dene!", "Bir daha bak!"][rnd(0, 1)], "uyari"); T.sound && T.sound.no && T.sound.no(); sahne.classList.add("salla"); setTimeout(() => sahne.classList.remove("salla"), 450); },
       sonraki() {
         tur++; ilk = true;
         if (tur >= TUR) return bitir();

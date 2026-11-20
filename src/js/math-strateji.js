@@ -138,7 +138,7 @@
         sv.innerHTML = T.PONPON_DEFS + '<rect width="800" height="430" fill="url(#bn-duvar)"/><rect x="0" y="300" width="800" height="130" fill="url(#bn-masa)"/><rect x="0" y="296" width="800" height="8" fill="#b97a48"/>'
           + '<g opacity=".55"><rect x="560" y="34" width="170" height="120" rx="14" fill="#cfeaff" stroke="#e8c79a" stroke-width="8"/><path d="M645 34v120M560 94h170" stroke="#e8c79a" stroke-width="6"/><circle cx="700" cy="62" r="14" fill="#fff6b5"/></g>'
           + '<g opacity=".5"><rect x="64" y="60" width="96" height="70" rx="8" fill="#fff" stroke="#e8c79a" stroke-width="6"/><path d="M80 112l22-26 18 18 12-12 18 20" stroke="#8cc28c" stroke-width="5" fill="none" stroke-linecap="round"/></g>';
-        sv.append(T.ponpon(400, 210, { kollar: [[120, 228], [680, 228]] }));
+        const pp = T.ponpon(400, 196, { kollar: [[120, 228], [680, 228]] }); sv.append(pp.govde);
         /* ip: iki el arasında sarkan eğri */
         const yol = (t) => { const x = 120 + t * 560, y = 228 + Math.sin(Math.PI * t) * 46; return [x, y]; };
         sv.append(S("path", { d: "M120 228 Q400 320 680 228", fill: "none", stroke: "#7a5232", "stroke-width": 4, "stroke-linecap": "round" }));
@@ -156,6 +156,7 @@
           if (b === 10) { g.append(S("rect", { x: -22, y: -17, width: 44, height: 34, rx: 17 })); const tx = S("text", { y: 7, "text-anchor": "middle", class: "bn-on" }); tx.textContent = "10"; g.append(tx); }
           else g.append(S("circle", { r: top > 22 ? 13 : 17 }));
           g.append(S("ellipse", { cx: -5, cy: -7, rx: 5, ry: 3.5, class: "bn-parla" })); sv.append(g); });
+        sv.append(pp.eller);
         /* sayı bağı baloncukları */
         const kx = 400, ustBil = buMod !== "butun" || cozuldu, n = Math.max(2, altlar.length);
         const balon = (x, y, p, cls, kucuk) => { const g = S("g", { class: "bn-balon " + cls, transform: `translate(${x} ${y})` }); g.append(S("rect", { x: kucuk ? -58 : -70, y: -32, width: kucuk ? 116 : 140, height: 64, rx: 32 }));

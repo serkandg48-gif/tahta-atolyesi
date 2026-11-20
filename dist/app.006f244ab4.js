@@ -1,4 +1,4 @@
-window.SURUM="d1229e0f65";
+window.SURUM="006f244ab4";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -8491,6 +8491,62 @@ T.yuzen = TahtaYap("ana");
   };
 })();
 
+/* ---- ponpon.js ---- */
+/* Ponpon: oyunların rehber karakteri. Yuvarlak, tüylü, mor bir arkadaş. Tamamen bu siteye özgü çizim.
+   T.ponpon(x, y, ops) bir SVG <g> döndürür; ops.kollar = [[x,y],[x,y]] elleri o noktalara uzatır, ops.yuz = "gulen" | "dusunen" | "sasirmis". */
+(function () {
+  const S = T.svg;
+  const tuy = (cx, cy, r, n, d) => { let p = ""; for (let i = 0; i <= n; i++) { const a = (i / n) * Math.PI * 2 - Math.PI / 2, a2 = ((i + 0.5) / n) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r, kx = cx + Math.cos(a2) * (r + d), ky = cy + Math.sin(a2) * (r + d);
+    p += i === 0 ? `M${x.toFixed(1)} ${y.toFixed(1)}` : ""; if (i < n) { const nx = cx + Math.cos(((i + 1) / n) * Math.PI * 2 - Math.PI / 2) * r, ny = cy + Math.sin(((i + 1) / n) * Math.PI * 2 - Math.PI / 2) * r; p += `Q${kx.toFixed(1)} ${ky.toFixed(1)} ${nx.toFixed(1)} ${ny.toFixed(1)}`; } }
+    return p + "Z"; };
+  T.PONPON_DEFS = `<defs>
+    <radialGradient id="pp-govde" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="#d9bcff"/><stop offset=".55" stop-color="#a97de6"/><stop offset="1" stop-color="#7a4fc0"/></radialGradient>
+    <radialGradient id="pp-kol" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#c9a6f7"/><stop offset="1" stop-color="#8459cc"/></radialGradient>
+    <radialGradient id="pp-goz" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e9e4f5"/></radialGradient>
+    <linearGradient id="bn-duvar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdeedd"/><stop offset="1" stop-color="#f6d9bd"/></linearGradient>
+    <linearGradient id="bn-masa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d99a63"/><stop offset="1" stop-color="#b9774a"/></linearGradient>
+    <radialGradient id="bn-a" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#8fd0ff"/><stop offset="1" stop-color="#1f6fd1"/></radialGradient>
+    <radialGradient id="bn-b" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#e5781f"/></radialGradient>
+    <radialGradient id="bn-c" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#9ff0b1"/><stop offset="1" stop-color="#2a9d55"/></radialGradient>
+    <radialGradient id="bn-d" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffb3c8"/><stop offset="1" stop-color="#d9416e"/></radialGradient>
+    <radialGradient id="bn-e" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#e6ccff"/><stop offset="1" stop-color="#8a55d4"/></radialGradient>
+    <filter id="pp-golge" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#5a3a1a" flood-opacity=".22"/></filter>
+  </defs>`;
+  T.ponpon = function (x, y, ops = {}) {
+    const g = S("g", { class: "ponpon", transform: `translate(${x} ${y})`, filter: "url(#pp-golge)" });
+    const R = 92;
+    /* kollar gövdenin arkasında başlar */
+    (ops.kollar || [[-150, 40], [150, 40]]).forEach(([hx, hy], i) => {
+      const ex = hx - x, ey = hy - y, sx = (i ? 1 : -1) * 70, sy = 26;
+      const mx = (sx + ex) / 2, my = Math.max(sy, ey) + 26;
+      g.append(S("path", { d: `M${sx} ${sy} Q${mx} ${my} ${ex} ${ey}`, fill: "none", stroke: "url(#pp-kol)", "stroke-width": 26, "stroke-linecap": "round" }));
+      g.append(S("circle", { cx: ex, cy: ey, r: 19, fill: "#b48ae9", stroke: "#7a4fc0", "stroke-width": 3 }));
+      g.append(S("path", { d: `M${ex - 8} ${ey - 14} q-6 10 2 22`, fill: "none", stroke: "#8a5fd1", "stroke-width": 3, "stroke-linecap": "round", opacity: .6 }));
+    });
+    /* gövde: tüylü kenar, iki tutam kulak, tepe tutamı */
+    g.append(S("path", { d: "M-58 -70 q-30 -46 -6 -78 q14 30 40 52Z", fill: "#9b6fe0" }));
+    g.append(S("path", { d: "M58 -70 q30 -46 6 -78 q-14 30 -40 52Z", fill: "#9b6fe0" }));
+    g.append(S("path", { d: tuy(0, 0, R, 30, 9), fill: "url(#pp-govde)", stroke: "#6d43b3", "stroke-width": 3, "stroke-linejoin": "round" }));
+    g.append(S("path", { d: "M-10 -96 q4 -26 22 -30 q-6 14 4 30 q-12 -6 -26 0Z", fill: "#c4a0f5", stroke: "#6d43b3", "stroke-width": 2.5 }));
+    g.append(S("ellipse", { cx: 0, cy: 36, rx: 54, ry: 40, fill: "#e7d6ff", opacity: .55 }));
+    /* yüz */
+    const yuz = ops.yuz || "gulen";
+    [-32, 32].forEach((ex, i) => {
+      g.append(S("ellipse", { cx: ex, cy: -18, rx: 26, ry: 30, fill: "url(#pp-goz)", stroke: "#4a2a85", "stroke-width": 3 }));
+      const bak = ops.bak || [4, 6];
+      g.append(S("circle", { cx: ex + bak[0], cy: -14 + bak[1], r: 13, fill: "#2b1a4a", class: "pp-gozbebek" }));
+      g.append(S("circle", { cx: ex + bak[0] - 4, cy: -19 + bak[1], r: 4.5, fill: "#fff" }));
+      if (yuz === "dusunen") g.append(S("path", { d: `M${ex - 22} ${-56 + (i ? 4 : -2)} q22 ${i ? -10 : -14} 44 ${i ? -6 : 2}`, fill: "none", stroke: "#4a2a85", "stroke-width": 5, "stroke-linecap": "round" }));
+    });
+    g.append(S("ellipse", { cx: -58, cy: 18, rx: 13, ry: 8, fill: "#ff8fb1", opacity: .55 }), S("ellipse", { cx: 58, cy: 18, rx: 13, ry: 8, fill: "#ff8fb1", opacity: .55 }));
+    if (yuz === "sasirmis") g.append(S("ellipse", { cx: 0, cy: 34, rx: 14, ry: 17, fill: "#4a1f3a" }));
+    else if (yuz === "dusunen") g.append(S("path", { d: "M-16 34 q16 -6 32 2", fill: "none", stroke: "#4a1f3a", "stroke-width": 5, "stroke-linecap": "round" }));
+    else { g.append(S("path", { d: "M-30 22 q30 34 60 0 q-30 12 -60 0Z", fill: "#4a1f3a" })); g.append(S("path", { d: "M-8 26 h14 v9 a3 3 0 0 1 -3 3 h-8 a3 3 0 0 1 -3 -3Z", fill: "#fff" })); g.append(S("path", { d: "M-14 40 q14 10 28 0", fill: "#ff7a9c" })); }
+    return g;
+  };
+})();
+
 /* ---- math-strateji.js ---- */
 /* Zihinden işlem stratejileri: beş oyun, Matematik > Oyunlar sekmesinin en başında.
    Ortak fikir: sayıyı parçala, ilişkiyi gör, aynı sonuca farklı yollarla var. */
@@ -8575,7 +8631,7 @@ T.yuzen = TahtaYap("ana");
   oyun("strateji-sayi-baglari", 2, {
     title: "Sayı bağları", icon: "dots", grades: [1, 4], short: "Parçala, eksik parçayı ya da bütünü bul",
     render(host) {
-      let tur = "yuz", mod = "karisik", buMod, hedef, parca, verilen, eksik, yollar, uyari = "", cozuldu = false;
+      let tur = T.store.grade() <= 2 ? "yirmi" : "yuz", mod = "karisik", buMod, hedef, parca, verilen, eksik, yollar, uyari = "", cozuldu = false;
       const kap = h("div.mz-oyun"); host.append(kap);
       const esit = (x, y) => x[0] * y[1] === y[0] * x[1];
       const toplamOf = (l) => l.reduce((t, p) => KESIR.ekle(t, p), [0, 1]);
@@ -8589,6 +8645,7 @@ T.yuzen = TahtaYap("ana");
       const metin = (p) => (tur === "kesir" ? KESIR.yaz(p) : satirlar(p).join(" "));
       /* soru üret: parçaları önce seç, bütün onların toplamı */
       function parcalarUret() {
+        if (tur === "yirmi") { const w = rnd(5, 20), x = rnd(1, w - 1); return [[x, 1], [w - x, 1]]; }
         if (tur === "yuz") { const w = rnd(14, 99), x = rnd(2, w - 2); return [[x, 1], [w - x, 1]]; }
         if (tur === "bin") { const w = rnd(12, 99) * 10, x = rnd(1, w / 10 - 1) * 10 + T.pick([0, 0, 5]); return [[x, 1], [w - x, 1]].filter((p) => p[0] > 0); }
         if (tur === "dakika") return T.pick([[60, 15], [60, 30], [60, 60], [45, 60], [60, 60, 15], [90, 30], [60, 25], [120, 15], [60, 60, 30], [40, 60]]).map((x) => [x, 1]);
@@ -8625,8 +8682,44 @@ T.yuzen = TahtaYap("ana");
         sv.append(S("ellipse", { cx: x, cy: y, rx: Math.max(46, uz * 10 + 22), ry: L.length > 1 ? 52 : 46, class: cls }));
         L.forEach((l, i) => { const t = S("text", { x, y: y + 11 + (i - (L.length - 1) / 2) * 32, "text-anchor": "middle", class: "mz-bag-t" + (L.length > 1 ? " iki" : "") }); t.textContent = l; sv.append(t); });
       }
+      /* Boncuk sahnesi: Ponpon boncuk dizisini iki elinde tutar; parçalar ayrı renkte, altta bağ baloncukları */
+      function boncukSahne(altlar) {
+        const W = 800, H = 430, sv = S("svg", { viewBox: `0 0 ${W} ${H}`, class: "bn-svg", role: "img", "aria-label": "Boncuk dizisiyle sayı bağı" });
+        sv.innerHTML = T.PONPON_DEFS + '<rect width="800" height="430" fill="url(#bn-duvar)"/><rect x="0" y="300" width="800" height="130" fill="url(#bn-masa)"/><rect x="0" y="296" width="800" height="8" fill="#b97a48"/>'
+          + '<g opacity=".55"><rect x="560" y="34" width="170" height="120" rx="14" fill="#cfeaff" stroke="#e8c79a" stroke-width="8"/><path d="M645 34v120M560 94h170" stroke="#e8c79a" stroke-width="6"/><circle cx="700" cy="62" r="14" fill="#fff6b5"/></g>'
+          + '<g opacity=".5"><rect x="64" y="60" width="96" height="70" rx="8" fill="#fff" stroke="#e8c79a" stroke-width="6"/><path d="M80 112l22-26 18 18 12-12 18 20" stroke="#8cc28c" stroke-width="5" fill="none" stroke-linecap="round"/></g>';
+        sv.append(T.ponpon(400, 210, { kollar: [[120, 228], [680, 228]] }));
+        /* ip: iki el arasında sarkan eğri */
+        const yol = (t) => { const x = 120 + t * 560, y = 228 + Math.sin(Math.PI * t) * 46; return [x, y]; };
+        sv.append(S("path", { d: "M120 228 Q400 320 680 228", fill: "none", stroke: "#7a5232", "stroke-width": 4, "stroke-linecap": "round" }));
+        /* boncuklar: 20 içinde her biri tek; 100 içinde büyük boncuk = 10 */
+        const boncuk = [];
+        const renkOf = (i) => ["a", "b", "c", "d", "e"][i % 5];
+        const gizliParca = buMod === "eksik" && !cozuldu ? eksik : -1;
+        if (buMod === "parcala") {
+          let kalan = hedef[0]; parca.forEach((p, i) => { boncuklaraBol(p[0]).forEach((b) => boncuk.push([b, renkOf(i)])); kalan -= p[0]; });
+          if (kalan > 0) boncuklaraBol(kalan).forEach((b) => boncuk.push([b, "bos"]));
+        } else altlar.forEach((p, i) => boncuklaraBol(p[0]).forEach((b) => boncuk.push([b, i === gizliParca ? "gizli" : renkOf(i)])));
+        const top = boncuk.reduce((t, [b]) => t + (b === 10 ? 1.7 : 1), 0); let k = 0;
+        boncuk.forEach(([b, r]) => { const genis = b === 10 ? 1.7 : 1; const t = 0.08 + (k + genis / 2) / top * 0.84; k += genis; const [x, y] = yol(t);
+          const g = S("g", { class: "bn-b " + r, transform: `translate(${x} ${y})` });
+          if (b === 10) { g.append(S("rect", { x: -22, y: -17, width: 44, height: 34, rx: 17 })); const tx = S("text", { y: 7, "text-anchor": "middle", class: "bn-on" }); tx.textContent = "10"; g.append(tx); }
+          else g.append(S("circle", { r: top > 22 ? 13 : 17 }));
+          g.append(S("ellipse", { cx: -5, cy: -7, rx: 5, ry: 3.5, class: "bn-parla" })); sv.append(g); });
+        /* sayı bağı baloncukları */
+        const kx = 400, ustBil = buMod !== "butun" || cozuldu, n = Math.max(2, altlar.length);
+        const balon = (x, y, p, cls, kucuk) => { const g = S("g", { class: "bn-balon " + cls, transform: `translate(${x} ${y})` }); g.append(S("rect", { x: kucuk ? -58 : -70, y: -32, width: kucuk ? 116 : 140, height: 64, rx: 32 }));
+          const t = S("text", { y: 12, "text-anchor": "middle" }); t.textContent = p ? metin(p) : "?"; g.append(t); sv.append(g); };
+        const px = (i) => (n === 2 ? [170, 630][i] : 120 + i * (560 / (n - 1)));
+        for (let i = 0; i < n; i++) sv.append(S("line", { x1: kx, y1: 368, x2: px(i), y2: 392, class: "bn-cizgi" }));
+        balon(kx, 362, ustBil ? hedef : null, ustBil ? "butun" : "soru");
+        for (let i = 0; i < n; i++) { let p = altlar[i]; const gz = buMod === "eksik" && i === eksik && !cozuldu; balon(px(i), 392, gz ? null : p, (gz || (!p && buMod !== "parcala")) ? "soru" : p ? "parca " + renkOf(i) : "bos", true); }
+        return sv;
+      }
+      const boncuklaraBol = (v) => (tur === "yuz" ? [...Array(Math.floor(v / 10)).fill(10), ...Array(v % 10).fill(1)] : Array(v).fill(1));
       function ciz() {
-        const altlar = buMod === "parcala" ? parca : verilen, n = Math.max(2, altlar.length), W = 760, sv = S("svg", { viewBox: `0 0 ${W} 290`, class: "mz-bag" });
+        const altlar = buMod === "parcala" ? parca : verilen, n = Math.max(2, altlar.length), W = 760, sv = ["yirmi", "yuz"].includes(tur) ? null : S("svg", { viewBox: `0 0 ${W} 290`, class: "mz-bag" });
+        if (sv) {
         const kx = W / 2, kutuX = (i) => 80 + (i + 0.5) * ((W - 160) / n), ustBil = buMod !== "butun" || cozuldu;
         for (let i = 0; i < n; i++) sv.append(S("line", { x1: kx, y1: 100, x2: kutuX(i), y2: 192, stroke: "#1B2A4A", "stroke-width": 3, opacity: buMod === "parcala" && !parca[i] ? 0.25 : 1 }));
         dugum(sv, kx, 60, ustBil ? hedef : null, ustBil ? "mz-bag-ust" : "mz-bag-soru");
@@ -8635,6 +8728,7 @@ T.yuzen = TahtaYap("ana");
           if (gizli) p = null;
           dugum(sv, kutuX(i), 232, p, p ? "mz-bag-alt" : buMod === "parcala" ? "mz-bag-bos" : "mz-bag-soru");
         }
+        }
         const t = toplamOf(parca), parcTamam = buMod === "parcala" && esit(t, hedef) && parca.length > 1;
         const BIRIM = { dakika: "Dakika olarak yaz. 60 dakika = 1 saat.", metre: "Santimetre olarak yaz. 100 cm = 1 m.", kesir: "Kesir için / tuşunu kullan. Örnek: 3/4" }[tur] || "";
         let durum;
@@ -8642,9 +8736,9 @@ T.yuzen = TahtaYap("ana");
         else if (cozuldu) durum = metin(hedef) + " = " + verilen.map(metin).join(" + ");
         else durum = uyari || (buMod === "butun" ? "Parçalar verildi. Bütün kaç? " : "Bütün ve bir parça verildi. Eksik parça kaç? ") + BIRIM;
         kap.replaceChildren(
-          h("div.mz-ust", seg([["yuz", "100 içinde"], ["bin", "1000 içinde"], ["dakika", "Saat ve dakika"], ["metre", "Metre ve santimetre"], ["kesir", "Kesirler"]], tur, (v) => { tur = v; yeni(); }),
+          h("div.mz-ust", seg([["yirmi", "20 içinde"], ["yuz", "100 içinde"], ["bin", "1000 içinde"], ["dakika", "Saat ve dakika"], ["metre", "Metre ve santimetre"], ["kesir", "Kesirler"]], tur, (v) => { tur = v; yeni(); }),
             seg([["karisik", "Karışık"], ["parcala", "Parçala"], ["eksik", "Eksik parça"], ["butun", "Bütünü bul"]], mod, (v) => { mod = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni soru")),
-          h("div.mz-yan", h("div", sv,
+          h("div.mz-yan", h("div", sv || boncukSahne(altlar),
             h("div.mz-durum" + ((parcTamam && !uyari) || cozuldu ? ".iyi" : uyari ? ".kotu" : ""), durum),
             buMod === "parcala" ? h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { disabled: parca.length ? null : true, onclick: () => { parca.pop(); uyari = ""; ciz(); } }, T.icon("back"), "Son parçayı sil"), h("button.btn" + (parcTamam ? ".c-leaf" : ".c-chalk"), { onclick: () => { parca = []; uyari = ""; ciz(); } }, T.icon("reset"), parcTamam ? "Başka türlü parçala" : "Temizle")) : cozuldu ? h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-leaf", { onclick: yeni }, T.icon("next"), "Sıradaki")) : null,
             buMod === "parcala" && yollar.length ? h("div.mz-yollar", h("h3", "Bulduğumuz yollar (" + yollar.length + " / 2)"), yollar.map((y, i) => h("div.mz-yol", h("b", (i + 1) + ". yol"), h("span", metin(hedef) + " = " + y.split("+").map((x) => metin(KESIR.oku(x))).join(" + "))))) : null),

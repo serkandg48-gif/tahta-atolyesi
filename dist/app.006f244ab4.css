@@ -3447,3 +3447,20 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .so.gece .so-agac, .so.gece .so-canli, .so.gece .so-cicek { filter: brightness(.55) saturate(.7) drop-shadow(0 4px 4px rgba(0,0,0,.3)); }
 .so.gece .so-on { background: linear-gradient(rgba(20,40,30,0), #1d3a2c 60%); }
 @media (prefers-reduced-motion: reduce) { .so-agac, .so-canli, .so-bulut { animation: none !important; } }
+
+/* Sayı bağları: boncuk dizisi sahnesi */
+.bn-svg { width: 100%; height: auto; display: block; border-radius: 24px; box-shadow: 0 0 0 4px #1B2A4A, 0 10px 24px rgba(27,42,74,.18); font-family: "Andika", var(--display); }
+.bn-b circle, .bn-b rect { stroke: rgba(20,30,60,.35); stroke-width: 2; }
+.bn-b.a > circle, .bn-b.a > rect { fill: url(#bn-a); } .bn-b.b > circle, .bn-b.b > rect { fill: url(#bn-b); } .bn-b.c > circle, .bn-b.c > rect { fill: url(#bn-c); }
+.bn-b.d > circle, .bn-b.d > rect { fill: url(#bn-d); } .bn-b.e > circle, .bn-b.e > rect { fill: url(#bn-e); }
+.bn-b.bos > circle, .bn-b.bos > rect { fill: #f1ece4; stroke: #c8b9a4; }
+.bn-b.gizli > circle, .bn-b.gizli > rect { fill: rgba(255,255,255,.35); stroke: #8a7a66; stroke-dasharray: 4 4; } .bn-b.gizli .bn-parla, .bn-b.gizli .bn-on { display: none; }
+.bn-parla { fill: rgba(255,255,255,.75); }
+.bn-on { font: 800 15px "Andika", var(--display); fill: #fff; }
+.bn-cizgi { stroke: #1B2A4A; stroke-width: 4; stroke-linecap: round; }
+.bn-balon rect { fill: #fff; stroke: #1B2A4A; stroke-width: 4; }
+.bn-balon text { font: 800 34px "Andika", var(--display); fill: #1B2A4A; }
+.bn-balon.butun rect { fill: #FFF4B8; } .bn-balon.soru rect { fill: #FFE9C2; stroke: #E08A00; stroke-dasharray: 10 6; } .bn-balon.soru text { fill: #E08A00; }
+.bn-balon.parca.a rect { fill: #dcefff; } .bn-balon.parca.b rect { fill: #ffeccc; } .bn-balon.parca.c rect { fill: #dcf6e3; } .bn-balon.parca.d rect { fill: #ffe0ea; } .bn-balon.bos rect { fill: #f6f6f6; stroke-dasharray: 8 6; }
+.ponpon { animation: pp-nefes 3.4s ease-in-out infinite; transform-box: fill-box; }
+@keyframes pp-nefes { 50% { translate: 0 -3px; } }

@@ -50,6 +50,7 @@ JS_ORDER = [
     "bes-dakika.js",
     "zil.js",
     "math-vitrin.js",
+    "ponpon.js",
     "math-strateji.js",
     "fermi.js",
     "math-basket.js",

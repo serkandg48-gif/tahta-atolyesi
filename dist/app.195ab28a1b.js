@@ -1,4 +1,4 @@
-window.SURUM="4a1398f38e";
+window.SURUM="195ab28a1b";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -3195,7 +3195,7 @@ T.yuzen = TahtaYap("ana");
     area.append(h("div.paper", { style: { padding: "20px", display: "grid", gap: "14px", maxWidth: "760px" } },
       h("div.form-grid", h("label.f", h("span", "Sınıf adı"), nm), h("label.f", h("span", "Seviye"), gr)),
       h("label.f", h("span", "Her satıra bir öğrenci. e-Okul'dan kopyalayıp yapıştırabilirsin."), ta),
-      h("p.hint", "Öğrenci fotoğrafı tutulmaz; herkese adına göre bir hayvan yüzü verilir. Yalnızca ad yazman yeterli."),
+      h("p.hint", "Öğrenci fotoğrafı tutulmaz; herkese adına göre bir hayvan yüzü verilir. Yalnızca ad yazman yeterli. Soyadı, okul numarası ya da T.C. kimlik numarası yazma: kişisel verileri korumak için gerekenden fazlasını tutmamak en güvenlisi. Aynı adda iki öğrenci varsa soyadının baş harfini ekle, örneğin Ali K."),
       h("div.row",
         h("button.btn.c-leaf", { onclick: () => {
           const names = ta.value.split(/\n+/).map((x) => x.trim()).filter(Boolean);
@@ -14817,7 +14817,12 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
               h("button.btn.c-chalk", { onclick: () => { T.store.update(() => (s.calendar = JSON.parse(JSON.stringify(T.cal.def)))); T.route(); } }, "MEB takvimine dön"))),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Verilerim"),
             h("p", { style: { margin: 0 } }, "Sınıf listeleri, yoklama ve planlar şimdilik yalnızca bu cihazda, bu tarayıcıda tutulur. Google ile giriş açıldığında bütün cihazlarında eşitlenecek. O zamana kadar ara ara yedek al."),
-            h("p.hint", { style: { margin: 0 } }, "Öğrenci fotoğrafı tutulmaz, yapay zekaya öğrenci adı gönderilmez."),
+            h("p.hint", { style: { margin: 0 } }, "Öğrenci fotoğrafı tutulmaz, yapay zekâya öğrenci adı gönderilmez."),
+            h("details.kvkk", h("summary", "Öğrenci verileri ve KVKK"),
+              h("p", "Bu sitede öğrencilerle ilgili her şey (ad, yoklama, puan, notlar, duygu kayıtları) yalnızca bu tarayıcıda durur. Sunucuya gönderilmez, başka biri göremez."),
+              h("p", "Yine de şu üç alışkanlık işini kolaylaştırır: yalnızca öğrencinin adını yaz, soyadı ve numara yazma. Tahtayı başka öğretmenlerle paylaşıyorsan dersten sonra Sınıf listesini temizle ya da kendi bilgisayarını kullan. Yedek dosyasını okul dışında paylaşma."),
+              h("p", "Okulunun veri sorumlusu müdürlüktür. Velilerden alınan açık rıza ve aydınlatma metinleri için okul yönetimine danış."),
+              h("a", { href: "/gizlilik.html", target: "_blank", rel: "noopener" }, "Gizlilik politikası")),
             h("div.row", h("button.btn.c-sky", { onclick: () => T.download("tahta-atolyesi-yedek.json", backup(), "application/json") }, T.icon("download"), "Yedek indir"),
               h("label.btn.c-chalk", { style: { cursor: "pointer" } }, T.icon("save"), "Yedekten yükle", h("input", { type: "file", accept: ".json,application/json", style: { display: "none" }, onchange: async (e) => {
                 const f = e.target.files[0]; if (!f) return;

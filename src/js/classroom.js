@@ -249,7 +249,7 @@
     area.append(h("div.paper", { style: { padding: "20px", display: "grid", gap: "14px", maxWidth: "760px" } },
       h("div.form-grid", h("label.f", h("span", "Sınıf adı"), nm), h("label.f", h("span", "Seviye"), gr)),
       h("label.f", h("span", "Her satıra bir öğrenci. e-Okul'dan kopyalayıp yapıştırabilirsin."), ta),
-      h("p.hint", "Öğrenci fotoğrafı tutulmaz; herkese adına göre bir hayvan yüzü verilir. Yalnızca ad yazman yeterli."),
+      h("p.hint", "Öğrenci fotoğrafı tutulmaz; herkese adına göre bir hayvan yüzü verilir. Yalnızca ad yazman yeterli. Soyadı, okul numarası ya da T.C. kimlik numarası yazma: kişisel verileri korumak için gerekenden fazlasını tutmamak en güvenlisi. Aynı adda iki öğrenci varsa soyadının baş harfini ekle, örneğin Ali K."),
       h("div.row",
         h("button.btn.c-leaf", { onclick: () => {
           const names = ta.value.split(/\n+/).map((x) => x.trim()).filter(Boolean);

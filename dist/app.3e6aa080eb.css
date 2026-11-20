@@ -3056,3 +3056,38 @@ details.kvkk { background: rgba(79,143,232,.08); border-radius: 14px; padding: 1
 details.kvkk summary { font-weight: 700; cursor: pointer; }
 details.kvkk p { margin: 8px 0 0; line-height: 1.55; }
 details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
+
+/* Dersimi dolduracak öğretmene notlar */
+.vk { display: grid; gap: 16px; }
+.vk-kart { padding: 18px 20px; display: grid; gap: 10px; max-width: 980px; }
+.vk-kart h2 { font-size: 1.3rem; }
+.vk-kart .hint { margin: 0; }
+.vk-ders-liste { display: grid; gap: 10px; }
+.vk-ders { display: grid; grid-template-columns: 180px 1fr; gap: 12px; align-items: start; }
+.vk-ders span { display: grid; } .vk-ders small { color: #778; }
+.vk-sayfa-liste { display: grid; gap: 8px; }
+.vk-sayfa { display: grid; grid-template-columns: 150px 1.2fr 80px 2fr 1fr auto; gap: 8px; align-items: center; }
+.vk-dosyalar { display: flex; flex-wrap: wrap; gap: 8px; }
+.vk-dosya { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.03); border-radius: 12px; padding: 4px; }
+.vk-dosya small { color: #778; }
+@media (max-width: 800px) { .vk-sayfa { grid-template-columns: 1fr 1fr; } .vk-ders { grid-template-columns: 1fr; } }
+.vk-oku { background: #fffdf7; border-radius: 22px; padding: 28px 32px; display: grid; gap: 22px; max-width: 980px; box-shadow: 0 10px 30px rgba(20,30,50,.08); color: #1a2233; }
+.vk-oku.baski { box-shadow: none; padding: 0; background: #fff; max-width: none; }
+.vk-mektup small { color: #8a6d2f; font-weight: 700; }
+.vk-mektup h1 { font-size: 2rem; margin: 6px 0; }
+.vk-mektup p { margin: 4px 0; font-size: 1.1rem; }
+.vk-imza { font-weight: 700; }
+.vk-bolum { display: grid; gap: 8px; break-inside: avoid; }
+.vk-bolum h2 { font-size: 1.25rem; border-bottom: 2px solid #f0e6cf; padding-bottom: 4px; }
+.vk-metin { white-space: pre-wrap; margin: 0; line-height: 1.6; font-size: 1.05rem; }
+.vk-dersler { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.vk-dersler > li { display: grid; grid-template-columns: 120px 1fr; gap: 14px; padding: 10px 0; border-bottom: 1px dashed #eadfc4; break-inside: avoid; }
+.vk-saat { font-weight: 700; color: #556; font-variant-numeric: tabular-nums; }
+.vk-sayfalar { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.vk-sayfalar li { line-height: 1.5; }
+.vk-dosya-ac { margin-left: 8px; vertical-align: middle; }
+.vk-gorev { margin: 0; padding-left: 20px; }
+.vk-oturma { display: grid; gap: 8px; }
+.vk-sira { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #f6efdd; border-radius: 10px; padding: 6px; }
+.vk-sira span { background: #fff; border-radius: 6px; padding: 4px 6px; font-size: .9rem; text-align: center; }
+.vk-liste { margin: 0; line-height: 1.7; }

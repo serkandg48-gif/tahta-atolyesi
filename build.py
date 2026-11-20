@@ -72,6 +72,7 @@ JS_ORDER = [
     "zeka.js",
     "plan.js",
     "settings.js",
+    "vekil.js",
     "kokpit.js",
     "yardim.js",
     "shell.js",

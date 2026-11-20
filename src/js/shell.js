@@ -70,7 +70,7 @@
      Şeritte son kullanılan dört şey hızlı erişim için durur. */
   const ARAC_GRUP = [
     ["Zaman", ["timer", "stopwatch", "clock", "takvim"]],
-    ["Seçim ve gruplar", ["name", "dice", "groups"]],
+    ["Seçim ve gruplar", ["name", "dice", "groups", "sozagi"]],
     ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];

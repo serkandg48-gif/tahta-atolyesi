@@ -155,15 +155,15 @@
     wrap.append(
       h("div.oa-kartlar",
         kart("scale", "Dereceleme ölçeği", "Ölçüt başına 1-3 puan; düzey ve geri bildirim kendiliğinden", () => yeniOlcek("olcek")),
-        kart("check", "Kontrol listesi", "Ölçüt var mı yok mu: + / −", () => yeniOlcek("liste")),
-        kart("hand", "Hızlı yoklama", "A B C D, başparmak ya da doğru/yanlış; sınıfın ne kadarı anladı?", () => T.go("olcme-a-yoklama")),
+        kart("check", "Kontrol listesi", "Ölçüt var mı, yok mu? (+ / −)", () => yeniOlcek("liste")),
+        kart("hand", "Hızlı yoklama", "A, B, C, D, başparmak ya da doğru/yanlış; sınıfın ne kadarı anladı?", () => T.go("olcme-a-yoklama")),
         kart("chart", "Gelişim takibi", "Her öğrencinin düzeyleri tarih sırasıyla", () => T.go("olcme-a-gelisim")),
         kart("ticket", "Çıkış bileti", "Dersin sonunda tek soruluk kart (tahtada araç olarak açılır)", () => { T.go("ana"); setTimeout(() => T.yuzen && T.yuzen.add("ticket"), 200); })),
       h("p.hint", "Öz değerlendirme ve akran değerlendirme formları her ölçeğin içinden, aynı ölçütlerle çocuk diline çevrilmiş olarak basılır."),
       h("h2.oa-bas", "Ölçeklerim"),
       ol.length ? h("div.oa-liste", ol.map((o) => { const n = T.store.activeClass().students.filter((st) => duzey(o, (o.puan || {})[st.id])).length; return h("button.oa-satir", { onclick: () => T.go("olcme-a-" + o.id) }, h("b", o.ad), h("span", (o.tur === "liste" ? "Kontrol listesi" : "Dereceleme ölçeği") + (o.ders ? " · " + o.ders : "")), h("span", tarihYaz(o.tarih)), h("span", n + " / " + T.store.activeClass().students.length + " puanlandı")); }))
         : h("div.oa-bos", h("p.hint", "Henüz ölçek yok. Hazır ölçütlerden biriyle başlayabilirsin: " + SABLON.slice(0, 4).map((x) => x[0]).join(", ") + "."), h("button.btn.c-sun", { onclick: () => yeniOlcek("olcek") }, T.icon("plus"), "Hazır ölçütle ölçek kur")),
-      h("p.hint", { style: { marginTop: "12px" } }, "Düzeyler MEB'in biçimlendirici değerlendirme kılavuzlarındaki gibi Geliştirilmeli, Orta ve İyi olarak hesaplanır: toplam puan aralığı üçe bölünür."));
+      h("p.hint", { style: { marginTop: "12px" } }, "Düzeyler MEB'in biçimlendirici değerlendirme kılavuzlarındaki gibi "Geliştirilmeli", "Orta" ve "İyi" olarak hesaplanır: Toplam puan aralığı üçe bölünür."));
   };
   T.olcmeAracSayfa = function (view, id) {
     if (id === "yoklama") return yoklamaSayfasi(view);

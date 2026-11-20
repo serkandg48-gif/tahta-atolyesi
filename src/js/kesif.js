@@ -160,7 +160,7 @@
   T.sections.duygu.render = function (view, sub) {
     if (sub && T.tools[sub]) return T.toolPage(view, sub);
     const wrap = h("div.view-inner"); view.append(wrap);
-    wrap.append(h("div.page-head", h("h1", "SDÖ araçlarımız"), h("div.sub", "Sosyal duygusal öğrenme araçları, Maarif Modeli'ndeki sosyal duygusal öğrenme becerilerine göre gruplandı. Öğrencilerin seçimleri yalnızca bu cihazda kalır.")));
+    wrap.append(h("div.page-head", h("h1", "SDÖ araçlarımız"), h("div.sub", "Bu araçlar, Maarif Modeli'ndeki sosyal-duygusal öğrenme becerilerine göre gruplandı. Öğrencilerin seçimleri yalnızca bu cihazda kalır.")));
     SDB.forEach(([ad, kod, ids]) => wrap.append(grupBas(ad, kod), kartlar(ids.map((id) => ["duygu-" + id, T.tools[id]]), "pink")));
     wrap.append(h("p.hint", "Sınıf düzeni araçları (Basamak duvarı, Etkinliğim bitti, YZ düzeyi) artık ", h("a", { href: "#kultur", onclick: (e) => { e.preventDefault(); T.go("kultur"); } }, "Sınıf düzenimiz"), " bölümünde."));
   };

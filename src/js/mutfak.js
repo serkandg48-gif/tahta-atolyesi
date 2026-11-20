@@ -1,4 +1,4 @@
-/* Hece Mutfağı: 1. sınıf ilk okuma.
+/* Hece mutfağı: 1. sınıf ilk okuma.
    Tahtada resimli bir kelime kartı çıkar, altında boş hece yerleri var. Erkek öğrenci rehberdir. Çocuk kavanozlardaki heceleri doğru sırayla hamur kazanına atar.
    Kelime tamamlanınca o şekilde bir kurabiye pişer (tilki kurabiyesi, elma kurabiyesi...).
    Kelimeler öğrenilen seslerle okunabilenlerden seçilir (ses cep kartları, kelime tabloları, resimli kelimeler).
@@ -12,7 +12,7 @@
   const INSAN = /[\u{1F466}-\u{1F469}\u{1F46E}-\u{1F478}\u{1F9D1}-\u{1F9D3}\u{1F935}\u{1F470}]/u;
 
   T.tools["hece-mutfagi"] = {
-    back: "birinci", grades: [1, 1], title: "Hece Mutfağı", icon: "hece", tone: "tomato",
+    back: "birinci", grades: [1, 1], title: "Hece mutfağı", icon: "hece", tone: "tomato",
     short: "Resimdeki kelimeyi heceleri sırayla kazana atarak kur, kazandan sihirle çıksın",
     render(host, api) {
       const IO = T.ilkOkuma; if (!IO) { host.append(h("p", "İlk okuma verisi yüklenemedi.")); return; }

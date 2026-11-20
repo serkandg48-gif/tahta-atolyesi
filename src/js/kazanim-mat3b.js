@@ -156,7 +156,7 @@
     () => { const a = rnd(15, 60), b = rnd(15, 60); return ["Sabah " + a + " litre, akşam " + b + " litre süt sağıldı. Toplam kaç litre süt sağıldı?", a + b, "🥛", 6]; },
     () => { const a = rnd(3, 8), f = rnd(4, 12); return ["Bir torba yem " + f + " lira. Çiftçi " + a + " torba aldı. Kaç lira ödedi?", a * f, "💰", a]; },
   ];
-  oyun("MAT.3.2.6.", { ad: "Çiftlik problemleri", ikon: "inek", renk: "#3B8E2E", renk2: "#E3F3D5", giris: "Önce problemi oku: ne verilmiş, ne isteniyor?",
+  oyun("MAT.3.2.6.", { ad: "Çiftlik problemleri", ikon: "inek", renk: "#3B8E2E", renk2: "#E3F3D5", giris: "Önce problemi oku: Ne verilmiş, ne isteniyor?",
     yeni(a) { const [t, c, em, adet] = PROBLEM[rnd(0, PROBLEM.length - 1)](); a.soru(t); a.sahne.append(h("div.dn-ciftlik", h("div.dn-ahir"), h("div.dn-hayvanlar", Array.from({ length: Math.min(adet, 24) }, () => h("span", em))))); a.tuslar((x) => x === c, { ipucu: "Hangi işlem gerekiyor? Toplama mı, çıkarma mı, çarpma mı, bölme mi?" }); } });
   /* MAT.3.2.7: Problem kurucu */
   oyun("MAT.3.2.7.", { ad: "Problem kurucu", ikon: "kalem", renk: "#2F7FE0", renk2: "#DCEBFF", giris: "Hangi hikâye bu işleme uyar?",
@@ -344,7 +344,7 @@
   };
   Object.entries(OY).forEach(([kod, o]) => {
     const kisa = id(kod);
-    T.tools["kd-" + kisa] = { cat: "oyun", ilk: 10 + Object.keys(OY).indexOf(kod), title: o.ad, icon: o.ikon, tone: "sun", grades: [3, 4], short: o.giris, render(host) { oyunKabuk(host, Object.assign({ baslik: o.ad }, o)); } };
+    T.tools["kd-" + kisa] = { cat: "oyun", ilk: 10 + Object.keys(OY).indexOf(kod), title: o.ad, icon: o.ikon, tone: "sun", grades: [3, 4], short: o.giris.replace(/[!.]+$/, ""), render(host) { oyunKabuk(host, Object.assign({ baslik: o.ad }, o)); } };
     const ad = (T.ciktilar.bul(kod) || {}).metin || o.ad;
     const k = { ad: o.ad.replace(/^[^:]*: /, "") === o.ad ? o.ad : o.ad, kesfet: KESFET[kod] || [], soru: KONTROL[kod], oyun: { id: "kd-" + kisa, ad: o.ad, ikon: o.ikon } };
     T.KAZANIM_KART[kod] = k;

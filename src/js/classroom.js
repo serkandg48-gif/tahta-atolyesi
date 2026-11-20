@@ -91,7 +91,7 @@
         h("button.btn.c-leaf", { onclick: () => { T.store.update(() => c.students.forEach((st) => (day[st.id] = "var"))); T.route(); } }, T.icon("check"), "Herkes geldi"),
         h("button.btn.c-chalk", { onclick: () => T.copyText(summary, "Yoklama özeti kopyalandı. e-Okul'a girerken kullanabilirsin.") }, T.icon("copy"), "Özeti kopyala")),
       !school ? h("p.hint", { style: { marginTop: "-6px" } }, "Bu tarih takvimde okul günü görünmüyor: " + (T.cal.closedReason(d) || "hafta sonu") + ".") : null,
-      h("p.hint", "Kartlara dokundukça durum değişir: Geldi, Gelmedi, Geç kaldı, İzinli. Gelmeyenler isim çekme ve gruplara girmez."),
+      h("p.hint", "Kartlara dokundukça durum değişir: Geldi, Gelmedi, Geç kaldı, İzinli. Gelmeyenler isim çekme ve grup kurma araçlarına dahil edilmez."),
       grid);
   }
 

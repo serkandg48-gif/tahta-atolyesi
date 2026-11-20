@@ -3200,3 +3200,27 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .zil-satir { display: grid; grid-template-columns: 150px 1fr; gap: 8px; align-items: center; }
 .kpo { display: grid; gap: 10px; }
 .kpo-cv { width: 100%; height: auto; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+
+/* Fermi tahmin masası */
+.fm { display: grid; gap: 14px; }
+.fm-soru { background: #fff; border-radius: 20px; padding: 18px 22px; display: grid; gap: 8px; }
+.fm-soru small { font-weight: 800; color: #3B83C4; } .fm-soru h2 { font-size: clamp(1.4rem, 2.6vw, 2.1rem); line-height: 1.25; }
+.fm-dogru { position: relative; height: 150px; background: #fff; border-radius: 20px; }
+.fm-dogru.bos { display: grid; place-items: center; color: #889; }
+.fm-cizgi { position: absolute; left: 3%; right: 3%; top: 92px; height: 4px; background: #1B2A4A; border-radius: 4px; }
+.fm-uc { position: absolute; top: 104px; color: #667; font-weight: 700; } .fm-uc.sol { left: 3%; } .fm-uc.sag { right: 3%; }
+.fm-log { position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; color: #889; }
+.fm-n { position: absolute; top: calc(78px - var(--y)); width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+.fm-n span { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); font-size: .8rem; font-weight: 800; white-space: nowrap; background: rgba(255,255,255,.9); border-radius: 6px; padding: 0 4px; }
+.fm-n.ilk { background: #F2A93B; } .fm-n.son { background: #4F8FE8; }
+.fm-n.cevap { background: #3FA36B; width: 30px; height: 30px; margin-left: -15px; top: 74px; }
+.fm-n.cevap span { color: #2f7d4f; font-size: 1rem; }
+.fm-ozet { margin: 0; font-weight: 700; }
+.fm-alt { display: grid; grid-template-columns: 1fr 1.3fr; gap: 14px; align-items: start; }
+@media (max-width: 900px) { .fm-alt { grid-template-columns: 1fr; } }
+.fm-gir, .fm-ipuclari { background: #fff; border-radius: 20px; padding: 16px 18px; display: grid; gap: 10px; }
+.fm-in { max-width: 220px; font-size: 1.3rem; }
+.fm-ip { margin: 0; display: flex; gap: 10px; align-items: flex-start; line-height: 1.45; font-size: 1.08rem; }
+.fm-ip span { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #F2B33D; color: #fff; font-weight: 800; display: grid; place-items: center; }
+.fm-ipuclari .btn { justify-self: start; }
+.fm-cevap { margin: 0; font-weight: 800; color: #2f7d4f; font-size: 1.15rem; }

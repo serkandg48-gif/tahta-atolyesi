@@ -51,6 +51,7 @@ JS_ORDER = [
     "zil.js",
     "math-vitrin.js",
     "math-strateji.js",
+    "fermi.js",
     "math-basket.js",
     "kazanim-mat3.js",
     "kazanim-mat3b.js",

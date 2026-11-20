@@ -3027,3 +3027,17 @@ html.okuma-kolay { --body: "Andika", system-ui, sans-serif; --display: "Andika",
 html.okuma-kolay body { letter-spacing: .035em; word-spacing: .16em; }
 html.okuma-kolay p, html.okuma-kolay li, html.okuma-kolay textarea, html.okuma-kolay .metin, html.okuma-kolay [contenteditable] { line-height: 1.75 !important; }
 html.okuma-kolay em, html.okuma-kolay i:not([class]) { font-style: normal; }
+
+/* Genel yazdırma: menüler, arka plan ve yüzen araçlar kâğıda çıkmaz */
+#ta-baski { display: none; }
+@media print {
+  html:not(.rt-yazdiriliyor):not(.ta-yazdiriliyor) #topbar, html:not(.rt-yazdiriliyor):not(.ta-yazdiriliyor) #dock, html:not(.rt-yazdiriliyor) #tuval, html:not(.rt-yazdiriliyor) #yuzen, html:not(.rt-yazdiriliyor) #muzik-calar, html:not(.rt-yazdiriliyor) .pencere-ust, html:not(.rt-yazdiriliyor) .donus-dug, html:not(.rt-yazdiriliyor) .bolum-sekme, html:not(.rt-yazdiriliyor) .tc-pin, html:not(.rt-yazdiriliyor) .tc-gizle, html:not(.rt-yazdiriliyor) #kilit-dug, html:not(.rt-yazdiriliyor) .toast, html:not(.rt-yazdiriliyor) .kp-kontrol { display: none !important; }
+  html, body { background: #fff !important; }
+  #app, .view, .view.pencere { position: static !important; height: auto !important; overflow: visible !important; background: #fff !important; box-shadow: none !important; border: 0 !important; backdrop-filter: none !important; inset: auto !important; }
+  .paper, .tool-card { box-shadow: none !important; break-inside: avoid; }
+  button { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html.ta-yazdiriliyor body > *:not(#ta-baski) { display: none !important; }
+  html.ta-yazdiriliyor #ta-baski { display: block !important; }
+  #ta-baski { font-family: var(--body); color: #1a2233; }
+  #ta-baski * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

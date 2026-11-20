@@ -96,3 +96,13 @@
   document.documentElement.classList.toggle("okuma-kolay", T.okumaKolay());
   T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Okuma kolaylığı aç veya kapat", ic: "book", ac: () => { const on = !T.okumaKolay(); T.okumaKolayYap(on); T.toast(on ? "Okuma kolaylığı açık" : "Okuma kolaylığı kapalı"); }, ek: "Geniş aralık, kolay ayırt edilen harfler" });
 })();
+
+/* Yazdırma yardımcısı: verilen öğeyi tek başına kâğıda basar. Yeni çıktılar bunu kullanır. */
+T.yazdir = function (icerik, yon = "portrait") {
+  const kap = T.h("div#ta-baski", icerik);
+  const st = T.h("style#ta-baski-stil", "@page { size: A4 " + yon + "; margin: 12mm; }");
+  document.head.append(st); document.body.append(kap); document.documentElement.classList.add("ta-yazdiriliyor");
+  const bitir = () => { document.documentElement.classList.remove("ta-yazdiriliyor"); kap.remove(); st.remove(); removeEventListener("afterprint", bitir); };
+  addEventListener("afterprint", bitir);
+  setTimeout(() => { try { window.print(); } catch (e) {} setTimeout(bitir, 1500); }, 80);
+};

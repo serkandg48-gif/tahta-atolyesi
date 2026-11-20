@@ -103,7 +103,7 @@
     const wrap = h("div.view-inner.genis"); view.append(wrap);
     let y = oku().yoklama || { soru: "", tur: "harf", say: {}, dogru: null, goster: false };
     const kaydet = () => yaz((c) => (c.yoklama = y));
-    const SEC = { harf: ["A", "B", "C", "D"], basparmak: ["👍 Anladım", "✋ Biraz", "👎 Anlamadım"], dogruyanlis: ["Doğru", "Yanlış"] };
+    const SEC = { harf: ["A", "B", "C", "D"], basparmak: ["👍 Anladım", "✋ Biraz", "👎 Anlamadım"], dogruyanlis: ["Doğru", "Yanlış"], gorus: ["Katılıyorum", "Kararsızım", "Katılmıyorum"] };
     const ciz = () => {
       const s = SEC[y.tur], top = s.reduce((a, k) => a + (y.say[k] || 0), 0), mx = Math.max(1, ...s.map((k) => y.say[k] || 0));
       const dogruOran = y.dogru && top ? Math.round(((y.say[y.dogru] || 0) / top) * 100) : null;
@@ -112,12 +112,17 @@
           h("button.btn.sm.c-chalk", { onclick: () => { y.say = {}; y.goster = false; kaydet(); ciz(); } }, T.icon("reset"), "Sayımı sıfırla")),
         h("input.in.oa-y-soru", { value: y.soru, placeholder: "Soruyu yaz (ör. 3 × 4 kaçtır?) ya da sözlü sor", onchange: (e) => { y.soru = e.target.value; kaydet(); } }),
         h("div.row", { style: { gap: "8px", flexWrap: "wrap", margin: "10px 0" } },
-          h("div.seg", [["harf", "A B C D"], ["basparmak", "Başparmak"], ["dogruyanlis", "Doğru / Yanlış"]].map(([k, l]) => h("button", { "aria-pressed": String(y.tur === k), onclick: () => { y.tur = k; y.say = {}; y.dogru = null; y.goster = false; kaydet(); ciz(); } }, l))),
-          y.tur !== "basparmak" ? h("div.row", { style: { gap: "6px" } }, h("span.hint", "Doğru cevap:"), s.map((k) => h("button.btn.sm" + (y.dogru === k ? ".c-leaf" : ".c-chalk"), { onclick: () => { y.dogru = y.dogru === k ? null : k; kaydet(); ciz(); } }, k))) : null,
+          h("div.seg", [["harf", "A B C D"], ["basparmak", "Başparmak"], ["dogruyanlis", "Doğru / Yanlış"], ["gorus", "Görüş"]].map(([k, l]) => h("button", { "aria-pressed": String(y.tur === k), onclick: () => { y.tur = k; y.say = {}; y.dogru = null; y.goster = false; y.once = null; kaydet(); ciz(); } }, l))),
+          !y.once ? h("button.btn.sm.c-grape", { title: "Şimdiki oyları sakla, deney ya da tartışmadan sonra aynı soruyu yeniden sor", onclick: () => { y.once = Object.assign({}, y.say); y.say = {}; y.goster = false; y.kanit = ""; kaydet(); T.toast("Önceki oylar saklandı. Şimdi sınıf yeniden oylasın."); ciz(); } }, T.icon("turn"), "Önce / sonra")
+            : h("button.btn.sm.c-chalk", { onclick: () => { y.once = null; kaydet(); ciz(); } }, "Önce / sonra kapat"),
+          y.tur !== "basparmak" && y.tur !== "gorus" ? h("div.row", { style: { gap: "6px" } }, h("span.hint", "Doğru cevap:"), s.map((k) => h("button.btn.sm" + (y.dogru === k ? ".c-leaf" : ".c-chalk"), { onclick: () => { y.dogru = y.dogru === k ? null : k; kaydet(); ciz(); } }, k))) : null,
           h("div.spacer"), h("button.btn.c-sky", { onclick: () => { y.goster = !y.goster; kaydet(); ciz(); } }, T.icon("eye"), y.goster ? "Sonucu gizle" : "Sonucu göster")),
         h("div.oa-y-izgara", s.map((k) => h("div.oa-y-sec" + (y.goster && y.dogru === k ? ".dogru" : ""),
           h("div.oa-y-ad", k), h("div.oa-y-sayac", h("button", { "aria-label": k + " azalt", onclick: () => { y.say[k] = Math.max(0, (y.say[k] || 0) - 1); kaydet(); ciz(); } }, "−"), h("b", String(y.say[k] || 0)), h("button", { "aria-label": k + " artır", onclick: () => { y.say[k] = (y.say[k] || 0) + 1; T.sound.pop(); kaydet(); ciz(); } }, "+")),
-          y.goster ? h("div.oa-y-bar", h("i", { style: { height: ((y.say[k] || 0) / mx) * 100 + "%" } })) : null))),
+          y.once ? h("div.oa-y-once", "Önce: ", h("b", String(y.once[k] || 0)), (() => { const f = (y.say[k] || 0) - (y.once[k] || 0); return y.goster && f ? h("span." + (f > 0 ? "art" : "az"), (f > 0 ? " +" : " ") + f) : null; })()) : null,
+          y.goster ? h("div.oa-y-bar" + (y.once ? ".iki" : ""), y.once ? h("i.once", { style: { height: ((y.once[k] || 0) / Math.max(mx, ...s.map((q) => y.once[q] || 0))) * 100 + "%" } }) : null, h("i", { style: { height: ((y.say[k] || 0) / (y.once ? Math.max(mx, ...s.map((q) => y.once[q] || 0)) : mx)) * 100 + "%" } })) : null))),
+        y.once ? h("div.oa-y-kanit", h("b", "Fikrini değiştiren kanıt neydi?"), h("p.hint", { style: { margin: 0 } }, "Önemli olan kimin bildiği değil, hangi kanıtın fikirleri değiştirdiği."),
+          h("textarea.in", { rows: 2, placeholder: "Sınıfın söylediği kanıtları buraya yaz", oninput: (e) => { y.kanit = e.target.value; kaydet(); } }, y.kanit || "")) : null,
         y.goster && top ? h("div.oa-y-karar", dogruOran != null ? [h("b", "%" + dogruOran + " doğru. "), dogruOran >= 80 ? "Sınıfın çoğu anladı, devam edebilirsin." : dogruOran >= 50 ? "Yarı yarıya. Yanlış seçeneği seçenlerle kısa bir tekrar iyi olur." : "Çoğu henüz anlamadı. Konuyu farklı bir yolla yeniden anlatmayı dene."]
           : y.tur === "basparmak" ? [h("b", (y.say[s[0]] || 0) + " / " + top + " anladığını söyledi. "), (y.say[s[2]] || 0) > top / 4 ? "Anlamadım diyenlerle küçük grup çalışması yapabilirsin." : "Devam edebilirsin."] : "Doğru cevabı işaretlersen yüzde hesaplanır.") : null);
     };

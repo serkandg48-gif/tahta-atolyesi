@@ -3224,3 +3224,10 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .fm-ip span { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #F2B33D; color: #fff; font-weight: 800; display: grid; place-items: center; }
 .fm-ipuclari .btn { justify-self: start; }
 .fm-cevap { margin: 0; font-weight: 800; color: #2f7d4f; font-size: 1.15rem; }
+/* Fikrim değişti */
+.oa-y-once { font-size: .95rem; color: #667; text-align: center; }
+.oa-y-once .art { color: #2f7d4f; font-weight: 800; } .oa-y-once .az { color: #c0392b; font-weight: 800; }
+.oa-y-bar.iki { display: flex; gap: 6px; align-items: flex-end; justify-content: center; }
+.oa-y-bar.iki i { position: static !important; width: 38% !important; }
+.oa-y-bar.iki i.once { background: #c9cfdc !important; }
+.oa-y-kanit { margin-top: 12px; background: #fff; border-radius: 18px; padding: 14px 18px; display: grid; gap: 8px; }

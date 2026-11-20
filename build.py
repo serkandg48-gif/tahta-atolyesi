@@ -85,6 +85,7 @@ JS_ORDER = [
     "shell.js",
     "ikon-duzen.js",
     "komut.js",
+    "tasi.js",
 ]
 
 

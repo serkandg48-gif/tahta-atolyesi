@@ -3304,3 +3304,6 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .zk-sozler { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 6px; }
 .zk-sozler div { background: #fff; border-radius: 12px; padding: 10px 12px; } .zk-sozler p { margin: 2px 0 0; font-size: 1rem; }
 .kp-satir.kapsul { background: #f3e9ff !important; }
+.kk-geri { border: 0; border-radius: 999px; padding: 6px 12px; background: #E9A23B; color: #fff; font: inherit; font-weight: 800; cursor: pointer; white-space: nowrap; animation: zil-gir .5s; }
+.kaldigin { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 8px 16px; background: #fff4d6; color: #7a5410; font: inherit; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.kaldigin .ic { width: 18px; height: 18px; } .kaldigin small { color: #a07a30; }

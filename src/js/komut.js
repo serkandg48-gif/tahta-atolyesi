@@ -109,3 +109,18 @@ T.yazdir = function (icerik, yon = "portrait") {
 
 /* İnternet kesilince de açılsın diye service worker kaydı */
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+
+/* Tahta hafızası: Türkçe ve Matematik'te en son açılan etkinlik bölüm sayfasının başında "Kaldığın yer" olarak durur */
+(function () {
+  const BOL = ["turkce", "matematik"]; const A = "ta-son-arac";
+  const oku = () => { try { return JSON.parse(localStorage.getItem(A) || "{}"); } catch (e) { return {}; } };
+  addEventListener("hashchange", () => { const m = location.hash.slice(1).match(/^(turkce|matematik)-(.+)$/); if (!m || !T.tools[m[2]] || /^k[zk]-/.test(m[2])) return; const v = oku(); v[T.store.get().activeClassId + ":" + m[1]] = { id: m[2], t: Date.now() }; try { localStorage.setItem(A, JSON.stringify(v)); } catch (e) {} });
+  const ekle = () => {
+    const b = location.hash.slice(1); if (!BOL.includes(b)) return;
+    const bas = document.querySelector("#view .page-head"); if (!bas || bas.querySelector(".kaldigin")) return;
+    const k = oku()[T.store.get().activeClassId + ":" + b]; if (!k || !T.tools[k.id]) return;
+    const gun = new Date(k.t), bugun = T.isoDate(gun) === T.isoDate();
+    bas.append(T.h("button.kaldigin", { onclick: () => T.go(b + "-" + k.id), title: "En son açtığın etkinlik" }, T.icon("turn"), T.h("span", "Kaldığın yer: ", T.h("b", T.tools[k.id].title)), bugun ? null : T.h("small", gun.toLocaleDateString("tr-TR", { day: "numeric", month: "short" }))));
+  };
+  const v = document.getElementById("view"); if (v) new MutationObserver(ekle).observe(v, { childList: true, subtree: false });
+})();

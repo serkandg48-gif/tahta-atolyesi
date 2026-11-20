@@ -44,7 +44,7 @@
       const solKap = h("div.dk-sol");
       const tamEkran = h("button.btn.sm.c-chalk", { onclick: () => { try { (okuyucu.requestFullscreen || okuyucu.webkitRequestFullscreen).call(okuyucu); } catch (e) {} } }, T.icon("full"), "Tam ekran");
       const goster = (u, ad, id) => {
-        if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle(); }
+        if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle(); katman.hafiza && katman.hafiza("meb:" + id); }
         ust.replaceChildren(h("b", ad), h("div.grow"), tamEkran, h("a.btn.sm.c-chalk", { href: u, target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç"));
         solKap.querySelectorAll(".dk-kitap").forEach((b) => b.classList.toggle("on", b.dataset.id === String(id)));
       };
@@ -61,7 +61,7 @@
         const j = ++jeton; pdfAlan.replaceChildren(h("p.hint", { style: { padding: "20px" } }, "Kitap hazırlanıyor...")); katman2.temizle && katman2.temizle(); pdfAlan.scrollTop = 0;
         try {
           const lib = await T.pdfKitaplik(); const doc = await lib.getDocument(veri ? { data: await veri() } : { url: href }).promise; if (j !== jeton) return;
-          pdfAlan.replaceChildren();
+          pdfAlan.replaceChildren(); katman2.hafiza && katman2.hafiza("pdf:" + id, pdfAlan);
           const gen = Math.max(400, pdfAlan.clientWidth - 24), d = Math.min(2, window.devicePixelRatio || 1);
           for (let n = 1; n <= doc.numPages; n++) {
             const pg = await doc.getPage(n); if (j !== jeton) return;

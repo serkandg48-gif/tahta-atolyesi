@@ -1,4 +1,4 @@
-window.SURUM="79252b9f67";
+window.SURUM="442c4eb7f6";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -15036,9 +15036,29 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       ctx.beginPath(); c.n.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); if (c.n.length === 1) ctx.lineTo(c.n[0][0] + 0.1, c.n[0][1]); ctx.stroke(); ctx.restore(); };
     const yenidenCiz = () => { ctx.clearRect(0, 0, cv.width, cv.height); cizgiler.forEach(ciz1); };
     const nk = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
-    cv.addEventListener("pointerdown", (e) => { if (mod === "el") return; ciziyor = true; cv.setPointerCapture(e.pointerId); aktif = { mod, renk, n: [nk(e)] }; cizgiler.push(aktif); yenidenCiz(); e.preventDefault(); });
+    cv.addEventListener("pointerdown", (e) => { if (mod === "el") return; if (eski) { eski = null; ciz(); } ciziyor = true; cv.setPointerCapture(e.pointerId); aktif = { mod, renk, n: [nk(e)] }; cizgiler.push(aktif); yenidenCiz(); e.preventDefault(); });
     cv.addEventListener("pointermove", (e) => { if (!ciziyor) return; aktif.n.push(nk(e)); yenidenCiz(); });
-    const bitir = () => { ciziyor = false; aktif = null; };
+    /* Tahta hafızası: kitap başına mürekkep ve kaydırma yeri saklanır; ertesi gün "Kaldığın yerden" ile geri gelir */
+    let anahtar = null, kaydirici = null, eski = null, zam = null;
+    const HK = (a) => "ta-kalem:" + a;
+    const sakla = () => { if (!anahtar || eski) return; clearTimeout(zam); zam = setTimeout(() => { try {
+      const w = kap.clientWidth || 1, hh = kap.clientHeight || 1;
+      const veri = { gun: T.isoDate(), kay: kaydirici ? kaydirici.scrollTop : 0, c: cizgiler.slice(-300).map((c) => ({ m: c.mod, r: c.renk, n: c.n.filter((_, i) => i % 2 === 0 || i === c.n.length - 1).map(([x, y]) => [+(x / w).toFixed(4), +(y / hh).toFixed(4)]) })) };
+      if (!veri.c.length && !veri.kay) return localStorage.removeItem(HK(anahtar));
+      localStorage.setItem(HK(anahtar), JSON.stringify(veri)); } catch (e) {} }, 400); };
+    kap.hafiza = (a, kay) => {
+      anahtar = a; kaydirici = kay || null; eski = null;
+      try { const v = JSON.parse(localStorage.getItem(HK(a)) || "null"); if (v && (v.c.length || v.kay > 40)) eski = v; } catch (e) {}
+      if (kaydirici && !kaydirici._hafiza) { kaydirici._hafiza = true; kaydirici.addEventListener("scroll", () => sakla(), { passive: true }); }
+      ciz();
+    };
+    const geriYukle = () => {
+      if (!eski) return; const w = kap.clientWidth || 1, hh = kap.clientHeight || 1;
+      cizgiler = eski.c.map((c) => ({ mod: c.m, renk: c.r, n: c.n.map(([x, y]) => [x * w, y * hh]) }));
+      if (kaydirici && eski.kay) kaydirici.scrollTop = eski.kay;
+      eski = null; yenidenCiz(); ciz(); T.toast("Kaldığın yer geri yüklendi");
+    };
+    const bitir = () => { const vardi = ciziyor; ciziyor = false; aktif = null; if (vardi) sakla(); };
     cv.addEventListener("pointerup", bitir); cv.addEventListener("pointercancel", bitir);
     const dugme = (k, ad, ic) => h("button.kk-d" + (mod === k ? ".on" : ""), { "aria-label": ad, title: ad, "aria-pressed": String(mod === k), onclick: () => { mod = k; ciz(); } }, ic);
     const arac = h("div.kk-arac");
@@ -15065,12 +15085,13 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
         dugme("fosforlu", "Fosforlu kalem", h("span.kk-fos")), dugme("silgi", "Silgi", "🧽"),
         h("button.kk-d", { "aria-label": "Geri al", title: "Geri al", onclick: () => { cizgiler.pop(); yenidenCiz(); } }, "↶"),
         h("button.kk-d", { "aria-label": "Resim olarak indir", title: "Sayfayı ve kalemle yazdıklarını resim olarak indir", onclick: indir }, "⬇️"),
-        h("button.kk-d", { "aria-label": "Hepsini temizle", title: "Hepsini temizle (sayfa değiştirince)", onclick: () => { cizgiler = []; yenidenCiz(); } }, "🗑️"));
+        h("button.kk-d", { "aria-label": "Hepsini temizle", title: "Hepsini temizle (sayfa değiştirince)", onclick: () => { cizgiler = []; yenidenCiz(); sakla(); } }, "🗑️"),
+        eski ? h("button.kk-geri", { title: "Bu kitapta en son bıraktığın yer ve kalem notların", onclick: geriYukle }, "↺ Kaldığın yerden" + (eski.gun !== T.isoDate() ? " (" + new Date(eski.gun + "T00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "short" }) + ")" : "")) : null);
     };
     kap.append(cerceve, cv, arac); ciz();
     if (window.ResizeObserver) new ResizeObserver(boyut).observe(kap); else setInterval(boyut, 1000);
     setTimeout(boyut, 50);
-    kap.temizle = () => { cizgiler = []; yenidenCiz(); };
+    kap.temizle = () => { cizgiler = []; yenidenCiz(); anahtar = null; eski = null; ciz(); };
     return kap;
   };
 })();
@@ -15122,7 +15143,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
       const solKap = h("div.dk-sol");
       const tamEkran = h("button.btn.sm.c-chalk", { onclick: () => { try { (okuyucu.requestFullscreen || okuyucu.webkitRequestFullscreen).call(okuyucu); } catch (e) {} } }, T.icon("full"), "Tam ekran");
       const goster = (u, ad, id) => {
-        if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle(); }
+        if (cer.getAttribute("src") !== u) { cer.setAttribute("src", u); katman.temizle(); katman.hafiza && katman.hafiza("meb:" + id); }
         ust.replaceChildren(h("b", ad), h("div.grow"), tamEkran, h("a.btn.sm.c-chalk", { href: u, target: "_blank", rel: "noopener" }, T.icon("next"), "Yeni sekmede aç"));
         solKap.querySelectorAll(".dk-kitap").forEach((b) => b.classList.toggle("on", b.dataset.id === String(id)));
       };
@@ -15139,7 +15160,7 @@ T.RUTINLER = [{"tip":"cember","yon":"yatay","adim":[["Bakış açıları","Bu ko
         const j = ++jeton; pdfAlan.replaceChildren(h("p.hint", { style: { padding: "20px" } }, "Kitap hazırlanıyor...")); katman2.temizle && katman2.temizle(); pdfAlan.scrollTop = 0;
         try {
           const lib = await T.pdfKitaplik(); const doc = await lib.getDocument(veri ? { data: await veri() } : { url: href }).promise; if (j !== jeton) return;
-          pdfAlan.replaceChildren();
+          pdfAlan.replaceChildren(); katman2.hafiza && katman2.hafiza("pdf:" + id, pdfAlan);
           const gen = Math.max(400, pdfAlan.clientWidth - 24), d = Math.min(2, window.devicePixelRatio || 1);
           for (let n = 1; n <= doc.numPages; n++) {
             const pg = await doc.getPage(n); if (j !== jeton) return;
@@ -16795,3 +16816,18 @@ T.yazdir = function (icerik, yon = "portrait") {
 
 /* İnternet kesilince de açılsın diye service worker kaydı */
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+
+/* Tahta hafızası: Türkçe ve Matematik'te en son açılan etkinlik bölüm sayfasının başında "Kaldığın yer" olarak durur */
+(function () {
+  const BOL = ["turkce", "matematik"]; const A = "ta-son-arac";
+  const oku = () => { try { return JSON.parse(localStorage.getItem(A) || "{}"); } catch (e) { return {}; } };
+  addEventListener("hashchange", () => { const m = location.hash.slice(1).match(/^(turkce|matematik)-(.+)$/); if (!m || !T.tools[m[2]] || /^k[zk]-/.test(m[2])) return; const v = oku(); v[T.store.get().activeClassId + ":" + m[1]] = { id: m[2], t: Date.now() }; try { localStorage.setItem(A, JSON.stringify(v)); } catch (e) {} });
+  const ekle = () => {
+    const b = location.hash.slice(1); if (!BOL.includes(b)) return;
+    const bas = document.querySelector("#view .page-head"); if (!bas || bas.querySelector(".kaldigin")) return;
+    const k = oku()[T.store.get().activeClassId + ":" + b]; if (!k || !T.tools[k.id]) return;
+    const gun = new Date(k.t), bugun = T.isoDate(gun) === T.isoDate();
+    bas.append(T.h("button.kaldigin", { onclick: () => T.go(b + "-" + k.id), title: "En son açtığın etkinlik" }, T.icon("turn"), T.h("span", "Kaldığın yer: ", T.h("b", T.tools[k.id].title)), bugun ? null : T.h("small", gun.toLocaleDateString("tr-TR", { day: "numeric", month: "short" }))));
+  };
+  const v = document.getElementById("view"); if (v) new MutationObserver(ekle).observe(v, { childList: true, subtree: false });
+})();

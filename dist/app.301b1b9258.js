@@ -1,4 +1,4 @@
-window.SURUM="91e9c78ddf";
+window.SURUM="301b1b9258";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -8053,6 +8053,50 @@ T.yuzen = TahtaYap("ana");
       requestAnimationFrame((z) => { son = z; boyut(); ciz(z); });
       api.onDestroy(() => { cancelAnimationFrame(raf); ro.disconnect(); stream && stream.getTracks().forEach((t) => t.stop()); ctx && ctx.close(); });
       T.ormanTest = { sakin: (s) => { dinliyor = true; sakin = s; }, gurultu: () => { gurultu = 1; } };
+    },
+  };
+
+  /* ---------- İstasyon döndürücü: gruplar istasyonlarda çalışır, süre bitince 45 saniyelik geçişle bir sonrakine kayar ---------- */
+  const IST_RENK = ["#4F8FE8", "#3FA36B", "#E9A23B", "#E07AA0", "#8C5BB8", "#2BB3B1"];
+  W.istasyon = {
+    title: "İstasyonlar", icon: "groups", tone: "sun", w: 900, h: 600, desc: "Gruplar istasyonlar arasında sırayla döner",
+    init: () => ({ n: 4, dk: 8, adlar: ["Okuma köşesi", "Matematik oyunu", "Deney masası", "Yazma masası", "Çizim", "Bilgisayar"], gorev: ["", "", "", "", "", ""], gruplar: [], tur: 0, durum: "hazir", bitis: 0 }),
+    render(body, w, api) {
+      const d = w.data; d.gorev = d.gorev || [];
+      body.style.gridTemplateRows = "auto 1fr auto"; body.style.gap = "8px";
+      const ust = h("div.is-ust"), pano = h("div.is-pano"), alt = h("div.row", { style: { gap: "6px", justifyContent: "center", flexWrap: "wrap" } });
+      body.append(ust, pano, alt);
+      const ad = (id) => ((api.cls().students.find((x) => x.id === id) || {}).name || "").split(" ")[0];
+      const grupla = () => { const p = T.shuffle(gelenler(api.cls())); const gs = Array.from({ length: d.n }, () => []); p.forEach((s, i) => gs[i % d.n].push(s.id)); if (T.kuralGrupla) T.kuralGrupla(gs); d.gruplar = gs; d.tur = 0; d.durum = "hazir"; api.save(); ciz(); };
+      const basla = () => { if (!d.gruplar.length) grupla(); T.sound.unlock(); d.durum = "calis"; d.bitis = Date.now() + d.dk * 60000; api.save(); ciz(); };
+      const gecis = () => { d.durum = "gecis"; d.bitis = Date.now() + 45000; T.sound.bell(); api.save(); ciz(); };
+      const ilerle = () => { d.tur = (d.tur + 1) % d.n; if (d.tur === 0) { d.durum = "bitti"; T.sound.ok && T.sound.ok(); api.save(); return ciz(); } basla(); };
+      function ciz() {
+        const kalan = Math.max(0, d.bitis - Date.now()), sn = Math.ceil(kalan / 1000);
+        ust.replaceChildren(
+          d.durum === "calis" ? h("div.is-durum", h("b", (d.tur + 1) + ". tur"), h("span.is-sure", Math.floor(sn / 60) + ":" + T.pad(sn % 60)), h("i.is-bar", h("i", { style: { width: (kalan / (d.dk * 600)) + "%" } })))
+          : d.durum === "gecis" ? h("div.is-durum.gecis", h("b", "Toparlan ve bir sonraki masaya geç"), h("span.is-sure", sn), h("i.is-bar", h("i", { style: { width: (kalan / 450) + "%" } })))
+          : d.durum === "bitti" ? h("div.is-durum.bitti", h("b", "Bütün istasyonlar tamamlandı. Harika iş!"))
+          : h("div.is-durum", h("b", d.gruplar.length ? "Hazır. Başlat'a bas." : "Önce grupları kur.")));
+        pano.style.gridTemplateColumns = "repeat(" + Math.min(d.n, d.n > 4 ? 3 : d.n) + ", 1fr)";
+        pano.replaceChildren(...Array.from({ length: d.n }, (_, i) => {
+          const gi = ((i - d.tur) % d.n + d.n) % d.n, g = d.gruplar[gi] || [];
+          const sonraki = ((i + 1) % d.n);
+          return h("div.is-kart" + (d.durum === "gecis" ? ".gecis" : ""), { style: { "--c": IST_RENK[i % IST_RENK.length] } },
+            h("input.is-ad", { value: d.adlar[i] || "", "aria-label": (i + 1) + ". istasyon adı", onchange: (e) => { d.adlar[i] = e.target.value; api.save(); } }),
+            h("input.is-gorev", { value: d.gorev[i] || "", placeholder: "Görev (isteğe bağlı)", "aria-label": (i + 1) + ". istasyon görevi", onchange: (e) => { d.gorev[i] = e.target.value; api.save(); } }),
+            g.length ? h("div.is-grup", h("small", (gi + 1) + ". grup"), h("p", g.map(ad).join(", "))) : h("div.is-grup.bos", "Grup yok"),
+            d.durum === "gecis" ? h("div.is-ok", "→ " + (d.adlar[sonraki] || (sonraki + 1) + ". istasyon")) : null);
+        }));
+        alt.replaceChildren(
+          h("label.f", h("span", "İstasyon"), h("div.seg", [3, 4, 5, 6].map((n) => h("button", { "aria-pressed": String(d.n === n), onclick: () => { d.n = n; d.gruplar = []; d.durum = "hazir"; api.save(); ciz(); } }, n)))),
+          h("label.f", h("span", "Süre"), h("div.seg", [5, 8, 10, 15].map((m) => h("button", { "aria-pressed": String(d.dk === m), onclick: () => { d.dk = m; api.save(); ciz(); } }, m + " dk")))),
+          h("button.btn.sm.c-chalk", { onclick: grupla }, T.icon("dice"), "Grupları kur"),
+          d.durum === "calis" ? h("button.btn.sm.c-sun", { onclick: gecis }, T.icon("next"), "Şimdi geç") : d.durum === "gecis" ? h("button.btn.sm.c-leaf", { onclick: ilerle }, T.icon("play"), "Hazırız") : h("button.btn.sm.c-leaf", { onclick: basla }, T.icon("play"), d.durum === "bitti" ? "Yeniden başlat" : "Başlat"));
+      }
+      const iv = setInterval(() => { if ((d.durum === "calis" || d.durum === "gecis") && Date.now() >= d.bitis) { d.durum === "calis" ? gecis() : ilerle(); } else if (d.durum === "calis" || d.durum === "gecis") { const k = Math.max(0, d.bitis - Date.now()), sn = Math.ceil(k / 1000); const s_ = ust.querySelector(".is-sure"), b_ = ust.querySelector(".is-bar > i"); if (s_) s_.textContent = d.durum === "gecis" ? sn : Math.floor(sn / 60) + ":" + T.pad(sn % 60); if (b_) b_.style.width = (k / (d.durum === "gecis" ? 450 : d.dk * 600)) + "%"; } }, 500);
+      api.onDestroy(() => clearInterval(iv));
+      ciz();
     },
   };
 })();
@@ -16278,7 +16322,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
      Şeritte son kullanılan dört şey hızlı erişim için durur. */
   const ARAC_GRUP = [
     ["Zaman", ["timer", "dogazaman", "stopwatch", "clock", "takvim", "!besDakika|5 dakika kaldı|stopwatch"]],
-    ["Seçim ve gruplar", ["name", "dice", "groups", "sozagi"]],
+    ["Seçim ve gruplar", ["name", "dice", "groups", "istasyon", "sozagi"]],
     ["Sınıf düzeni", ["traffic", "noise", "orman", "dikkat", "sira", "mola", "bitirdim", "!derseInis|Derse iniş|lotus", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "yavasbakis", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];

@@ -72,3 +72,27 @@
   };
   T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "5 dakika kaldı", ic: "stopwatch", ac: () => T.besDakika(), ek: "Hazırlıksız kısa etkinlik" });
 })();
+
+/* Derse iniş: teneffüsten dönen sınıf için bir dakikalık sakinleşme. Önce nefes halkası, sonra bir dikkat çapası. */
+(function () {
+  const { h } = T;
+  const CAPA = ["Şu an sınıfta duyduğun üç sesi sessizce fark et.", "Gözlerini kapat. Ayaklarının yere bastığını hisset.", "Sınıfta mavi olan üç şey bul. Göstermeden, yalnızca bak.", "Ellerini dizlerine koy. Sıcak mı, soğuk mu?", "Bu dersten ne öğrenmek istediğini aklından geçir.", "En uzaktaki sesi duymaya çalış."];
+  T.derseInis = function () {
+    if (document.getElementById("derse-inis")) return;
+    const halka = h("div.di-halka"), yazi = h("div.di-yazi", "Hazırlan"), alt = h("div.di-alt", "Bir dakika birlikte yavaşlıyoruz");
+    const el = h("div#derse-inis", { role: "dialog", "aria-label": "Derse iniş" }, h("button.di-kapat", { "aria-label": "Kapat", onclick: () => bitir() }, T.icon("close")), halka, yazi, alt);
+    document.body.append(el);
+    const zam = []; const sonra = (ms, f) => zam.push(setTimeout(f, ms));
+    const bitir = () => { zam.forEach(clearTimeout); el.classList.add("kapan"); setTimeout(() => el.remove(), 400); removeEventListener("keydown", tus); };
+    const tus = (e) => { if (e.key === "Escape") bitir(); }; addEventListener("keydown", tus);
+    /* 5 tur: 4 sn nefes al, 4 sn ver (40 sn), sonra 20 sn dikkat çapası */
+    for (let i = 0; i < 5; i++) {
+      sonra(1500 + i * 8000, () => { halka.className = "di-halka al"; yazi.textContent = "Nefes al"; alt.textContent = (i + 1) + ". nefes"; });
+      sonra(1500 + i * 8000 + 4000, () => { halka.className = "di-halka ver"; yazi.textContent = "Nefes ver"; });
+    }
+    sonra(41500, () => { halka.className = "di-halka dur"; yazi.textContent = CAPA[T.rand(0, CAPA.length - 1)]; alt.textContent = "Sessizce"; });
+    sonra(61500, () => { yazi.textContent = "Hazırız"; alt.textContent = "Derse başlayabiliriz"; T.sound.bell && T.sound.bell(); });
+    sonra(65000, bitir);
+  };
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Derse iniş (1 dakika)", ic: "lotus", ac: () => T.derseInis(), ek: "Teneffüs sonrası nefes ve dikkat" });
+})();

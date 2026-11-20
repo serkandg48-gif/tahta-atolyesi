@@ -2602,3 +2602,14 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .bd-ipucu { margin: 0; color: #778; }
 .dz-kap { min-height: 0; border-radius: 16px; overflow: hidden; display: grid; }
 .dz-svg { width: 100%; height: 100%; display: block; }
+
+/* Derse iniş */
+#derse-inis { position: fixed; inset: 0; z-index: 9100; background: radial-gradient(circle at 50% 45%, #2b4a6e, #142238 75%); color: #fff; display: grid; place-items: center; align-content: center; gap: 28px; text-align: center; animation: di-gir .5s ease; }
+#derse-inis.kapan { opacity: 0; transition: opacity .4s; }
+@keyframes di-gir { from { opacity: 0; } }
+.di-halka { width: 34vmin; height: 34vmin; border-radius: 50%; background: radial-gradient(circle, rgba(160,220,255,.55), rgba(120,190,240,.15) 70%); box-shadow: 0 0 60px rgba(140,210,255,.35); transform: scale(.55); transition: transform 4s ease-in-out; }
+.di-halka.al { transform: scale(1); } .di-halka.ver { transform: scale(.55); } .di-halka.dur { transform: scale(.75); transition-duration: 2s; }
+.di-yazi { font: 800 clamp(1.8rem, 4.5vw, 3.6rem) var(--display); max-width: 80vw; line-height: 1.25; }
+.di-alt { font-size: 1.2rem; opacity: .7; }
+.di-kapat { position: absolute; top: 18px; right: 18px; width: 48px; height: 48px; border-radius: 50%; border: 0; background: rgba(255,255,255,.12); color: #fff; cursor: pointer; display: grid; place-items: center; }
+@media (prefers-reduced-motion: reduce) { .di-halka { transition: none; } }

@@ -1,4 +1,4 @@
-window.SURUM="7481735ebd";
+window.SURUM="e9d0b83023";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -14949,6 +14949,35 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     ["Günün kelimesi", "cesaret", "Korkulu bir durumda da doğru olanı yapabilme gücü. Cesaret gösterdiğin bir anı anlat."],
     ["Günün kelimesi", "empati", "Kendini başkasının yerine koyup onun duygusunu anlamak. Bugün kimi anlamaya çalışacaksın?"],
   ];
+  /* Sınıf düzeyine göre ek sorular: [tür, ön yüz, arka yüz, [en küçük, en büyük sınıf]] */
+  const K12 = [1, 2], K34 = [3, 4], K58 = [5, 8];
+  KIVILCIM.forEach((x) => { if (!x[3]) x[3] = [1, 8]; });
+  KIVILCIM.push(
+    ["Merak sorusu", "Gölgemiz neden bazen uzun, bazen kısa olur?", "Güneş alçaktayken gölge uzar, tepedeyken kısalır. Teneffüste gölgenize bakın.", K12],
+    ["Merak sorusu", "Kar tanelerinin hepsi aynı mıdır?", "Her kar tanesi biraz farklıdır ama hepsinin altı kolu vardır.", K12],
+    ["Merak sorusu", "Balıklar uyur mu?", "Uyurlar ama gözlerini kapatamazlar, çünkü göz kapakları yoktur. Hareketsiz durup dinlenirler.", K12],
+    ["Merak sorusu", "Neden önce şimşeği görür, sonra gök gürültüsünü duyarız?", "Işık sesten çok daha hızlı yol alır. Aradaki saniyeleri sayarak fırtınanın uzaklığını tahmin edebiliriz.", K34],
+    ["Merak sorusu", "Bir kâğıdı kaç kez ikiye katlayabiliriz?", "Önce tahmin edin, sonra deneyin. Her katlamada kalınlık iki katına çıkar.", K34],
+    ["Merak sorusu", "Deniz suyu neden tuzludur?", "Yağmur suyu kayalardaki tuzları çözüp nehirlerle denize taşır. Su buharlaşır, tuz denizde kalır.", K34],
+    ["Merak sorusu", "Bir insan ömrü boyunca kaç kez göz kırpar?", "Dakikada yaklaşık 15 kez kırptığımızı düşünüp birlikte hesaplayın.", K58],
+    ["Merak sorusu", "Uçaklar bu kadar ağırken nasıl havada kalır?", "Kanatların biçimi havayı aşağı doğru iter, hava da kanadı yukarı iter. Kâğıt uçakla deneyin.", K58],
+    ["Merak sorusu", "Gökyüzü neden mavidir?", "Güneş ışığındaki mavi ışık havadaki parçacıklara çarpıp her yöne en çok saçılan renktir.", K58],
+    ["Felsefi soru", "Oyuncakların da duyguları olabilir mi?", "Bir oyuncağına nasıl davrandığını düşün. Neden ona özen gösteriyoruz?", K12],
+    ["Felsefi soru", "Paylaşmak her zaman iyi midir?", "Paylaşmanın zor olduğu bir an düşünün. O zaman ne yapmak doğru olur?", K12],
+    ["Felsefi soru", "Kurallar olmasaydı oyunlar daha mı eğlenceli olurdu?", "Kuralsız bir oyun oynamayı hayal edin. Ne olurdu?", K34],
+    ["Felsefi soru", "Bir sözü tutmak neden önemlidir?", "Sana verilen bir söz tutulmadığında ne hissettiğini hatırla.", K34],
+    ["Felsefi soru", "Bir şeyi bilmekle anlamak aynı şey midir?", "Ezberlediğin ama anlamadığın bir şey var mı? Farkı nasıl anlarsın?", K58],
+    ["Felsefi soru", "Herkes aynı şeyi düşünseydi dünya nasıl olurdu?", "Farklı düşüncelerin işe yaradığı bir örnek bulun.", K58],
+    ["Felsefi soru", "Bir yapay zekâ arkadaşın olabilir mi?", "Arkadaşlıkta en önemli şey sence nedir? Bir makine bunu yapabilir mi?", K58],
+    ["Günün kelimesi", "nazik", "Başkalarına kibar ve özenli davranan. Bugün kime nazik davranabilirsin?", K12],
+    ["Günün kelimesi", "yardımsever", "Başkalarına yardım etmeyi seven. Sınıfta nasıl yardımsever oluruz?", K12],
+    ["Günün kelimesi", "sorumluluk", "Üstlendiğin bir işi sonuna kadar yapmak. Senin bu haftaki sorumluluğun ne?", K34],
+    ["Günün kelimesi", "dayanışma", "Bir işi başarmak için birlikte, el ele çalışmak. Dayanışmaya bir örnek verin.", K34],
+    ["Günün kelimesi", "önyargı", "Bir şeyi tanımadan önce hakkında yargıya varmak. Önyargı nasıl değişebilir?", K58],
+    ["Günün kelimesi", "eleştirel", "Bir bilgiyi kabul etmeden önce sorgulayan, kanıt arayan. Bugün neyi sorgulayabiliriz?", K58],
+    ["Günün kelimesi", "azim", "Zorlansan da vazgeçmeden çalışmak. Azimle başardığın bir şeyi anlat.", K58],
+  );
+  const kivListe = () => { const g = T.store.grade(); const l = KIVILCIM.filter((x) => g >= x[3][0] && g <= x[3][1]); return l.length ? l : KIVILCIM; };
 
   /* ---------- Kartlar ---------- */
   const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Günün sorusu"], ["akis", "Okul günü şeridi"], ["pin", "Kısayollarım"], ["not", "Hızlı not"]];
@@ -14977,8 +15006,9 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   }
   function kivilcimKart() {
     const k = ayar(); const ozel = (k.ozelKivilcim || {})[cid()];
-    let i = k.kivilcimI != null ? k.kivilcimI : Math.floor(Date.now() / 864e5) % KIVILCIM.length;
-    const item = () => (ozel && i === -1 ? ["Öğretmenin sorusu", ozel, "Birlikte düşünelim."] : KIVILCIM[((i % KIVILCIM.length) + KIVILCIM.length) % KIVILCIM.length]);
+    const KL = kivListe();
+    let i = k.kivilcimI != null ? k.kivilcimI : Math.floor(Date.now() / 864e5) % KL.length;
+    const item = () => (ozel && i === -1 ? ["Öğretmenin sorusu", ozel, "Birlikte düşünelim."] : KL[((i % KL.length) + KL.length) % KL.length]);
     const kart = h("div.kp-flip"); let dondu = false;
     const ciz = () => { const [tur, on, arka] = item(); kart.replaceChildren(h("div.kp-flip-ic" + (dondu ? ".dondu" : ""), h("div.kp-yuz.on", h("small", tur), h("b", on), h("span.kp-ipucu", "Çevirmek için dokun")), h("div.kp-yuz.arka", h("small", tur), h("p", arka)))); };
     kart.addEventListener("click", () => { dondu = !dondu; ciz(); });

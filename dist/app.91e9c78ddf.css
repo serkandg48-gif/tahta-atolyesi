@@ -3231,3 +3231,23 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .oa-y-bar.iki i { position: static !important; width: 38% !important; }
 .oa-y-bar.iki i.once { background: #c9cfdc !important; }
 .oa-y-kanit { margin-top: 12px; background: #fff; border-radius: 18px; padding: 14px 18px; display: grid; gap: 8px; }
+
+/* Merak duvarı */
+.md { display: grid; gap: 14px; }
+.md-ust { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.md-gir { display: flex; gap: 8px; flex: 1 1 420px; }
+.md-in { flex: 1; font-size: 1.15rem; }
+.md-sutunlar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 900px) { .md-sutunlar { grid-template-columns: 1fr; } }
+.md-sutun { background: rgba(255,255,255,.85); border-radius: 20px; padding: 14px; border-top: 8px solid var(--r); min-height: 300px; display: grid; gap: 10px; align-content: start; }
+.md-sutun h3 { display: flex; justify-content: space-between; font-size: 1.15rem; }
+.md-sutun h3 span { background: var(--r); color: #fff; border-radius: 999px; padding: 0 10px; font-size: .95rem; }
+.md-kartlar { display: grid; gap: 10px; }
+.md-kart { background: #fff; border-radius: 14px; padding: 12px 14px; box-shadow: 0 3px 10px rgba(0,0,0,.08); display: grid; gap: 8px; }
+.md-kart p { margin: 0; font-size: 1.1rem; font-weight: 700; line-height: 1.35; }
+.md-dug { display: flex; flex-wrap: wrap; gap: 4px; }
+.md-dug button { border: 0; border-radius: 999px; padding: 4px 10px; font: inherit; font-size: .85rem; cursor: pointer; background: #f2f3f7; color: var(--r, #334); font-weight: 700; }
+.md-dug .md-ok { background: #e3f4e8; color: #2f7d4f; } .md-dug .md-sil { margin-left: auto; background: transparent; color: #999; font-size: 1.1rem; }
+.md-arsiv { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.md-ar { background: #fffaf0; border-radius: 16px; padding: 14px; display: grid; gap: 6px; border-left: 6px solid #F2B33D; }
+.md-ar p { margin: 0; line-height: 1.45; } .md-ar small { color: #889; }

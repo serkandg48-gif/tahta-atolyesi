@@ -1,4 +1,4 @@
-window.SURUM="7b20d5c040";
+window.SURUM="91e9c78ddf";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -14136,6 +14136,42 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
   T.hafizaEkle && T.hafizaEkle("kartpostal");
   T.tools.kartpostal = { back: "kultur", grades: [1, 8], title: "Bugün sınıfta ne oldu?", icon: "frame", ikon3: "frame", tone: "sun", short: "Günün özeti tek kartpostalda", render(host) { host.append(h("div.paper", { style: { padding: "24px", display: "grid", gap: "12px", justifyItems: "start" } }, h("p", "Günün sayısı, havası, sorusu ve senin tek cümlenle bir kartpostal hazırlanır."), h("button.btn.c-leaf", { onclick: () => T.kartpostal() }, T.icon("frame"), "Kartpostalı hazırla"))); T.kartpostal(); } };
   T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Bugün sınıfta ne oldu? kartpostalı", ic: "frame", ac: () => T.kartpostal(), ek: "Günün özeti PNG" });
+})();
+
+/* ---------- Merak duvarı: konudan sapan ama değerli sorular kaybolmasın ---------- */
+(function () {
+  const { h } = T;
+  const SUTUN = [["hemen", "Hemen bakacağız", "#4F8FE8", "Hemen"], ["deney", "Deneyle göreceğiz", "#3FA36B", "Deney"], ["uzman", "Bir uzmana soracağız", "#8C5BB8", "Uzman"]];
+  const cid = () => T.store.get().activeClassId;
+  const liste = () => { const s = T.store.get(); s.merak = s.merak || {}; return (s.merak[cid()] = s.merak[cid()] || []); };
+  const yaz = (f) => T.store.update(() => f(liste()));
+  T.hafizaEkle && T.hafizaEkle("merak-duvari");
+  T.tools["merak-duvari"] = {
+    back: "kultur", grades: [1, 8], title: "Merak duvarı", icon: "help", ikon3: "soru", tone: "sky", short: "Değerli sorular kaybolmasın",
+    render(host) {
+      const kap = h("div.md"); host.append(kap); let arsiv = false;
+      function ciz() {
+        const l = liste();
+        const inp = h("input.in.md-in", { placeholder: "Merak ettiğimiz soru: Arılar kışın ne yapar?", maxlength: 140 });
+        let hedef = "hemen";
+        const ekle = () => { const q = inp.value.trim(); if (!q) return; yaz((x) => x.push({ id: T.uid(), q, col: hedef, t: Date.now() })); T.sound.pop && T.sound.pop(); ciz(); setTimeout(() => kap.querySelector(".md-in").focus(), 0); };
+        inp.addEventListener("keydown", (e) => { if (e.key === "Enter") ekle(); });
+        const hedefSec = h("div.seg", SUTUN.map(([k, ad]) => h("button", { "aria-pressed": String(k === hedef), onclick: (e) => { hedef = k; [...e.currentTarget.parentNode.children].forEach((b) => b.setAttribute("aria-pressed", String(b === e.currentTarget))); } }, ad)));
+        const kart = (x) => h("div.md-kart", h("p", x.q),
+          h("div.md-dug",
+            SUTUN.filter(([k]) => k !== x.col).map(([k, ad, renk, kisa]) => h("button", { title: ad + " sütununa taşı", style: { "--r": renk }, onclick: () => { yaz((y) => (y.find((z) => z.id === x.id).col = k)); ciz(); } }, "→ " + kisa)),
+            h("button.md-ok", { onclick: () => { const t = h("textarea.in", { rows: 3, placeholder: "Ne keşfettik? (isteğe bağlı)" }); T.modal({ title: "Keşfettik!", body: h("div", { style: { display: "grid", gap: "8px" } }, h("b", x.q), t), actions: [{ label: "Arşive taşı", tone: "c-leaf", onClick: () => { yaz((y) => { const z = y.find((q) => q.id === x.id); z.col = "arsiv"; z.cevap = t.value.trim(); z.bitti = Date.now(); }); T.sound.ok && T.sound.ok(); ciz(); } }] }); } }, "✓ Keşfettik"),
+            h("button.md-sil", { "aria-label": "Sil", onclick: async () => { if (await T.confirm("Soruyu sil", "Bu soru silinsin mi?", "Sil")) { yaz((y) => y.splice(y.findIndex((z) => z.id === x.id), 1)); ciz(); } } }, "×")));
+        const ar = l.filter((x) => x.col === "arsiv");
+        kap.replaceChildren(
+          h("div.md-ust", h("div.md-gir", inp, h("button.btn.c-sky", { onclick: ekle }, T.icon("plus"), "Duvara as")), hedefSec,
+            h("button.btn.sm.c-chalk", { onclick: () => { arsiv = !arsiv; ciz(); } }, T.icon("book"), arsiv ? "Duvara dön" : "Keşfettiklerimiz (" + ar.length + ")")),
+          arsiv ? h("div.md-arsiv", ar.length ? ar.slice().reverse().map((x) => h("div.md-ar", h("b", x.q), x.cevap ? h("p", x.cevap) : null, h("small", new Date(x.bitti || x.t).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })))) : h("p.hint", "Cevabını bulduğunuz sorular burada birikir."))
+            : h("div.md-sutunlar", SUTUN.map(([k, ad, renk]) => h("section.md-sutun", { style: { "--r": renk } }, h("h3", ad, h("span", String(l.filter((x) => x.col === k).length))), h("div.md-kartlar", l.filter((x) => x.col === k).map(kart))))));
+      }
+      ciz();
+    },
+  };
 })();
 
 /* ---- rutin-veri.js ---- */

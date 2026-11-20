@@ -3268,3 +3268,21 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .is-grup small { font-weight: 800; color: var(--c); } .is-grup p { margin: 2px 0 0; line-height: 1.4; font-weight: 600; }
 .is-grup.bos { color: #99a; }
 .is-ok { font-weight: 800; color: var(--c); text-align: right; }
+
+/* Rol okuma prompteri */
+.rp { display: grid; gap: 12px; grid-template-rows: auto auto 1fr auto; height: calc(100vh - 300px); min-height: 460px; }
+.rp-ust { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.rp-roller { display: flex; flex-wrap: wrap; gap: 6px; }
+.rp-rol { background: #fff; border-radius: 999px; padding: 6px 14px; border-left: 8px solid var(--c); }
+.rp-rol b { color: var(--c); }
+.rp-sahne { overflow: auto; background: #1B2A4A; border-radius: 22px; padding: 30vh 6% ; display: grid; gap: 14px; align-content: start; scroll-behavior: smooth; }
+.rp-satir { opacity: .35; transition: opacity .3s, transform .3s; cursor: pointer; transform-origin: left center; }
+.rp-satir.gecti { opacity: .22; }
+.rp-satir.simdi { opacity: 1; transform: scale(1.04); }
+.rp-kim { display: flex; gap: 10px; align-items: baseline; }
+.rp-kim b { color: var(--c); font: 800 1.1rem var(--display); filter: brightness(1.35); }
+.rp-kim span { background: var(--c); color: #fff; border-radius: 999px; padding: 1px 10px; font-weight: 800; font-size: .95rem; }
+.rp-satir p { margin: 2px 0 0; color: #fff; font: 700 clamp(1.3rem, 2.4vw, 1.8rem)/1.35 var(--body); }
+.rp-satir.simdi p { font-size: clamp(1.8rem, 3.6vw, 2.8rem); }
+.rp-satir.simdi .rp-kim span { font-size: 1.2rem; padding: 2px 14px; }
+.rp-kontrol { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }

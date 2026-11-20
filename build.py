@@ -106,6 +106,7 @@ def main():
         (ROOT / "dist" / extra).write_text((SRC / extra).read_text(encoding="utf-8"), encoding="utf-8")
     # Üçüncü taraf kütüphaneler (pdf.js) kendi sitemizden sunulur; okul ağları CDN'leri engelleyebiliyor.
     import shutil
+    import json as _j2
     # Kaynakta silinen dosyalar dist içinde kalmasın: kopyalanan klasörler önce temizlenir.
     for d in ("vendor", "ikon3d", "kitaplar", "muzik", "ambiyans", "arka"):
         if (SRC / d).exists() and (dist / d).exists():
@@ -125,6 +126,14 @@ def main():
         shutil.copytree(SRC / "ambiyans", ROOT / "dist" / "ambiyans", dirs_exist_ok=True)
     if (SRC / "arka").exists():
         shutil.copytree(SRC / "arka", ROOT / "dist" / "arka", dirs_exist_ok=True)
+    # Uygulama gibi kurulum ve internet kesilince açılma: manifest, simgeler ve service worker
+    if (dist / "pwa").exists():
+        shutil.rmtree(dist / "pwa")
+    shutil.copytree(SRC / "pwa", dist / "pwa")
+    ikonlar = sorted("/ikon3d/" + f.name for f in (SRC / "ikon3d").glob("*") if f.is_file())
+    on = ["/", f"/app.{surum}.css", f"/app.{surum}.js", "/pwa/ikon-192.png"] + ikonlar
+    sw = (SRC / "sw.js").read_text(encoding="utf-8").replace("__SURUM__", surum).replace("__ONBELLEK__", _j2.dumps(on))
+    (dist / "sw.js").write_text(sw, encoding="utf-8")
     print(f"dist/index.html {len(out)//1024} KB, app.{surum}.js {len(js)//1024} KB")
 
 

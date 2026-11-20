@@ -106,3 +106,6 @@ T.yazdir = function (icerik, yon = "portrait") {
   addEventListener("afterprint", bitir);
   setTimeout(() => { try { window.print(); } catch (e) {} setTimeout(bitir, 1500); }, 80);
 };
+
+/* İnternet kesilince de açılsın diye service worker kaydı */
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));

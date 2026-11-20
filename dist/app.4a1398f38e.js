@@ -1,4 +1,4 @@
-window.SURUM="58a64b044a";
+window.SURUM="4a1398f38e";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -15803,3 +15803,6 @@ T.yazdir = function (icerik, yon = "portrait") {
   addEventListener("afterprint", bitir);
   setTimeout(() => { try { window.print(); } catch (e) {} setTimeout(bitir, 1500); }, 80);
 };
+
+/* İnternet kesilince de açılsın diye service worker kaydı */
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));

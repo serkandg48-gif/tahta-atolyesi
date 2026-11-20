@@ -120,13 +120,15 @@ def main():
     import shutil
     import json as _j2
     # Kaynakta silinen dosyalar dist içinde kalmasın: kopyalanan klasörler önce temizlenir.
-    for d in ("vendor", "ikon3d", "kitaplar", "muzik", "ambiyans", "arka"):
+    for d in ("vendor", "ikon3d", "kitaplar", "muzik", "ambiyans", "arka", "orman"):
         if (SRC / d).exists() and (dist / d).exists():
             shutil.rmtree(dist / d)
     if (SRC / "vendor").exists():
         shutil.copytree(SRC / "vendor", ROOT / "dist" / "vendor", dirs_exist_ok=True)
     if (SRC / "ikon3d").exists():
         shutil.copytree(SRC / "ikon3d", ROOT / "dist" / "ikon3d", dirs_exist_ok=True)
+    if (SRC / "orman").exists():
+        shutil.copytree(SRC / "orman", ROOT / "dist" / "orman", dirs_exist_ok=True)
     if (SRC / "kitaplar").exists():
         shutil.copytree(SRC / "kitaplar", ROOT / "dist" / "kitaplar", dirs_exist_ok=True)
         import json as _j

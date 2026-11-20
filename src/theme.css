@@ -2896,3 +2896,47 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
   .view.pencere { margin-left: 6px !important; margin-right: 6px !important; max-width: calc(100vw - 12px); overflow-x: hidden !important; }
   .view .view-inner { max-width: 100%; }
 }
+
+/* Sessiz orman (yeni) */
+.so-kap { position: relative; min-height: 0; border-radius: 20px; overflow: hidden; display: grid; }
+.so { position: relative; width: 100%; height: 100%; overflow: hidden; isolation: isolate; }
+.so-gok { position: absolute; inset: 0; background: linear-gradient(#8fd0f5 0%, #c5e8f7 45%, #f3f1d9 70%); transition: background 1.2s; }
+.so-gunes { position: absolute; left: 74%; top: 8%; width: 13%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff6c4 0 38%, rgba(255,230,140,.55) 42%, rgba(255,230,140,0) 70%); transition: .8s; }
+.so-bulut { position: absolute; height: 9%; aspect-ratio: 3.2; border-radius: 999px; background: #fff; opacity: .85; filter: blur(1px); box-shadow: 30px -14px 0 4px #fff, 64px 0 0 -2px #fff; animation: so-bulut 70s linear infinite; }
+.so-bulut.b1 { top: 12%; left: -20%; } .so-bulut.b2 { top: 24%; left: -40%; height: 6%; opacity: .7; animation-duration: 110s; animation-delay: -40s; }
+@keyframes so-bulut { to { transform: translateX(160vw); } }
+.so-tepeler { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 62%; }
+.so-tepeler .t1 { fill: #a9cfa4; } .so-tepeler .t2 { fill: #86bb7f; } .so-tepeler .t3 { fill: #6aa863; }
+.so-agac { position: absolute; transform: translate(-50%, -100%); transform-origin: 50% 100%; filter: saturate(calc(.55 + var(--z) * .5)) brightness(calc(.85 + var(--z) * .2)) drop-shadow(0 6px 6px rgba(30,60,30,.25)); animation: so-salin 6s ease-in-out infinite var(--g); pointer-events: none; }
+@keyframes so-salin { 0%, 100% { transform: translate(-50%, -100%) rotate(-.8deg); } 50% { transform: translate(-50%, -100%) rotate(.8deg); } }
+.so.titre .so-agac { animation: so-titre .18s ease-in-out 5; }
+@keyframes so-titre { 0%, 100% { transform: translate(-50%, -100%) rotate(0); } 50% { transform: translate(-50%, -100%) rotate(2.4deg); } }
+.so-on { position: absolute; left: 0; right: 0; bottom: 0; height: 20%; background: linear-gradient(rgba(90,160,80,0), #5c9e55 60%); z-index: 70; pointer-events: none; }
+.so-cicek { position: absolute; z-index: 80; transform: translate(-50%, -100%) scale(0); transform-origin: 50% 100%; transition: transform 1.4s cubic-bezier(.3,1.5,.5,1) var(--g); pointer-events: none; filter: drop-shadow(0 3px 3px rgba(0,0,0,.18)); }
+.so-cicek.acik { transform: translate(-50%, -100%) scale(1); }
+.so-canli { position: absolute; transform-origin: 50% 100%; translate: -50% -100%; pointer-events: none; filter: drop-shadow(0 5px 5px rgba(0,0,0,.22)); z-index: 60; }
+.so-canli.ayna { scale: -1 1; }
+.so-canli.kelebek { animation: so-kanat .5s ease-in-out infinite alternate, so-suzul 5s ease-in-out infinite; z-index: 85; }
+@keyframes so-kanat { to { scale: .82 1; } }
+.so-canli.ayna.kelebek { animation: so-kanat-a .5s ease-in-out infinite alternate, so-suzul 5s ease-in-out infinite; }
+@keyframes so-kanat-a { from { scale: -1 1; } to { scale: -.82 1; } }
+@keyframes so-suzul { 0%, 100% { margin-top: 0; } 50% { margin-top: -2.5%; } }
+.so-canli.kus { animation: so-kus 3.2s ease-in-out infinite; z-index: 50; }
+@keyframes so-kus { 0%, 100% { margin-top: 0; } 45% { margin-top: 0; } 55% { margin-top: -1.2%; } }
+.so-canli.tavsan, .so-canli.sincap { animation: so-zipla 4s ease-in-out infinite; z-index: 75; }
+@keyframes so-zipla { 0%, 70%, 100% { margin-top: 0; } 78% { margin-top: -3%; } 86% { margin-top: 0; } }
+.so-canli.geyik, .so-canli.tilki, .so-canli.kirpi, .so-canli.salyangoz, .so-canli.bocek { z-index: 74; animation: so-nefes 5s ease-in-out infinite; }
+@keyframes so-nefes { 50% { margin-top: -.4%; } }
+.so-yazi { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 100; background: rgba(255,255,255,.82); backdrop-filter: blur(6px); color: #2b4a2f; font: 800 1.1rem var(--display); padding: 8px 18px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+.so-olcer { position: absolute; left: 50%; top: 58px; transform: translateX(-50%); width: 30%; height: 8px; background: rgba(255,255,255,.55); border-radius: 99px; z-index: 100; }
+.so-olcer i { display: block; height: 100%; width: 0; background: #7cc576; border-radius: 99px; transition: width .2s; }
+.so-olcer.yuksek i { background: #f0a35e; }
+.so-olcer b { position: absolute; top: -4px; width: 3px; height: 16px; background: rgba(40,60,40,.55); border-radius: 2px; }
+/* gece */
+.so.gece .so-gok { background: linear-gradient(#0d1b3d 0%, #1f3463 55%, #3a4f6e 75%); }
+.so.gece .so-gunes { left: 78%; background: radial-gradient(circle, #f4f1dc 0 30%, rgba(240,236,200,.25) 36%, rgba(240,236,200,0) 64%); }
+.so.gece .so-bulut { opacity: .12; }
+.so.gece .so-tepeler .t1 { fill: #2d4a49; } .so.gece .so-tepeler .t2 { fill: #24403b; } .so.gece .so-tepeler .t3 { fill: #1d3530; }
+.so.gece .so-agac, .so.gece .so-canli, .so.gece .so-cicek { filter: brightness(.55) saturate(.7) drop-shadow(0 4px 4px rgba(0,0,0,.3)); }
+.so.gece .so-on { background: linear-gradient(rgba(20,40,30,0), #1d3a2c 60%); }
+@media (prefers-reduced-motion: reduce) { .so-agac, .so-canli, .so-bulut { animation: none !important; } }

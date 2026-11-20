@@ -146,69 +146,75 @@
     },
   };
 
-  /* ---------- Sessiz orman: sınıf sakin çalıştıkça orman canlanır, ses yükselince canlılar sessizce ürküp uzaklaşır ---------- */
+  /* ---------- Sessiz orman: sınıf sakin çalıştıkça orman canlanır; ses yükselince canlılar ürküp uzaklaşır ----------
+     Görseller 3B emoji (Fluent). Sahne katmanlı: gökyüzü, uzak tepeler, ağaçlar, çayır; çiçekler sakinlik arttıkça açar. */
+  const OR = (a) => "/orman/" + a + ".webp";
+  /* gelecek canlılar sırasıyla: [resim, tür, x%, y%, boy(% yükseklik), uçan mı] */
+  const DAVET = [
+    ["butterfly", "kelebek", 36, 64, 8, 1], ["bird", "kus", 15, 30, 9, 1], ["lady_beetle", "bocek", 58, 94, 6, 0],
+    ["rabbit", "tavsan", 66, 88, 15, 0], ["butterfly", "kelebek", 60, 58, 7, 1], ["chipmunk", "sincap", 30, 90, 13, 0],
+    ["dove", "kus", 80, 30, 10, 1], ["hedgehog", "kirpi", 46, 95, 12, 0], ["butterfly", "kelebek", 88, 62, 7, 1],
+    ["deer", "geyik", 52, 80, 26, 0], ["bird", "kus", 44, 46, 7, 1], ["snail", "salyangoz", 22, 97, 8, 0], ["fox", "tilki", 86, 96, 17, 0],
+  ];
+  const CICEK = [["blossom", 12, 96, 7], ["sunflower", 38, 88, 12], ["herb", 54, 98, 7], ["mushroom", 72, 97, 7], ["blossom", 92, 98, 7], ["sunflower", 26, 99, 10], ["herb", 8, 99, 7]];
+  const AGAC = [["evergreen_tree", 27, 70, 34, .55], ["deciduous_tree", 44, 68, 32, .5], ["evergreen_tree", 61, 69, 30, .5], ["evergreen_tree", 4, 84, 56, .85], ["deciduous_tree", 17, 80, 58, .8], ["deciduous_tree", 79, 82, 62, .85], ["evergreen_tree", 95, 86, 58, .9]];
   W.orman = {
-    title: "Sessiz orman", icon: "tree", tone: "leaf", w: 640, h: 480, desc: "Sakin çalıştıkça kuşlar ve kelebekler gelir",
+    title: "Sessiz orman", icon: "tree", tone: "leaf", w: 760, h: 520, desc: "Sakin çalıştıkça orman canlanır",
     init: () => ({ limit: 55, gece: false }),
     render(body, w, api) {
       const d = w.data;
       body.style.gridTemplateRows = "1fr auto"; body.style.gap = "8px";
-      const cv = h("canvas.or-cv"), yazi = h("div.or-yazi", "Mikrofonu açınca orman dinlemeye başlar");
+      const sahne = h("div.so" + (d.gece ? ".gece" : ""));
+      const yazi = h("div.so-yazi", "Mikrofonu açınca orman dinlemeye başlar");
+      const olcer = h("div.so-olcer", h("i"), h("b", { style: { left: d.limit + "%" } }));
       const startBtn = h("button.btn.sm.c-leaf", { onclick: basla }, T.icon("noise"), "Ormanı uyandır");
-      const slider = h("input", { type: "range", min: 20, max: 90, value: d.limit, "aria-label": "Ses sınırı", oninput: (e) => { d.limit = +e.target.value; api.save(); } });
-      body.append(h("div.or-kap", cv, yazi), h("div.row", { style: { gap: "8px" } }, startBtn,
+      const slider = h("input", { type: "range", min: 20, max: 90, value: d.limit, "aria-label": "Hassasiyet", oninput: (e) => { d.limit = +e.target.value; olcer.lastChild.style.left = d.limit + "%"; api.save(); } });
+      body.append(h("div.so-kap", sahne, yazi, olcer), h("div.row", { style: { gap: "8px" } }, startBtn,
         h("label.f", { style: { flex: 1 } }, h("span", "Hassasiyet"), slider),
-        h("button.btn.sm.c-chalk", { onclick: () => { d.gece = !d.gece; api.save(); } }, T.icon(d.gece ? "sun" : "moon"), "Gece/gündüz")));
-      const x = cv.getContext("2d"); let W_ = 0, H_ = 0;
-      const boyut = () => { const r = cv.getBoundingClientRect(), dp = Math.min(2, devicePixelRatio || 1); W_ = r.width; H_ = r.height; cv.width = W_ * dp; cv.height = H_ * dp; x.setTransform(dp, 0, 0, dp, 0, 0); };
-      const ro = new ResizeObserver(boyut); ro.observe(cv);
-      /* canlılar: tür, konum, hedef, kaçış */
-      const canli = []; let sakin = 0, gurultu = 0, seviye = 0, dinliyor = false, stream = null, ctx = null, an = null, buf = null, raf = 0, son = performance.now();
-      const agaclar = Array.from({ length: 9 }, (_, i) => ({ x: i / 8, h: 0.45 + ((i * 53) % 30) / 100, k: (i * 37) % 3 }));
-      const yeni = () => { const tur = d.gece ? "bocek" : T.pick(["kus", "kus", "kelebek", "kelebek", "tavsan"]); const sol = Math.random() < 0.5;
-        const c = { tur, x: sol ? -0.1 : 1.1, y: tur === "tavsan" ? 0.86 : 0.2 + Math.random() * 0.45, hx: 0.08 + Math.random() * 0.84, hy: 0, t: Math.random() * 6, renk: T.pick(["#F2A93B", "#E86A92", "#7CB7E8", "#B48BE0", "#F7D046"]), kac: 0 };
-        c.hy = c.tur === "tavsan" ? 0.86 : c.tur === "kus" ? 0.18 + Math.random() * 0.3 : 0.3 + Math.random() * 0.4; canli.push(c); };
-      function ciz(z) {
-        const dt = Math.min(0.1, (z - son) / 1000); son = z;
-        if (dinliyor && an) { an.getByteTimeDomainData(buf); let s = 0; for (const v of buf) s += (v - 128) ** 2; seviye = T.clamp(Math.sqrt(s / buf.length) * 2.4, 0, 100); }
-        const yuksek = dinliyor && seviye > d.limit;
-        if (dinliyor) { if (yuksek) { gurultu += dt; sakin = 0; } else { sakin += dt; gurultu = Math.max(0, gurultu - dt * 2); } }
-        const hedefSay = Math.min(22, Math.floor(sakin / 6) + (dinliyor ? 1 : 0));
-        if (dinliyor && !yuksek && canli.filter((c) => !c.kac).length < hedefSay) yeni();
-        if (gurultu > 0.7) { canli.filter((c) => !c.kac).slice(0, 2).forEach((c) => (c.kac = 1)); gurultu = 0.3; }
-        yazi.textContent = !dinliyor ? yazi.textContent : yuksek ? "Şşş… canlılar ürküyor" : canli.length ? canli.filter((c) => !c.kac).length + " canlı ormanımızda" : "Sessizce bekleyelim, birileri geliyor";
-        /* gökyüzü */
-        const g = x.createLinearGradient(0, 0, 0, H_);
-        if (d.gece) { g.addColorStop(0, "#0f1d3a"); g.addColorStop(1, "#2a3f5f"); } else { g.addColorStop(0, "#9fd4f2"); g.addColorStop(1, "#e3f4e8"); }
-        x.fillStyle = g; x.fillRect(0, 0, W_, H_);
-        if (d.gece) { x.fillStyle = "#f6f0c9"; x.beginPath(); x.arc(W_ * 0.82, H_ * 0.18, H_ * 0.07, 0, 7); x.fill(); }
-        /* ağaçlar */
-        agaclar.forEach((a) => { const ax = a.x * W_, taban = H_ * 0.9, boy = H_ * a.h; x.fillStyle = d.gece ? "#1d3328" : ["#3f7d4f", "#2f6a43", "#4b8c58"][a.k];
-          x.beginPath(); x.moveTo(ax, taban - boy); x.lineTo(ax - boy * 0.28, taban); x.lineTo(ax + boy * 0.28, taban); x.fill();
-          x.fillStyle = d.gece ? "#152519" : "#6b4a2f"; x.fillRect(ax - 4, taban - 6, 8, 10); });
-        x.fillStyle = d.gece ? "#1a2b20" : "#7fbf6a"; x.fillRect(0, H_ * 0.9, W_, H_ * 0.1);
-        /* canlılar */
-        for (let i = canli.length - 1; i >= 0; i--) { const c = canli[i]; c.t += dt;
-          if (c.kac) { c.kac += dt; c.x += (c.x < 0.5 ? -1 : 1) * dt * 0.6; c.y -= c.tur === "tavsan" ? 0 : dt * 0.35; if (c.x < -0.2 || c.x > 1.2) { canli.splice(i, 1); continue; } }
-          else { c.x += (c.hx - c.x) * dt * 0.5; c.y += (c.hy - c.y) * dt * 0.5; if (Math.abs(c.hx - c.x) < 0.02 && Math.random() < 0.004) c.hx = 0.08 + Math.random() * 0.84; }
-          const px = c.x * W_, py = c.y * H_ + (c.tur === "tavsan" ? 0 : Math.sin(c.t * 2.2) * 6); const yon = c.hx > c.x ? 1 : -1;
-          x.save(); x.translate(px, py); x.scale(yon, 1);
-          if (c.tur === "kus") { const k = Math.sin(c.t * 10) * 7; x.strokeStyle = "#2b3a4a"; x.lineWidth = 3; x.lineCap = "round"; x.beginPath(); x.moveTo(-12, -k); x.quadraticCurveTo(-6, -4, 0, 0); x.quadraticCurveTo(6, -4, 12, -k); x.stroke(); }
-          else if (c.tur === "kelebek") { const k = 0.4 + Math.abs(Math.sin(c.t * 9)) * 0.6; x.fillStyle = c.renk; x.beginPath(); x.ellipse(-6 * k, -3, 7 * k, 9, -0.4, 0, 7); x.ellipse(6 * k, -3, 7 * k, 9, 0.4, 0, 7); x.fill(); x.fillStyle = "#3a2c22"; x.fillRect(-1.2, -9, 2.4, 14); }
-          else if (c.tur === "tavsan") { x.fillStyle = "#d9c7b0"; x.beginPath(); x.ellipse(0, -10, 13, 10, 0, 0, 7); x.ellipse(11, -18, 7, 6, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(10, -30, 2.6, 9, -0.2, 0, 7); x.ellipse(14, -29, 2.6, 9, 0.2, 0, 7); x.fill(); x.fillStyle = "#fff"; x.beginPath(); x.arc(-12, -10, 4, 0, 7); x.fill(); }
-          else { const p = 0.5 + Math.sin(c.t * 3) * 0.5; x.fillStyle = "rgba(250,240,140," + (0.35 + p * 0.65) + ")"; x.shadowColor = "#fff6a0"; x.shadowBlur = 14; x.beginPath(); x.arc(0, 0, 4, 0, 7); x.fill(); }
-          x.restore(); }
-        /* ses çubuğu: ince ve sakin */
-        if (dinliyor) { x.fillStyle = "rgba(255,255,255,.55)"; x.fillRect(12, H_ - 14, (W_ - 24), 6); x.fillStyle = yuksek ? "#E58A5A" : "#5FB37A"; x.fillRect(12, H_ - 14, (W_ - 24) * seviye / 100, 6); x.fillStyle = "rgba(0,0,0,.35)"; x.fillRect(12 + (W_ - 24) * d.limit / 100 - 1, H_ - 18, 2, 14); }
-        raf = requestAnimationFrame(ciz);
+        h("button.btn.sm.c-chalk", { onclick: () => { d.gece = !d.gece; api.save(); sahne.classList.toggle("gece", d.gece); } }, T.icon("moon"), "Gece/gündüz")));
+      /* sabit katmanlar */
+      sahne.append(h("div.so-gok"), h("div.so-gunes"), h("div.so-bulut.b1"), h("div.so-bulut.b2"),
+        (() => { const t = T.svg("svg", { viewBox: "0 0 1000 400", preserveAspectRatio: "none", class: "so-tepeler" }); t.innerHTML = '<path d="M0 230 C120 170 220 190 330 160 C460 120 560 200 680 170 C800 140 900 180 1000 150 V400 H0Z" class="t1"/><path d="M0 290 C140 240 260 270 380 245 C520 215 640 275 760 250 C870 228 940 255 1000 240 V400 H0Z" class="t2"/><path d="M0 330 C160 300 330 325 500 305 C680 285 840 318 1000 300 V400 H0Z" class="t3"/>'; return t; })());
+      AGAC.forEach(([r, x, y, b, z], i) => sahne.append(h("img.so-agac", { src: OR(r), alt: "", draggable: false, style: { left: x + "%", top: y + "%", height: b + "%", "--z": z, "--g": (i * 0.37) % 1.4 + "s", zIndex: Math.round(z * 10) } })));
+      const cicekler = CICEK.map(([r, x, y, b], i) => { const c = h("img.so-cicek", { src: OR(r), alt: "", draggable: false, style: { left: x + "%", top: y + "%", height: b + "%", "--g": i * 0.4 + "s" } }); sahne.append(c); return c; });
+      sahne.append(h("div.so-on"));
+      const canli = []; let sakin = 0, gurultu = 0, seviye = 0, dinliyor = false, stream = null, ctx = null, an = null, buf = null, iv = 0, sonGelis = 0;
+      const ekle = () => {
+        const kalan = DAVET.filter((x) => !canli.some((c) => c.def === x && !c.kac)); if (!kalan.length) return;
+        const def = kalan[0], [r, tur, x, y, b, ucan] = def, sol = x > 50;
+        const el = h("img.so-canli." + tur, { src: OR(r), alt: "", draggable: false, style: { left: x + "%", top: y + "%", height: b + "%", zIndex: Math.round(y) } });
+        if (!sol) el.classList.add("ayna");
+        sahne.append(el);
+        const bas = ucan ? { transform: `translate(${sol ? 60 : -60}vw, -40vh) scale(.6)`, opacity: 0 } : { transform: `translate(${sol ? 40 : -40}vw, 0)`, opacity: 0 };
+        el.animate([bas, { transform: "translate(0,0)", opacity: 1 }], { duration: ucan ? 2600 : 3200, easing: "cubic-bezier(.25,.8,.3,1)" });
+        canli.push({ def, el, kac: false });
+      };
+      const kacir = () => {
+        const l = canli.filter((c) => !c.kac).slice(-2);
+        l.forEach((c) => { c.kac = true; const ucan = c.def[5], sol = c.def[2] > 50;
+          const a = c.el.animate([{ transform: "translate(0,0)", opacity: 1 }, { transform: "translate(0,-6%)", opacity: 1, offset: .12 }, { transform: ucan ? `translate(${sol ? 50 : -50}vw, -50vh) scale(.5)` : `translate(${sol ? 45 : -45}vw, 0)`, opacity: 0 }], { duration: ucan ? 1600 : 1900, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" });
+          a.onfinish = () => { c.el.remove(); canli.splice(canli.indexOf(c), 1); }; });
+        sahne.classList.add("titre"); setTimeout(() => sahne.classList.remove("titre"), 900);
+      };
+      function adim() {
+        if (dinliyor && an) { an.getByteTimeDomainData(buf); let t = 0; for (const v of buf) t += (v - 128) ** 2; seviye = T.clamp(Math.sqrt(t / buf.length) * 2.4, 0, 100); }
+        const yuksek = dinliyor && seviye > d.limit, dt = 0.2;
+        if (dinliyor) { if (yuksek) { gurultu += dt; sakin = Math.max(0, sakin - dt * 3); } else { sakin += dt; gurultu = Math.max(0, gurultu - dt * 2); } }
+        if (gurultu > 0.8) { kacir(); gurultu = 0.2; }
+        const var_ = canli.filter((c) => !c.kac).length, hedef = Math.min(DAVET.length, Math.floor(sakin / 5) + (dinliyor ? 1 : 0));
+        if (dinliyor && !yuksek && var_ < hedef && Date.now() - sonGelis > 2500) { ekle(); sonGelis = Date.now(); }
+        cicekler.forEach((c, i) => c.classList.toggle("acik", sakin > 8 + i * 9));
+        olcer.firstChild.style.width = seviye + "%"; olcer.classList.toggle("yuksek", yuksek); olcer.hidden = !dinliyor;
+        if (dinliyor) yazi.textContent = yuksek ? "Şşş… canlılar ürküyor" : var_ ? var_ + " canlı ormanımızda" : "Sessizce bekleyelim, biri geliyor";
       }
       async function basla() {
         if (T.muzik && T.muzik.aktif && T.muzik.aktif()) { T.muzik.birak(); T.toast("Orman hoparlörü duymasın diye müzik durduruldu"); }
-        try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); ctx = new (window.AudioContext || window.webkitAudioContext)(); an = ctx.createAnalyser(); an.fftSize = 512; ctx.createMediaStreamSource(stream).connect(an); buf = new Uint8Array(an.fftSize); dinliyor = true; startBtn.disabled = true; }
+        try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); ctx = new (window.AudioContext || window.webkitAudioContext)(); an = ctx.createAnalyser(); an.fftSize = 512; ctx.createMediaStreamSource(stream).connect(an); buf = new Uint8Array(an.fftSize); dinliyor = true; startBtn.disabled = true; adim(); }
         catch (e) { yazi.textContent = "Mikrofona izin verilmedi. Tarayıcının adres çubuğundan izin ver."; }
       }
-      requestAnimationFrame((z) => { son = z; boyut(); ciz(z); });
-      api.onDestroy(() => { cancelAnimationFrame(raf); ro.disconnect(); stream && stream.getTracks().forEach((t) => t.stop()); ctx && ctx.close(); });
+      olcer.hidden = true;
+      iv = setInterval(adim, 200);
+      api.onDestroy(() => { clearInterval(iv); stream && stream.getTracks().forEach((t) => t.stop()); ctx && ctx.close(); });
       T.ormanTest = { sakin: (s) => { dinliyor = true; sakin = s; }, gurultu: () => { gurultu = 1; } };
     },
   };

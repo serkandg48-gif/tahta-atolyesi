@@ -315,40 +315,9 @@
 
   /* ---------- kazanım kartlarına bağla: Keşfet, Oyna, Kontrol et ---------- */
   const id = (kod) => kod.toLowerCase().replace(/\./g, "-").replace(/-$/, "");
-  const KESFET = {
-    "MAT.3.2.1.": ["market", "yuzluk-tablo"], "MAT.3.2.2.": ["dort-islem", "taban-blok"], "MAT.3.2.3.": ["strateji-carpma-bolme", "onluk-cerceve"], "MAT.3.2.4.": ["strateji-carpma-bolme", "oyun-adil-paylasim"],
-    "MAT.3.2.5.": ["dort-islem", "oyun-sifre"], "MAT.3.2.6.": ["oyun-problem-ciftligi", "market"], "MAT.3.2.7.": ["oyun-problem-ciftligi", "dort-islem"], "MAT.3.2.8.": ["terazi", "oyun-denge"],
-    "MAT.3.3.1.": ["sekiller", "oyun-hacim"], "MAT.3.3.2.": ["sekiller", "geometri-tahtasi"], "MAT.3.3.3.": ["geometri-tahtasi", "serbest-kareli"], "MAT.3.3.4.": ["alan-cevre", "oyun-alan-avi"],
-    "MAT.3.3.5.": ["tarif", "oyun-solucan"], "MAT.3.3.6.": ["geometri-tahtasi", "tangram"], "MAT.3.3.7.": ["serbest-kareli", "geometri-tahtasi"], "MAT.3.3.8.": ["serbest-kareli", "oruntu"], "MAT.3.4.1.": ["grafik-atolyesi", "oyun-grafik-dedektifi"],
-  };
-  /* Kontrol et için kısa sorular (2B kart) */
-  const kart = (t, alt, ust) => CIZ.metin(t, alt, ust);
-  const KONTROL = {
-    "MAT.3.2.1.": () => { const x = rnd(21, 89), y = rnd(21, 89), c = Math.round(x / 10) * 10 + Math.round(y / 10) * 10; return { gorsel: kart(x + " + " + y, "Tahminî sonuç kaç?", "Önce en yakın onluğa yuvarla"), secenekler: farkli(c, c + 10, c - 10, c + 20), dogru: c }; },
-    "MAT.3.2.2.": () => { const x = rnd(120, 680), y = rnd(25, 290), top = Math.random() < 0.5, c = top ? x + y : x - y; return { gorsel: kart(x + (top ? " + " : " - ") + y + " = ?"), secenekler: farkli(c, c + 10, c - 10, c + 100), dogru: c }; },
-    "MAT.3.2.3.": () => { const x = rnd(2, 9), y = rnd(2, 9); return { gorsel: kart(x + " × " + y + " = ?", "Zihinden çarp"), secenekler: farkli(x * y, x * y + x, x * y - y, x + y), dogru: x * y }; },
-    "MAT.3.2.4.": () => { const x = rnd(2, 9), y = rnd(2, 9); return { gorsel: kart(x * y + " ÷ " + x + " = ?", "Çarpmayı düşün: " + x + " × ? = " + x * y), secenekler: farkli(y, y + 1, y - 1 || y + 2, x), dogru: y }; },
-    "MAT.3.2.5.": () => { const x = rnd(3, 12), y = rnd(2, 9), z = rnd(2, 3), c = (x + y) * z; return { gorsel: kart(x + " ile başla, " + y + " ekle, " + z + " ile çarp", "Sonuç kaç?"), secenekler: farkli(c, x + y * z, c + z, x * z + y), dogru: c }; },
-    "MAT.3.2.6.": () => { const x = rnd(3, 8), y = rnd(4, 9); return { gorsel: kart(x + " kutu, her kutuda " + y + " kalem", "Toplam kaç kalem?"), secenekler: farkli(x * y, x + y, x * y + y, x * y - x), dogru: x * y }; },
-    "MAT.3.2.7.": () => { const x = rnd(3, 9), y = rnd(2, 6); return { gorsel: kart(x * y + " ÷ " + y, "Bu işleme uyan hikâye hangisi?"), secenekler: ["Paylaştırma", "Ekleme", "Eksiltme"], dogru: "Paylaştırma" }; },
-    "MAT.3.2.8.": () => { const p = rnd(4, 15), q = rnd(4, 15), r = rnd(2, 8), c = p + q - r; return { gorsel: kart(p + " + " + q + " = " + r + " + ?", "Eşitliği tamamla"), secenekler: farkli(c, p + q, c + 1, c - 2), dogru: c }; },
-    "MAT.3.3.1.": () => { const [ad, k, y, ay] = CISIM[rnd(0, 3)], ne = rnd(0, 2), c = [k, y, ay][ne]; return { gorsel: kart(ad, "Kaç " + ["köşesi", "yüzü", "ayrıtı"][ne] + " var?"), secenekler: farkli(c, c + 1, c - 1, c + 2), dogru: c }; },
-    "MAT.3.3.2.": () => { const n = rnd(3, 6); return { gorsel: { tur: "ciz", oran: 1.7, ciz: (g, w, hh) => { const p = new Path2D(SEKIL[n][1]); g.save(); g.translate(w / 2 - 170, hh / 2 - 170); g.scale(3.4, 3.4); g.fillStyle = "#FFB547"; g.fill(p); g.lineWidth = 2; g.strokeStyle = L; g.stroke(p); g.restore(); } }, secenekler: farkli(SEKIL[n][0], ...["Üçgen", "Dörtgen", "Beşgen", "Altıgen"].filter((x) => x !== SEKIL[n][0])), dogru: SEKIL[n][0] }; },
-    "MAT.3.3.3.": () => { const n = rnd(3, 6); return { gorsel: kart(SEKIL[n][0] + " çizmek için", "Kaç kenar çizmelisin?"), secenekler: farkli(n, n + 1, n - 1, n + 2), dogru: n }; },
-    "MAT.3.3.4.": () => { const w = rnd(2, 8), hh = rnd(2, 6), c = 2 * (w + hh); return { gorsel: kart(w + " cm × " + hh + " cm", "Dikdörtgenin çevresi kaç cm?"), secenekler: farkli(c, w * hh, w + hh, c + 2), dogru: c }; },
-    "MAT.3.3.5.": () => { const L2 = [["Bir bardak su", "250 ml", "2 L", "20 L"], ["Bir kova su", "10 L", "100 ml", "1 ml"], ["Bir çay kaşığı şurup", "5 ml", "5 L", "500 ml"], ["Bir şişe su", "1 L", "10 L", "10 ml"]][rnd(0, 3)]; return { gorsel: kart(L2[0], "Yaklaşık ne kadar sıvı alır?"), secenekler: L2.slice(1), dogru: L2[1] }; },
-    "MAT.3.3.6.": () => { const S = [["Kare", 4], ["Dikdörtgen", 2], ["Daire", "Sonsuz"]][rnd(0, 2)]; return { gorsel: kart(S[0], "Kaç simetri doğrusu var?"), secenekler: S[0] === "Daire" ? ["2", "4", "Sonsuz"] : farkli(S[1], 1, 2, 4, 3).map(String), dogru: String(S[1]) }; },
-    "MAT.3.3.7.": () => ({ gorsel: kart("Ayna çizgisinden 2 kare uzak", "Simetriği ayna çizgisinden kaç kare uzakta olur?"), secenekler: ["2", "1", "4"], dogru: "2" }),
-    "MAT.3.3.8.": () => ({ gorsel: kart("→ → ↓", "Ayna dikeyse bu kodun simetriği?"), secenekler: ["← ← ↓", "→ → ↑", "← ← ↑"], dogru: "← ← ↓" }),
-    "MAT.3.4.1.": () => { const v = [rnd(2, 9), rnd(2, 9), rnd(2, 9)], ad = ["Elma", "Muz", "Çilek"], c = v[0] + v[1] + v[2]; return { gorsel: { tur: "ciz", oran: 1.7, ciz: (g, w, hh) => { v.forEach((x, i) => { const bx = 180 + i * 250, bh = x * 40; g.fillStyle = ["#E2403A", "#F2B705", "#C2457E"][i]; g.fillRect(bx, hh - 90 - bh, 140, bh); g.font = "800 40px Fredoka, sans-serif"; g.fillStyle = L; g.textAlign = "center"; g.fillText(ad[i], bx + 70, hh - 40); g.fillText(x, bx + 70, hh - 110 - bh); }); } }, secenekler: farkli(c, c + 1, c - 2, c + 3), dogru: c }; },
-  };
   Object.entries(OY).forEach(([kod, o]) => {
     const kisa = id(kod);
     T.tools["kd-" + kisa] = { cat: "oyun", ilk: 10 + Object.keys(OY).indexOf(kod), title: o.ad, icon: o.ikon, tone: "sun", grades: [3, 4], short: o.giris.replace(/[!.]+$/, ""), render(host) { oyunKabuk(host, Object.assign({ baslik: o.ad }, o)); } };
-    const ad = (T.ciktilar.bul(kod) || {}).metin || o.ad;
-    const k = { ad: o.ad.replace(/^[^:]*: /, "") === o.ad ? o.ad : o.ad, kesfet: KESFET[kod] || [], soru: KONTROL[kod], oyun: { id: "kd-" + kisa, ad: o.ad, ikon: o.ikon } };
-    T.KAZANIM_KART[kod] = k;
-    T.tools["kk-" + kisa] = { cat: "kazanim-gizli", title: o.ad + ": kontrol et", icon: "check", tone: "leaf", grades: [3, 3], short: kod, render(host) { T.KZ_KONTROL(host, kod, k); } };
   });
   ["kasa", "fide", "kurabiye", "robot", "inek", "terazi", "kup", "sekil", "cetvel", "karinca", "limon", "ayna", "grafik"].forEach((k) => T.IKON3D && T.IKON3D.add(k));
   T.oyunKabuk = oyunKabuk;

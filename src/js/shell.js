@@ -71,7 +71,7 @@
   const ARAC_GRUP = [
     ["Zaman", ["timer", "stopwatch", "clock", "takvim"]],
     ["Seçim ve gruplar", ["name", "dice", "groups"]],
-    ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!perde|Ekran perdesi|moon"]],
+    ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];
   const sonlar = () => { try { return JSON.parse(localStorage.getItem("ta-son") || "[]"); } catch (e) { return []; } };

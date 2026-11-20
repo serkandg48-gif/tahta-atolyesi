@@ -2997,18 +2997,27 @@ body:has(.dn-kok) #muzik-calar { visibility: hidden; }
 @keyframes perde-gir { from { opacity: 0; } }
 
 /* Hızlı arama */
-.kp-perde { position: fixed; inset: 0; z-index: 9000; background: rgba(15,22,40,.42); backdrop-filter: blur(3px); display: flex; justify-content: center; align-items: flex-start; padding-top: 10vh; }
-.kp-kutu { width: min(640px, 94vw); background: #fff; border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,.28); overflow: hidden; }
-.kp-ust { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #e6e8ee; }
-.kp-ust .ic { width: 26px; height: 26px; opacity: .6; }
-.kp-giris { flex: 1; border: 0; outline: 0; font: inherit; font-size: 1.3rem; background: transparent; }
-.kp-ust kbd { font-size: .8rem; padding: 3px 8px; border-radius: 6px; background: #f0f2f6; color: #667; }
-.kp-liste { max-height: 56vh; overflow: auto; padding: 8px; }
-.kp-oge { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: 0; background: transparent; padding: 9px 12px; border-radius: 14px; font: inherit; cursor: pointer; }
-.kp-oge[aria-selected=true] { background: #eef3ff; }
-.kp-oge .ikon3d, .kp-oge > img, .kp-oge > svg { width: 38px; height: 38px; flex: none; }
-.kp-oge span { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.kp-oge b { font-size: 1.05rem; }
-.kp-oge small { color: #778; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.kp-oge em { font-style: normal; font-size: .78rem; color: #556; background: #f2f3f7; border-radius: 999px; padding: 3px 10px; flex: none; }
-.kp-bos { padding: 18px; color: #778; text-align: center; }
+.ara-perde { position: fixed; inset: 0; z-index: 9000; background: rgba(15,22,40,.42); backdrop-filter: blur(3px); display: flex; justify-content: center; align-items: flex-start; padding-top: 10vh; }
+.ara-kutu { width: min(640px, 94vw); background: #fff; border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,.28); overflow: hidden; }
+.ara-ust { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #e6e8ee; }
+.ara-ust .ic { width: 26px; height: 26px; opacity: .6; }
+.ara-giris { flex: 1; border: 0; outline: 0; font: inherit; font-size: 1.3rem; background: transparent; }
+.ara-ust kbd { font-size: .8rem; padding: 3px 8px; border-radius: 6px; background: #f0f2f6; color: #667; }
+.ara-liste { max-height: 56vh; overflow: auto; padding: 8px; }
+.ara-oge { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: 0; background: transparent; padding: 9px 12px; border-radius: 14px; font: inherit; cursor: pointer; }
+.ara-oge[aria-selected=true] { background: #eef3ff; }
+.ara-oge .ikon3d, .ara-oge > img, .ara-oge > svg { width: 38px; height: 38px; flex: none; }
+.ara-oge span { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.ara-oge b { font-size: 1.05rem; }
+.ara-oge small { color: #778; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ara-oge em { font-style: normal; font-size: .78rem; color: #556; background: #f2f3f7; border-radius: 999px; padding: 3px 10px; flex: none; }
+.ara-bos { padding: 18px; color: #778; text-align: center; }
+
+/* Öğrenci modu */
+html.kilitli #dock, html.kilitli #topbar { visibility: hidden !important; pointer-events: none !important; }
+html.kilitli .pencere-ust, html.kilitli .tc-pin, html.kilitli .tc-gizle, html.kilitli .donus-dug, html.kilitli .kp-kontrol, html.kilitli .wd-head button[aria-label='Aracı kapat'], html.kilitli .kp-pinx, html.kilitli .kp-sinif { display: none !important; }
+#kilit-dug { position: fixed; right: 18px; bottom: 18px; z-index: 8500; display: flex; align-items: center; gap: 8px; padding: 10px 16px 10px 12px; border: 0; border-radius: 999px; background: rgba(27,42,74,.88); color: #fff; font: inherit; font-weight: 700; cursor: pointer; overflow: hidden; touch-action: none; user-select: none; }
+#kilit-dug .ic { width: 22px; height: 22px; }
+#kilit-dug .kl-halka { position: absolute; inset: 0; background: #E9A23B; transform: scaleX(0); transform-origin: left; z-index: -1; }
+#kilit-dug.basili .kl-halka { transform: scaleX(1); transition: transform 2s linear; }
+#kilit-dug { isolation: isolate; }

@@ -28,10 +28,10 @@
     return 0;
   }
   T.komutPaleti = function () {
-    if (T.$(".kp-perde")) return;
+    if (T.$(".ara-perde")) return;
     const L = katalog();
-    const giris = h("input.kp-giris", { placeholder: "Ne açalım? Örneğin zamanlayıcı, kesir, duygu", "aria-label": "Ara", autocomplete: "off" });
-    const liste = h("div.kp-liste", { role: "listbox" });
+    const giris = h("input.ara-giris", { placeholder: "Ne açalım? Örneğin zamanlayıcı, kesir, duygu", "aria-label": "Ara", autocomplete: "off" });
+    const liste = h("div.ara-liste", { role: "listbox" });
     let sonuc = [], sec = 0;
     const kapat = () => { perde.remove(); removeEventListener("keydown", tus, true); };
     const calistir = (x) => { kapat(); try { x.ac(); } catch (e) { console.error(e); } };
@@ -39,7 +39,7 @@
       const q = sade(giris.value.trim());
       sonuc = q ? L.map((x) => [puan(x, q), x]).filter((y) => y[0] > 0).sort((a, b) => b[0] - a[0]).slice(0, 30).map((y) => y[1]) : L.filter((x) => x.tur === "Araç" || x.tur === "Komut").slice(0, 14);
       sec = Math.min(sec, Math.max(0, sonuc.length - 1));
-      liste.replaceChildren(...(sonuc.length ? sonuc.map((x, i) => h("button.kp-oge", { role: "option", "aria-selected": String(i === sec), onclick: () => calistir(x), onpointermove: () => { if (sec !== i) { sec = i; isaretle(); } } }, T.icon3d(x.ic || "spark"), h("span", h("b", x.ad), x.ek ? h("small", x.ek) : null), h("em", x.tur))) : [h("p.kp-bos", "Bulunamadı. Başka bir sözcük dene.")]));
+      liste.replaceChildren(...(sonuc.length ? sonuc.map((x, i) => h("button.ara-oge", { role: "option", "aria-selected": String(i === sec), onclick: () => calistir(x), onpointermove: () => { if (sec !== i) { sec = i; isaretle(); } } }, T.icon3d(x.ic || "spark"), h("span", h("b", x.ad), x.ek ? h("small", x.ek) : null), h("em", x.tur))) : [h("p.ara-bos", "Bulunamadı. Başka bir sözcük dene.")]));
     };
     const isaretle = () => [...liste.children].forEach((b, i) => { b.setAttribute("aria-selected", String(i === sec)); if (i === sec) b.scrollIntoView({ block: "nearest" }); });
     const tus = (e) => {
@@ -49,8 +49,8 @@
       else if (e.key === "Enter" && sonuc[sec]) { e.preventDefault(); calistir(sonuc[sec]); }
     };
     giris.addEventListener("input", () => { sec = 0; ciz(); });
-    const perde = h("div.kp-perde", { onclick: (e) => { if (e.target === perde) kapat(); } },
-      h("div.kp-kutu", { role: "dialog", "aria-label": "Hızlı arama" }, h("div.kp-ust", T.icon("search"), giris, h("kbd", "Esc")), liste));
+    const perde = h("div.ara-perde", { onclick: (e) => { if (e.target === perde) kapat(); } },
+      h("div.ara-kutu", { role: "dialog", "aria-label": "Hızlı arama" }, h("div.ara-ust", T.icon("search"), giris, h("kbd", "Esc")), liste));
     document.body.append(perde); addEventListener("keydown", tus, true);
     ciz(); setTimeout(() => giris.focus(), 20);
   };
@@ -61,4 +61,29 @@
   /* üst çubuğa büyüteç */
   const ekle = () => { const r = T.$("#topbar .tb-right"); if (r && !r.querySelector(".tb-ara")) r.prepend(h("button.chip-btn.tb-ara", { onclick: () => T.komutPaleti(), "aria-label": "Ara (Ctrl+K)", title: "Ara (Ctrl+K)" }, T.icon("search"), h("span.lbl", "Ara"))); };
   new MutationObserver(ekle).observe(T.$("#topbar"), { childList: true }); ekle();
+})();
+
+/* Öğrenci kilidi: tahta öğrenciye bırakılınca menü, kapatma ve sayfa değiştirme kapanır.
+   Açmak için sağ alttaki kilide 2 saniye basılı tutulur. */
+(function () {
+  const h = T.h; let kilitHash = null, dug = null;
+  const kilitli = () => document.documentElement.classList.contains("kilitli");
+  T.kilitliMi = kilitli;
+  T.kilit = function () {
+    if (kilitli()) return;
+    kilitHash = location.hash || "#ana";
+    document.documentElement.classList.add("kilitli");
+    let zam = null; const halka = h("i.kl-halka");
+    const birak = () => { clearTimeout(zam); dug.classList.remove("basili"); };
+    dug = h("button#kilit-dug", { "aria-label": "Kilidi açmak için 2 saniye basılı tut", title: "Açmak için 2 saniye basılı tut",
+      onpointerdown: (e) => { e.preventDefault(); dug.classList.add("basili"); zam = setTimeout(() => { birak(); T.kilitAc(); }, 2000); },
+      onpointerup: birak, onpointerleave: birak, onpointercancel: birak, oncontextmenu: (e) => e.preventDefault() }, halka, T.icon("lock"), h("span", "Öğrenci modu"));
+    document.body.append(dug);
+    T.toast("Öğrenci modu açık. Açmak için kilide 2 saniye basılı tut");
+  };
+  T.kilitAc = function () { document.documentElement.classList.remove("kilitli"); if (dug) dug.remove(); dug = null; kilitHash = null; T.toast("Öğrenci modu kapandı"); };
+  /* kilitliyken başka bölüme geçilmez; aynı bölümün etkinlikleri açılabilir */
+  addEventListener("hashchange", () => { const bol = (x) => (x || "#ana").slice(1).split("-")[0]; if (kilitli() && kilitHash && bol(location.hash) !== bol(kilitHash)) history.replaceState(null, "", kilitHash) || T.route(); }, true);
+  addEventListener("keydown", (e) => { if (kilitli() && ((e.ctrlKey || e.metaKey) || e.key === "/" || e.key === "b" || e.key === "B" || e.key === "Escape")) { e.stopImmediatePropagation(); if (e.ctrlKey || e.metaKey || e.key === "/") e.preventDefault(); } }, true);
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Öğrenci modu (kilit)", ic: "lock", ac: () => T.kilit(), ek: "Menü ve kapatma düğmeleri gizlenir" });
 })();

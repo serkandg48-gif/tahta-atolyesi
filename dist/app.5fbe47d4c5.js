@@ -1,4 +1,4 @@
-window.SURUM="8cebdf1d44";
+window.SURUM="5fbe47d4c5";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -7940,6 +7940,54 @@ T.yuzen = TahtaYap("ana");
       api.onDestroy && api.onDestroy(() => { if (sahne._url) URL.revokeObjectURL(sahne._url); });
     },
   };
+
+  /* ---------- Doğa zamanlayıcısı: rakam yok; süre ilerledikçe güneş batar, çiçek açar ya da tekne dereyi geçer ---------- */
+  const SAHNE = [["gunes", "Gün batımı"], ["cicek", "Çiçek açıyor"], ["tekne", "Kâğıt tekne"]];
+  const karis = (a, b, t) => { const p = (x) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16)); const A = p(a), B = p(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")"; };
+  W.dogazaman = {
+    title: "Doğa zamanlayıcısı", icon: "sun", tone: "leaf", w: 560, h: 470, desc: "Rakamsız sakin zamanlayıcı",
+    init: () => ({ sahne: "gunes", total: 300, left: 300, running: false, endAt: 0 }),
+    render(body, w, api) {
+      const d = w.data;
+      body.style.gridTemplateRows = "1fr auto auto"; body.style.gap = "8px";
+      const svg = el("svg", { viewBox: "0 0 400 260", class: "dz-svg", preserveAspectRatio: "xMidYMid slice" });
+      const oyna = h("button.btn.sm.c-leaf", { onclick: () => { T.sound.unlock(); if (d.running) { d.left = Math.max(0, (d.endAt - Date.now()) / 1000); d.running = false; } else { if (d.left <= 0) d.left = d.total; d.endAt = Date.now() + d.left * 1000; d.running = true; } api.save(); boya(); } });
+      body.append(h("div.dz-kap", svg),
+        h("div.row", { style: { justifyContent: "center", gap: "6px" } }, h("div.seg", SAHNE.map(([k, l]) => h("button", { "aria-pressed": String(d.sahne === k), onclick: () => { d.sahne = k; api.save(); api.rerender(); } }, l)))),
+        h("div.row", { style: { justifyContent: "center", gap: "6px" } }, [1, 3, 5, 10, 15].map((m) => h("button.btn.sm.c-chalk", { "aria-pressed": String(d.total === m * 60), onclick: () => { d.total = d.left = m * 60; d.running = false; api.save(); api.rerender(); } }, m + " dk")), oyna));
+      /* sahneyi bir kez kur, sonra yalnızca değerleri güncelle */
+      const g = {};
+      if (d.sahne === "gunes") {
+        svg.append(g.gok = el("rect", { width: 400, height: 260 }), g.gunes = el("circle", { cx: 200, r: 34, fill: "#FFD45A" }),
+          el("path", { d: "M0 190 Q80 150 160 180 T320 170 T400 180 V260 H0Z", fill: "#3d5a4a" }), el("path", { d: "M0 215 Q100 190 200 210 T400 205 V260 H0Z", fill: "#2c4337" }), g.gece = el("rect", { width: 400, height: 260, fill: "#0e1a33", opacity: 0 }));
+      } else if (d.sahne === "cicek") {
+        svg.append(el("rect", { width: 400, height: 260, fill: "#dff1fb" }), el("rect", { y: 215, width: 400, height: 45, fill: "#8fc977" }),
+          g.sap = el("line", { x1: 200, y1: 216, x2: 200, y2: 216, stroke: "#4c9a4a", "stroke-width": 7, "stroke-linecap": "round" }),
+          g.yap1 = el("ellipse", { rx: 0, ry: 0, fill: "#5fb35a" }), g.yap2 = el("ellipse", { rx: 0, ry: 0, fill: "#5fb35a" }), g.tac = el("g"));
+        for (let i = 0; i < 8; i++) g.tac.append(el("ellipse", { cx: 0, cy: -22, rx: 11, ry: 22, fill: i % 2 ? "#F29BB8" : "#EE7FA6", transform: "rotate(" + i * 45 + ")" }));
+        g.tac.append(el("circle", { r: 13, fill: "#F4CF4B" }));
+      } else {
+        svg.append(el("rect", { width: 400, height: 260, fill: "#cfe8d0" }), el("path", { d: "M-10 150 C80 110 140 200 220 160 S350 120 410 150 L410 210 C330 180 260 240 190 210 S60 170 -10 205Z", fill: "#7cc2e6" }),
+          el("path", { d: "M-10 170 C80 130 140 215 220 180 S350 140 410 172", fill: "none", stroke: "#a8daf2", "stroke-width": 3, "stroke-dasharray": "14 12" }),
+          el("rect", { x: 352, y: 118, width: 40, height: 70, rx: 6, fill: "#c98b54" }), el("path", { d: "M346 120 L372 96 L398 120Z", fill: "#b8473a" }),
+          g.tekne = el("path", { d: "M-18 -6 L18 -6 L10 6 L-10 6Z M0 -6 L0 -26 L14 -8Z", fill: "#fff", stroke: "#8a96ae", "stroke-width": 1.5 }));
+      }
+      const yol = (t) => { const x = -10 + t * 370; const y = 175 - 22 * Math.sin((x + 30) / 60) ; return [x, y]; };
+      let caldi = false;
+      function boya() {
+        const left = d.running ? Math.max(0, (d.endAt - Date.now()) / 1000) : d.left, t = 1 - left / d.total;
+        if (d.running && left <= 0) { d.running = false; d.left = 0; api.save(); if (!caldi) { caldi = true; T.sound.bell(); } } if (left > 0) caldi = false;
+        if (d.sahne === "gunes") { g.gok.setAttribute("fill", t < 0.6 ? karis("#8ec9ee", "#f6b26b", t / 0.6) : karis("#f6b26b", "#c4506a", (t - 0.6) / 0.4)); g.gunes.setAttribute("cy", 50 + t * 165); g.gunes.setAttribute("fill", karis("#FFE27A", "#F2673A", t)); g.gece.setAttribute("opacity", Math.max(0, (t - 0.85) * 2.4)); }
+        else if (d.sahne === "cicek") { const boy = 20 + t * 130, ty = 216 - boy; g.sap.setAttribute("y2", ty); const ya = Math.min(1, t * 2.2);
+          g.yap1.setAttribute("cx", 182); g.yap1.setAttribute("cy", 216 - boy * 0.4); g.yap1.setAttribute("rx", 18 * ya); g.yap1.setAttribute("ry", 8 * ya);
+          g.yap2.setAttribute("cx", 218); g.yap2.setAttribute("cy", 216 - boy * 0.6); g.yap2.setAttribute("rx", 18 * ya); g.yap2.setAttribute("ry", 8 * ya);
+          const ac = Math.max(0.15, Math.min(1, (t - 0.35) / 0.65)); g.tac.setAttribute("transform", "translate(200 " + ty + ") scale(" + ac + ")"); }
+        else { const [x, y] = yol(Math.min(1, t)); g.tekne.setAttribute("transform", "translate(" + x + " " + y + ") rotate(" + (Math.cos((x + 30) / 60) * -12) + ")"); }
+        oyna.replaceChildren(T.icon(d.running ? "pause" : "play"), d.running ? "Durdur" : left <= 0 ? "Yeniden" : "Başlat");
+      }
+      const iv = setInterval(boya, 300); api.onDestroy(() => clearInterval(iv)); boya();
+    },
+  };
 })();
 
 /* ---- bes-dakika.js ---- */
@@ -15865,7 +15913,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
      Araçlar ve Dersler düğmeleri aşağıdan yükselen, gruplu bir panel açar; her şey tek bakışta görünür, kaydırma gerekmez.
      Şeritte son kullanılan dört şey hızlı erişim için durur. */
   const ARAC_GRUP = [
-    ["Zaman", ["timer", "stopwatch", "clock", "takvim", "!besDakika|5 dakika kaldı|stopwatch"]],
+    ["Zaman", ["timer", "dogazaman", "stopwatch", "clock", "takvim", "!besDakika|5 dakika kaldı|stopwatch"]],
     ["Seçim ve gruplar", ["name", "dice", "groups", "sozagi"]],
     ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "yavasbakis", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],

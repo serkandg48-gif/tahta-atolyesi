@@ -58,7 +58,7 @@
     const summary = `${c.name} yoklama, ${T.longDate(d)}\nGelen: ${counts.var + counts.gec} / ${c.students.length}\nGelmeyen: ${absent.join(", ") || "yok"}\nGeç kalan: ${late.join(", ") || "yok"}\nİzinli: ${izin.join(", ") || "yok"}`;
     area.append(
       h("div.row", { style: { marginBottom: "18px", gap: "12px" } },
-        h("input.in", { type: "date", value: dateSel, style: { width: "auto" }, "aria-label": "Tarih", onchange: (e) => { dateSel = e.target.value || T.isoDate(); T.route(); } }),
+        h("label.tarih-sec", T.icon("calendar"), dateSel.split("-").reverse().join("."), h("input", { type: "date", value: dateSel, "aria-label": "Tarih", onchange: (e) => { dateSel = e.target.value || T.isoDate(); T.route(); }, onclick: (e) => { try { e.target.showPicker(); } catch (x) {} } })),
         h("div.legend", ORDER.map((k) => h("span.pill." + DUR[k].pill, DUR[k].label + ": " + counts[k]))),
         h("div.spacer"),
         h("button.btn.c-leaf", { onclick: () => { T.store.update(() => c.students.forEach((st) => (day[st.id] = "var"))); T.route(); } }, T.icon("check"), "Herkes geldi"),
@@ -69,7 +69,15 @@
   }
 
   /* ---------- Davranış puanı ---------- */
+  /* Tahtada gizlilik: puanlar ilk açılışta perdeli gelir, öğretmen bir dokunuşla açar */
+  let puanAcik = false;
+  addEventListener("hashchange", () => { if (!/^#sinif/.test(location.hash)) puanAcik = false; });
   function puan(area, s, c) {
+    if (!puanAcik) {
+      area.append(h("div.puan-perde", T.icon3d("susss"), h("b", "Puanlar şu an gizli"), h("p", "Tahtada bütün sınıfın puanlarının görünmemesi için perdeli açılır."),
+        h("button.btn.big.c-sun", { onclick: () => { puanAcik = true; T.route(); } }, T.icon("eye"), "Puanları göster")));
+      return;
+    }
     const pts = (s.points[c.id] = s.points[c.id] || {});
     const total = c.students.reduce((a, st) => a + (pts[st.id] || 0), 0);
     const goal = s.settings.classGoal || 100;

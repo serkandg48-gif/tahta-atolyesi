@@ -176,7 +176,15 @@
     if (!anaMi) view.append(h("div.pencere-ust", T.YARDIM[id] ? h("button.pencere-yardim", { onclick: () => T.yardimAc(id), "aria-label": "Bu sayfa ne işe yarar?", title: "Bu sayfa ne işe yarar?" }, "?") : null, h("button.pencere-kapat", { onclick: () => T.go("ana"), "aria-label": "Ana sayfaya dön", title: "Ana sayfaya dön" }, T.icon("close"), h("span", "Ana sayfaya dön"))));
     const cidNow = T.store.get().activeClassId;
     if (T._yuzenCid !== cidNow) { T._yuzenCid = cidNow; const y = T.$("#yuzen"); y.replaceChildren(); T.yuzen.render(y); }
-    T.muzikDurum = () => { topbar(); T.calarCiz && T.calarCiz(); const d = T.$(".dock-ana[data-tur=ortam]"); if (d) dock((location.hash.slice(1).split("-")[0]) || "ana"); };
+    /* Şarkı değişince menüyü yeniden kurma: açık panel kapanmasın, yalnızca Ortam düğmesinin dalgası güncellensin */
+    T.muzikDurum = () => {
+      T.calarCiz && T.calarCiz();
+      const d = T.$(".dock-ana[data-tur=ortam]"); if (!d) return;
+      const cal = !!(T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())));
+      d.classList.toggle("caliyor", cal);
+      const dalga = d.querySelector(".dock-dalga");
+      if (cal && !dalga) d.prepend(h("i.mc-dalga.dock-dalga", h("i"), h("i"), h("i"))); else if (!cal && dalga) dalga.remove();
+    };
     view.scrollTop = 0;
     view.style.overflow = sec.full ? "hidden" : "auto";
     try { sec.render(view, sub); }

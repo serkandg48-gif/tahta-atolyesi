@@ -31,7 +31,7 @@
     const puan = h("div.dn-puan"), turEl = h("div.dn-tur"), soru = h("div.dn-soru"), balon = h("div.dn-balon");
     const sahne = h("div.dn-sahne"), alt = h("div.dn-alt");
     const kok = h("div.dn-kok", { style: { "--dn": o.renk || "#2F7FE0", "--dn2": o.renk2 || "#BFE3FF" } },
-      h("div.dn-ust", turEl, h("b.dn-baslik", o.baslik), puan),
+      h("div.dn-ust", turEl, h("b.dn-baslik", o.baslik), puan, h("button.dn-tam", { "aria-label": "Tam ekran", title: "Tam ekran", onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : kok.requestFullscreen(); } catch (e) {} } }, T.icon("full"))),
       h("div.dn-gov", h("div.dn-rehber", baykus(), balon), h("div.dn-ana", soru, sahne, alt)));
     host.append(kok);
     if (o.arka) kok.style.backgroundImage = o.arka;
@@ -39,7 +39,7 @@
     let bz = 0;
     const konus = (t, tip = "") => { balon.textContent = t; balon.className = "dn-balon acik " + tip; clearTimeout(bz); if (tip) bz = setTimeout(() => (balon.className = "dn-balon acik"), 2200); };
     const api = {
-      sahne, alt, soru: (t) => (soru.textContent = t), konus,
+      sahne, alt, soru: (t) => (soru.textContent = t ? t.charAt(0).toLocaleUpperCase("tr") + t.slice(1) : ""), konus,
       dogru(msg) { if (ilk) dogru++; yaz(); konus(msg || ["Harika!", "Süpersin!", "Tam isabet!", "Bravo!"][rnd(0, 3)], "iyi"); T.sound && T.sound.ok && T.sound.ok(); kok.classList.add("zipla"); setTimeout(() => kok.classList.remove("zipla"), 600); setTimeout(api.sonraki, 1500); },
       yanlis(msg) { ilk = false; konus(msg || ["Tekrar dene!", "Bir daha bak!"][rnd(0, 1)], "uyari"); T.sound && T.sound.no && T.sound.no(); sahne.classList.add("salla"); setTimeout(() => sahne.classList.remove("salla"), 450); },
       sonraki() {
@@ -54,7 +54,7 @@
         let deger = "";
         const ekran = h("div.dn-ekran", "?");
         const bas = (t) => { if (t === "⌫") deger = deger.slice(0, -1); else if (t === "Tamam") { if (!deger) return; if (dogruMu(+deger)) { ekran.classList.add("iyi"); api.dogru(opt.iyi); } else { api.yanlis(opt.ipucu); deger = ""; } } else if (deger.length < 5) deger += t; ekran.textContent = deger || "?"; };
-        alt.replaceChildren(h("div.dn-tus-kap", ekran, h("div.dn-tuslar", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "Tamam"].map((t) => h("button" + (t === "Tamam" ? ".tamam" : ""), { onclick: () => bas(t) }, t))), opt.yardim || null));
+        alt.replaceChildren(h("div.dn-tus-kap", ekran, h("div.dn-tuslar", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "Tamam"].map((t) => h("button" + (t === "Tamam" ? ".tamam" : ""), { onclick: () => bas(t), "aria-label": t === "⌫" ? "Sil" : t }, t === "Tamam" ? "✓" : t))), opt.yardim || null));
       },
     };
     function bitir() {
@@ -99,7 +99,7 @@
       a.secenek(farkli(yuv, yuv + 20, yuv - 20 > 0 ? yuv - 20 : yuv + 40, yuv + 50).sort((x, y) => x - y).map((x) => "≈ " + x + " TL"), (x) => x === "≈ " + yuv + " TL", { ipucu: "Fiyatları en yakın onluğa yuvarla, sonra topla!", iyi: "Evet! Gerçek tutar " + top + " TL, tahminin çok yakın." });
     } });
   /* MAT.3.2.2: Market kasası: üstünü ver */
-  oyun("MAT.3.2.2.", { ad: "Market kasası: para üstü", ikon: "kasa", renk: "#E0692F", renk2: "#FFE2CC", giris: "Müşteriye para üstünü ver!",
+  oyun("MAT.3.2.2.", { ad: "Market kasası: para üstü", ikon: "money", renk: "#E0692F", renk2: "#FFE2CC", giris: "Müşteriye para üstünü ver!",
     yeni(a, t) {
       const u = URUN[rnd(0, URUN.length - 1)], f = rnd(12, 480), ver = f < 100 ? 100 : f < 200 ? 200 : 500, toplamaMi = t % 3 === 2;
       if (toplamaMi) {
@@ -128,8 +128,13 @@
       a.soru(n + " kurabiyeyi " + tabak + " tabağa eşit paylaştır. Kurabiyeleri tabaklara sürükle.");
       const kutu = h("div.dn-kavanoz"), tabaklar = Array.from({ length: tabak }, (_, i) => h("div.dn-tabak", { "data-hedef": i }, h("i.dn-tabak-say", "0")));
       a.sahne.append(h("div.dn-mutfak", kutu, h("div.dn-tabaklar", tabaklar)));
-      for (let i = 0; i < n; i++) { const kb = kurabiye(); kutu.append(kb); surukle(kb, { birak: (hd) => { if (!hd) return; const j = +hd.dataset.hedef; dolu[j]++; hd.insertBefore(kb, hd.lastChild); hd.lastChild.textContent = dolu[j]; T.sound && T.sound.pop && T.sound.pop(); if (!kutu.children.length) kontrolEt(); } }); }
-      a.alt.append(h("div.dn-ipucu", "Hepsini paylaştırınca her tabakta kaç kurabiye olduğunu yaz."));
+      const koy = (kb, hd) => { const j = +hd.dataset.hedef; dolu[j]++; hd.insertBefore(kb, hd.lastChild); hd.lastChild.textContent = dolu[j]; kb.classList.remove("secili"); T.sound && T.sound.pop && T.sound.pop(); if (!kutu.children.length) kontrolEt(); };
+      let secili = null;
+      for (let i = 0; i < n; i++) { const kb = kurabiye(); kutu.append(kb); surukle(kb, { birak: (hd) => { if (hd && kb.parentNode === kutu) koy(kb, hd); else if (!hd && kb.parentNode === kutu) { if (secili) secili.classList.remove("secili"); secili = kb; kb.classList.add("secili"); } } }); }
+      /* sürüklemek zor gelirse: kurabiyeye dokun, sonra tabağa dokun */
+      tabaklar.forEach((tb) => tb.addEventListener("click", () => { if (secili && secili.parentNode === kutu) { koy(secili, tb); secili = null; } }));
+      a.alt.append(h("div.dn-ipucu", "Kurabiyeyi tabağa sürükle ya da önce kurabiyeye, sonra tabağa dokun."),
+        h("button.btn.c-chalk", { onclick: () => { let j = 0; const t = setInterval(() => { const kb = kutu.firstChild; if (!kb) return clearInterval(t); koy(kb, tabaklar[j++ % tabak]); }, 180); } }, T.icon("next"), "Birer birer dağıt"));
       const kontrolEt = () => { if (dolu.every((x) => x === her)) { a.soru(n + " ÷ " + tabak + " = ?  Her tabakta kaç kurabiye var?"); a.tuslar((x) => x === her, { ipucu: "Bir tabaktaki kurabiyeleri say!" }); } else { a.yanlis("Tabaklar eşit değil! Yeniden dene."); setTimeout(() => { a.sahne.replaceChildren(); a.alt.replaceChildren(); OY["MAT.3.2.4."].yeni(a); }, 1400); } };
     } });
   /* MAT.3.2.5: Sayı makinesi (yönerge) */

@@ -3,7 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tahta Atölyesi</title>
+<title>Tahta Atölyesi: ilkokul öğretmenleri için ücretsiz akıllı tahta araçları</title>
+<meta name="description" content="Zamanlayıcı, isim çekme, yoklama, matematik oyunları, ilk okuma yazma ve sosyal duygusal öğrenme araçları. Akıllı tahtada tek dokunuşla, ücretsiz.">
+<meta property="og:title" content="Tahta Atölyesi">
+<meta property="og:description" content="İlkokul öğretmenleri için ücretsiz akıllı tahta araçları ve sınıf oyunları.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="ikon3d/teacher.webp">
+<meta name="theme-color" content="#1B2A4A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,6 +18,7 @@
 </style>
 </head>
 <body>
+<div id="yukleniyor" style="position:fixed;inset:0;display:grid;place-items:center;background:#EEF3FA;z-index:99999;font:700 20px system-ui,sans-serif;color:#1B2A4A"><div style="display:grid;justify-items:center;gap:14px"><div style="width:54px;height:54px;border-radius:50%;border:6px solid #C9D3EA;border-top-color:#1B2A4A;animation:yk 1s linear infinite"></div>Tahta Atölyesi açılıyor...</div><style>@keyframes yk{to{transform:rotate(360deg)}}</style></div>
 <div id="tuval" aria-hidden="true"></div>
 <div id="app">
   <header id="topbar" class="topbar"></header>
@@ -24,5 +31,6 @@
 <script>
 /*__JS__*/
 </script>
+<script>document.getElementById("yukleniyor")&&document.getElementById("yukleniyor").remove();</script>
 </body>
 </html>

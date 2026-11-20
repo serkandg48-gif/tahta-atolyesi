@@ -152,7 +152,7 @@
   ];
 
   /* ---------- Kartlar ---------- */
-  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Günün sorusu"], ["akis", "Okul günü şeridi"], ["pin", "Kısayollarım"], ["not", "Hızlı not"], ["muzik", "Müzik"]];
+  const KARTLAR = [["ozet", "Günün özeti"], ["kivilcim", "Günün sorusu"], ["akis", "Okul günü şeridi"], ["pin", "Kısayollarım"], ["not", "Hızlı not"]];
   const gizli = () => ayar().gizli || {};
   function ozetKart() {
     const s = T.store.get(), c = T.store.activeClass(), n = T.cal.dayNumber(), st = T.cal.status();
@@ -169,7 +169,7 @@
       st.kind === "okul" ? h("div.kp-gun", h("b", n), h("span", "Okulun " + n + ". günü", h("small", T.longDate()))) : h("div.kp-gun", h("span", st.text, h("small", T.longDate()))),
       st.kind === "okul" ? tally : null,
       h("div.kp-satirlar",
-        h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Al")),
+        h("button.kp-satir", { onclick: () => T.go("sinif") }, T.icon("check"), "Yoklama", h("b", taken ? came + " / " + c.students.length : "Başla")),
         T.dogumGunuOlanlar(c).length ? h("button.kp-satir.dogum", { onclick: () => T.go("sabah"), title: "Doğum günü" }, h("span", "🎂"), "Doğum günü", h("b", T.dogumGunuOlanlar(c).map((x) => x.name.split(" ")[0]).join(", "))) : null,
         h("button.kp-satir", { onclick: () => T.gorevliPenceresi(c), title: "Görevlileri gör ve düzenle" }, T.icon("trophy"), "Görevliler", gv.length ? h("span.kp-yuzler", gv.slice(0, 4).map(([, st]) => T.avatar(st.name, 26))) : h("b", "Ekle")),
         (() => { const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava; const ad = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null; return h("button.kp-satir", { onclick: () => T.go("sabah-gunaydin") }, hv && T.havaSvg ? T.havaSvg(hv) : T.icon("sun"), "Hava", h("b", ad || "Seç")); })(),
@@ -190,13 +190,22 @@
         h("button.btn.sm.c-chalk", { onclick: () => { const inp = h("input.in", { placeholder: "Bugünün sorusu", value: ozel || "" }); T.modal({ title: "Kendi sorun", body: inp, actions: [{ label: "Vazgeç" }, { label: "Kaydet", tone: "c-leaf", onClick: () => { const v = inp.value.trim(); ayarYaz((x) => { x.ozelKivilcim = x.ozelKivilcim || {}; x.ozelKivilcim[cid()] = v; x.kivilcimI = v ? -1 : 0; }); T.route(); } }] }); } }, T.icon("edit"), "Kendi sorum")));
   }
   /* Okul günü şeridi: ana sayfanın omurgası. Şimdi hangi ders, zile kaç dakika, sırada ne var. */
+  /* Saatin okunuşuna göre bulunma eki: 08:40 → kırk → 'ta, 09:00 → dokuz → 'da, 10:15 → beş → 'te */
+  const BIR = ["", "de", "de", "te", "te", "te", "da", "de", "de", "da"], ON = ["", "da", "de", "da", "ta", "de", "ta"];
+  T.saatEki = function (saat) {
+    const [sa, dk] = String(saat).split(":").map(Number), n = dk ? dk : sa % 24;
+    if (!n) return "'da";
+    return "'" + (n % 10 ? BIR[n % 10] : ON[Math.floor(n / 10)] || "de");
+  };
   function gunDurumu() {
+    const st = T.cal.status();
+    if (st.kind !== "okul") return { rows: [], metin: st.text || "Bugün okul yok", alt: "İyi dinlenmeler", oran: 0, tatil: true };
     const rows = T.gunAkisi ? T.gunAkisi() : [], dk = T.akisDk, d = new Date(), m = d.getHours() * 60 + d.getMinutes();
     if (!rows.length) return { rows, metin: "Bugün ders yok", alt: "İyi dinlenmeler", oran: 0 };
     const su = rows.find((r) => dk(r.b) <= m && m < dk(r.s)), ilk = rows[0], son = rows[rows.length - 1];
     if (su) { const kalan = dk(su.s) - m, oran = (m - dk(su.b)) / Math.max(1, dk(su.s) - dk(su.b)); const sonra = rows[rows.indexOf(su) + 1];
       return { rows, su, metin: su.ad, alt: (su.tur === "ders" ? "Zile " : "Bitmesine ") + kalan + " dakika" + (sonra ? " · Sırada " + sonra.ad : ""), oran, ders: su.tur === "ders" }; }
-    if (m < dk(ilk.b)) return { rows, metin: "Günaydın", alt: "İlk ders " + ilk.ad + ", " + ilk.b + "'te başlıyor", oran: 0 };
+    if (m < dk(ilk.b)) return { rows, metin: "Günaydın", alt: "İlk ders " + ilk.ad + ", " + ilk.b + T.saatEki(ilk.b) + " başlıyor", oran: 0 };
     if (m >= dk(son.s)) return { rows, metin: "Dersler bitti", alt: "Yarın görüşmek üzere", oran: 1 };
     const sonraki = rows.find((r) => dk(r.b) > m); return { rows, metin: "Ara", alt: sonraki ? sonraki.ad + " " + (dk(sonraki.b) - m) + " dakika sonra" : "", oran: 0 };
   }
@@ -206,9 +215,9 @@
       const g = gunDurumu(), dk = T.akisDk, m = new Date().getHours() * 60 + new Date().getMinutes();
       const kalanDers = g.rows.filter((r) => r.tur === "ders" && dk(r.s) > m).length;
       box.replaceChildren(
-        h("div.gs-simdi", h("small", g.su ? "Şimdi" : "Okul günü"), h("b", g.metin), h("span", g.alt), h("div.gs-bar", h("i", { style: { width: Math.round(g.oran * 100) + "%" } }))),
+        h("div.gs-simdi", h("small", g.tatil ? "Bugün" : g.su ? "Şimdi" : "Okul günü"), h("b", g.metin), h("span", g.alt), h("div.gs-bar", h("i", { style: { width: Math.round(g.oran * 100) + "%" } }))),
         kucuk ? null : h("div.gs-zaman",
-          h("div.gs-ust", h("span", g.rows.length ? (kalanDers ? "Eve " + kalanDers + " ders kaldı" : "") : "Ders programını Sabah rutininden yaz"), h("button.kp-mini", { onclick: () => T.go("sabah-akis"), "aria-label": "Ders programını düzenle", title: "Ders programını düzenle" }, T.icon("edit"))),
+          h("div.gs-ust", h("span", g.tatil ? "Okul açılınca ders akışı burada görünür" : g.rows.length ? (kalanDers ? "Eve " + kalanDers + " ders kaldı" : "") : "Ders programını Sabah rutininden yaz"), h("button.kp-mini", { onclick: () => T.go("sabah-akis"), "aria-label": "Ders programını düzenle", title: "Ders programını düzenle" }, T.icon("edit"))),
           g.rows.length ? h("div.kp-serit", g.rows.map((r) => { const su = dk(r.b) <= m && m < dk(r.s), gecti = dk(r.s) <= m; return h("div.kp-slot." + r.tur + (su ? ".su" : gecti ? ".gecti" : ""), h("small", r.b), h("b", r.ad)); })) : null));
       const su = box.querySelector(".kp-slot.su"); if (su) su.scrollIntoView({ block: "nearest", inline: "center" });
     };
@@ -391,18 +400,31 @@
   };
   /* Küçük çalar: müzik çalarken ekranda durur, tutamağından sürüklenip istenen yere taşınır (yeri saklanır). */
   const calarYer = () => { try { return JSON.parse(localStorage.getItem("ta-calar-yer") || "null"); } catch (e) { return null; } };
+  /* Çalar: ana sayfada açık; başka sayfalarda yalnızca küçük yuvarlak düğme (öğelerin üstüne binmesin) */
+  let calarAcikZorla = false, calarHash = "";
+  const sinirla = (el) => { const r = el.getBoundingClientRect(); if (!r.width) return; const x = Math.max(4, Math.min(innerWidth - r.width - 4, r.left)), y = Math.max(4, Math.min(innerHeight - r.height - 4, r.top)); if (el.style.left) Object.assign(el.style, { left: x + "px", top: y + "px" }); };
+  addEventListener("resize", () => { const el = document.getElementById("muzik-calar"); if (el) sinirla(el); });
+  addEventListener("hashchange", () => { calarAcikZorla = false; T.calarCiz && T.calarCiz(); });
   T.calarCiz = function () {
     let el = document.getElementById("muzik-calar");
     if (!Muzik.aktif()) { if (el) el.remove(); return; }
     if (!el) {
       el = h("div#muzik-calar"); document.body.append(el);
-      const y = calarYer(); if (y) Object.assign(el.style, { left: Math.min(innerWidth - 120, y[0]) + "px", top: Math.min(innerHeight - 60, y[1]) + "px", right: "auto", bottom: "auto" });
+      const y = calarYer(); if (y) Object.assign(el.style, { left: y[0] + "px", top: y[1] + "px", right: "auto", bottom: "auto" });
+    }
+    const anaMi = !location.hash || /^#(ana)?$/.test(location.hash);
+    let kucuk; try { kucuk = localStorage.getItem("ta-calar-kucuk") === "1"; } catch (e) { kucuk = false; }
+    if (!anaMi && !calarAcikZorla) kucuk = true;
+    el.classList.toggle("kucuk", kucuk);
+    if (kucuk) {
+      el.replaceChildren(h("button.mc-yuvarlak", { "aria-label": "Müzik çalıyor, çaları aç", title: Muzik.parcaAdi() || "Müzik", onclick: () => { calarAcikZorla = true; try { localStorage.setItem("ta-calar-kucuk", "0"); } catch (e) {} T.calarCiz(); } }, h("i.mc-dalga", h("i"), h("i"), h("i"))));
+      requestAnimationFrame(() => sinirla(el)); return;
     }
     const tut = h("span.mc-tut", { title: "Sürükleyip taşı", "aria-hidden": "true" }, h("i"), h("i"), h("i"), h("i"), h("i"), h("i"));
     tut.addEventListener("pointerdown", (e) => {
       const b = el.getBoundingClientRect(), dx = e.clientX - b.left, dy = e.clientY - b.top; tut.setPointerCapture(e.pointerId); el.classList.add("tasiniyor");
       const tasi = (ev) => { const x = Math.max(4, Math.min(innerWidth - b.width - 4, ev.clientX - dx)), y = Math.max(4, Math.min(innerHeight - b.height - 4, ev.clientY - dy)); Object.assign(el.style, { left: x + "px", top: y + "px", right: "auto", bottom: "auto" }); };
-      const bit = () => { el.classList.remove("tasiniyor"); tut.removeEventListener("pointermove", tasi); tut.removeEventListener("pointerup", bit); try { const r = el.getBoundingClientRect(); localStorage.setItem("ta-calar-yer", JSON.stringify([r.left, r.top])); } catch (er) {} };
+      const bit = () => { el.classList.remove("tasiniyor"); tut.removeEventListener("pointermove", tasi); tut.removeEventListener("pointerup", bit); try { const r = el.getBoundingClientRect(); localStorage.setItem("ta-calar-yer", JSON.stringify([Math.round(r.left), Math.round(r.top)])); } catch (er) {} };
       tut.addEventListener("pointermove", tasi); tut.addEventListener("pointerup", bit);
     });
     const ad = h("button.mc-ad", { title: "Parça listesi" }, h("i.mc-dalga", h("i"), h("i"), h("i")), h("span.kp-parca", Muzik.parcaAdi() || "Müzik çalıyor"), T.icon("up"));
@@ -410,7 +432,9 @@
     el.replaceChildren(tut, ad,
       h("button.mc-b", { "aria-label": "Önceki parça", onclick: () => Muzik.onceki() }, T.icon("back")),
       h("button.mc-b.dur", { "aria-label": "Müziği durdur", onclick: () => Muzik.birak() }, T.icon("pause")),
-      h("button.mc-b", { "aria-label": "Sonraki parça", onclick: () => Muzik.sonraki() }, T.icon("next")));
+      h("button.mc-b", { "aria-label": "Sonraki parça", onclick: () => Muzik.sonraki() }, T.icon("next")),
+      h("button.mc-b.kucult", { "aria-label": "Çaları küçült", title: "Küçült", onclick: () => { calarAcikZorla = false; try { localStorage.setItem("ta-calar-kucuk", "1"); } catch (e) {} T.calarCiz(); } }, T.icon("down")));
+    requestAnimationFrame(() => sinirla(el));
   };
   T.ambiyans = {
     aktif: () => !!ambId,

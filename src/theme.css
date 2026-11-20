@@ -1610,7 +1610,7 @@ html:not(.kokpitte) .dock { top: calc(var(--top-h) + 6px); }
 .amb-ayrac { width: 1px; height: 22px; background: rgba(255,255,255,.25); margin: 0 4px; }
 /* Ses Kasabası */
 .ks-sahne { position: relative; border-radius: 22px; overflow: hidden; background: linear-gradient(#BFE6FA, #E8F7FF); box-shadow: 0 10px 30px rgba(20,40,70,.18); }
-.ks-kap { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: calc(100vh - 190px); touch-action: none; }
+.ks-kap { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: calc(100vh - 300px); touch-action: none; }
 .ks-kap canvas { cursor: grab; }
 .ks-ust { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; align-items: center; gap: 10px; z-index: 3; pointer-events: none; }
 .ks-ust > * { pointer-events: auto; }
@@ -2416,3 +2416,28 @@ body:has(.dn-kok) #muzik-calar { visibility: hidden; }
 .dn-ust { padding: 8px 14px; } .dn-soru { padding: 8px 14px; }
 .dn-dug { padding: 10px 18px; }
 .dn-cisim { position: relative; } .dn-cisim canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+#muzik-calar.kucuk { left: auto !important; top: auto !important; right: 14px; bottom: 98px; padding: 4px; }
+.mc-yuvarlak { width: 46px; height: 46px; border-radius: 50%; border: 0; background: transparent; color: #fff; display: grid; place-items: center; cursor: pointer; }
+.mc-yuvarlak .mc-dalga { transform: scale(1.3); }
+#muzik-calar .mc-b.kucult { opacity: .8; }
+.dn-tuslar .tamam { font-size: 30px; }
+/* telefonda: dock bütün düğmeleri gösterir (kaydırılır), üst düğmeler yalnız ikon */
+@media (max-width: 760px) {
+  html.alt-menu .dock, html.alt-menu[data-kademe] .dock { left: 6px !important; right: 6px !important; transform: none; max-width: none; overflow-x: auto; overflow-y: hidden; justify-content: flex-start; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  html.alt-menu .dock::-webkit-scrollbar { display: none; }
+  html.alt-menu .dock .dock-item, html.alt-menu .dock-ana { min-width: 62px; height: 58px; padding: 4px 6px; font-size: 11px; }
+  html.alt-menu .dock .dock-item .ikon3d, html.alt-menu .dock-ana .ikon3d { width: 28px; height: 28px; }
+  html.alt-menu .dock .dock-sep, html.alt-menu .dock .dock-kucult { display: none; }
+  .kp-kontrol { flex-wrap: wrap; justify-content: flex-end; max-width: 100%; gap: 6px; }
+  .kp-kontrol .kp-dugme { font-size: 0; gap: 0; padding: 9px; } .kp-kontrol .kp-dugme svg { width: 20px; height: 20px; }
+}
+@media (max-width: 760px) { .kp-kontrol .kp-dugme:not(:has(svg)) { font-size: 16px; padding: 9px 13px; } }
+.tarih-sec { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 12px; background: #fff; border: 1px solid var(--line); font: 800 16px var(--display); color: var(--ink); cursor: pointer; }
+.tarih-sec svg { width: 18px; height: 18px; }
+.tarih-sec input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; border: 0; }
+.puan-perde { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 50px 20px; border-radius: 24px; background: rgba(255,255,255,.92); box-shadow: 0 10px 28px rgba(10,20,40,.14); }
+.puan-perde .ikon3d { width: 84px; height: 84px; } .puan-perde b { font: 800 26px var(--display); } .puan-perde p { margin: 0; color: var(--ink-soft); }
+.dn-tam { width: 40px; height: 40px; border-radius: 12px; border: 3px solid var(--cz); background: #fff; color: var(--cz); display: grid; place-items: center; cursor: pointer; }
+.dn-tam svg { width: 20px; height: 20px; }
+.dn-kok:fullscreen { height: 100vh; border-radius: 0; border: 0; }
+.dn-kurabiye.secili { outline: 5px solid #FFD23F; outline-offset: 2px; transform: scale(1.1); }

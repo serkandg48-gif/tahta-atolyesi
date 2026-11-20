@@ -42,10 +42,10 @@
             const g = T.gorunum();
             const bolumler = T.menu();
             const kartAd = (r) => { const k = r.slice(r.indexOf("-") + 1); return (T.tools[k] || {}).title || r; };
-            return h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Görünüm"),
+            return h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Menüde görünenler"),
               h("div.seg", [["sade", "Sade: her gün kullanılanlar"], ["tam", "Tüm araçlar"]].map(([v, l]) => h("button", { "aria-pressed": String(g.mod === v), onclick: () => { T.gorunumYaz((x) => (x.mod = v)); T.route(); } }, l))),
               h("p.hint", { style: { margin: 0 } }, "Sade görünümde çantada yalnızca her gün gereken araçlar ve dersler durur. Çantanın altındaki Tümünü göster ile de geçebilirsin."),
-              h("div", h("b", "Çantada görünen bölümler"), h("div.gz-bolumler", bolumler.map((m) => h("label.row", { style: { gap: "8px", cursor: "pointer" } },
+              h("div", h("b", "Menüde görünen bölümler"), h("div.gz-bolumler", bolumler.map((m) => h("label.row", { style: { gap: "8px", cursor: "pointer" } },
                 h("input", { type: "checkbox", checked: !g.bolum.includes(m[0]) ? true : null, onchange: (e) => { T.gorunumYaz((x) => { x.bolum = x.bolum.filter((b) => b !== m[0]); if (!e.target.checked) x.bolum.push(m[0]); }); T.route(); } }),
                 h("span", m[1]), g.mod === "sade" && T.SADE_GIZLI.includes(m[0]) ? h("small.hint", "sade görünümde gizli") : null)))),
               g.kart.length ? h("div", h("b", "Gizlediğin kartlar"), h("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" } }, g.kart.map((r) => h("button.btn.sm.c-chalk", { onclick: () => { T.gorunumYaz((x) => (x.kart = x.kart.filter((y) => y !== r))); T.route(); } }, T.icon("eye"), kartAd(r)))),
@@ -54,7 +54,7 @@
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Ben ve okulum"),
             field("Adım", inp("teacher", "Örnek: Ayşe Öğretmen"), "Ana sayfadaki selamlamada kullanılır."),
             field("Okulum", inp("school", "Örnek: Cumhuriyet İlkokulu")),
-            field("Görünüm", kademe, "Sınıfa göre seçilirse 1-4. sınıflarda renkli, 5-8. sınıflarda sade görünüm açılır.")),
+            field("Yaş grubu teması", kademe, "Sınıfa göre seçilirse 1-4. sınıflarda renkli, 5-8. sınıflarda sade görünüm açılır.")),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Hesabım ve yapay zekâ"),
             T.ai.statusEl(),
             (() => { const b = h("div.row"); const draw = () => b.replaceChildren(T.auth.user() ? h("button.btn.c-chalk", { onclick: () => T.auth.signOut() }, "Çıkış yap") : null); draw(); const off = T.auth.on(() => { if (!b.isConnected) return off(); draw(); }); return b; })(),

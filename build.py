@@ -89,14 +89,26 @@ def main():
     js = "\n".join(parts)
     import hashlib
     surum = hashlib.sha1((css + js).encode("utf-8")).hexdigest()[:10]
-    out = html.replace("/*__CSS__*/", css).replace("/*__JS__*/", 'window.SURUM="' + surum + '";\n' + js)
-    (ROOT / "dist").mkdir(exist_ok=True)
-    (ROOT / "dist" / "index.html").write_text(out, encoding="utf-8")
+    dist = ROOT / "dist"
+    dist.mkdir(exist_ok=True)
+    # CSS ve JS sürüm adlı ayrı dosyalara yazılır: tarayıcı önbelleğe alır, yalnızca değişince yeniden indirir.
+    for eski in list(dist.glob("app.*.js")) + list(dist.glob("app.*.css")):
+        eski.unlink()
+    (dist / f"app.{surum}.css").write_text(css, encoding="utf-8")
+    (dist / f"app.{surum}.js").write_text('window.SURUM="' + surum + '";\n' + js, encoding="utf-8")
+    out = (html.replace("<style>\n/*__CSS__*/\n</style>", f'<link rel="stylesheet" href="app.{surum}.css">')
+               .replace("<script>\n/*__JS__*/\n</script>", f'<script src="app.{surum}.js"></script>'))
+    assert "/*__" not in out, "index.html yer tutucuları bulunamadı"
+    (dist / "index.html").write_text(out, encoding="utf-8")
     # Ayrı statik sayfalar (gizlilik politikası vb.) olduğu gibi kopyalanır.
     for extra in ("gizlilik.html", "vitrin.html"):
         (ROOT / "dist" / extra).write_text((SRC / extra).read_text(encoding="utf-8"), encoding="utf-8")
     # Üçüncü taraf kütüphaneler (pdf.js) kendi sitemizden sunulur; okul ağları CDN'leri engelleyebiliyor.
     import shutil
+    # Kaynakta silinen dosyalar dist içinde kalmasın: kopyalanan klasörler önce temizlenir.
+    for d in ("vendor", "ikon3d", "kitaplar", "muzik", "ambiyans", "arka"):
+        if (SRC / d).exists() and (dist / d).exists():
+            shutil.rmtree(dist / d)
     if (SRC / "vendor").exists():
         shutil.copytree(SRC / "vendor", ROOT / "dist" / "vendor", dirs_exist_ok=True)
     if (SRC / "ikon3d").exists():
@@ -112,7 +124,7 @@ def main():
         shutil.copytree(SRC / "ambiyans", ROOT / "dist" / "ambiyans", dirs_exist_ok=True)
     if (SRC / "arka").exists():
         shutil.copytree(SRC / "arka", ROOT / "dist" / "arka", dirs_exist_ok=True)
-    print(f"dist/index.html {len(out)//1024} KB")
+    print(f"dist/index.html {len(out)//1024} KB, app.{surum}.js {len(js)//1024} KB")
 
 
 if __name__ == "__main__":

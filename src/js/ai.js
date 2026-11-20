@@ -156,7 +156,7 @@ T.ai = (function () {
       if (m === "site") return box.replaceChildren(T.icon("spark"),
         T.h("span", "Yapay zekâ hazır. ", u.name ? u.name + " olarak giriş yaptın. " : "", q ? "Bugün kalan hakkın: " + q.left + " / " + q.limit + "." : ""));
       if (T.auth.available()) return box.replaceChildren(T.icon("spark"), T.h("span", "Yapay zekâyı kullanmak için Google ile giriş yap. Anahtar ya da şifre gerekmez."), T.auth.button());
-      box.replaceChildren(T.icon("spark"), T.h("span", "Yapay zekâ şu an kullanılamıyor. İnternetin açık olduğundan emin ol. Bu arada örnekleri inceleyebilirsin."));
+      box.replaceChildren(T.icon("spark"), T.h("span", navigator.onLine === false ? "İnternet bağlantısı yok. Bağlanınca yeniden dene. Bu arada örnekleri inceleyebilirsin." : "Yapay zekâ sunucusu şu an yanıt vermiyor. Biraz sonra yeniden dene. Bu arada örnekleri inceleyebilirsin."));
     };
     draw();
     const off = T.auth.on(() => { if (!box.isConnected) return off(); draw(); });

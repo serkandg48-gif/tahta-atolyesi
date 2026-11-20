@@ -3122,3 +3122,16 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .sa-ozet[hidden] { display: none; }
 .sa-ozet p { margin: 0; line-height: 1.5; }
 .sa-ozet .btn { justify-self: start; }
+
+/* Yavaş bakış */
+.yb-soru { text-align: center; font: 800 1.5rem var(--display); color: #1B2A4A; }
+.yb-sahne { min-height: 0; height: 100%; display: grid; place-items: center; overflow: hidden; container-type: size; }
+.yb-cerceve { --r: 1.5; position: relative; width: min(100cqw, 100cqh * var(--r)); aspect-ratio: var(--r); display: grid; }
+.yb-cerceve img { width: 100%; height: 100%; object-fit: cover; display: block; grid-area: 1 / 1; border-radius: 12px; min-height: 0; }
+.yb-izgara { grid-area: 1 / 1; display: grid; gap: 0; border-radius: 12px; overflow: hidden; }
+.yb-parca { border: 0; border-radius: 0; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); background: #2c3e63; color: rgba(255,255,255,.55); font: 700 1.2rem var(--body); cursor: pointer; transition: background .35s, opacity .35s; }
+.yb-parca:hover { background: #36507f; }
+.yb-parca.acik { background: transparent; opacity: 1; }
+.yb-parca.acik:hover { outline: 2px dashed rgba(255,255,255,.6); }
+.yb-bos { display: grid; justify-items: center; gap: 10px; max-width: 420px; text-align: center; color: #556; }
+.yb-bos .ikon3d, .yb-bos img { width: 84px; height: 84px; }

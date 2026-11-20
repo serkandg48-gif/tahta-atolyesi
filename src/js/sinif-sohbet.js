@@ -58,4 +58,43 @@
       ciz();
     },
   };
+
+  /* ---------- Yavaş bakış: görsel parça parça açılır, her parçada gör, düşün, merak et ---------- */
+  const SORU = ["Ne görüyorsun?", "Bu sana ne düşündürüyor?", "Neyi merak ediyorsun?", "Neden öyle düşünüyorsun?", "Yeni parça fikrini değiştirdi mi?"];
+  W.yavasbakis = {
+    title: "Yavaş bakış", icon: "eye", tone: "sky", w: 760, h: 560, desc: "Görsel parça parça açılır; gör, düşün, merak et",
+    init: () => ({ n: 3, acik: [], gorsel: null }),
+    render(body, w, api) {
+      const d = w.data; d.acik = d.acik || [];
+      body.style.gridTemplateRows = "auto 1fr auto"; body.style.gap = "8px";
+      const soru = h("div.yb-soru"), sahne = h("div.yb-sahne"), alt = h("div.row", { style: { gap: "6px", justifyContent: "center" } });
+      body.append(soru, sahne, alt);
+      const dosya = h("input", { type: "file", accept: "image/*", hidden: true, onchange: async (e) => {
+        const f = e.target.files[0]; if (!f) return;
+        const b = T.gorselKucult ? await T.gorselKucult(f, 1600) : f; const k = "yb-" + w.id;
+        if (!(await T.gorselDepo.put(k, b))) return T.toast("Görsel kaydedilemedi");
+        d.gorsel = k; d.acik = []; api.save(); ciz();
+      } });
+      async function ciz() {
+        const toplam = d.n * d.n, acik = d.acik.length;
+        soru.textContent = !d.gorsel ? "Bir görsel seç: sanat eseri, doğa fotoğrafı, eski bir belge" : acik === 0 ? "Hazır mıyız? İlk parçayı açalım." : acik >= toplam ? "Bütün resim önünde. İlk tahminin neydi?" : SORU[(acik - 1) % SORU.length];
+        alt.replaceChildren(
+          h("label.btn.sm.c-chalk", { style: { cursor: "pointer" } }, T.icon("frame"), d.gorsel ? "Başka görsel" : "Görsel seç", dosya),
+          d.gorsel ? h("div.seg", [3, 4, 5].map((n) => h("button", { "aria-pressed": String(d.n === n), onclick: () => { d.n = n; d.acik = []; api.save(); ciz(); } }, n + "×" + n))) : null,
+          d.gorsel ? h("button.btn.sm.c-sky", { disabled: acik >= toplam ? true : null, onclick: () => { const kapali = [...Array(toplam).keys()].filter((i) => !d.acik.includes(i)); if (!kapali.length) return; d.acik.push(kapali[T.rand(0, kapali.length - 1)]); api.save(); ciz(); } }, T.icon("dice"), "Rastgele aç") : null,
+          d.gorsel ? h("button.btn.sm.c-chalk", { onclick: () => { d.acik = acik >= toplam ? [] : [...Array(toplam).keys()]; api.save(); ciz(); } }, acik >= toplam ? "Yeniden kapat" : "Hepsini aç") : null);
+        if (!d.gorsel) { sahne.replaceChildren(h("div.yb-bos", T.icon3d("buyutec"), h("p", "Öğrenciler önce küçük bir ayrıntıya bakar, gördüklerini ve tahminlerini paylaşır. Sen parçaları tek tek açarsın."))); return; }
+        const b = await T.gorselDepo.get(d.gorsel); if (!b) { d.gorsel = null; api.save(); return ciz(); }
+        if (sahne._url) URL.revokeObjectURL(sahne._url); sahne._url = URL.createObjectURL(b);
+        const img = h("img", { src: sahne._url, alt: "Yavaş bakış görseli" });
+        const izgara = h("div.yb-izgara", { style: { gridTemplateColumns: "repeat(" + d.n + ", 1fr)", gridTemplateRows: "repeat(" + d.n + ", 1fr)" } },
+          [...Array(toplam).keys()].map((i) => h("button.yb-parca" + (d.acik.includes(i) ? ".acik" : ""), { "aria-label": (i + 1) + ". parça", onclick: () => { if (!d.acik.includes(i)) { d.acik.push(i); T.sound.pop && T.sound.pop(); } else d.acik = d.acik.filter((x) => x !== i); api.save(); ciz(); } }, d.acik.includes(i) ? null : h("span", i + 1))));
+        const cer = h("div.yb-cerceve", img, izgara);
+        img.onload = () => cer.style.setProperty("--r", (img.naturalWidth / img.naturalHeight).toFixed(4));
+        sahne.replaceChildren(cer);
+      }
+      ciz();
+      api.onDestroy && api.onDestroy(() => { if (sahne._url) URL.revokeObjectURL(sahne._url); });
+    },
+  };
 })();

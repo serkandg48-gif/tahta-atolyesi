@@ -660,7 +660,7 @@
     async get(k) { try { const db = await this.open(); return await new Promise((res) => { const t = db.transaction("f").objectStore("f").get(k); t.onsuccess = () => res(t.result); t.onerror = () => res(null); }); } catch (e) { return null; } },
     async del(k) { try { const db = await this.open(); db.transaction("f", "readwrite").objectStore("f").delete(k); } catch (e) {} },
   };
-  T.gorselDepo = idb;
+  T.gorselDepo = idb; T.gorselKucult = (f, m) => kucult(f, m);
   async function kucult(file, max = 1100) {
     const url = URL.createObjectURL(file);
     try {

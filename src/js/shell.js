@@ -72,7 +72,7 @@
     ["Zaman", ["timer", "stopwatch", "clock", "takvim"]],
     ["Seçim ve gruplar", ["name", "dice", "groups", "sozagi"]],
     ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
-    ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
+    ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "yavasbakis", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];
   const sonlar = () => { try { return JSON.parse(localStorage.getItem("ta-son") || "[]"); } catch (e) { return []; } };
   const sonEkle = (x) => { try { const l = sonlar().filter((y) => y.k !== x.k); l.unshift(x); localStorage.setItem("ta-son", JSON.stringify(l.slice(0, 8))); } catch (e) {} };

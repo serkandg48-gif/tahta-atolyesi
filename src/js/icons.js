@@ -124,6 +124,7 @@ T.ICONS = {
   grid: '<rect x="8" y="8" width="32" height="32" rx="3"/><path d="M8 19h32M8 29h32M19 8v32M29 8v32"/>',
   leaf: '<path class="f" d="M40 8C20 8 8 18 8 32c0 4 1 6 2 8 14 0 30-6 30-32z"/><path d="M40 8C20 8 8 18 8 32c0 4 1 6 2 8 14 0 30-6 30-32zM10 40C18 30 26 22 34 15"/>',
   pin: '<path class="f" d="M16 6h16l-3 12 7 7H12l7-7z"/><path d="M16 6h16l-3 12 7 7H12l7-7zM24 25v17"/>',
+  search: '<circle class="f" cx="21" cy="21" r="12"/><circle cx="21" cy="21" r="12"/><path d="M30 30l11 11"/>',
   bolt: '<path class="f" d="M27 4 9 27h13l-3 17 20-25H26z"/><path d="M27 4 9 27h13l-3 17 20-25H26z"/>',
 };
 T.icon = function (name, cls = "") {

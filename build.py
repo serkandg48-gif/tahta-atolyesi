@@ -76,6 +76,7 @@ JS_ORDER = [
     "yardim.js",
     "shell.js",
     "ikon-duzen.js",
+    "komut.js",
 ]
 
 

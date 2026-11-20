@@ -2759,3 +2759,22 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .kk-geri { border: 0; border-radius: 999px; padding: 6px 12px; background: #E9A23B; color: #fff; font: inherit; font-weight: 800; cursor: pointer; white-space: nowrap; animation: zil-gir .5s; }
 .kaldigin { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 8px 16px; background: #fff4d6; color: #7a5410; font: inherit; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .kaldigin .ic { width: 18px; height: 18px; } .kaldigin small { color: #a07a30; }
+
+/* Sesli okuma kaydedici */
+.sk { display: grid; gap: 14px; }
+.sk-kayit-kart { background: #fff; border-radius: 22px; padding: 18px 22px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+.sk-sol { display: grid; gap: 8px; } .sk-alan { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sk-sag { display: grid; justify-items: center; gap: 6px; }
+.sk-kayit { width: 110px; height: 110px; border-radius: 50%; border: 8px solid #ffd9d3; background: #fff; cursor: pointer; display: grid; place-items: center; }
+.sk-kayit i { width: 56px; height: 56px; border-radius: 50%; background: #E4553F; transition: .2s; }
+.sk-kayit.acik { animation: sk-nabiz 1.2s ease-in-out infinite; } .sk-kayit.acik i { border-radius: 10px; width: 40px; height: 40px; }
+@keyframes sk-nabiz { 50% { box-shadow: 0 0 0 14px rgba(228,85,63,.18); } }
+.sk-durum { font-weight: 800; font-variant-numeric: tabular-nums; }
+.sk-liste { display: grid; gap: 12px; }
+.sk-grup { background: rgba(255,255,255,.9); border-radius: 20px; padding: 14px 16px; display: grid; gap: 8px; }
+.sk-grup h3 { display: flex; gap: 10px; align-items: baseline; } .sk-grup h3 small { color: #889; font-weight: 600; }
+.sk-kiyas { background: #fff4d6; border-radius: 14px; padding: 10px 12px; display: grid; gap: 6px; }
+.sk-iki { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .sk-iki audio { width: 100%; }
+.sk-kayit-satir { display: grid; grid-template-columns: 1fr minmax(220px, 360px) auto; gap: 10px; align-items: center; }
+.sk-kayit-satir small { display: block; color: #889; } .sk-kayit-satir audio { width: 100%; height: 40px; }
+@media (max-width: 800px) { .sk-kayit-satir, .sk-iki, .sk-alan { grid-template-columns: 1fr; } }

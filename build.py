@@ -59,6 +59,7 @@ JS_ORDER = [
     "subjects.js",
     "turkce2.js",
     "prompter.js",
+    "kaydedici.js",
     "tiyatro.js",
     "tiyatro3d.js",
     "karakter3d.js",

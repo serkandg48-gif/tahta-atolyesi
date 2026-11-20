@@ -83,10 +83,13 @@
   }
 
   /* ---------- çizgi film nesneleri ---------- */
-  const URUN = [["elma", "🍎"], ["süt", "🥛"], ["ekmek", "🍞"], ["peynir", "🧀"], ["muz", "🍌"], ["kalem", "✏️"], ["defter", "📒"], ["top", "⚽"], ["oyuncak ayı", "🧸"], ["çorap", "🧦"]];
-  const etiket = (ad, fiyat) => h("div.dn-urun", h("span.dn-emoji", ad[1]), h("b", fiyat + " TL"), h("small", ad[0]));
-  const kurabiye = () => h("div.dn-kurabiye", h("i"), h("i"), h("i"));
-  const fide = (bos) => h("div.dn-fide" + (bos ? ".bos" : ""), bos ? "" : "🌱");
+  /* 3B nesne resimleri (Fluent 3B emoji) */
+  const e3 = (ad, cls = "") => h("img.dn-3b" + cls, { src: "/oyun3d/" + ad + ".webp", alt: "", draggable: false });
+  T.e3 = e3;
+  const URUN = [["elma", "elma"], ["süt", "sut"], ["ekmek", "ekmek"], ["peynir", "peynir"], ["muz", "muz"], ["kalem", "kalem"], ["defter", "defter"], ["top", "top"], ["oyuncak ayı", "ayi"], ["çorap", "corap"], ["üzüm", "uzum"], ["çilek", "cilek"], ["havuç", "havuc"]];
+  const etiket = (ad, fiyat) => h("div.dn-urun", e3(ad[1], ".dn-emoji"), h("b", fiyat + " TL"), h("small", ad[0]));
+  const kurabiye = () => h("div.dn-kurabiye", e3("kurabiye"));
+  const fide = (bos) => h("div.dn-fide" + (bos ? ".bos" : ""), bos ? "" : e3("fide"));
   const SEKIL = { 3: ["Üçgen", "M50 8 L92 86 L8 86Z"], 4: ["Dörtgen", "M14 14 H86 V86 H14Z"], 5: ["Beşgen", "M50 6 L94 38 L77 90 L23 90 L6 38Z"], 6: ["Altıgen", "M28 8 H72 L94 50 L72 92 H28 L6 50Z"] };
   const sekilSvg = (n, renk, don = 0, olc = 1) => { const yamuk = n === 4 && Math.random() < 0.5 ? "M8 80 L30 18 H74 L92 80Z" : null; return svgKok(100, 100, sv("path", { d: yamuk || SEKIL[n][1], fill: renk, stroke: L, "stroke-width": 5, "stroke-linejoin": "round", transform: `rotate(${don} 50 50) scale(${olc}) translate(${(1 - olc) * 50 / olc} ${(1 - olc) * 50 / olc})` })); };
 
@@ -148,19 +151,19 @@
         if (op[0] === "÷" && x % 2) { op[0] = "+"; op[1] = rnd(2, 9); } if (op[0] === "-" && x - op[1] < 0) op[0] = "+"; if (op[0] === "×" && x * op[1] > 200) op[0] = "+";
         x = op[0] === "+" ? x + op[1] : op[0] === "-" ? x - op[1] : op[0] === "×" ? x * op[1] : x / op[1]; adim.push(op); }
       a.soru("Makineye " + bas + " giriyor. Çıkan sayı kaç?");
-      a.sahne.append(h("div.dn-makine", h("div.dn-giren", bas), adim.map((op, i) => h("div.dn-cark", { style: { "--i": i } }, h("b", op[0] + " " + op[1]))), h("div.dn-cikan", "?")));
+      a.sahne.append(h("div.dn-makine", e3("robot", ".dn-robot"), h("div.dn-giren", bas), adim.map((op, i) => h("div.dn-cark", { style: { "--i": i } }, e3("disli", ".dn-disli"), h("b", op[0] + " " + op[1]))), h("div.dn-cikan", "?")));
       a.tuslar((y) => y === x, { ipucu: "Her dişliyi sırayla uygula!" });
     } });
   /* MAT.3.2.6: Problem çiftliği (günlük yaşam) */
   const PROBLEM = [
-    () => { const a = rnd(3, 9), b = rnd(4, 9); return ["Çiftlikte " + a + " kümes var. Her kümeste " + b + " tavuk var. Toplam kaç tavuk var?", a * b, "🐔", a * b]; },
-    () => { const a = rnd(120, 400), b = rnd(30, 110); return ["Ahırda " + a + " kg saman vardı. İneklere " + b + " kg verildi. Kaç kg saman kaldı?", a - b, "🌾", 8]; },
-    () => { const k = rnd(2, 6), h2 = rnd(3, 8); return [k * h2 + " yumurta " + k + " koliye eşit konacak. Her koliye kaç yumurta konur?", h2, "🥚", k * h2]; },
-    () => { const a = rnd(15, 60), b = rnd(15, 60); return ["Sabah " + a + " litre, akşam " + b + " litre süt sağıldı. Toplam kaç litre süt sağıldı?", a + b, "🥛", 6]; },
-    () => { const a = rnd(3, 8), f = rnd(4, 12); return ["Bir torba yem " + f + " lira. Çiftçi " + a + " torba aldı. Kaç lira ödedi?", a * f, "💰", a]; },
+    () => { const a = rnd(3, 9), b = rnd(4, 9); return ["Çiftlikte " + a + " kümes var. Her kümeste " + b + " tavuk var. Toplam kaç tavuk var?", a * b, "tavuk", a * b, "tavuk"]; },
+    () => { const a = rnd(120, 400), b = rnd(30, 110); return ["Ahırda " + a + " kg saman vardı. İneklere " + b + " kg verildi. Kaç kg saman kaldı?", a - b, "saman", 8, "inek"]; },
+    () => { const k = rnd(2, 6), h2 = rnd(3, 8); return [k * h2 + " yumurta " + k + " koliye eşit konacak. Her koliye kaç yumurta konur?", h2, "yumurta", k * h2, "koli"]; },
+    () => { const a = rnd(15, 60), b = rnd(15, 60); return ["Sabah " + a + " litre, akşam " + b + " litre süt sağıldı. Toplam kaç litre süt sağıldı?", a + b, "sut", 6, "inek"]; },
+    () => { const a = rnd(3, 8), f = rnd(4, 12); return ["Bir torba yem " + f + " lira. Çiftçi " + a + " torba aldı. Kaç lira ödedi?", a * f, "sepet", a, "tavuk"]; },
   ];
   oyun("MAT.3.2.6.", { ad: "Çiftlik problemleri", ikon: "inek", renk: "#3B8E2E", renk2: "#E3F3D5", giris: "Önce problemi oku: Ne verilmiş, ne isteniyor?",
-    yeni(a) { const [t, c, em, adet] = PROBLEM[rnd(0, PROBLEM.length - 1)](); a.soru(t); a.sahne.append(h("div.dn-ciftlik", h("div.dn-ahir"), h("div.dn-hayvanlar", Array.from({ length: Math.min(adet, 24) }, () => h("span", em))))); a.tuslar((x) => x === c, { ipucu: "Hangi işlem gerekiyor? Toplama mı, çıkarma mı, çarpma mı, bölme mi?" }); } });
+    yeni(a) { const [t, c, em, adet, kahraman] = PROBLEM[rnd(0, PROBLEM.length - 1)](); a.soru(t); a.sahne.append(h("div.dn-ciftlik", e3(kahraman, ".dn-kahraman"), h("div.dn-hayvanlar", Array.from({ length: Math.min(adet, 24) }, () => e3(em))))); a.tuslar((x) => x === c, { ipucu: "Hangi işlem gerekiyor? Toplama mı, çıkarma mı, çarpma mı, bölme mi?" }); } });
   /* MAT.3.2.7: Problem kurucu */
   oyun("MAT.3.2.7.", { ad: "Problem kurucu", ikon: "kalem", renk: "#2F7FE0", renk2: "#DCEBFF", giris: "Hangi hikâye bu işleme uyar?",
     yeni(a) {
@@ -248,7 +251,8 @@
       for (let i = 0; i <= w + 2; i++) svg.append(sv("line", { x1: i * u, y1: 0, x2: i * u, y2: H, stroke: "#DDE3EE", "stroke-width": 2 }));
       for (let j = 0; j <= hh + 2; j++) svg.append(sv("line", { x1: 0, y1: j * u, x2: W, y2: j * u, stroke: "#DDE3EE", "stroke-width": 2 }));
       svg.append(sv("rect", { x: u, y: u, width: w * u, height: hh * u, fill: "#FFD9A8", stroke: L, "stroke-width": 5, rx: 4 }));
-      const kar = yazi(u, u, "🐜", 34); svg.append(kar);
+      const karImg = sv("image", { href: "/oyun3d/karinca.webp", width: 46, height: 46, x: u - 23, y: u - 23 }); svg.append(karImg);
+      const kar = { setAttribute: (k, v) => karImg.setAttribute(k, v - 23) };
       a.sahne.append(h("div.dn-izgara", svg));
       const yuru = () => { const yol = [[u, u], [u + w * u, u], [u + w * u, u + hh * u], [u, u + hh * u], [u, u]]; let t = 0; const top = cevre * 140; const bas = performance.now(); const ad = () => { t = Math.min(1, (performance.now() - bas) / top); let d = t * cevre * u, i = 0; while (i < 4) { const L2 = Math.hypot(yol[i + 1][0] - yol[i][0], yol[i + 1][1] - yol[i][1]); if (d <= L2) break; d -= L2; i++; } i = Math.min(i, 3); const L2 = Math.hypot(yol[i + 1][0] - yol[i][0], yol[i + 1][1] - yol[i][1]) || 1, k = d / L2; kar.setAttribute("x", yol[i][0] + (yol[i + 1][0] - yol[i][0]) * k); kar.setAttribute("y", yol[i][1] + (yol[i + 1][1] - yol[i][1]) * k); if (t < 1) requestAnimationFrame(ad); }; ad(); };
       const sec = farkli(cevre, w * hh, cevre + 4, cevre - 4 > 2 ? cevre - 4 : cevre + 8, w + hh);
@@ -260,7 +264,7 @@
       const bardak = rnd(2, 8), ml = bardak * 250, litreSor = t % 2 === 1 && ml % 1000 === 0;
       a.soru(litreSor ? "Bu sürahi kaç litre limonata alır?" : "Bu sürahiye kaç mililitre limonata sığar? (1 bardak = 250 ml)");
       const sur = h("div.dn-surahi", { style: { "--d": 0 } }, h("i.dn-sivi")), bar = h("div.dn-bardaklar", Array.from({ length: bardak }, () => h("div.dn-bardak", h("i"))));
-      a.sahne.append(h("div.dn-stand", sur, bar));
+      a.sahne.append(h("div.dn-stand", h("div.dn-limonlar", e3("limon"), e3("limon"), e3("limon")), sur, bar));
       setTimeout(() => { sur.style.setProperty("--d", 1); [...bar.children].forEach((b, i) => setTimeout(() => b.classList.add("dolu"), 300 + i * 220)); }, 200);
       if (litreSor) a.secenek(farkli(ml / 1000, ml / 1000 + 1, ml / 1000 + 2, 10).map((x) => x + " L"), (x) => x === ml / 1000 + " L", { ipucu: "4 bardak 1 litre eder!" });
       else a.secenek(farkli(ml, ml + 250, ml - 250 || 1000, bardak * 100).map((x) => x + " ml"), (x) => x === ml + " ml", { ipucu: "Bardakları say, her biri 250 ml!" });

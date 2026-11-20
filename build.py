@@ -129,6 +129,10 @@ def main():
         shutil.copytree(SRC / "vendor", ROOT / "dist" / "vendor", dirs_exist_ok=True)
     if (SRC / "ikon3d").exists():
         shutil.copytree(SRC / "ikon3d", ROOT / "dist" / "ikon3d", dirs_exist_ok=True)
+    if (dist / "oyun3d").exists():
+        shutil.rmtree(dist / "oyun3d")
+    if (SRC / "oyun3d").exists():
+        shutil.copytree(SRC / "oyun3d", ROOT / "dist" / "oyun3d", dirs_exist_ok=True)
     if (SRC / "orman").exists():
         shutil.copytree(SRC / "orman", ROOT / "dist" / "orman", dirs_exist_ok=True)
     if (SRC / "kitaplar").exists():

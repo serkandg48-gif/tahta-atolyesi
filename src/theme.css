@@ -2794,3 +2794,18 @@ html.ogrenci-boyu #view { transform: scale(.7); transform-origin: 50% 100%; tran
 html.ogrenci-boyu #topbar { opacity: .4; }
 #boy-dug { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 8600; border: 0; border-radius: 999px; padding: 10px 20px; background: #1B2A4A; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
 .sh-sil.pay { right: 36px; }
+
+/* Cep kumandası */
+.km { display: grid; gap: 10px; justify-items: center; text-align: center; max-width: 520px; }
+.km-qr { background: #fff; padding: 12px; border-radius: 16px; min-width: 264px; min-height: 264px; display: grid; place-items: center; }
+.km-durum { margin: 0; font-weight: 800; color: #3B83C4; }
+#kumanda-gosterge { position: fixed; left: 16px; bottom: 100px; z-index: 8300; display: flex; align-items: center; gap: 6px; background: rgba(27,42,74,.9); color: #fff; border-radius: 999px; padding: 6px 6px 6px 14px; font-weight: 700; font-size: .9rem; }
+#kumanda-gosterge button { border: 0; border-radius: 999px; background: rgba(255,255,255,.15); color: #fff; font: inherit; padding: 4px 10px; cursor: pointer; }
+#kumanda-foto { position: fixed; inset: 0; z-index: 8800; background: #1b2233; display: grid; grid-template-rows: auto 1fr; }
+.kf-ust { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; color: #fff; }
+#kumanda-foto .kk-kap { min-height: 0; height: 100%; }
+.kf-cer { width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+.kf-cer img { max-width: 100%; max-height: 100%; object-fit: contain; }
+/* kalem katmanı ile kazanım kontrol aynı sınıf adını paylaşıyordu: kalem katmanını ayır */
+.kk-kap:has(> .kk-cv) { max-width: none; gap: 0; justify-items: stretch; margin: 0; }
+.kk-kap > .kf-cer { grid-area: 1 / 1; min-height: 0; }

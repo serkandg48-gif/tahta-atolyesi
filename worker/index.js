@@ -199,7 +199,43 @@ async function geminiModel(env, model, prompt, images, json) {
   return { text };
 }
 
+/* ---------- Cep kumandası: tahta ile telefon arasında kısa ömürlü WebSocket köprüsü ----------
+   Oda adı tahtanın ürettiği 22 karakterlik rastgele anahtardır (QR'ın içinde). Hiçbir mesaj, fotoğraf ya da kayıt saklanmaz.
+   Oda 3 saat sonra kendiliğinden kapanır. */
+export class Eslesme extends DurableObject {
+  async fetch(request) {
+    const url = new URL(request.url), rol = url.searchParams.get("rol") === "tahta" ? "tahta" : "telefon";
+    if (request.headers.get("Upgrade") !== "websocket") return new Response("websocket gerekli", { status: 426 });
+    const pair = new WebSocketPair();
+    const eski = this.ctx.getWebSockets(rol);
+    if (rol === "tahta") eski.forEach((w) => { try { w.close(4000, "yeni tahta"); } catch (e) {} });
+    if (rol === "telefon" && eski.length >= 3) return new Response("dolu", { status: 429 });
+    if (rol === "telefon" && !this.ctx.getWebSockets("tahta").length) return new Response("tahta yok", { status: 404 });
+    this.ctx.acceptWebSocket(pair[1], [rol]);
+    if (!(await this.ctx.storage.getAlarm())) await this.ctx.storage.setAlarm(Date.now() + 3 * 3600e3);
+    const bildir = (r, m) => this.ctx.getWebSockets(r).forEach((w) => { try { w.send(m); } catch (e) {} });
+    if (rol === "telefon") bildir("tahta", JSON.stringify({ t: "baglandi", n: this.ctx.getWebSockets("telefon").length }));
+    return new Response(null, { status: 101, webSocket: pair[0] });
+  }
+  webSocketMessage(ws, msg) {
+    if (typeof msg === "string" && msg.length > 1500000) return;
+    const rol = this.ctx.getTags(ws)[0], hedef = rol === "tahta" ? "telefon" : "tahta";
+    this.ctx.getWebSockets(hedef).forEach((w) => { try { w.send(msg); } catch (e) {} });
+  }
+  webSocketClose(ws) {
+    const rol = this.ctx.getTags(ws)[0];
+    if (rol === "telefon") this.ctx.getWebSockets("tahta").forEach((w) => { try { w.send(JSON.stringify({ t: "ayrildi", n: Math.max(0, this.ctx.getWebSockets("telefon").length - 1) })); } catch (e) {} });
+    if (rol === "tahta") this.ctx.getWebSockets("telefon").forEach((w) => { try { w.close(4001, "tahta kapandı"); } catch (e) {} });
+  }
+  async alarm() { this.ctx.getWebSockets().forEach((w) => { try { w.close(4002, "süre doldu"); } catch (e) {} }); await this.ctx.storage.deleteAll(); }
+}
+
 async function api(request, env, path) {
+  if (path === "/api/kumanda" && env.ESLESME) {
+    const oda = new URL(request.url).searchParams.get("oda") || "";
+    if (!/^[A-Za-z0-9_-]{22}$/.test(oda)) return err("oda", "Geçersiz bağlantı.", 400);
+    return env.ESLESME.get(env.ESLESME.idFromName(oda)).fetch(request);
+  }
   const clientId = env.GOOGLE_CLIENT_ID || "";
   const ready = Boolean(clientId && env.GEMINI_API_KEY);
 

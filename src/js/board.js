@@ -125,7 +125,7 @@ function TahtaYap(MOD) {
       T.h("button", { title: "Kapat", "aria-label": "Aracı kapat", onclick: () => removeW(w.id) }, T.icon("close")));
     head.querySelector("svg").style.cssText = "width:22px;height:22px";
     const rz = T.h("div.wd-resize", { "aria-hidden": "true" });
-    const el = T.h("section.wd.c-" + (def.tone || "sun"), { "data-w": w.id, "aria-label": def.title, style: { left: w.x + "px", top: w.y + "px", width: w.w + "px", height: w.h + "px" } }, head, body, rz);
+    const el = T.h("section.wd.c-" + (def.tone || "sun"), { "data-w": w.id, "data-type": w.type, "aria-label": def.title, style: { left: w.x + "px", top: w.y + "px", width: w.w + "px", height: w.h + "px" } }, head, body, rz);
     root.append(el);
     const front = () => { T.$$(".wd.front", root).forEach((x) => x.classList.remove("front")); el.classList.add("front"); };
     el.addEventListener("pointerdown", front);

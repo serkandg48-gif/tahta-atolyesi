@@ -88,6 +88,7 @@ JS_ORDER = [
     "komut.js",
     "tasi.js",
     "ekran-sahne.js",
+    "kumanda.js",
 ]
 
 
@@ -113,7 +114,7 @@ def main():
     assert "/*__" not in out, "index.html yer tutucuları bulunamadı"
     (dist / "index.html").write_text(out, encoding="utf-8")
     # Ayrı statik sayfalar (gizlilik politikası vb.) olduğu gibi kopyalanır.
-    for extra in ("gizlilik.html", "vitrin.html"):
+    for extra in ("gizlilik.html", "vitrin.html", "kumanda.html"):
         (ROOT / "dist" / extra).write_text((SRC / extra).read_text(encoding="utf-8"), encoding="utf-8")
     # Üçüncü taraf kütüphaneler (pdf.js) kendi sitemizden sunulur; okul ağları CDN'leri engelleyebiliyor.
     import shutil

@@ -1,4 +1,4 @@
-window.SURUM="d2e7896c0e";
+window.SURUM="4c83d403d4";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -7986,6 +7986,73 @@ T.yuzen = TahtaYap("ana");
         oyna.replaceChildren(T.icon(d.running ? "pause" : "play"), d.running ? "Durdur" : left <= 0 ? "Yeniden" : "Başlat");
       }
       const iv = setInterval(boya, 300); api.onDestroy(() => clearInterval(iv)); boya();
+    },
+  };
+
+  /* ---------- Sessiz orman: sınıf sakin çalıştıkça orman canlanır, ses yükselince canlılar sessizce ürküp uzaklaşır ---------- */
+  W.orman = {
+    title: "Sessiz orman", icon: "tree", tone: "leaf", w: 640, h: 480, desc: "Sakin çalıştıkça kuşlar ve kelebekler gelir",
+    init: () => ({ limit: 55, gece: false }),
+    render(body, w, api) {
+      const d = w.data;
+      body.style.gridTemplateRows = "1fr auto"; body.style.gap = "8px";
+      const cv = h("canvas.or-cv"), yazi = h("div.or-yazi", "Mikrofonu açınca orman dinlemeye başlar");
+      const startBtn = h("button.btn.sm.c-leaf", { onclick: basla }, T.icon("noise"), "Ormanı uyandır");
+      const slider = h("input", { type: "range", min: 20, max: 90, value: d.limit, "aria-label": "Ses sınırı", oninput: (e) => { d.limit = +e.target.value; api.save(); } });
+      body.append(h("div.or-kap", cv, yazi), h("div.row", { style: { gap: "8px" } }, startBtn,
+        h("label.f", { style: { flex: 1 } }, h("span", "Hassasiyet"), slider),
+        h("button.btn.sm.c-chalk", { onclick: () => { d.gece = !d.gece; api.save(); } }, T.icon(d.gece ? "sun" : "moon"), "Gece/gündüz")));
+      const x = cv.getContext("2d"); let W_ = 0, H_ = 0;
+      const boyut = () => { const r = cv.getBoundingClientRect(), dp = Math.min(2, devicePixelRatio || 1); W_ = r.width; H_ = r.height; cv.width = W_ * dp; cv.height = H_ * dp; x.setTransform(dp, 0, 0, dp, 0, 0); };
+      const ro = new ResizeObserver(boyut); ro.observe(cv);
+      /* canlılar: tür, konum, hedef, kaçış */
+      const canli = []; let sakin = 0, gurultu = 0, seviye = 0, dinliyor = false, stream = null, ctx = null, an = null, buf = null, raf = 0, son = performance.now();
+      const agaclar = Array.from({ length: 9 }, (_, i) => ({ x: i / 8, h: 0.45 + ((i * 53) % 30) / 100, k: (i * 37) % 3 }));
+      const yeni = () => { const tur = d.gece ? "bocek" : T.pick(["kus", "kus", "kelebek", "kelebek", "tavsan"]); const sol = Math.random() < 0.5;
+        const c = { tur, x: sol ? -0.1 : 1.1, y: tur === "tavsan" ? 0.86 : 0.2 + Math.random() * 0.45, hx: 0.08 + Math.random() * 0.84, hy: 0, t: Math.random() * 6, renk: T.pick(["#F2A93B", "#E86A92", "#7CB7E8", "#B48BE0", "#F7D046"]), kac: 0 };
+        c.hy = c.tur === "tavsan" ? 0.86 : c.tur === "kus" ? 0.18 + Math.random() * 0.3 : 0.3 + Math.random() * 0.4; canli.push(c); };
+      function ciz(z) {
+        const dt = Math.min(0.1, (z - son) / 1000); son = z;
+        if (dinliyor && an) { an.getByteTimeDomainData(buf); let s = 0; for (const v of buf) s += (v - 128) ** 2; seviye = T.clamp(Math.sqrt(s / buf.length) * 2.4, 0, 100); }
+        const yuksek = dinliyor && seviye > d.limit;
+        if (dinliyor) { if (yuksek) { gurultu += dt; sakin = 0; } else { sakin += dt; gurultu = Math.max(0, gurultu - dt * 2); } }
+        const hedefSay = Math.min(22, Math.floor(sakin / 6) + (dinliyor ? 1 : 0));
+        if (dinliyor && !yuksek && canli.filter((c) => !c.kac).length < hedefSay) yeni();
+        if (gurultu > 0.7) { canli.filter((c) => !c.kac).slice(0, 2).forEach((c) => (c.kac = 1)); gurultu = 0.3; }
+        yazi.textContent = !dinliyor ? yazi.textContent : yuksek ? "Şşş… canlılar ürküyor" : canli.length ? canli.filter((c) => !c.kac).length + " canlı ormanımızda" : "Sessizce bekleyelim, birileri geliyor";
+        /* gökyüzü */
+        const g = x.createLinearGradient(0, 0, 0, H_);
+        if (d.gece) { g.addColorStop(0, "#0f1d3a"); g.addColorStop(1, "#2a3f5f"); } else { g.addColorStop(0, "#9fd4f2"); g.addColorStop(1, "#e3f4e8"); }
+        x.fillStyle = g; x.fillRect(0, 0, W_, H_);
+        if (d.gece) { x.fillStyle = "#f6f0c9"; x.beginPath(); x.arc(W_ * 0.82, H_ * 0.18, H_ * 0.07, 0, 7); x.fill(); }
+        /* ağaçlar */
+        agaclar.forEach((a) => { const ax = a.x * W_, taban = H_ * 0.9, boy = H_ * a.h; x.fillStyle = d.gece ? "#1d3328" : ["#3f7d4f", "#2f6a43", "#4b8c58"][a.k];
+          x.beginPath(); x.moveTo(ax, taban - boy); x.lineTo(ax - boy * 0.28, taban); x.lineTo(ax + boy * 0.28, taban); x.fill();
+          x.fillStyle = d.gece ? "#152519" : "#6b4a2f"; x.fillRect(ax - 4, taban - 6, 8, 10); });
+        x.fillStyle = d.gece ? "#1a2b20" : "#7fbf6a"; x.fillRect(0, H_ * 0.9, W_, H_ * 0.1);
+        /* canlılar */
+        for (let i = canli.length - 1; i >= 0; i--) { const c = canli[i]; c.t += dt;
+          if (c.kac) { c.kac += dt; c.x += (c.x < 0.5 ? -1 : 1) * dt * 0.6; c.y -= c.tur === "tavsan" ? 0 : dt * 0.35; if (c.x < -0.2 || c.x > 1.2) { canli.splice(i, 1); continue; } }
+          else { c.x += (c.hx - c.x) * dt * 0.5; c.y += (c.hy - c.y) * dt * 0.5; if (Math.abs(c.hx - c.x) < 0.02 && Math.random() < 0.004) c.hx = 0.08 + Math.random() * 0.84; }
+          const px = c.x * W_, py = c.y * H_ + (c.tur === "tavsan" ? 0 : Math.sin(c.t * 2.2) * 6); const yon = c.hx > c.x ? 1 : -1;
+          x.save(); x.translate(px, py); x.scale(yon, 1);
+          if (c.tur === "kus") { const k = Math.sin(c.t * 10) * 7; x.strokeStyle = "#2b3a4a"; x.lineWidth = 3; x.lineCap = "round"; x.beginPath(); x.moveTo(-12, -k); x.quadraticCurveTo(-6, -4, 0, 0); x.quadraticCurveTo(6, -4, 12, -k); x.stroke(); }
+          else if (c.tur === "kelebek") { const k = 0.4 + Math.abs(Math.sin(c.t * 9)) * 0.6; x.fillStyle = c.renk; x.beginPath(); x.ellipse(-6 * k, -3, 7 * k, 9, -0.4, 0, 7); x.ellipse(6 * k, -3, 7 * k, 9, 0.4, 0, 7); x.fill(); x.fillStyle = "#3a2c22"; x.fillRect(-1.2, -9, 2.4, 14); }
+          else if (c.tur === "tavsan") { x.fillStyle = "#d9c7b0"; x.beginPath(); x.ellipse(0, -10, 13, 10, 0, 0, 7); x.ellipse(11, -18, 7, 6, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(10, -30, 2.6, 9, -0.2, 0, 7); x.ellipse(14, -29, 2.6, 9, 0.2, 0, 7); x.fill(); x.fillStyle = "#fff"; x.beginPath(); x.arc(-12, -10, 4, 0, 7); x.fill(); }
+          else { const p = 0.5 + Math.sin(c.t * 3) * 0.5; x.fillStyle = "rgba(250,240,140," + (0.35 + p * 0.65) + ")"; x.shadowColor = "#fff6a0"; x.shadowBlur = 14; x.beginPath(); x.arc(0, 0, 4, 0, 7); x.fill(); }
+          x.restore(); }
+        /* ses çubuğu: ince ve sakin */
+        if (dinliyor) { x.fillStyle = "rgba(255,255,255,.55)"; x.fillRect(12, H_ - 14, (W_ - 24), 6); x.fillStyle = yuksek ? "#E58A5A" : "#5FB37A"; x.fillRect(12, H_ - 14, (W_ - 24) * seviye / 100, 6); x.fillStyle = "rgba(0,0,0,.35)"; x.fillRect(12 + (W_ - 24) * d.limit / 100 - 1, H_ - 18, 2, 14); }
+        raf = requestAnimationFrame(ciz);
+      }
+      async function basla() {
+        if (T.muzik && T.muzik.aktif && T.muzik.aktif()) { T.muzik.birak(); T.toast("Orman hoparlörü duymasın diye müzik durduruldu"); }
+        try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); ctx = new (window.AudioContext || window.webkitAudioContext)(); an = ctx.createAnalyser(); an.fftSize = 512; ctx.createMediaStreamSource(stream).connect(an); buf = new Uint8Array(an.fftSize); dinliyor = true; startBtn.disabled = true; }
+        catch (e) { yazi.textContent = "Mikrofona izin verilmedi. Tarayıcının adres çubuğundan izin ver."; }
+      }
+      requestAnimationFrame((z) => { son = z; boyut(); ciz(z); });
+      api.onDestroy(() => { cancelAnimationFrame(raf); ro.disconnect(); stream && stream.getTracks().forEach((t) => t.stop()); ctx && ctx.close(); });
+      T.ormanTest = { sakin: (s) => { dinliyor = true; sakin = s; }, gurultu: () => { gurultu = 1; } };
     },
   };
 })();
@@ -15997,7 +16064,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   const ARAC_GRUP = [
     ["Zaman", ["timer", "dogazaman", "stopwatch", "clock", "takvim", "!besDakika|5 dakika kaldı|stopwatch"]],
     ["Seçim ve gruplar", ["name", "dice", "groups", "sozagi"]],
-    ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!derseInis|Derse iniş|lotus", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
+    ["Sınıf düzeni", ["traffic", "noise", "orman", "dikkat", "sira", "mola", "bitirdim", "!derseInis|Derse iniş|lotus", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "yavasbakis", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];
   const sonlar = () => { try { return JSON.parse(localStorage.getItem("ta-son") || "[]"); } catch (e) { return []; } };

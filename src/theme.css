@@ -2630,3 +2630,8 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .tk-adlar, .tk-nedenler { display: flex; flex-wrap: wrap; gap: 6px; }
 .tk-ad, .tk-neden { border: 0; border-radius: 999px; padding: 5px 10px; font-size: .95rem; background: #f2f3f7; font: inherit; cursor: pointer; }
 .tk-ad.on, .tk-neden.on { background: #E07AA0; color: #fff; }
+
+/* Sessiz orman */
+.or-kap { position: relative; min-height: 0; border-radius: 16px; overflow: hidden; display: grid; }
+.or-cv { width: 100%; height: 100%; display: block; }
+.or-yazi { position: absolute; left: 0; right: 0; top: 12px; text-align: center; font: 800 1.3rem var(--display); color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35); pointer-events: none; }

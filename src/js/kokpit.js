@@ -36,7 +36,7 @@
     el.style.background = ""; el.style.backgroundSize = "cover"; el.style.backgroundPosition = "center";
     if (a.tip === "foto") el.style.background = `#ccc url("arka/${a.id}.jpg") center / cover no-repeat`;
     else if (a.tip === "tema") { const t = TEMA.find((x) => x[0] === a.id) || TEMA[0]; el.style.background = t[2]; el.style.backgroundSize = t[2].startsWith("url") ? "cover" : ""; el.style.backgroundPosition = "center"; }
-    else if (a.tip === "url") el.style.background = `#222 url("${a.url.replace(/"/g, "%22")}") center / cover no-repeat`;
+    else if (a.tip === "url") { let g = null; try { const u = new URL(a.url); if (u.protocol === "https:") g = u.href; } catch (e) {} el.style.background = g ? `#222 url(${JSON.stringify(g)}) center / cover no-repeat` : "#222"; }
     else if (a.tip === "dosya") { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg:" + (a.id || ""))) || (T.gorselDepo && (await T.gorselDepo.get("kokpit:bg"))); if (b) { if (bgUrl) URL.revokeObjectURL(bgUrl); bgUrl = URL.createObjectURL(b); el.style.background = `#222 url("${bgUrl}") center / cover no-repeat`; } else el.style.background = `#ccc url("arka/kelebek.jpg") center / cover no-repeat`; }
   }
   async function kucukResim(id) { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg:" + id)); return b ? URL.createObjectURL(b) : ""; }
@@ -63,7 +63,7 @@
           for (const f of e.target.files) { const id = T.uid(); const ok = T.gorselDepo && (await T.gorselDepo.put("kokpit:bg:" + id, f)); if (ok) ayarYaz((k) => (k.ozelBg = (k.ozelBg || []).concat(id))); }
           T.toast("Görsel eklendi"); ciz();
         } })), h("span.hint", "Birden çok görsel seçebilirsin. Yalnızca bu cihazda saklanır.")),
-        h("div.row", url, h("button.btn.c-leaf", { onclick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return; } sec({ tip: "url", url: u }); m.close(); } }, "Bağlantıyı kullan")),
+        h("div.row", url, h("button.btn.c-leaf", { onclick: () => { let u = url.value.trim(); try { const x = new URL(u); if (x.protocol !== "https:") throw 0; u = x.href; } catch (e) { T.toast("https:// ile başlayan geçerli bir bağlantı yapıştır"); return; } sec({ tip: "url", url: u }); m.close(); } }, "Bağlantıyı kullan")),
         h("b", "Düz zeminler"),
         h("div.kp-temalar", CIZIM.map(([id, ad, css]) => h("button.kp-tema" + (etkin({ tip: "tema", id }) ? ".on" : ""), { onclick: () => { sec({ tip: "tema", id }); m.close(); } }, h("span", { style: { background: css, backgroundSize: "cover", backgroundPosition: "center" } }), ad))),
         h("p.hint", "Kendi eklediğin görselin ya da bağlantının kullanım hakkının sende olduğundan emin ol."));
@@ -100,8 +100,11 @@
       if (m === "ozel") { const k = ozelUrl || ayar().muzikUrl; if (!k) return false; elKur(); audioEl.loop = true; audioEl.src = k; audioEl.play().catch(() => T.toast("Ses dosyası çalınamadı")); return true; }
       return false;
     }
+    /* Sesli okuma sırasında müzik kısılır, bitince yavaşça geri gelir */
+    let kisik = false;
+    function kis(on) { if (on === kisik) return; kisik = on; const hedef = on ? 0.15 : 1; if (master && ctx) { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(hedef, ctx.currentTime, on ? 0.08 : 0.4); } else if (audioEl) audioEl.volume = Math.min(1, hacim) * hedef; }
     const acikYaz = (v) => { if (!!ayar().muzikKapali !== v) ayarYaz((k) => (k.muzikKapali = v)); };
-    return { birak: () => { durdur(); acikYaz(true); T.muzikDurum && T.muzikDurum(); }, tekParca: (id) => { acikYaz(false); return tekParca(id); }, sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal: (m) => { acikYaz(false); return cal(m); }, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
+    return { kis, birak: () => { durdur(); acikYaz(true); T.muzikDurum && T.muzikDurum(); }, tekParca: (id) => { acikYaz(false); return tekParca(id); }, sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal: (m) => { acikYaz(false); return cal(m); }, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
   })();
   T.muzik = Muzik;
 
@@ -242,6 +245,7 @@
   function notKart() {
     const k = ayar(); const metin = (k.not || {})[cid()] || "";
     const alan = h("div.kp-not-ic", { contenteditable: "true", "aria-label": "Hızlı not", "data-yer": "Bugünün hedefi ya da hatırlatma..." }); alan.textContent = metin;
+    alan.addEventListener("paste", (e) => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData("text/plain"); document.execCommand("insertText", false, t); });
     alan.addEventListener("input", () => ayarYaz((x) => { x.not = x.not || {}; x.not[cid()] = alan.innerText; }));
     return h("section.kp-kart.kp-not", { "aria-label": "Hızlı not" }, alan);
   }

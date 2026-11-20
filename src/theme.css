@@ -2441,3 +2441,9 @@ body:has(.dn-kok) #muzik-calar { visibility: hidden; }
 .dn-tam svg { width: 20px; height: 20px; }
 .dn-kok:fullscreen { height: 100vh; border-radius: 0; border: 0; }
 .dn-kurabiye.secili { outline: 5px solid #FFD23F; outline-offset: 2px; transform: scale(1.1); }
+#ekran-perde { position: fixed; inset: 0; z-index: 99990; display: grid; place-content: center; justify-items: center; gap: 10px; background: radial-gradient(circle at 50% 40%, #233A5E, #0D1626 70%); color: #fff; cursor: pointer; animation: perde-gir .5s ease both; }
+#ekran-perde b { font: 800 clamp(70px, 12vw, 180px)/1 var(--display); letter-spacing: .02em; }
+#ekran-perde span { font: 700 clamp(26px, 3.4vw, 46px) var(--display); color: #C9D7F2; }
+#ekran-perde small { margin-top: 20px; font: 600 15px var(--body); color: #7F92B6; }
+#ekran-perde.kapan { animation: perde-gir .3s ease reverse both; }
+@keyframes perde-gir { from { opacity: 0; } }

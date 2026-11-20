@@ -78,10 +78,13 @@
                 try { const j = JSON.parse(await f.text()); if (!j.classes) throw 0; T.store.update((st2) => Object.assign(st2, j)); T.applyTheme(); T.toast("Yedek yüklendi"); T.route(); }
                 catch (er) { T.toast("Bu dosya bir Tahta Atölyesi yedeği değil"); }
               } })),
+              h("button.btn.c-sun", { onclick: async () => { if (!(await T.confirm("Kendi sınıfımla başla", "Örnek sınıflar (3-B, 6-A, 7-C) ve örnek öğrenciler silinip boş bir sınıf açılsın mı? Sonra Sınıfım > Sınıf listesi'ne öğrenci adlarını alt alta yapıştırabilirsin.", "Örnekleri sil"))) return;
+                T.store.update((st2) => { const g = (T.store.activeClass() || {}).grade || 3; const c = { id: T.uid(), name: "Sınıfım", kademe: g >= 5 ? "ortaokul" : "ilkokul", grade: g, students: [] }; st2.classes = [c]; st2.activeClassId = c.id; ["attendance", "points", "behaviorLog", "notes", "seats", "duties"].forEach((k) => (st2[k] = {})); st2.sampleDone = true; });
+                T.toast("Örnekler silindi. Şimdi öğrenci listeni ekle."); T.go("sinif"); } }, T.icon("class"), "Örnekleri sil, kendi sınıfımla başla"),
               h("button.btn.c-tomato", { onclick: async () => { if (await T.confirm("Her şeyi sıfırla", "Bütün sınıflar, yoklamalar ve planlar silinip örnek verilere dönülsün mü?", "Sıfırla")) { T.store.reset(); T.store.load(); T.applyTheme(); T.go("ana"); } } }, T.icon("trash"), "Sıfırla"))),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "10px" } }, h("h2", { style: { fontSize: "22px" } }, "Kurulum"),
             h("p", { style: { margin: 0 } }, "Tahta Atölyesi tarayıcıda çalışır: Pardus ve Windows tahtalarda, Android tahtalarda, MacBook'ta ve telefonda. Kendi alan adında yayınlandığında tarayıcı menüsündeki Uygulamayı yükle ile masaüstüne eklenir ve internet olmadan da açılır."),
-            h("p.hint", { style: { margin: 0 } }, "Çalışma adı: Tahta Atölyesi. Sürüm: prototip 0.1"))));
+            h("p.hint", { style: { margin: 0 } }, "Çalışma adı: Tahta Atölyesi. Sürüm: " + (window.SURUM || "geliştirme") + ". Bir sorun bildirirken bu sürüm kodunu ve sayfanın adını yaz."))));
     },
   };
 })();

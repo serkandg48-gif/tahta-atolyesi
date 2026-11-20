@@ -259,6 +259,7 @@ const sesPill = (acik) => {
   if (!p) { p = T.h("button#ses-dur", { onclick: () => T.sesDur(), "aria-label": "Sesi durdur" }, T.icon("pause"), T.h("span", "Sesi durdur")); document.body.append(p); }
 };
 T.sesDur = function () {
+  try { T.muzik && T.muzik.kis && T.muzik.kis(false); } catch (e) {}
   T._sesNo++;
   try { if (T._calan) { T._calan.pause(); T._calan = null; } } catch (e) {}
   try { speechSynthesis.cancel(); } catch (e) {}
@@ -295,9 +296,11 @@ const cihazSesi = (text, lang, hiz) => new Promise((res) => {
 T.speak = async function (text, lang = "tr", opt = {}) {
   text = String(text || "").trim(); if (!text) return;
   T.sesDur(); const no = T._sesNo; sesPill(true);
+  const kisMuzik = (on) => { try { T.muzik && T.muzik.kis && T.muzik.kis(on); } catch (e) {} };
+  kisMuzik(true); opt = Object.assign({}, opt); const eskiBitti = opt.onBitti; opt.onBitti = () => { kisMuzik(false); eskiBitti && eskiBitti(); };
   try {
     const tts = T.cap.tts;
-    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); if (no === T._sesNo) sesPill(false); return; }
+    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); if (no === T._sesNo) sesPill(false); kisMuzik(false); return; }
   } catch (e) { /* devam */ }
   if (lang === "tr" && !T.pickVoice("tr")) await new Promise((res) => { let n = 0; const t = setInterval(() => { if (T.pickVoice("tr") || ++n > 15) { clearInterval(t); res(); } }, 100); });
   
@@ -316,7 +319,7 @@ T.speak = async function (text, lang = "tr", opt = {}) {
       try { await cihazSesi(parcalar[i], lang, opt.hiz ? 0.9 * opt.hiz : 0.9); } catch (e) { T.toast("Bu cihazda sesli okuma yok"); break; }
     }
   }
-  if (no === T._sesNo) { sesPill(false); opt.onBitti && opt.onBitti(); }
+  if (no === T._sesNo) { sesPill(false); opt.onBitti && opt.onBitti(); } else kisMuzik(false);
 };
 
 /* ---------- Claude yetenekleri (yalnızca Claude içinde açıksa) ---------- */

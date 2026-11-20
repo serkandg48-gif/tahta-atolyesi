@@ -71,13 +71,14 @@
   const ARAC_GRUP = [
     ["Zaman", ["timer", "stopwatch", "clock", "takvim"]],
     ["Seçim ve gruplar", ["name", "dice", "groups"]],
-    ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim"]],
+    ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!perde|Ekran perdesi|moon"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];
   const sonlar = () => { try { return JSON.parse(localStorage.getItem("ta-son") || "[]"); } catch (e) { return []; } };
   const sonEkle = (x) => { try { const l = sonlar().filter((y) => y.k !== x.k); l.unshift(x); localStorage.setItem("ta-son", JSON.stringify(l.slice(0, 8))); } catch (e) {} };
   const aracBilgi = (k) => {
     if (k[0] === "@") { const [r, l, ic] = k.slice(1).split("|"); return { k, l, ic, ac: () => T.go(r) }; }
+    if (k[0] === "!") { const [f, l, ic] = k.slice(1).split("|"); return { k, l, ic, ac: () => { panelKapat(); T[f] && T[f](); } }; }
     const sabit = ARACLAR.find((x) => x[0] === k);
     if (k !== "bg" && k !== "yazitahtasi" && !T.widgets[k]) return null;
     return { k, l: sabit ? sabit[1] : T.widgets[k].title, ic: (sabit && sabit[2]) || (T.widgets[k] && T.widgets[k].icon), ac: () => aracAc(k) };
@@ -246,3 +247,18 @@
   };
   window.addEventListener("hashchange", () => setTimeout(yenile, 30));
 })();
+
+/* Ekran perdesi: açık araçları kapatmadan ekranı sakin bir perdeyle örter; dokununca ya da Esc ile açılır. Kısayol: B */
+T.perde = function () {
+  if (document.getElementById("ekran-perde")) return;
+  const saat = T.h("b"), yaz = () => (saat.textContent = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }));
+  const el = T.h("div#ekran-perde", { role: "dialog", "aria-label": "Ekran perdesi" }, saat, T.h("span", "Dinliyoruz"), T.h("small", "Açmak için dokun"));
+  yaz(); const iv = setInterval(yaz, 15000);
+  const kapat = () => { clearInterval(iv); el.classList.add("kapan"); setTimeout(() => el.remove(), 300); removeEventListener("keydown", tus); };
+  const tus = (e) => { if (e.key === "Escape" || e.key === "b" || e.key === "B") kapat(); };
+  el.addEventListener("click", kapat); addEventListener("keydown", tus);
+  document.body.append(el);
+};
+addEventListener("keydown", (e) => {
+  if ((e.key === "b" || e.key === "B") && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || "")) && !e.target.isContentEditable && !document.getElementById("ekran-perde")) T.perde();
+});

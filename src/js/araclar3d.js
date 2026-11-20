@@ -247,11 +247,18 @@
       const kap = T.h("div.zar3-kap.cark3-kap"), ad = T.h("div.cark3-ad"), info = T.h("div.hint", { style: { textAlign: "center", fontSize: "13px" } });
       const fairBtn = T.h("button.btn.sm.c-chalk", { onclick: () => { d.fair = !d.fair; api.save(); yaz(); yeniden(); } });
       body.style.gridTemplateRows = "1fr auto auto auto"; body.style.gap = "6px";
-      body.append(kap, ad, info, T.h("div.row", { style: { justifyContent: "center" } }, T.h("button.btn.c-grape", { onclick: () => cevir() }, T.icon("name"), "Çevir"), fairBtn, T.h("button.btn.sm.c-chalk", { onclick: () => { d.used = []; api.save(); yaz(); yeniden(); } }, "Baştan")));
+      body.append(kap, ad, info, T.h("div.row", { style: { justifyContent: "center" } }, T.h("button.btn.c-grape", { onclick: () => dusunVeCevir() }, T.icon("name"), "Çevir"), fairBtn, T.h("button.btn.sm.c-chalk", { title: "Seçmeden önce sınıfa sessiz düşünme süresi", onclick: (e) => { d.dusun = d.dusun === 5 ? 10 : d.dusun === 10 ? 0 : 5; api.save(); e.currentTarget.textContent = d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"; } }, d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"), T.h("button.btn.sm.c-chalk", { onclick: () => { d.used = []; api.save(); yaz(); yeniden(); } }, "Baştan")));
       const havuz = () => { const p = gelenler(api.cls()); const kalan = p.filter((s) => !d.used.includes(s.id)); return d.fair ? (kalan.length ? kalan : p) : p; };
       function yaz() { const p = gelenler(api.cls()); info.textContent = d.fair ? `Bu turda ${p.length - p.filter((s) => d.used.includes(s.id)).length} / ${p.length} öğrenci kaldı` : `${p.length} öğrenci arasından`; fairBtn.textContent = d.fair ? "Adil tur: açık" : "Adil tur: kapalı"; }
       const cur = d.current && api.cls().students.find((s) => s.id === d.current); ad.textContent = cur ? cur.name : "Kim olacak?";
-      let yeniden = () => {}, cevir = () => T.toast("Çark hazırlanıyor");
+      let yeniden = () => {}, cevir = () => T.toast("Çark hazırlanıyor"), sayiyor = false;
+      /* İsteğe bağlı düşünme süresi: önce herkes düşünür, sonra çark döner */
+      const dusunVeCevir = () => {
+        if (sayiyor) return; if (!d.dusun) return cevir();
+        sayiyor = true; let k = d.dusun; const eskiAd = ad.textContent;
+        const say = () => { ad.textContent = k > 0 ? "Önce herkes düşünsün: " + k : eskiAd; if (k-- > 0) setTimeout(say, 1000); else { sayiyor = false; cevir(); } };
+        say();
+      };
       yaz();
       T.cark3B(kap, api).then((ck) => {
         if (!ck) { body.replaceChildren(); eski(body, w, api); return; }

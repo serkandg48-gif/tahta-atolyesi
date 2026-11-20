@@ -1,4 +1,4 @@
-window.SURUM="01936b1d55";
+window.SURUM="5b4bfe9bdb";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -261,6 +261,7 @@ const sesPill = (acik) => {
   if (!p) { p = T.h("button#ses-dur", { onclick: () => T.sesDur(), "aria-label": "Sesi durdur" }, T.icon("pause"), T.h("span", "Sesi durdur")); document.body.append(p); }
 };
 T.sesDur = function () {
+  try { T.muzik && T.muzik.kis && T.muzik.kis(false); } catch (e) {}
   T._sesNo++;
   try { if (T._calan) { T._calan.pause(); T._calan = null; } } catch (e) {}
   try { speechSynthesis.cancel(); } catch (e) {}
@@ -297,9 +298,11 @@ const cihazSesi = (text, lang, hiz) => new Promise((res) => {
 T.speak = async function (text, lang = "tr", opt = {}) {
   text = String(text || "").trim(); if (!text) return;
   T.sesDur(); const no = T._sesNo; sesPill(true);
+  const kisMuzik = (on) => { try { T.muzik && T.muzik.kis && T.muzik.kis(on); } catch (e) {} };
+  kisMuzik(true); opt = Object.assign({}, opt); const eskiBitti = opt.onBitti; opt.onBitti = () => { kisMuzik(false); eskiBitti && eskiBitti(); };
   try {
     const tts = T.cap.tts;
-    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); if (no === T._sesNo) sesPill(false); return; }
+    if (tts) { await tts.speak(text, { language: lang === "en" ? "en" : undefined }); if (no === T._sesNo) sesPill(false); kisMuzik(false); return; }
   } catch (e) { /* devam */ }
   if (lang === "tr" && !T.pickVoice("tr")) await new Promise((res) => { let n = 0; const t = setInterval(() => { if (T.pickVoice("tr") || ++n > 15) { clearInterval(t); res(); } }, 100); });
   
@@ -318,7 +321,7 @@ T.speak = async function (text, lang = "tr", opt = {}) {
       try { await cihazSesi(parcalar[i], lang, opt.hiz ? 0.9 * opt.hiz : 0.9); } catch (e) { T.toast("Bu cihazda sesli okuma yok"); break; }
     }
   }
-  if (no === T._sesNo) { sesPill(false); opt.onBitti && opt.onBitti(); }
+  if (no === T._sesNo) { sesPill(false); opt.onBitti && opt.onBitti(); } else kisMuzik(false);
 };
 
 /* ---------- Claude yetenekleri (yalnızca Claude içinde açıksa) ---------- */
@@ -2523,6 +2526,7 @@ T.yuzen = TahtaYap("ana");
       body.style.gridTemplateRows = "1fr auto auto"; body.style.gap = "6px";
       body.append(stage, info, h("div.row", { style: { justifyContent: "center" } },
         h("button.btn.c-grape", { onclick: spin }, T.icon("name"), "Çek"), fairBtn,
+        h("button.btn.sm.c-chalk", { title: "Seçmeden önce sınıfa sessiz düşünme süresi", onclick: (e) => { d.dusun = d.dusun === 5 ? 10 : d.dusun === 10 ? 0 : 5; api.save(); e.currentTarget.textContent = d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"; } }, d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"),
         h("button.btn.sm.c-chalk", { onclick: () => { d.used = []; api.save(); paint(); } }, "Baştan")));
       function pool() { const p = present(api.cls()); const rest = p.filter((s) => !d.used.includes(s.id)); return d.fair ? (rest.length ? rest : p) : p; }
       function show(st, final) {
@@ -2530,6 +2534,15 @@ T.yuzen = TahtaYap("ana");
         if (final) stage.animate([{ transform: "scale(.8)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], { duration: 380, easing: "ease-out" });
       }
       function spin() {
+        if (d.dusun && !spin.sayiyor) {
+          spin.sayiyor = true; let k = d.dusun;
+          const say = () => { stage.replaceChildren(h("div", { style: { display: "grid", justifyItems: "center", gap: "4px", textAlign: "center" } }, h("div", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "min(9cqw, 20px)" } }, "Önce herkes düşünsün"), h("div", { style: { fontFamily: "var(--display)", fontWeight: 900, fontSize: "min(30cqw, 70px)", lineHeight: 1 } }, k))); if (k-- > 0) setTimeout(say, 1000); else { spin.sayiyor = false; spinGercek(); } };
+          return say();
+        }
+        if (spin.sayiyor) return;
+        spinGercek();
+      }
+      function spinGercek() {
         T.sound.unlock();
         const p = pool(); if (!p.length) { T.toast("Sınıf listesi boş"); return; }
         if (d.fair && p.every((s) => d.used.includes(s.id))) d.used = [];
@@ -2649,6 +2662,7 @@ T.yuzen = TahtaYap("ana");
       body.append(bar, h("div.row", startBtn, h("label.f", { style: { flex: 1 } }, h("span", "Sınır"), slider)), h("div.row", { style: { gap: "14px" } }, sec("uyari", "Şşşş uyarısı"), sec("sesli", "Uyarı sesi")));
       let stream = null, raf = 0, over = 0, sonUyari = 0;
       async function start() {
+        if (T.muzik && T.muzik.aktif && T.muzik.aktif()) { T.muzik.birak(); T.toast("Ses ölçer hoparlörü duymasın diye müzik durduruldu"); }
         try {
           stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -7531,11 +7545,18 @@ T.yuzen = TahtaYap("ana");
       const kap = T.h("div.zar3-kap.cark3-kap"), ad = T.h("div.cark3-ad"), info = T.h("div.hint", { style: { textAlign: "center", fontSize: "13px" } });
       const fairBtn = T.h("button.btn.sm.c-chalk", { onclick: () => { d.fair = !d.fair; api.save(); yaz(); yeniden(); } });
       body.style.gridTemplateRows = "1fr auto auto auto"; body.style.gap = "6px";
-      body.append(kap, ad, info, T.h("div.row", { style: { justifyContent: "center" } }, T.h("button.btn.c-grape", { onclick: () => cevir() }, T.icon("name"), "Çevir"), fairBtn, T.h("button.btn.sm.c-chalk", { onclick: () => { d.used = []; api.save(); yaz(); yeniden(); } }, "Baştan")));
+      body.append(kap, ad, info, T.h("div.row", { style: { justifyContent: "center" } }, T.h("button.btn.c-grape", { onclick: () => dusunVeCevir() }, T.icon("name"), "Çevir"), fairBtn, T.h("button.btn.sm.c-chalk", { title: "Seçmeden önce sınıfa sessiz düşünme süresi", onclick: (e) => { d.dusun = d.dusun === 5 ? 10 : d.dusun === 10 ? 0 : 5; api.save(); e.currentTarget.textContent = d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"; } }, d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"), T.h("button.btn.sm.c-chalk", { onclick: () => { d.used = []; api.save(); yaz(); yeniden(); } }, "Baştan")));
       const havuz = () => { const p = gelenler(api.cls()); const kalan = p.filter((s) => !d.used.includes(s.id)); return d.fair ? (kalan.length ? kalan : p) : p; };
       function yaz() { const p = gelenler(api.cls()); info.textContent = d.fair ? `Bu turda ${p.length - p.filter((s) => d.used.includes(s.id)).length} / ${p.length} öğrenci kaldı` : `${p.length} öğrenci arasından`; fairBtn.textContent = d.fair ? "Adil tur: açık" : "Adil tur: kapalı"; }
       const cur = d.current && api.cls().students.find((s) => s.id === d.current); ad.textContent = cur ? cur.name : "Kim olacak?";
-      let yeniden = () => {}, cevir = () => T.toast("Çark hazırlanıyor");
+      let yeniden = () => {}, cevir = () => T.toast("Çark hazırlanıyor"), sayiyor = false;
+      /* İsteğe bağlı düşünme süresi: önce herkes düşünür, sonra çark döner */
+      const dusunVeCevir = () => {
+        if (sayiyor) return; if (!d.dusun) return cevir();
+        sayiyor = true; let k = d.dusun; const eskiAd = ad.textContent;
+        const say = () => { ad.textContent = k > 0 ? "Önce herkes düşünsün: " + k : eskiAd; if (k-- > 0) setTimeout(say, 1000); else { sayiyor = false; cevir(); } };
+        say();
+      };
       yaz();
       T.cark3B(kap, api).then((ck) => {
         if (!ck) { body.replaceChildren(); eski(body, w, api); return; }
@@ -14757,10 +14778,13 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
                 try { const j = JSON.parse(await f.text()); if (!j.classes) throw 0; T.store.update((st2) => Object.assign(st2, j)); T.applyTheme(); T.toast("Yedek yüklendi"); T.route(); }
                 catch (er) { T.toast("Bu dosya bir Tahta Atölyesi yedeği değil"); }
               } })),
+              h("button.btn.c-sun", { onclick: async () => { if (!(await T.confirm("Kendi sınıfımla başla", "Örnek sınıflar (3-B, 6-A, 7-C) ve örnek öğrenciler silinip boş bir sınıf açılsın mı? Sonra Sınıfım > Sınıf listesi'ne öğrenci adlarını alt alta yapıştırabilirsin.", "Örnekleri sil"))) return;
+                T.store.update((st2) => { const g = (T.store.activeClass() || {}).grade || 3; const c = { id: T.uid(), name: "Sınıfım", kademe: g >= 5 ? "ortaokul" : "ilkokul", grade: g, students: [] }; st2.classes = [c]; st2.activeClassId = c.id; ["attendance", "points", "behaviorLog", "notes", "seats", "duties"].forEach((k) => (st2[k] = {})); st2.sampleDone = true; });
+                T.toast("Örnekler silindi. Şimdi öğrenci listeni ekle."); T.go("sinif"); } }, T.icon("class"), "Örnekleri sil, kendi sınıfımla başla"),
               h("button.btn.c-tomato", { onclick: async () => { if (await T.confirm("Her şeyi sıfırla", "Bütün sınıflar, yoklamalar ve planlar silinip örnek verilere dönülsün mü?", "Sıfırla")) { T.store.reset(); T.store.load(); T.applyTheme(); T.go("ana"); } } }, T.icon("trash"), "Sıfırla"))),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "10px" } }, h("h2", { style: { fontSize: "22px" } }, "Kurulum"),
             h("p", { style: { margin: 0 } }, "Tahta Atölyesi tarayıcıda çalışır: Pardus ve Windows tahtalarda, Android tahtalarda, MacBook'ta ve telefonda. Kendi alan adında yayınlandığında tarayıcı menüsündeki Uygulamayı yükle ile masaüstüne eklenir ve internet olmadan da açılır."),
-            h("p.hint", { style: { margin: 0 } }, "Çalışma adı: Tahta Atölyesi. Sürüm: prototip 0.1"))));
+            h("p.hint", { style: { margin: 0 } }, "Çalışma adı: Tahta Atölyesi. Sürüm: " + (window.SURUM || "geliştirme") + ". Bir sorun bildirirken bu sürüm kodunu ve sayfanın adını yaz."))));
     },
   };
 })();
@@ -14804,7 +14828,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
     el.style.background = ""; el.style.backgroundSize = "cover"; el.style.backgroundPosition = "center";
     if (a.tip === "foto") el.style.background = `#ccc url("arka/${a.id}.jpg") center / cover no-repeat`;
     else if (a.tip === "tema") { const t = TEMA.find((x) => x[0] === a.id) || TEMA[0]; el.style.background = t[2]; el.style.backgroundSize = t[2].startsWith("url") ? "cover" : ""; el.style.backgroundPosition = "center"; }
-    else if (a.tip === "url") el.style.background = `#222 url("${a.url.replace(/"/g, "%22")}") center / cover no-repeat`;
+    else if (a.tip === "url") { let g = null; try { const u = new URL(a.url); if (u.protocol === "https:") g = u.href; } catch (e) {} el.style.background = g ? `#222 url(${JSON.stringify(g)}) center / cover no-repeat` : "#222"; }
     else if (a.tip === "dosya") { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg:" + (a.id || ""))) || (T.gorselDepo && (await T.gorselDepo.get("kokpit:bg"))); if (b) { if (bgUrl) URL.revokeObjectURL(bgUrl); bgUrl = URL.createObjectURL(b); el.style.background = `#222 url("${bgUrl}") center / cover no-repeat`; } else el.style.background = `#ccc url("arka/kelebek.jpg") center / cover no-repeat`; }
   }
   async function kucukResim(id) { const b = T.gorselDepo && (await T.gorselDepo.get("kokpit:bg:" + id)); return b ? URL.createObjectURL(b) : ""; }
@@ -14831,7 +14855,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
           for (const f of e.target.files) { const id = T.uid(); const ok = T.gorselDepo && (await T.gorselDepo.put("kokpit:bg:" + id, f)); if (ok) ayarYaz((k) => (k.ozelBg = (k.ozelBg || []).concat(id))); }
           T.toast("Görsel eklendi"); ciz();
         } })), h("span.hint", "Birden çok görsel seçebilirsin. Yalnızca bu cihazda saklanır.")),
-        h("div.row", url, h("button.btn.c-leaf", { onclick: () => { const u = url.value.trim(); if (!/^https:\/\//.test(u)) { T.toast("https:// ile başlayan bir bağlantı yapıştır"); return; } sec({ tip: "url", url: u }); m.close(); } }, "Bağlantıyı kullan")),
+        h("div.row", url, h("button.btn.c-leaf", { onclick: () => { let u = url.value.trim(); try { const x = new URL(u); if (x.protocol !== "https:") throw 0; u = x.href; } catch (e) { T.toast("https:// ile başlayan geçerli bir bağlantı yapıştır"); return; } sec({ tip: "url", url: u }); m.close(); } }, "Bağlantıyı kullan")),
         h("b", "Düz zeminler"),
         h("div.kp-temalar", CIZIM.map(([id, ad, css]) => h("button.kp-tema" + (etkin({ tip: "tema", id }) ? ".on" : ""), { onclick: () => { sec({ tip: "tema", id }); m.close(); } }, h("span", { style: { background: css, backgroundSize: "cover", backgroundPosition: "center" } }), ad))),
         h("p.hint", "Kendi eklediğin görselin ya da bağlantının kullanım hakkının sende olduğundan emin ol."));
@@ -14868,8 +14892,11 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
       if (m === "ozel") { const k = ozelUrl || ayar().muzikUrl; if (!k) return false; elKur(); audioEl.loop = true; audioEl.src = k; audioEl.play().catch(() => T.toast("Ses dosyası çalınamadı")); return true; }
       return false;
     }
+    /* Sesli okuma sırasında müzik kısılır, bitince yavaşça geri gelir */
+    let kisik = false;
+    function kis(on) { if (on === kisik) return; kisik = on; const hedef = on ? 0.15 : 1; if (master && ctx) { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(hedef, ctx.currentTime, on ? 0.08 : 0.4); } else if (audioEl) audioEl.volume = Math.min(1, hacim) * hedef; }
     const acikYaz = (v) => { if (!!ayar().muzikKapali !== v) ayarYaz((k) => (k.muzikKapali = v)); };
-    return { birak: () => { durdur(); acikYaz(true); T.muzikDurum && T.muzikDurum(); }, tekParca: (id) => { acikYaz(false); return tekParca(id); }, sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal: (m) => { acikYaz(false); return cal(m); }, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
+    return { kis, birak: () => { durdur(); acikYaz(true); T.muzikDurum && T.muzikDurum(); }, tekParca: (id) => { acikYaz(false); return tekParca(id); }, sonraki: () => mod === "klasik" && parca(1), onceki: () => mod === "klasik" && parca(-1), parcaAdi: () => (mod === "klasik" && sira.length ? KLASIK[sira[siraI]].slice(1).join(" · ") : ""), cal: (m) => { acikYaz(false); return cal(m); }, durdur, aktif: () => mod, hacim: (v) => { hacim = v; if (audioEl) audioEl.volume = Math.min(1, v); }, analyser: () => analyser, dosya: (f) => { if (ozelUrl) URL.revokeObjectURL(ozelUrl); ozelUrl = URL.createObjectURL(f); }, ozelVar: () => !!(ozelUrl || ayar().muzikUrl), get hacimV() { return hacim; } };
   })();
   T.muzik = Muzik;
 
@@ -15010,6 +15037,7 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   function notKart() {
     const k = ayar(); const metin = (k.not || {})[cid()] || "";
     const alan = h("div.kp-not-ic", { contenteditable: "true", "aria-label": "Hızlı not", "data-yer": "Bugünün hedefi ya da hatırlatma..." }); alan.textContent = metin;
+    alan.addEventListener("paste", (e) => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData("text/plain"); document.execCommand("insertText", false, t); });
     alan.addEventListener("input", () => ayarYaz((x) => { x.not = x.not || {}; x.not[cid()] = alan.innerText; }));
     return h("section.kp-kart.kp-not", { "aria-label": "Hızlı not" }, alan);
   }
@@ -15380,13 +15408,14 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   const ARAC_GRUP = [
     ["Zaman", ["timer", "stopwatch", "clock", "takvim"]],
     ["Seçim ve gruplar", ["name", "dice", "groups"]],
-    ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim"]],
+    ["Sınıf düzeni", ["traffic", "noise", "dikkat", "sira", "mola", "bitirdim", "!perde|Ekran perdesi|moon"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];
   const sonlar = () => { try { return JSON.parse(localStorage.getItem("ta-son") || "[]"); } catch (e) { return []; } };
   const sonEkle = (x) => { try { const l = sonlar().filter((y) => y.k !== x.k); l.unshift(x); localStorage.setItem("ta-son", JSON.stringify(l.slice(0, 8))); } catch (e) {} };
   const aracBilgi = (k) => {
     if (k[0] === "@") { const [r, l, ic] = k.slice(1).split("|"); return { k, l, ic, ac: () => T.go(r) }; }
+    if (k[0] === "!") { const [f, l, ic] = k.slice(1).split("|"); return { k, l, ic, ac: () => { panelKapat(); T[f] && T[f](); } }; }
     const sabit = ARACLAR.find((x) => x[0] === k);
     if (k !== "bg" && k !== "yazitahtasi" && !T.widgets[k]) return null;
     return { k, l: sabit ? sabit[1] : T.widgets[k].title, ic: (sabit && sabit[2]) || (T.widgets[k] && T.widgets[k].icon), ac: () => aracAc(k) };
@@ -15555,6 +15584,21 @@ JSON: {"konular": ["1. haftanın konusu", "2. haftanın konusu", ...]}`);
   };
   window.addEventListener("hashchange", () => setTimeout(yenile, 30));
 })();
+
+/* Ekran perdesi: açık araçları kapatmadan ekranı sakin bir perdeyle örter; dokununca ya da Esc ile açılır. Kısayol: B */
+T.perde = function () {
+  if (document.getElementById("ekran-perde")) return;
+  const saat = T.h("b"), yaz = () => (saat.textContent = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }));
+  const el = T.h("div#ekran-perde", { role: "dialog", "aria-label": "Ekran perdesi" }, saat, T.h("span", "Dinliyoruz"), T.h("small", "Açmak için dokun"));
+  yaz(); const iv = setInterval(yaz, 15000);
+  const kapat = () => { clearInterval(iv); el.classList.add("kapan"); setTimeout(() => el.remove(), 300); removeEventListener("keydown", tus); };
+  const tus = (e) => { if (e.key === "Escape" || e.key === "b" || e.key === "B") kapat(); };
+  el.addEventListener("click", kapat); addEventListener("keydown", tus);
+  document.body.append(el);
+};
+addEventListener("keydown", (e) => {
+  if ((e.key === "b" || e.key === "B") && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || "")) && !e.target.isContentEditable && !document.getElementById("ekran-perde")) T.perde();
+});
 
 /* ---- ikon-duzen.js ---- */
 /* Aynı görünen ikonları ayırır: bir menüde ya da sekmede iki kart aynı resmi taşımasın */

@@ -84,6 +84,7 @@
       body.style.gridTemplateRows = "1fr auto auto"; body.style.gap = "6px";
       body.append(stage, info, h("div.row", { style: { justifyContent: "center" } },
         h("button.btn.c-grape", { onclick: spin }, T.icon("name"), "Çek"), fairBtn,
+        h("button.btn.sm.c-chalk", { title: "Seçmeden önce sınıfa sessiz düşünme süresi", onclick: (e) => { d.dusun = d.dusun === 5 ? 10 : d.dusun === 10 ? 0 : 5; api.save(); e.currentTarget.textContent = d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"; } }, d.dusun ? "Düşünme: " + d.dusun + " sn" : "Düşünme: yok"),
         h("button.btn.sm.c-chalk", { onclick: () => { d.used = []; api.save(); paint(); } }, "Baştan")));
       function pool() { const p = present(api.cls()); const rest = p.filter((s) => !d.used.includes(s.id)); return d.fair ? (rest.length ? rest : p) : p; }
       function show(st, final) {
@@ -91,6 +92,15 @@
         if (final) stage.animate([{ transform: "scale(.8)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], { duration: 380, easing: "ease-out" });
       }
       function spin() {
+        if (d.dusun && !spin.sayiyor) {
+          spin.sayiyor = true; let k = d.dusun;
+          const say = () => { stage.replaceChildren(h("div", { style: { display: "grid", justifyItems: "center", gap: "4px", textAlign: "center" } }, h("div", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "min(9cqw, 20px)" } }, "Önce herkes düşünsün"), h("div", { style: { fontFamily: "var(--display)", fontWeight: 900, fontSize: "min(30cqw, 70px)", lineHeight: 1 } }, k))); if (k-- > 0) setTimeout(say, 1000); else { spin.sayiyor = false; spinGercek(); } };
+          return say();
+        }
+        if (spin.sayiyor) return;
+        spinGercek();
+      }
+      function spinGercek() {
         T.sound.unlock();
         const p = pool(); if (!p.length) { T.toast("Sınıf listesi boş"); return; }
         if (d.fair && p.every((s) => d.used.includes(s.id))) d.used = [];
@@ -210,6 +220,7 @@
       body.append(bar, h("div.row", startBtn, h("label.f", { style: { flex: 1 } }, h("span", "Sınır"), slider)), h("div.row", { style: { gap: "14px" } }, sec("uyari", "Şşşş uyarısı"), sec("sesli", "Uyarı sesi")));
       let stream = null, raf = 0, over = 0, sonUyari = 0;
       async function start() {
+        if (T.muzik && T.muzik.aktif && T.muzik.aktif()) { T.muzik.birak(); T.toast("Ses ölçer hoparlörü duymasın diye müzik durduruldu"); }
         try {
           stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           const ctx = new (window.AudioContext || window.webkitAudioContext)();

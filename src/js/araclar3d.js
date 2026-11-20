@@ -242,6 +242,7 @@
   /* ---------- İsim çek: dönen ahşap çark ---------- */
   if (W.name) {
     const eski = W.name.render; W.name.w = Math.max(W.name.w || 0, 420); W.name.h = Math.max(W.name.h || 0, 480);
+    W.name.settings = () => T.kuralPenceresi();
     W.name.render = function (body, w, api) {
       const d = w.data;
       const kap = T.h("div.zar3-kap.cark3-kap"), ad = T.h("div.cark3-ad"), info = T.h("div.hint", { style: { textAlign: "center", fontSize: "13px" } });
@@ -270,7 +271,7 @@
           const p = gelenler(api.cls()); if (!p.length) { T.toast("Sınıf listesi boş"); return; }
           if (d.fair && p.every((st) => d.used.includes(st.id))) d.used = [];
           kur(); yaz(); ad.textContent = "…";
-          ck.cevir(T.rand(0, liste.length - 1), (i) => { const st = liste[i]; ad.textContent = st.name; ad.animate([{ transform: "scale(.7)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }], { duration: 420, easing: "ease-out" }); T.sound.ok(); d.current = st.id; if (d.fair && !d.used.includes(st.id)) d.used.push(st.id); api.save(); yaz(); });
+          ck.cevir(T.kuralIsimSec ? T.kuralIsimSec(liste) : T.rand(0, liste.length - 1), (i) => { const st = liste[i]; ad.textContent = st.name; ad.animate([{ transform: "scale(.7)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }], { duration: 420, easing: "ease-out" }); T.sound.ok(); d.current = st.id; if (d.fair && !d.used.includes(st.id)) d.used.push(st.id); api.save(); yaz(); });
         };
         kur(); ck.r.domElement.style.cursor = "pointer"; ck.r.domElement.addEventListener("click", () => cevir());
       });
@@ -408,6 +409,7 @@
   if (W.groups) {
     const TON = ["#E4553F", "#F2B33D", "#3B83C4", "#3FA36B", "#8C5BB8", "#E07AA0"];
     W.groups.h = Math.max(W.groups.h || 0, 470);
+    W.groups.settings = () => T.kuralPenceresi();
     W.groups.render = function (body, w, api) {
       const d = w.data;
       const pano = T.h("div.gr3-pano"), nLbl = T.h("span.readout", { style: { fontSize: "20px", minWidth: "30px", textAlign: "center" } });
@@ -419,7 +421,7 @@
         T.h("div.spacer"), T.h("button.btn.sm.c-leaf", { onclick: make }, T.icon("groups"), "Grupla")), pano);
       function make() {
         const p = T.shuffle(gelenler(api.cls())), k = d.mode === "size" ? Math.max(1, Math.ceil(p.length / d.n)) : d.n, gs = Array.from({ length: k }, () => []);
-        p.forEach((s, i) => gs[i % k].push(s.id)); d.groups = gs; d.aci = gs.map(() => +(Math.random() * 4 - 2).toFixed(1)); api.save(); T.sound.ok(); paint(true);
+        p.forEach((s, i) => gs[i % k].push(s.id)); if (T.kuralGrupla) T.kuralGrupla(gs); d.groups = gs; d.aci = gs.map(() => +(Math.random() * 4 - 2).toFixed(1)); api.save(); T.sound.ok(); paint(true);
       }
       function paint(anim) {
         nLbl.textContent = String(d.n); const cls = api.cls();

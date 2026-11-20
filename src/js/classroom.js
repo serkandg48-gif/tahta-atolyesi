@@ -166,7 +166,8 @@
     }
     area.append(
       h("div.row", { style: { marginBottom: "16px" } },
-        h("button.btn.c-sun", { onclick: () => { const ids = T.shuffle(c.students.map((x) => x.id)); seats.forEach((d, i) => { d[0] = ids[i * 2] || null; d[1] = ids[i * 2 + 1] || null; }); T.store.save(); T.sound.drum(); paint(); } }, T.icon("dice"), "Karıştır"),
+        h("button.btn.c-sun", { onclick: () => { const yeni = T.kuralOturma(c.students.map((x) => x.id), seats.length); seats.forEach((d, i) => { d[0] = yeni[i][0]; d[1] = yeni[i][1]; }); T.store.save(); T.sound.drum(); paint(); } }, T.icon("dice"), "Karıştır"),
+        h("button.btn.c-chalk", { onclick: () => T.kuralPenceresi(), title: "Ayrı tutulsun, ön sırada otursun gibi gizli kurallar" }, T.icon("lock"), "Öğretmenin kuralları"),
         h("span.hint", "İki öğrencinin yerini değiştirmek için önce birine, sonra diğerine dokun.")),
       h("div", { style: { textAlign: "center", fontFamily: "var(--hand)", fontSize: "24px", marginBottom: "10px", color: "var(--chalk)" } }, "Tahta burada"),
       room);

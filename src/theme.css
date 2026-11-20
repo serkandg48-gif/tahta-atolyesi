@@ -2650,3 +2650,5 @@ details.kvkk a { display: inline-block; margin-top: 8px; font-weight: 700; }
 .zil-ayar { display: grid; gap: 10px; max-width: 560px; }
 .zil-liste { display: grid; gap: 6px; max-height: 40vh; overflow: auto; }
 .zil-satir { display: grid; grid-template-columns: 150px 1fr; gap: 8px; align-items: center; }
+.kpo { display: grid; gap: 10px; }
+.kpo-cv { width: 100%; height: auto; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.12); }

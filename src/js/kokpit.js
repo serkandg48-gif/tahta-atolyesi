@@ -208,6 +208,16 @@
         h("button.kp-satir", { onclick: () => T.go("sabah-sayi"), title: "Dokun, sayıyı değiştir" }, T.icon("spark"), "Bugünün sayısı", h("b", T.bugununSayisi(c))),
         sp ? h("div.kp-satir", T.icon("star"), h("span", sp)) : null));
   }
+  /* Kartpostal ve başka özetler için günün bilgileri */
+  T.gununOzeti = function () {
+    const s = T.store.get(), c = T.store.activeClass(), k = ayar(), KL = kivListe();
+    const i = k.kivilcimI != null ? k.kivilcimI : Math.floor(Date.now() / 864e5) % KL.length;
+    const ozel = (k.ozelKivilcim || {})[cid()];
+    const soru = ozel && i === -1 ? ozel : KL[((i % KL.length) + KL.length) % KL.length][1];
+    const hv = ((s.sabah || {})[c.id + ":" + T.isoDate()] || {}).hava, hava = hv && T.HAVA ? (T.HAVA.find((x) => x[0] === hv) || [])[1] : null;
+    const st = T.cal.status();
+    return { sinif: c.name, gun: st.kind === "okul" ? Math.max(1, T.cal.dayNumber()) : null, tarih: T.longDate(), hava, havaKod: hv, sayi: T.bugununSayisi(c), soru, not: ((k.not || {})[cid()] || "").trim(), ogrenci: c.students.length };
+  };
   function kivilcimKart() {
     const k = ayar(); const ozel = (k.ozelKivilcim || {})[cid()];
     const KL = kivListe();

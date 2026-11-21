@@ -249,16 +249,36 @@
       function paint() {
         const s = S("svg", { viewBox: "0 0 900 560", style: "width:100%;height:100%" });
         if (!grouped) {
-          s.append(S("path", { d: "M300 80h300v40c40 20 60 60 60 110v270a30 30 0 0 1-30 30H270a30 30 0 0 1-30-30V230c0-50 20-90 60-110z", fill: "rgba(200,230,245,.28)", stroke: "rgba(120,160,185,.9)", "stroke-width": 4 }), S("path", { d: "M270 240c0-40 14-70 40-88v330c-26-4-40-20-40-40z", fill: "url(#m3-cam)", "pointer-events": "none" }));
-          T.m3kur(); s.append(S("rect", { x: 290, y: 50, width: 320, height: 40, rx: 8, fill: T.m3d("#C08A4A"), stroke: "#7A5228", "stroke-width": 2 }));
-          const r = n > 150 ? 9 : n > 60 ? 12 : 16;
-          seed.forEach(([a, b, c], i) => {
-            // tabandan yukarı doğru doldur
-            const cols = Math.floor(380 / (r * 2.1)); const row = Math.floor(i / cols);
-            const x = 260 + r + (i % cols) * r * 2.1 + (row % 2 ? r : 0) + a * 4;
-            const y = 512 - r - row * r * 1.8 - b * 3;
-            s.append(S("ellipse", { cx: Math.min(x, 640 - r), cy: Math.max(y, 140), rx: r, ry: r * 0.8, fill: c, stroke: "rgba(0,0,0,.35)", "stroke-width": 1.5 }));
-          });
+          /* Gerçeğe yakın cam kavanoz: kalın cam kenar, yansıma, metal kapak, parlak boncuklar */
+          const RN = ["#E2412F", "#F4B400", "#2FA84F", "#1F7AE0", "#7B4FD6", "#EC5D9A"];
+          const defs = S("defs");
+          RN.forEach((c, i) => { const g = S("radialGradient", { id: "tk-b" + i, cx: "35%", cy: "30%", r: "75%" }); g.append(S("stop", { offset: "0", "stop-color": "#fff", "stop-opacity": ".95" }), S("stop", { offset: ".18", "stop-color": c }), S("stop", { offset: ".8", "stop-color": T.m3d ? c : c }), S("stop", { offset: "1", "stop-color": "#000", "stop-opacity": ".55" })); defs.append(g); });
+          const cam = S("linearGradient", { id: "tk-cam", x1: "0", x2: "1" }); [["0", ".55"], [".08", ".15"], [".5", ".04"], [".9", ".12"], ["1", ".5"]].forEach(([o, op]) => cam.append(S("stop", { offset: o, "stop-color": "#D8F0FA", "stop-opacity": op }))); defs.append(cam);
+          const kapak = S("linearGradient", { id: "tk-kap", x1: "0", x2: "1" }); [["0", "#8A9096"], [".2", "#E9ECEF"], [".45", "#B4BAC0"], [".7", "#F4F6F8"], ["1", "#7E848A"]].forEach(([o, c]) => kapak.append(S("stop", { offset: o, "stop-color": c }))); defs.append(kapak);
+          const golge = S("radialGradient", { id: "tk-golge" }); golge.append(S("stop", { offset: "0", "stop-color": "#000", "stop-opacity": ".28" }), S("stop", { offset: "1", "stop-color": "#000", "stop-opacity": "0" })); defs.append(golge);
+          const govde = "M318 118 L582 118 Q586 150 612 168 Q660 200 660 260 L660 488 Q660 528 620 530 L280 530 Q240 528 240 488 L240 260 Q240 200 288 168 Q314 150 318 118 Z";
+          const kesit = S("clipPath", { id: "tk-ic" }); kesit.append(S("path", { d: govde })); defs.append(kesit);
+          s.append(defs, S("ellipse", { cx: 450, cy: 536, rx: 250, ry: 22, fill: "url(#tk-golge)" }));
+          s.append(S("path", { d: govde, fill: "rgba(225,242,250,.35)" }));
+          /* boncukları alttan yukarı sık istifle */
+          const ici = S("g", { "clip-path": "url(#tk-ic)" });
+          const r = Math.max(7.5, Math.min(20, Math.sqrt((400 * 330 * 0.62) / (n * Math.PI))));
+          const genis = (y) => (y > 250 ? [246, 654] : [246 + ((250 - y) / 120) * 60, 654 - ((250 - y) / 120) * 60]);
+          let i = 0, satir = 0;
+          while (i < n && satir < 80) {
+            const y = 526 - r - satir * r * 1.72; const [x0, x1] = genis(y); const kay = satir % 2 ? r : 0;
+            for (let x = x0 + r + kay; x <= x1 - r && i < n; x += r * 2.02) { const [ra, rb, c] = seed[i]; const ci = Math.abs(["#ef5b3b", "#ffc233", "#6cc04a", "#2e9bd6", "#8a5cd0", "#f27ba9"].indexOf(c)); ici.append(S("circle", { cx: x + (ra - 0.5) * r * 0.25, cy: y + (rb - 0.5) * r * 0.2, r: r * (0.93 + rb * 0.07), fill: `url(#tk-b${ci})` })); i++; }
+            satir++;
+          }
+          s.append(ici);
+          /* cam: kenar kalınlığı, ön yansımalar */
+          s.append(S("path", { d: govde, fill: "url(#tk-cam)", stroke: "rgba(150,190,210,.9)", "stroke-width": 5 }),
+            S("path", { d: "M262 270 Q262 225 296 196 L296 500 Q266 496 262 470 Z", fill: "#fff", opacity: ".32" }),
+            S("path", { d: "M628 290 L636 290 L636 480 L628 480 Z", fill: "#fff", opacity: ".22" }),
+            S("path", { d: "M300 520 L600 520", stroke: "rgba(255,255,255,.5)", "stroke-width": 3 }));
+          /* vida dişli kapak */
+          s.append(S("rect", { x: 300, y: 70, width: 300, height: 54, rx: 9, fill: "url(#tk-kap)", stroke: "#6E747A", "stroke-width": 2 }));
+          for (let k = 0; k < 4; k++) s.append(S("line", { x1: 304, y1: 82 + k * 11, x2: 596, y2: 82 + k * 11, stroke: "rgba(0,0,0,.18)", "stroke-width": 2 }));
         } else {
           const tens = Math.floor(n / 10), ones = n % 10;
           for (let t = 0; t < tens; t++) {

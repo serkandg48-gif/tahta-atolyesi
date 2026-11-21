@@ -156,8 +156,7 @@
           h("div.dy-card",
           kart.sinif ? h("span.pill", "Sınıfımızın kartı") : null,
           h("div.dy-durum", kart.t),
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(kart.t) }, T.icon("speaker"), "Dinle")),
-          acik ? h("div.dy-reveal", T.yuz(kart.k, 120), h("b", d[1])) : h("button.btn.big", { onclick: () => { acik = true; ciz(); } }, "Bu durumda nasıl hissederiz?"),
+                    acik ? h("div.dy-reveal", T.yuz(kart.k, 120), h("b", d[1])) : h("button.btn.big", { onclick: () => { acik = true; ciz(); } }, "Bu durumda nasıl hissederiz?"),
           acik ? h("div.dy-qs", h("p", "Sen de hiç böyle hissettin mi? Ne oldu?"), h("p", "Arkadaşın böyle hissetse ona ne söylerdin?"), h("p", "Bu duyguyla baş etmek için ne yapabiliriz?")) : null,
           h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { cek(); ciz(); } }, T.icon("next"), "Sıradaki kart"))));
       };

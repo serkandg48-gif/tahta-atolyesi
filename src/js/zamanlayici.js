@@ -19,7 +19,7 @@
     };
     function ciz() {
       const k = kalan();
-      if (d.running && k <= 0) { d.running = false; d.left = 0; api.save(); if (!caldi) { caldi = true; T.sound.bell(); api.el && api.el.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 400, iterations: 3 }); } }
+      if (d.running && k <= 0) { d.running = false; d.left = 0; api.save(); if (!caldi) { caldi = true; T.sound.alarm(d.ses || "zil"); api.el && api.el.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 400, iterations: 3 }); } }
       if (k > 0) caldi = false;
       cizici(k, ctl);
     }
@@ -40,31 +40,130 @@
 
   const CIZ = {
     dijital(kap, d, api) {
-      const R = 88, C = 2 * Math.PI * R;
-      const svg = T.svg("svg", { viewBox: "0 0 220 220", class: "zm-halka" });
-      svg.innerHTML = `<circle cx="110" cy="110" r="${R}" fill="none" stroke="#e8ecf3" stroke-width="18"/><circle class="zm-ilerle" cx="110" cy="110" r="${R}" fill="none" stroke="#3FA36B" stroke-width="18" stroke-linecap="round" stroke-dasharray="${C}" transform="rotate(-90 110 110)"/>`;
+      /* Masa saati gibi: metal çerçeve, dakika çizgileri, süre azaldıkça kısalan renkli halka ve ucunda parlayan düğme */
+      const R = 92, C = 2 * Math.PI * R;
+      const svg = T.svg("svg", { viewBox: "0 0 240 240", class: "zm-halka" });
+      let cizgi = ""; for (let i = 0; i < 60; i++) { const aci = (i / 60) * 2 * Math.PI, uzun = i % 5 === 0, r1 = uzun ? 101 : 104, r2 = 109; cizgi += `<line x1="${120 + r1 * Math.sin(aci)}" y1="${120 - r1 * Math.cos(aci)}" x2="${120 + r2 * Math.sin(aci)}" y2="${120 - r2 * Math.cos(aci)}" stroke="${uzun ? "#5a6478" : "#aab3c2"}" stroke-width="${uzun ? 2.4 : 1.2}" stroke-linecap="round"/>`; }
+      svg.innerHTML = `<defs><radialGradient id="zm-yuz" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e6eaf1"/></radialGradient>
+        <linearGradient id="zm-cer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f6fa"/><stop offset=".5" stop-color="#b9c1cf"/><stop offset="1" stop-color="#7d8798"/></linearGradient>
+        <filter id="zm-gol" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1b2a4a" flood-opacity=".35"/></filter>
+        <filter id="zm-isik" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+        <circle cx="120" cy="120" r="118" fill="url(#zm-cer)"/><circle cx="120" cy="120" r="112" fill="url(#zm-yuz)"/>${cizgi}
+        <circle cx="120" cy="120" r="${R}" fill="none" stroke="#e3e8ef" stroke-width="16"/>
+        <circle class="zm-ilerle-isik" cx="120" cy="120" r="${R}" fill="none" stroke-width="16" stroke-linecap="round" stroke-dasharray="${C}" transform="rotate(-90 120 120)" filter="url(#zm-isik)" opacity=".55"/>
+        <circle class="zm-ilerle" cx="120" cy="120" r="${R}" fill="none" stroke-width="16" stroke-linecap="round" stroke-dasharray="${C}" transform="rotate(-90 120 120)"/>
+        <circle class="zm-dugme" r="10" fill="#fff" stroke="#c9d1dc" stroke-width="2" filter="url(#zm-gol)"/>`;
       const yazi = h("div.zm-dijital"); const kk = h("div.zm-dij-kap", svg, yazi);
       let k;
-      const ctl = sayac(d, api, (kalan, c) => { const o = c.oran(); svg.querySelector(".zm-ilerle").setAttribute("stroke-dashoffset", C * o); svg.querySelector(".zm-ilerle").setAttribute("stroke", kalan < 10 ? "#E4553F" : kalan < 60 ? "#F2A93B" : "#3FA36B"); yazi.textContent = mmss(kalan); yazi.classList.toggle("az", kalan > 0 && kalan < 10); k.guncelle(); });
+      const ctl = sayac(d, api, (kalan, c) => { const o = c.oran(), renk = kalan <= 0 ? "#c9d1dc" : kalan < 10 ? "#E4553F" : kalan < 60 ? "#F2A93B" : "#2FA36B", aci = (1 - o) * 2 * Math.PI;
+        svg.querySelectorAll(".zm-ilerle, .zm-ilerle-isik").forEach((e) => { e.setAttribute("stroke-dashoffset", C * o); e.setAttribute("stroke", renk); e.style.opacity = o >= 0.999 ? 0 : ""; });
+        const dg = svg.querySelector(".zm-dugme"); dg.setAttribute("cx", 120 + R * Math.sin(aci)); dg.setAttribute("cy", 120 - R * Math.cos(aci)); dg.style.display = kalan <= 0 ? "none" : "";
+        yazi.textContent = mmss(kalan); yazi.classList.toggle("az", kalan > 0 && kalan < 10); k.guncelle(); });
       k = kontroller(d, ctl); kk.addEventListener("click", () => ctl.dugme());
       kap.append(kk, k); return ctl;
     },
     mum(kap, d, api) {
-      const svg = T.svg("svg", { viewBox: "0 0 200 260", class: "zm-mum" });
-      svg.innerHTML = `<defs><linearGradient id="zm-mumg" x1="0" x2="1"><stop offset="0" stop-color="#f7d9a8"/><stop offset=".5" stop-color="#fff3dc"/><stop offset="1" stop-color="#e8c08a"/></linearGradient><radialGradient id="zm-alev" cx="50%" cy="70%" r="60%"><stop offset="0" stop-color="#fff7c2"/><stop offset=".5" stop-color="#ffc23d"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient></defs>
-        <ellipse cx="100" cy="246" rx="70" ry="10" fill="#b38a5a" opacity=".35"/><ellipse cx="100" cy="240" rx="62" ry="12" fill="#c9a06a"/>
-        <g class="zm-mum-g"><rect class="zm-govde" x="66" y="60" width="68" height="180" rx="10" fill="url(#zm-mumg)" stroke="#d2a66d" stroke-width="2"/><ellipse class="zm-ust" cx="100" cy="60" rx="34" ry="8" fill="#fff6e4" stroke="#d2a66d" stroke-width="2"/>
-        <line class="zm-fitil" x1="100" y1="60" x2="100" y2="46" stroke="#3b2a1a" stroke-width="3" stroke-linecap="round"/><g class="zm-alev-g"><ellipse cx="100" cy="30" rx="26" ry="36" fill="url(#zm-alev)" opacity=".5"/><path d="M100 4 C114 24 116 38 100 48 C84 38 86 24 100 4Z" fill="#ffb000"/><path d="M100 18 C107 30 107 38 100 44 C93 38 93 30 100 18Z" fill="#fff4b0"/></g></g>`;
+      /* Gerçeğe yakın mum: içten ışıyan mum gövdesi, eriyen tepe çukuru, akan damlalar, titreyen alev ve odaya vuran ışık */
+      const svg = T.svg("svg", { viewBox: "0 0 240 320", class: "zm-mum" });
+      svg.innerHTML = `<defs>
+        <linearGradient id="zm-govde" x1="0" x2="1"><stop offset="0" stop-color="#d9b98c"/><stop offset=".18" stop-color="#f6e6c8"/><stop offset=".45" stop-color="#fff6e6"/><stop offset=".75" stop-color="#f1dcb8"/><stop offset="1" stop-color="#c79f6c"/></linearGradient>
+        <linearGradient id="zm-ici" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a" stop-opacity=".75"/><stop offset=".25" stop-color="#ffe2a8" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        <radialGradient id="zm-cukur" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#ffe9b0"/><stop offset=".7" stop-color="#f3d39a"/><stop offset="1" stop-color="#d9b07a"/></radialGradient>
+        <radialGradient id="zm-oda" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffcf6b" stop-opacity=".55"/><stop offset=".45" stop-color="#ffb347" stop-opacity=".18"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+        <radialGradient id="zm-alev-dis" cx="50%" cy="75%" r="65%"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#ffb43a"/><stop offset=".85" stop-color="#ff6a00" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a00" stop-opacity="0"/></radialGradient>
+        <radialGradient id="zm-alev-ic" cx="50%" cy="80%" r="60%"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#fff6cf"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient>
+        <radialGradient id="zm-mavi" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#4f7bff" stop-opacity=".85"/><stop offset="1" stop-color="#4f7bff" stop-opacity="0"/></radialGradient>
+        <linearGradient id="zm-tabak" x1="0" x2="1"><stop offset="0" stop-color="#8a5a1e"/><stop offset=".35" stop-color="#e8c06a"/><stop offset=".6" stop-color="#b98a35"/><stop offset="1" stop-color="#6e4515"/></linearGradient>
+        <filter id="zm-bulanik"><feGaussianBlur stdDeviation="2.2"/></filter>
+        <filter id="zm-cokbulanik" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <circle class="zm-oda" cx="120" cy="80" r="140" fill="url(#zm-oda)"/>
+        <ellipse cx="120" cy="300" rx="92" ry="12" fill="#000" opacity=".18" filter="url(#zm-bulanik)"/>
+        <ellipse cx="120" cy="292" rx="86" ry="16" fill="url(#zm-tabak)"/><ellipse cx="120" cy="288" rx="74" ry="11" fill="#c89a45"/><ellipse cx="120" cy="287" rx="66" ry="8" fill="#d8ac58"/>
+        <g class="zm-mum-g">
+          <rect class="zm-govde" x="80" y="90" width="80" height="196" fill="url(#zm-govde)"/>
+          <rect class="zm-govde-isik" x="80" y="90" width="80" height="196" fill="url(#zm-ici)"/>
+          <g class="zm-tepe">
+            <path d="M80 0 Q80 10 92 12 Q120 16 148 12 Q160 10 160 0Z" fill="#f3dfbd"/>
+            <ellipse cx="120" cy="0" rx="40" ry="9" fill="#fbeed6"/><ellipse cx="120" cy="1.5" rx="31" ry="6.2" fill="url(#zm-cukur)"/>
+            <path d="M83 2 q-3 14 -1 30 q2 6 4 0 q1 -14 2 -26Z" fill="#f7e8cc"/><path d="M151 4 q4 10 2 44 q-2 8 -5 1 q0 -20 -1 -42Z" fill="#f4e2c2"/><path d="M118 8 q2 6 0 16 q-3 4 -4 0 q0 -8 0 -14Z" fill="#fbf0dc" opacity=".8"/>
+            <path class="zm-fitil" d="M120 2 C120 -4 118 -8 121 -14" stroke="#2b1d12" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="121" cy="-14" r="1.8" fill="#ff7a2a"/>
+            <g class="zm-alev-g">
+              <ellipse cx="121" cy="-40" rx="30" ry="44" fill="#ffb84a" opacity=".45" filter="url(#zm-cokbulanik)"/>
+              <ellipse cx="121" cy="-12" rx="7" ry="5" fill="url(#zm-mavi)"/>
+              <path d="M121 -78 C134 -52 138 -30 131 -18 C127 -11 115 -11 111 -18 C104 -30 109 -52 121 -78Z" fill="url(#zm-alev-dis)"/>
+              <path d="M121 -54 C128 -38 129 -26 125 -19 C123 -16 119 -16 117 -19 C113 -26 114 -38 121 -54Z" fill="url(#zm-alev-ic)"/>
+            </g>
+            <path class="zm-duman" d="M121 -16 C116 -30 128 -44 120 -60 C113 -74 126 -86 119 -104" stroke="#9aa3ad" stroke-width="3" fill="none" stroke-linecap="round" opacity="0"/>
+          </g>
+        </g>`;
       const yazi = h("div.zm-alt-yazi"); let k;
-      const ctl = sayac(d, api, (kalan, c) => { const o = c.oran(), hgt = 180 * (1 - o * 0.85), y = 240 - hgt;
-        svg.querySelector(".zm-govde").setAttribute("y", y); svg.querySelector(".zm-govde").setAttribute("height", hgt); svg.querySelector(".zm-ust").setAttribute("cy", y);
-        svg.querySelector(".zm-fitil").setAttribute("y1", y); svg.querySelector(".zm-fitil").setAttribute("y2", y - 14);
-        const al = svg.querySelector(".zm-alev-g"); al.setAttribute("transform", `translate(0 ${y - 60})`); al.style.display = kalan <= 0 ? "none" : ""; al.classList.toggle("yaniyor", d.running);
-        yazi.textContent = kalan <= 0 ? "Süre bitti" : mmss(kalan); k.guncelle(); });
+      const ctl = sayac(d, api, (kalan, c) => { const o = c.oran(), bitti = kalan <= 0 && d.total, hgt = 196 * (1 - o * 0.8), y = 286 - hgt;
+        const g1 = svg.querySelector(".zm-govde"), g2 = svg.querySelector(".zm-govde-isik"); [g1, g2].forEach((e) => { e.setAttribute("y", y); e.setAttribute("height", hgt); });
+        svg.querySelector(".zm-tepe").setAttribute("transform", `translate(0 ${y})`);
+        const al = svg.querySelector(".zm-alev-g"); al.style.display = bitti ? "none" : ""; al.classList.toggle("yaniyor", !!d.running);
+        svg.querySelector(".zm-oda").setAttribute("cy", y - 40); svg.querySelector(".zm-oda").style.opacity = bitti ? 0 : 1; svg.querySelector(".zm-oda").classList.toggle("titrek", !!d.running);
+        svg.querySelector(".zm-duman").classList.toggle("tutsun", !!bitti);
+        yazi.textContent = bitti ? "Mum söndü, süre bitti" : mmss(kalan); k.guncelle(); });
       k = kontroller(d, ctl); svg.addEventListener("click", () => ctl.dugme());
-      kap.append(h("div.zm-sahne", svg), yazi, k); return ctl;
+      kap.append(h("div.zm-sahne.zm-mum-sahne", svg), yazi, k); return ctl;
     },
     yaris(kap, d, api) {
+      /* 3B yarış pisti: canlandırılmış hayvanlar koşar. 3B açılmazsa düz çizim. Kazanan rastgele, herkes süre bitince varır. */
+      if (!T.sahne3 || !T.karakter3B) return CIZ.yaris2d(kap, d, api);
+      const KOS = [["kedi", "Kedi", 1.35], ["kopek", "Köpek", 1.5], ["sincap", "Sincap", 1.7], ["robot", "Robot", 1.7]];
+      d.yaris = d.yaris || { tohum: Math.random() };
+      const kazananI = () => Math.floor(d.yaris.tohum * KOS.length);
+      const konum = (i, o) => { const s2 = d.yaris.tohum * 1000 + i * 17.3; const dal = Math.sin(o * 9 + s2) * 0.06 + Math.sin(o * 23 + s2 * 2) * 0.03; const son = i === kazananI() ? 1 : 0.9 + ((s2 * 7) % 1) * 0.08; return Math.max(0, Math.min(1, o * son + dal * Math.sin(Math.PI * o))); };
+      const sahneK = h("div.zm-3b"), bilgi = h("div.zm-3b-bilgi", "Koşucular piste geliyor..."), yazi = h("div.zm-alt-yazi");
+      let k, kosucular = null, sonDurum = "";
+      const ctl = sayac(d, api, (kalan, c) => {
+        const bitti = kalan <= 0 && d.total;
+        yazi.textContent = bitti ? "Kazanan: " + KOS[kazananI()][1] + "!" : mmss(kalan); k.guncelle();
+        if (!kosucular) return;
+        const o = c.oran(), durum = bitti ? "bitti" : d.running ? "kos" : "dur";
+        kosucular.forEach((kc, i) => { const p = bitti ? (i === kazananI() ? 1 : Math.min(0.97, konum(i, 1))) : konum(i, o); kc.hedefX = -5.6 + p * 11.2; });
+        if (durum !== sonDurum) { sonDurum = durum;
+          kosucular.forEach((kc, i) => { if (durum === "kos") kc.n.oynat(kc.n.var("kos") ? "kos" : "yuru", { hiz: kc.n.var("kos") ? 1 : 1.6 }); else if (durum === "bitti" && i === kazananI() && kc.n.var("sevin")) kc.n.oynat("sevin"); else kc.n.oynat(kc.n.dortAyak ? "bekle" : "dur"); }); }
+      });
+      k = kontroller(d, ctl);
+      const yeni = h("button.btn.sm.c-chalk", { onclick: () => { d.yaris.tohum = Math.random(); sonDurum = ""; ctl.sifirla(); } }, T.icon("dice"), "Yeni yarış");
+      k.lastChild.append(yeni);
+      kap.append(h("div.zm-sahne.zm-3b-kap", sahneK, bilgi), yazi, k);
+      T.sahne3(sahneK, { kamera: [-1.2, 4.4, 8.6], bak: [0.4, 0.5, 0], fov: 40, env: ["#EAF6FF", "#BFE3A8", "#4E7A3A"], arka: ["#8FCBF2", "#E8F6FF"], sigdir: 10, oran: 1.5 }, api).then(async (c) => {
+        if (!c) { kap.replaceChildren(); return CIZ.yaris2d(kap, d, api); }
+        const { THREE, sahne, r } = c; r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+        sahne.add(new THREE.HemisphereLight(0xffffff, 0x6b8f4e, 1.1));
+        const gun = new THREE.DirectionalLight(0xfff3dd, 2.2); gun.position.set(-6, 12, 8); gun.castShadow = true; gun.shadow.mapSize.set(1024, 1024); Object.assign(gun.shadow.camera, { left: -12, right: 12, top: 8, bottom: -8 }); sahne.add(gun);
+        const cimen = c.doku(512, 512, (x, w) => { x.fillStyle = "#79b957"; x.fillRect(0, 0, w, w); for (let i = 0; i < 9000; i++) { x.strokeStyle = Math.random() < 0.5 ? "rgba(50,100,35,.25)" : "rgba(190,230,130,.25)"; const px = Math.random() * w, py = Math.random() * w; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.random() * 3 - 1.5, py - 4 - Math.random() * 4); x.stroke(); } });
+        cimen.wrapS = cimen.wrapT = THREE.RepeatWrapping; cimen.repeat.set(8, 8);
+        const zemin = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshStandardMaterial({ map: cimen, roughness: 1 })); zemin.rotation.x = -Math.PI / 2; zemin.receiveShadow = true; sahne.add(zemin);
+        const N = KOS.length, SER = 1.7;
+        const pist = c.doku(1024, 256, (x, w, hh) => { x.fillStyle = "#c4553b"; x.fillRect(0, 0, w, hh); for (let i = 0; i < 20000; i++) { x.fillStyle = Math.random() < 0.5 ? "rgba(0,0,0,.08)" : "rgba(255,255,255,.07)"; x.fillRect(Math.random() * w, Math.random() * hh, 2, 2); } });
+        const pistM = new THREE.Mesh(new THREE.PlaneGeometry(14, N * SER), new THREE.MeshStandardMaterial({ map: pist, roughness: 0.9 })); pistM.rotation.x = -Math.PI / 2; pistM.position.y = 0.01; pistM.receiveShadow = true; sahne.add(pistM);
+        const cizgiM = new THREE.MeshBasicMaterial({ color: 0xffffff }); for (let i = 0; i <= N; i++) { const cz = new THREE.Mesh(new THREE.PlaneGeometry(14, 0.07), cizgiM); cz.rotation.x = -Math.PI / 2; cz.position.set(0, 0.015, -N * SER / 2 + i * SER); sahne.add(cz); }
+        const dama = c.doku(64, 256, (x, w, hh) => { const kk = 16; for (let i = 0; i < w / kk; i++) for (let j = 0; j < hh / kk; j++) { x.fillStyle = (i + j) % 2 ? "#111" : "#fff"; x.fillRect(i * kk, j * kk, kk, kk); } });
+        const bitis = new THREE.Mesh(new THREE.PlaneGeometry(0.6, N * SER), new THREE.MeshStandardMaterial({ map: dama })); bitis.rotation.x = -Math.PI / 2; bitis.position.set(6.1, 0.02, 0); sahne.add(bitis);
+        const baslangic = new THREE.Mesh(new THREE.PlaneGeometry(0.12, N * SER), new THREE.MeshBasicMaterial({ color: 0xffffff })); baslangic.rotation.x = -Math.PI / 2; baslangic.position.set(-6.1, 0.02, 0); sahne.add(baslangic);
+        /* bitiş kemeri */
+        const direkM = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.5 });
+        [-1, 1].forEach((y) => { const dk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 3.2, 12), direkM); dk.position.set(6.1, 1.6, y * (N * SER / 2 + 0.3)); dk.castShadow = true; sahne.add(dk); });
+        const pankart = c.doku(512, 96, (x, w, hh) => { x.fillStyle = "#1B2A4A"; x.fillRect(0, 0, w, hh); x.fillStyle = "#FFD45A"; x.font = "800 58px sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("BİTİŞ", w / 2, hh / 2 + 2); });
+        const pk = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.6, N * SER + 0.6), [direkM, new THREE.MeshStandardMaterial({ map: pankart }), direkM, direkM, direkM, direkM]); pk.position.set(6.1, 3.0, 0); sahne.add(pk);
+        /* çevre: çit ve ağaçlar */
+        for (let i = 0; i < 9; i++) { const t = new THREE.Mesh(new THREE.SphereGeometry(0.9 + Math.random() * 0.5, 14, 10), new THREE.MeshStandardMaterial({ color: [0x4f9a3c, 0x5fae47, 0x3f8a33][i % 3], roughness: 1 })); t.position.set(-9 + i * 2.3, 1.6, -N * SER / 2 - 3 - Math.random()); t.castShadow = true; sahne.add(t); const gv = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x7a4f2a })); gv.position.set(t.position.x, 0.6, t.position.z); sahne.add(gv); }
+        try {
+          const yuklu = await Promise.all(KOS.map(([ad, , boy]) => T.karakter3B(c, ad, { boy })));
+          kosucular = yuklu.map((n, i) => { const z = (i - (N - 1) / 2) * SER; n.kok.position.set(-5.6, 0, z); n.kok.rotation.y = Math.PI / 2; sahne.add(n.kok);
+            /* modelin gövdesi kendi merkezinde olmayabilir: kulvarın ortasına hizala */
+            n.kok.updateMatrixWorld(true); const kt = new THREE.Box3().setFromObject(n.model, true), mz = (kt.min.z + kt.max.z) / 2; if (isFinite(mz)) n.kok.position.z += z - mz; return { n, hedefX: -5.6 }; });
+          bilgi.replaceChildren(...KOS.map(([, ad], i) => h("span", ad))); bilgi.classList.add("adlar");
+          sonDurum = ""; ctl.ciz();
+        } catch (e) { console.error(e); bilgi.textContent = "Koşucular yüklenemedi"; }
+        c.kare = (dt) => { if (!kosucular) return; kosucular.forEach((kc) => { const p = kc.n.kok.position; p.x += (kc.hedefX - p.x) * Math.min(1, dt * 4); kc.n.guncelle(dt); }); };
+      });
+      return ctl;
+    },
+    yaris2d(kap, d, api) {
       const KOS = [["kaplumbaga", "Kaplumbağa"], ["rabbit", "Tavşan"], ["snail", "Salyangoz"], ["hedgehog", "Kirpi"], ["penguen", "Penguen"]];
       const src = (a) => (["rabbit", "snail", "hedgehog"].includes(a) ? "/orman/" + a + ".webp" : "/oyun3d/" + a + ".webp");
       d.yaris = d.yaris || { tohum: Math.random() };
@@ -88,9 +187,9 @@
       let sonEvre = null;
       function ciz() {
         const t = gecen(), tur = a.calis + a.mola, top = tur * a.tekrar;
-        if (t >= top) { if (a.running) { a.running = false; a.gecen = top; api.save(); T.sound.bell(); } }
+        if (t >= top) { if (a.running) { a.running = false; a.gecen = top; api.save(); T.sound.alarm(d.ses || "zil"); } }
         const ti = Math.min(a.tekrar - 1, Math.floor(t / tur)), ic = t - ti * tur, calismada = ic < a.calis, bitti = t >= top;
-        const evre = bitti ? "bitti" : (calismada ? "c" : "m") + ti; if (sonEvre && evre !== sonEvre && a.running) T.sound.bell(); sonEvre = evre;
+        const evre = bitti ? "bitti" : (calismada ? "c" : "m") + ti; if (sonEvre && evre !== sonEvre && a.running && evre !== "bitti") T.sound.alarm(calismada ? "nazik" : "kus"); sonEvre = evre;
         ust.textContent = bitti ? "Bitti!" : (calismada ? "Çalışma" : "Mola") + " · " + (ti + 1) + ". tur / " + a.tekrar;
         ust.className = "zm-ar-ust " + (bitti ? "bitti" : calismada ? "calis" : "mola");
         yazi.textContent = bitti ? "0:00" : mmss(calismada ? a.calis - ic : tur - ic);
@@ -110,7 +209,7 @@
       const kutular = [0, 1].map((i) => h("button.zm-takim", { onclick: () => gec(1 - i) }, h("input.zm-takim-ad", { value: t.adlar[i], onclick: (e) => e.stopPropagation(), onchange: (e) => { t.adlar[i] = e.target.value; api.save(); } }), h("b"), h("small", "Sözü bitince dokun")));
       function ciz() {
         [0, 1].forEach((i) => { const k = Math.max(0, kalan(i)); kutular[i].querySelector("b").textContent = mmss(k); kutular[i].classList.toggle("aktif", t.sira === i); kutular[i].classList.toggle("bitti", k <= 0);
-          if (t.sira === i && k <= 0) { t.kalan[i] = 0; t.sira = -1; api.save(); T.sound.bell(); } });
+          if (t.sira === i && k <= 0) { t.kalan[i] = 0; t.sira = -1; api.save(); T.sound.alarm(d.ses || "zil"); } });
       }
       kap.append(h("div.zm-takimlar", kutular), h("div.row", { style: { justifyContent: "center", gap: "6px" } },
         h("button.btn.sm.c-leaf", { onclick: () => gec(0) }, T.icon("play"), "Başlat"), h("button.btn.sm.c-chalk", { onclick: () => { if (t.sira >= 0) t.kalan[t.sira] = kalan(t.sira); t.sira = -1; api.save(); ciz(); } }, T.icon("pause"), "Durdur"),
@@ -127,7 +226,9 @@
     body.style.gridTemplateRows = "auto 1fr"; body.style.gap = "8px";
     const sekme = h("div.zm-sekmeler", { role: "tablist" });
     const ic = h("div.zm-ic");
-    body.append(sekme, ic);
+    const sesSec = h("label.zm-ses", { title: "Süre bitince çalacak ses" }, T.icon("speaker"),
+      h("select", { "aria-label": "Bitiş sesi", onchange: (e) => { d.ses = e.target.value; api.save(); T.sound.alarm(d.ses); } }, T.sound.ALARMLAR.map(([k, l]) => h("option", { value: k, selected: (d.ses || "zil") === k ? true : null }, l))));
+    body.append(h("div.zm-ust", sekme, sesSec), ic);
     let yerel = [], iv = 0;
     const subApi = Object.assign({}, api, { onDestroy: (f) => yerel.push(f) });
     function kur() {

@@ -231,7 +231,7 @@
         const [soru, sk, d, r] = l[i % l.length];
         box.replaceChildren(h("div.dy-card", r ? isik(r) : null, h("div.dy-durum", soru),
           h("div.gy-sec", sk.map((x, j) => h("button.ay-kutu" + (sec != null ? (j === d ? ".right" : j === sec ? ".wrong" : "") : ""), { style: { "--c": "#3C8DD8" }, onclick: () => { if (sec != null) return; sec = j; j === d ? T.sound.ok() : T.sound.no(); ciz(); } }, h("b", x)))),
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(soru) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; sec = null; ciz(); } }, T.icon("next"), "Sıradaki"))));
+          h("div.row", { style: { justifyContent: "center" } }, h("button.btn", { onclick: () => { i++; sec = null; ciz(); } }, T.icon("next"), "Sıradaki"))));
       }
       ciz();
     } });

@@ -189,6 +189,23 @@
   };
 
   /* Şşşş uyarısı: ses sınırı aşılınca ekranın üstünde büyük uyarı. Öğretmen dokunana kadar kalır. */
+  /* "Şşşşt" sesi: yumuşak başlayıp güçlenen, ağızdan çıkan hışırtıya benzer süzülmüş gürültü. Ortak ses bağlamı kullanılır, telefonda da çalar. */
+  T.sssSes = function () {
+    try {
+      const c = T.sound.ctx(); if (!c) return; const t0 = c.currentTime + 0.02;
+      const ses = (bas, sure, tepe) => {
+        const n = Math.floor(c.sampleRate * sure), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); let son = 0;
+        for (let i = 0; i < n; i++) { const r = Math.random() * 2 - 1; son = son * 0.35 + r * 0.65; d[i] = son; }
+        const s = c.createBufferSource(); s.buffer = b;
+        const hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 1700;
+        const bp = c.createBiquadFilter(); bp.type = "peaking"; bp.frequency.value = 3000; bp.Q.value = 1.2; bp.gain.value = 9;
+        const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 6500;
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t0 + bas); g.gain.exponentialRampToValueAtTime(tepe, t0 + bas + 0.25); g.gain.setValueAtTime(tepe, t0 + bas + sure - 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t0 + bas + sure);
+        s.connect(hp).connect(bp).connect(lp).connect(g).connect(c.destination); s.start(t0 + bas);
+      };
+      ses(0, 1.6, 0.9); ses(1.9, 0.9, 0.7);
+    } catch (e) {}
+  };
   T.sssUyari = function (sesli) {
     let el = document.getElementById("sss-uyari");
     if (!el) {
@@ -198,7 +215,7 @@
     }
     el._n++; el.querySelector(".sss-say").textContent = el._n > 1 ? el._n + ". uyarı" : "";
     el.classList.remove("sars"); void el.offsetWidth; el.classList.add("sars");
-    if (sesli) { try { const c = new (window.AudioContext || window.webkitAudioContext)(), n = c.sampleRate * 1.4, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.min(1, i / 2500) * Math.min(1, (n - i) / 9000); const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 3800; f.Q.value = 0.9; const g = c.createGain(); g.gain.value = 0.5; s.connect(f); f.connect(g); g.connect(c.destination); s.start(); s.onended = () => c.close(); } catch (e) {} }
+    if (sesli) T.sssSes();
   };
   /* ---------- Ses ölçer ---------- */
   W.noise = {
@@ -213,13 +230,13 @@
       bar.append(fill, line, face);
       const slider = h("input", { type: "range", min: 20, max: 95, value: d.limit, "aria-label": "Ses sınırı", oninput: (e) => { d.limit = +e.target.value; api.save(); line.style.bottom = d.limit + "%"; } });
       line.style.bottom = d.limit + "%";
-      const startBtn = h("button.btn.sm.c-sky", { onclick: start }, T.icon("noise"), "Dinle");
+      const startBtn = h("button.btn.sm.c-sky", { onclick: start }, T.icon("mic"), "Mikrofonu aç");
       body.style.gridTemplateRows = "1fr auto"; body.style.gap = "8px";
       const sec = (k, l) => h("label.row", { style: { gap: "6px", fontSize: "14px", cursor: "pointer" } }, h("input", { type: "checkbox", checked: d[k] ? true : null, onchange: (e) => { d[k] = e.target.checked; api.save(); } }), l);
       body.style.gridTemplateRows = "1fr auto auto";
       body.append(bar, h("div.row", startBtn, h("label.f", { style: { flex: 1 } }, h("span", "Sınır"), slider)), h("div.row", { style: { gap: "14px" } }, sec("uyari", "Şşşş uyarısı"), sec("sesli", "Uyarı sesi")));
       let stream = null, raf = 0, over = 0, sonUyari = 0;
-      async function start() {
+      async function start() { T.sound.unlock();
         if (T.muzik && T.muzik.aktif && T.muzik.aktif()) { T.muzik.birak(); T.toast("Ses ölçer hoparlörü duymasın diye müzik durduruldu"); }
         try {
           stream = await navigator.mediaDevices.getUserMedia({ audio: true });

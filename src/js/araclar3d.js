@@ -345,12 +345,12 @@
       const d = w.data; if (d.uyari === undefined) { d.uyari = true; d.sesli = true; }
       const kap = T.h("div.zar3-kap.vu3-kap"), yuz = T.h("div.vu3-yazi", "Mikrofonu aç");
       const slider = T.h("input", { type: "range", min: 20, max: 95, value: d.limit, "aria-label": "Ses sınırı", oninput: (e) => { d.limit = +e.target.value; api.save(); } });
-      const startBtn = T.h("button.btn.sm.c-sky", { onclick: start }, T.icon("noise"), "Dinle");
+      const startBtn = T.h("button.btn.sm.c-sky", { onclick: start }, T.icon("mic"), "Mikrofonu aç");
       const sec = (k, l) => T.h("label.row", { style: { gap: "6px", fontSize: "14px", cursor: "pointer" } }, T.h("input", { type: "checkbox", checked: d[k] ? true : null, onchange: (e) => { d[k] = e.target.checked; api.save(); } }), l);
       body.style.gridTemplateRows = "1fr auto auto auto"; body.style.gap = "6px";
-      body.append(kap, yuz, T.h("div.row", startBtn, T.h("label.f", { style: { flex: 1 } }, T.h("span", "Sınır"), slider)), T.h("div.row", { style: { gap: "14px" } }, sec("uyari", "Şşşş uyarısı"), sec("sesli", "Uyarı sesi")));
+      body.append(kap, yuz, T.h("div.row", startBtn, T.h("label.f", { style: { flex: 1 } }, T.h("span", "Sınır"), slider)), T.h("div.row", { style: { gap: "14px" } }, T.h("button.btn.sm.c-chalk", { onclick: () => { T.sound.unlock(); T.sssSes(); } }, "Şşşt sesini dene"), sec("uyari", "Şşşş uyarısı"), sec("sesli", "Uyarı sesi")));
       let seviye = 0, yuksek = false, stream = null, raf = 0, over = 0, sonUyari = 0;
-      async function start() {
+      async function start() { T.sound.unlock();
         try {
           stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           const ctx = new (window.AudioContext || window.webkitAudioContext)(), an = ctx.createAnalyser(); an.fftSize = 512; ctx.createMediaStreamSource(stream).connect(an);

@@ -253,13 +253,17 @@
 /* Ekran perdesi: açık araçları kapatmadan ekranı sakin bir perdeyle örter; dokununca ya da Esc ile açılır. Kısayol: B */
 T.perde = function () {
   if (document.getElementById("ekran-perde")) return;
+  /* Tiyatro perdesi: iki kadife kanat iki yandan kayıp ortada buluşur; üstte saçaklı pelmeç. Dokununca perde açılır. */
   const saat = T.h("b"), yaz = () => (saat.textContent = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }));
-  const el = T.h("div#ekran-perde", { role: "dialog", "aria-label": "Ekran perdesi" }, saat, T.h("span", "Dinliyoruz"), T.h("small", "Açmak için dokun"));
+  const el = T.h("div#ekran-perde.tiyatro", { role: "dialog", "aria-label": "Ekran perdesi" },
+    T.h("div.tp-kanat.sol"), T.h("div.tp-kanat.sag"), T.h("div.tp-pelmec"),
+    T.h("div.tp-yazi", saat, T.h("span", "Dinliyoruz"), T.h("small", "Açmak için dokun")));
   yaz(); const iv = setInterval(yaz, 15000);
-  const kapat = () => { clearInterval(iv); el.classList.add("kapan"); setTimeout(() => el.remove(), 300); removeEventListener("keydown", tus); };
+  const kapat = () => { if (el.classList.contains("aciliyor")) return; clearInterval(iv); el.classList.add("aciliyor"); removeEventListener("keydown", tus); setTimeout(() => el.remove(), 1500); };
   const tus = (e) => { if (e.key === "Escape" || e.key === "b" || e.key === "B") kapat(); };
   el.addEventListener("click", kapat); addEventListener("keydown", tus);
   document.body.append(el);
+  try { const c = T.sound.ctx(); if (c) { /* kumaş hışırtısı */ const n = Math.floor(c.sampleRate * 1.3), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / n) * 0.5; const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 900; const g = c.createGain(); g.gain.value = 0.25; s.connect(f).connect(g).connect(c.destination); s.start(); } } catch (e) {}
 };
 addEventListener("keydown", (e) => {
   if ((e.key === "b" || e.key === "B") && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || "")) && !e.target.isContentEditable && !document.getElementById("ekran-perde")) T.perde();

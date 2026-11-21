@@ -186,7 +186,7 @@
           h("div.row", { style: { justifyContent: "center", gap: "14px" } },
             h("button.btn.big.ak-evet", { onclick: () => { T.sound.ok(); if (i + 1 < adimlar.length) i++; else sonuc = "son"; ciz(); } }, T.icon("check"), a.evet || "Evet"),
             h("button.btn.big.ak-hayir", { onclick: () => { sonuc = a.hayir; if (def.onHayir) def.onHayir(a); ciz(); } }, T.icon("close"), a.hayirAd || "Hayır")),
-          h("button.btn.sm.c-chalk", { onclick: () => T.speak(a.soru) }, T.icon("speaker"), "Dinle"));
+          );
       }
       box.replaceChildren(def.ust ? def.ust() : null, h("div.ak-wrap" + (def.sinif ? "." + def.sinif : ""), yan, merkez));
     }
@@ -244,7 +244,7 @@
           h("div.row", { style: { justifyContent: "center", gap: "14px" } },
             h("button.btn.big.ak-evet", { onclick: () => { T.sound.ok(); if (adim < 2) adim++; else durum = "temiz"; ciz(); } }, T.icon("check"), "Evet"),
             h("button.btn.big.ak-hayir", { onclick: () => { durum = "kova"; if (inp.value.trim()) kova.push(inp.value.trim()); T.sound.pop(); ciz(); } }, T.icon("close"), "Hayır")),
-          h("button.btn.sm.c-chalk", { onclick: () => T.speak(soru) }, T.icon("speaker"), "Dinle")); }
+          ); }
         box.replaceChildren(h("div.zs-grid", sahne, h("div", kart, kova.length ? h("div.zs-kovalist", h("b", "Kovada bekleyenler"), kova.map((x) => h("div.dy-bubble", x))) : null)));
       }
       inp.addEventListener("input", () => { const e = box.querySelector(".zs-soz"); if (e) e.textContent = inp.value.trim() || "Sözcüklerim"; });
@@ -396,7 +396,6 @@
           secim ? h("div.ay-sonuc", { style: { "--c": kutu(sonucKutu)[2] } }, def.sonuc(kutu(sonucKutu))) : null,
           secim && def.serbest ? h("p.sb-line", "Herkes aynı büyüklükte görmeyebilir. Farklı düşünen var mı? Neden?") : null,
           h("div.row", { style: { justifyContent: "center" } },
-            h("button.btn.c-chalk", { onclick: () => T.speak(t) }, T.icon("speaker"), "Dinle"),
             h("button.btn", { onclick: () => { sonraki(); ciz(); } }, T.icon("next"), "Sıradaki durum"),
             def.anahtar ? h("button.btn.c-chalk", { onclick: () => durumEkle() }, T.icon("plus"), "Durum ekle") : null)),
         def.anahtar && (veri(def.anahtar) || []).length ? h("details.ks-diger", h("summary", "Sınıfımızın eklediği durumlar (" + veri(def.anahtar).length + ")"), h("div", { style: { display: "grid", gap: "6px" } }, veri(def.anahtar).map((x) => h("div.row", h("span", { style: { flex: 1 } }, x.t + (def.serbest ? "" : " · " + kutu(x.k)[1])), h("button.btn.sm.c-chalk", { "aria-label": "Sil", onclick: () => { yaz(def.anahtar, (o) => (o || []).filter((y) => y.t !== x.t)); sira = sira.filter((y) => y[0] !== x.t); ciz(); } }, T.icon("close")))))) : null);

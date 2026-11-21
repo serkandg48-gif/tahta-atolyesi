@@ -203,7 +203,6 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
             h("button.btn", { onclick: () => { T._okumaMetni = r.metin; T.go("turkce-okuma-hizi"); } }, T.icon("speed"), "Okuma hızında aç"),
             h("button.btn.c-chalk", { onclick: () => yazdir(kagit, r.baslik) }, T.icon("download"), "Yazdır ya da PDF"),
             h("button.btn.c-chalk", { onclick: () => { T.store.update((s) => { s.metinler = s.metinler || {}; (s.metinler[cid()] = s.metinler[cid()] || []).push(Object.assign({ id: T.uid(), d: T.isoDate() }, r)); }); T.toast("Kaydedildi"); } }, T.icon("check"), "Kaydet"),
-            h("button.btn.c-chalk", { onclick: () => T.speak(String(r.metin).slice(0, 400)) }, T.icon("speaker"), "Dinle"),
             h("button.btn.c-chalk", { onclick: () => { sonucV = null; cikti.replaceChildren(); kayitlilar(); } }, "Kapat")),
           kagit, cevap);
       }
@@ -289,7 +288,7 @@ JSON: {"baslik":"", "metin":"", "kelimeler":[{"k":"","a":""}], "coktan":[{"s":""
           ic = h("div.dy-card.m-defter", h("div.dy-durum", c, h("span.nt-bos", cevap || "_")),
             h("div.row", { style: { justifyContent: "center", gap: "14px" } }, [[".", "Nokta"], ["?", "Soru işareti"], ["!", "Ünlem"]].map(([k, l]) => h("button.btn.big" + (cevap ? (k === d ? ".c-leaf" : k === cevap ? ".c-tomato" : ".c-chalk") : ".c-chalk"), { onclick: () => { if (cevap) return; cevap = k; k === d ? T.sound.ok() : T.sound.no(); ciz(); } }, h("b", { style: { fontSize: "34px" } }, k), l))),
             cevap ? h("p.sb-line", cevap === d ? "Doğru!" : "Bu cümlenin sonuna " + { ".": "nokta", "?": "soru işareti", "!": "ünlem" }[d] + " gelir. Cümleyi o duyguyla bir daha okuyalım.") : null,
-            h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => T.speak(c) }, T.icon("speaker"), "Dinle"), h("button.btn", { onclick: () => { i++; cevap = null; ciz(); } }, T.icon("next"), "Sıradaki")));
+            h("div.row", { style: { justifyContent: "center" } }, h("button.btn", { onclick: () => { i++; cevap = null; ciz(); } }, T.icon("next"), "Sıradaki")));
         } else {
           const [c, d] = bL[i % bL.length]; const ws = c.split(" ");
           ic = h("div.dy-card.m-kart", h("p.sb-line", "Büyük harfle başlaması gereken kelimelere dokun."),

@@ -103,7 +103,23 @@ T.sound = (() => {
     no: () => tone(180, 0.25, "sawtooth", 0.08),
     bell: () => { [0, 0.35, 0.7].forEach((t) => { tone(880, 0.6, "sine", 0.25, t); tone(1320, 0.4, "sine", 0.08, t); }); },
     drum: () => { for (let i = 0; i < 10; i++) tone(120 + Math.random() * 60, 0.05, "square", 0.05, i * 0.06); },
-    unlock: ac,
+    unlock: () => { const c = ac(); if (c && c.state === "suspended") c.resume().catch(() => {}); return c; },
+    ctx: () => { const c = ac(); if (c && c.state === "suspended") c.resume().catch(() => {}); return c; },
+    /* süre bitince çalan sesler; öğretmen seçer */
+    alarm(tur = "zil") {
+      const c = ac(); if (!c) return; if (c.state === "suspended") c.resume().catch(() => {});
+      const t0 = c.currentTime + 0.02;
+      const ton = (f, bas, sure, vol, tip = "sine", f2) => { try { const o = c.createOscillator(), g = c.createGain(); o.type = tip; o.frequency.setValueAtTime(f, t0 + bas); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + bas + sure * 0.6); g.gain.setValueAtTime(0.0001, t0 + bas); g.gain.exponentialRampToValueAtTime(vol, t0 + bas + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t0 + bas + sure); o.connect(g).connect(c.destination); o.start(t0 + bas); o.stop(t0 + bas + sure + 0.05); } catch (e) {} };
+      const gurultu = (bas, sure, vol, frek, q = 1) => { try { const n = Math.floor(c.sampleRate * sure), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.2); const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = frek; f.Q.value = q; const g = c.createGain(); g.gain.value = vol; s.connect(f).connect(g).connect(c.destination); s.start(t0 + bas); } catch (e) {} };
+      if (tur === "zil") { /* okul zili: çekiç çanı hızla döver */ for (let i = 0; i < 26; i++) { const b = i * 0.075; ton(1720, b, 0.22, 0.09, "triangle"); ton(2580, b, 0.16, 0.04); ton(3440, b, 0.1, 0.025); } }
+      else if (tur === "gong") { [[98, 0.35], [196.4, 0.18], [293, 0.12], [412, 0.08], [587, 0.05]].forEach(([f, v]) => ton(f, 0, 4.2, v)); }
+      else if (tur === "nazik") { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => { ton(f, i * 0.18, 1.6, 0.18); ton(f * 2.01, i * 0.18, 0.8, 0.04); }); [0, 1].forEach((k) => [1046.5, 783.99].forEach((f, i) => ton(f, 1.1 + k * 0.5 + i * 0.18, 1.2, 0.12))); }
+      else if (tur === "dijital") { for (let k = 0; k < 3; k++) for (let i = 0; i < 4; i++) ton(2000, k * 0.9 + i * 0.13, 0.08, 0.12, "square"); }
+      else if (tur === "kus") { for (let i = 0; i < 7; i++) { const b = i * 0.22 + (i > 3 ? 0.3 : 0); ton(2600 + Math.random() * 600, b, 0.12, 0.13, "sine", 4200); ton(3800, b + 0.1, 0.06, 0.06, "sine", 2900); } }
+      else if (tur === "alkis") { for (let i = 0; i < 60; i++) gurultu(Math.random() * 2.2, 0.06, 0.5 + Math.random() * 0.4, 1200 + Math.random() * 1400, 0.8); ton(880, 0, 0.3, 0.05); }
+      else if (tur === "tik") { ton(1200, 0, 0.05, 0.1, "square"); }
+    },
+    ALARMLAR: [["zil", "Okul zili"], ["nazik", "Nazik çan"], ["gong", "Gong"], ["kus", "Kuş cıvıltısı"], ["alkis", "Alkış"], ["dijital", "Bip bip"], ["yok", "Sessiz"]],
   };
 })();
 

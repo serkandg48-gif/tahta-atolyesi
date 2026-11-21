@@ -3,7 +3,7 @@
 (function () {
   const { h } = T; const W = T.widgets;
   const kumRender = W.timer.render, kronoRender = W.stopwatch.render;
-  const MODLAR = [["kum", "Kum saati"], ["dijital", "Dijital"], ["mum", "Mum"], ["yaris", "Yarış"], ["kronometre", "Kronometre"], ["aralik", "Aralık"], ["takim", "Takım saati"]];
+  const MODLAR = [["kum", "Kum saati"], ["dijital", "Dijital"], ["mum", "Mum"], ["kronometre", "Kronometre"], ["aralik", "Aralık"], ["takim", "Takım saati"]];
   const mmss = (s) => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60); return (m >= 60 ? Math.floor(m / 60) + ":" + T.pad(m % 60) : m) + ":" + T.pad(s % 60); };
   const img = (ad) => h("img", { src: "/oyun3d/" + ad + ".webp", alt: "", draggable: false });
 
@@ -202,38 +202,58 @@
       return { ciz };
     },
     takim(kap, d, api) {
+      /* Takım saati: 2-6 takım. Sözü biten takım kendi kutusuna dokunur, süre sıradaki takıma geçer. */
+      const HARF = "ABCDEF";
       d.tk = d.tk || { sure: 300, kalan: [300, 300], sira: -1, bas: 0, adlar: ["Takım A", "Takım B"] };
       const t = d.tk;
       const kalan = (i) => t.kalan[i] - (t.sira === i ? (Date.now() - t.bas) / 1000 : 0);
-      const gec = (i) => { if (t.sira >= 0) t.kalan[t.sira] = Math.max(0, kalan(t.sira)); t.sira = i; t.bas = Date.now(); T.sound.pop && T.sound.pop(); api.save(); ciz(); };
-      const kutular = [0, 1].map((i) => h("button.zm-takim", { onclick: () => gec(1 - i) }, h("input.zm-takim-ad", { value: t.adlar[i], onclick: (e) => e.stopPropagation(), onchange: (e) => { t.adlar[i] = e.target.value; api.save(); } }), h("b"), h("small", "Sözü bitince dokun")));
+      const dondur = () => { if (t.sira >= 0) t.kalan[t.sira] = Math.max(0, kalan(t.sira)); };
+      const gec = (i) => { dondur(); t.sira = i; t.bas = Date.now(); T.sound.pop && T.sound.pop(); api.save(); ciz(); };
+      const sonraki = (i) => { const n = t.adlar.length; for (let k = 1; k <= n; k++) { const j = (i + k) % n; if (t.kalan[j] > 0) return j; } return -1; };
+      const alan = h("div.zm-takimlar");
+      let kutular = [];
+      function kur() {
+        alan.style.setProperty("--n", t.adlar.length);
+        kutular = t.adlar.map((ad, i) => h("div.zm-takim", { role: "button", tabindex: 0, onclick: () => { if (t.sira === i) { const j = sonraki(i); if (j >= 0) gec(j); else { dondur(); t.sira = -1; api.save(); ciz(); } } else gec(i); } },
+          h("input.zm-takim-ad", { value: ad, "aria-label": (i + 1) + ". takımın adı", onclick: (e) => e.stopPropagation(), onchange: (e) => { t.adlar[i] = e.target.value; api.save(); } }),
+          h("b"), h("small", "Sözü bitince dokun"),
+          t.adlar.length > 2 ? h("button.zm-takim-sil", { "aria-label": ad + " takımını çıkar", title: "Takımı çıkar", onclick: (e) => { e.stopPropagation(); dondur(); t.adlar.splice(i, 1); t.kalan.splice(i, 1); t.sira = t.sira === i ? -1 : t.sira > i ? t.sira - 1 : t.sira; if (t.sira >= 0) t.bas = Date.now(); api.save(); kur(); ciz(); } }, T.icon("close")) : null));
+        alan.replaceChildren(...kutular);
+        ekle.disabled = t.adlar.length >= 6;
+      }
       function ciz() {
-        [0, 1].forEach((i) => { const k = Math.max(0, kalan(i)); kutular[i].querySelector("b").textContent = mmss(k); kutular[i].classList.toggle("aktif", t.sira === i); kutular[i].classList.toggle("bitti", k <= 0);
+        kutular.forEach((kt, i) => { const k = Math.max(0, kalan(i)); kt.querySelector("b").textContent = mmss(k); kt.classList.toggle("aktif", t.sira === i); kt.classList.toggle("bitti", k <= 0);
           if (t.sira === i && k <= 0) { t.kalan[i] = 0; t.sira = -1; api.save(); T.sound.alarm(d.ses || "zil"); } });
       }
-      kap.append(h("div.zm-takimlar", kutular), h("div.row", { style: { justifyContent: "center", gap: "6px" } },
-        h("button.btn.sm.c-leaf", { onclick: () => gec(0) }, T.icon("play"), "Başlat"), h("button.btn.sm.c-chalk", { onclick: () => { if (t.sira >= 0) t.kalan[t.sira] = kalan(t.sira); t.sira = -1; api.save(); ciz(); } }, T.icon("pause"), "Durdur"),
-        h("div.seg", [3, 5, 10].map((m) => h("button", { "aria-pressed": String(t.sure === m * 60), onclick: () => { t.sure = m * 60; t.kalan = [m * 60, m * 60]; t.sira = -1; api.save(); W.timer.render._yenile && W.timer.render._yenile(); ciz(); } }, m + " dk")))));
+      const ekle = h("button.btn.sm.c-chalk", { onclick: () => { if (t.adlar.length >= 6) return; const kul = new Set(t.adlar); const harf = [...HARF].find((x) => !kul.has("Takım " + x)) || t.adlar.length + 1; t.adlar.push("Takım " + harf); t.kalan.push(t.sure); api.save(); kur(); ciz(); } }, T.icon("plus"), "Takım ekle");
+      kap.append(alan, h("div.row", { style: { justifyContent: "center", gap: "6px", flexWrap: "wrap" } },
+        h("button.btn.sm.c-leaf", { onclick: () => gec(t.sira >= 0 ? t.sira : Math.max(0, sonraki(-1))) }, T.icon("play"), "Başlat"),
+        h("button.btn.sm.c-chalk", { onclick: () => { dondur(); t.sira = -1; api.save(); ciz(); } }, T.icon("pause"), "Durdur"),
+        ekle,
+        h("div.seg", [3, 5, 10].map((m) => h("button", { "aria-pressed": String(t.sure === m * 60), onclick: (e) => { t.sure = m * 60; t.kalan = t.adlar.map(() => m * 60); t.sira = -1; api.save(); e.currentTarget.parentNode.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === e.currentTarget))); ciz(); } }, m + " dk")))));
+      kur();
       return { ciz };
     },
   };
 
-  W.timer.title = "Zamanlayıcı"; W.timer.desc = "Kum saati, dijital, mum, yarış, kronometre, aralık ve takım saati";
+  W.timer.title = "Zamanlayıcı"; W.timer.desc = "Kum saati, dijital, mum, kronometre, aralık ve takım saati";
   W.timer.w = Math.max(W.timer.w || 0, 460); W.timer.h = Math.max(W.timer.h || 0, 520);
   W.timer.render = function (body, w, api) {
-    const d = w.data; d.mod = d.mod || "kum"; if (!d.total) { d.total = 300; d.left = 300; }
+    const d = w.data; d.mod = d.mod && d.mod !== "yaris" ? d.mod : "kum"; if (!d.total) { d.total = 300; d.left = 300; }
     d.sw = d.sw || { start: 0, acc: 0, running: false, laps: [] };
     body.style.gridTemplateRows = "auto 1fr"; body.style.gap = "8px";
     const sekme = h("div.zm-sekmeler", { role: "tablist" });
     const ic = h("div.zm-ic");
     const sesSec = h("label.zm-ses", { title: "Süre bitince çalacak ses" }, T.icon("speaker"),
       h("select", { "aria-label": "Bitiş sesi", onchange: (e) => { d.ses = e.target.value; api.save(); T.sound.alarm(d.ses); } }, T.sound.ALARMLAR.map(([k, l]) => h("option", { value: k, selected: (d.ses || "zil") === k ? true : null }, l))));
-    body.append(h("div.zm-ust", sekme, sesSec), ic);
+    const modSec = h("select.zm-mod-sec", { "aria-label": "Zamanlayıcı biçimi", onchange: (e) => { d.mod = e.target.value; api.save(); kur(); } }, MODLAR.map(([k, l]) => h("option", { value: k }, l)));
+    body.append(h("div.zm-ust", sekme, modSec, sesSec), ic);
     let yerel = [], iv = 0;
     const subApi = Object.assign({}, api, { onDestroy: (f) => yerel.push(f) });
     function kur() {
       yerel.forEach((f) => { try { f(); } catch (e) {} }); yerel = []; clearInterval(iv); ic.replaceChildren(); ic.className = "zm-ic mod-" + d.mod; ic.removeAttribute("style");
       sekme.replaceChildren(...MODLAR.map(([k, l]) => h("button", { role: "tab", "aria-selected": String(d.mod === k), onclick: () => { d.mod = k; api.save(); kur(); } }, l)));
+      modSec.value = d.mod;
       if (d.mod === "kum") return kumRender.call(W.timer, ic, w, subApi);
       if (d.mod === "kronometre") return kronoRender.call(W.stopwatch, ic, Object.assign({}, w, { data: d.sw }), subApi);
       const ctl = CIZ[d.mod](ic, d, subApi);

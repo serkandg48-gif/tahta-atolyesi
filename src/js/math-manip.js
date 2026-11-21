@@ -345,7 +345,7 @@
     return `Saat ${SAAT_E[(h12 + 1) % 12]} ${dk(60 - mm)} var.`;
   };
   tool("saat", {
-    title: "Öğretim saati", icon: "clock", tone: "sky", grades: [1, 4], short: "Akrep ve yelkovanı sürükle, Türkçe okunuş",
+    title: "Saat", icon: "clock", tone: "sky", grades: [1, 4], short: "Akrep ve yelkovanı sürükle",
     render(host) {
       let t = 3 * 60 + 15, snap = 5, h24 = false, showDig = true, showRead = true;
       const svg = S("svg", { viewBox: "0 0 520 520", style: "width:100%;height:100%;touch-action:none" });

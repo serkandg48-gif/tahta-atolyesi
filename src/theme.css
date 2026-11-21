@@ -3195,3 +3195,27 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
   .dn-ana { grid-template-rows: auto auto auto; }
   .dn-sahne { overflow: visible; }
 }
+
+/* Araç sayfalarında küçük menü telefonda da yalnızca yuvarlak düğme olsun (alttaki geniş beyaz şerit içeriği kapatıyordu) */
+@media (max-width: 760px) {
+  html .dock.kucuk, html.alt-menu .dock.kucuk, html.alt-menu[data-kademe] .dock.kucuk, html[data-kademe] .dock.kucuk { left: 12px !important; right: auto !important; width: auto !important; height: auto !important; bottom: 12px !important; padding: 6px !important; border-radius: 50% !important; }
+  html.arac-sayfa #view { padding-bottom: 84px; }
+}
+
+/* Canvas oyun sahneleri: tam ekranda görüntü esnemesin */
+.sh-kap:fullscreen { background: #121a2b; }
+.sh-kap:fullscreen .sh-cv { inset: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(100vw, calc(100vh * 16 / 9)); height: auto; aspect-ratio: 16 / 9; }
+/* Telefonda: skor ve soru sahnenin üstüne, düğmeler altına; hiçbir şey sahnenin üstüne binmez */
+@media (max-width: 760px) {
+  .sh-kap { aspect-ratio: auto; max-height: none; overflow: visible; background: transparent; box-shadow: none; border-radius: 0; display: flex; flex-direction: column; gap: 8px; }
+  .sh-kap .sh-cv { position: relative; inset: auto; top: auto; left: auto; transform: none; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 18px; order: 2; box-shadow: 0 10px 26px rgba(20, 60, 40, .22); }
+  .sh-kap .sh-ust { display: contents; }
+  .sh-kap .tv-skor { position: static; order: 0; display: flex; gap: 8px; }
+  .sh-kap .tv-takim { padding: .3em .7em; font-size: 12px; } .sh-kap .tv-takim b { font-size: 24px; } .sh-kap .tv-takim i { font-size: 18px; }
+  .sh-kap .tv-afis { position: static; order: 1; transform: none; width: 100%; }
+  .sh-kap .tv-afis .tv-soru { margin: 0; font-size: 17px; }
+  .sh-kap .tv-islem { color: var(--navy); text-shadow: none; font-size: 26px; }
+  .sh-kap .tv-alt { position: static; order: 3; flex-wrap: wrap; }
+  .sh-kap:fullscreen { justify-content: center; padding: 14px; overflow: auto; }
+  .sh-kap:fullscreen .tv-islem, .sh-kap:fullscreen .tv-soru { color: #fff; }
+}

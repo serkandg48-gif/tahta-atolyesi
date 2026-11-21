@@ -20,7 +20,7 @@
       },
     };
   }
-  const fit = (t, g) => (t.grades && g >= t.grades[0] && g <= t.grades[1] ? 1 : 0);
+  const fit = () => 1; /* her araç her sınıfta görünür */
   const tool = (sec, id, def) => (T.tools[id] = Object.assign({ back: sec }, def));
 
   /* ===================== TÜRKÇE ===================== */

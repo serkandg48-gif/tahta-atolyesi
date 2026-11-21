@@ -54,7 +54,7 @@
           p = q;
         });
         const nok = (v, cls, etiket) => { s.append(S("circle", { cx: X(v), cy: Y, r: buyuk ? 11 : 7, class: cls })); if (etiket && buyuk) { const t = S("text", { x: X(v), y: Y + 60, "text-anchor": "middle", class: "mz-ara kalin" }); t.textContent = v; s.append(t); } };
-        nok(hedef, "mz-hedef", true); nok(a, "mz-bas", true); if (buyuk) nok(konum, "mz-konum");
+        if (!buyuk || konum === hedef) nok(hedef, "mz-hedef", true); nok(a, "mz-bas", true); if (buyuk) nok(konum, "mz-konum");
         return s;
       }
       function ciz() {
@@ -64,7 +64,7 @@
           h("div.mz-ust", seg([["top", "Toplama"], ["cik", "Çıkarma"]], tur, (v) => { tur = v; yeni(); }), seg([[20, "20'ye kadar"], [100, "100'e kadar"]], aralik, (v) => { aralik = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni işlem")),
           h("div.mz-soru", a + " " + isaret() + " " + b + " = ", h("b", bitti ? hedef : "?")),
           cizgi(yol, true),
-          h("div.mz-durum" + (bitti ? ".iyi" : ""), bitti ? "Ulaştın! Bu bir yol. Şimdi başka bir yoldan dene." : "Şu an " + konum + " sayısındasın. Hedef: " + hedef),
+          h("div.mz-durum" + (bitti ? ".iyi" : ""), bitti ? "Ulaştın! Bu bir yol. Şimdi başka bir yoldan dene." : (() => { const z = konum - a, ad = tur === "top" ? "ileri" : "geri", top = Math.abs(z); return a + " sayısından başladın. Toplam " + b + " " + ad + " zıplaman gerek. Şimdiye kadar " + (top ? (z > 0 ? "+" : "−") + top : "hiç") + " zıpladın" + (top ? ", şu an " + konum + " sayısındasın." : "."); })()),
           h("div.mz-zipsira", h("div", h("small", "İleri"), zip(1)), h("div", h("small", "Geri"), zip(-1))),
           h("div.row", { style: { justifyContent: "center" } },
             h("button.btn.c-chalk", { disabled: yol.length ? null : true, onclick: () => { konum -= yol.pop(); ciz(); } }, T.icon("back"), "Son zıplamayı sil"),

@@ -3,7 +3,7 @@
 (function () {
   const { h } = T;
   const cid = () => T.store.activeClass().id;
-  const fit = (t, g) => (t.grades ? g >= t.grades[0] && g <= t.grades[1] : true);
+  const fit = () => true; /* her araç her sınıfta görünür */
   const kartlar = (ids, ton) => h("div.tool-grid", { style: { marginBottom: "18px" } }, ids.filter(([, t]) => t).map(([r, t]) => T.aracKart(r, t, ton)));
   const grupBas = (b, alt) => h("div.section-title", h("h2", b), alt ? h("span.hint", alt) : null);
   const yerel = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };

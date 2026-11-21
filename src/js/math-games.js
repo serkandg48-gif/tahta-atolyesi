@@ -194,7 +194,7 @@
       const s = box("0 0 800 200"); s.append(txt(200, 100, la, 64), txt(600, 100, lb, 64), S("rect", { x: 340, y: 40, width: 120, height: 120, rx: 18, fill: "#fff", stroke: "#2a2a2a", "stroke-width": 4, "stroke-dasharray": "10 6" }), txt(400, 100, "?", 64));
       return q("Timsah her zaman büyük olanı yemek ister.", s, a > b ? ">" : a < b ? "<" : "=", [">", "<", "="], `${a} ${a > b ? ">" : a < b ? "<" : "="} ${b}`); } });
 
-  game("lav", { title: "Lav atlaması", icon: "grid100", tone: "tomato", grades: [1, 3], short: "10'ar atlama, onluklarla toplama",
+  game("lav", { title: "Yüzlük tabloda zıpla", icon: "grid100", tone: "tomato", grades: [1, 3], short: "10'ar atlama, onluklarla toplama",
     round(L) { const a = R(1, L ? 70 : 80), k = L === 0 ? 10 : L === 1 ? P([10, 20, 30]) : P([19, 21, 11, 29, 31]); const ans = a + k;
       const sv = box("0 0 520 530"); const start = Math.floor((a - 1) / 10) * 10 - (a > 50 ? 30 : 0), st = Math.max(0, Math.min(start, 50));
       for (let i = 0; i < 50; i++) { const n = st + i + 1, x = 10 + (i % 10) * 50, y = 10 + Math.floor(i / 10) * 100; const lava = Math.floor(i / 10) % 2 === 1; sv.append(S("rect", { x, y, width: 48, height: 48, rx: 6, fill: n === a ? "#ffc233" : lava ? "#ffd2c2" : "#fff", stroke: "#2a2a2a", "stroke-width": 2 }), txt(x + 24, y + 26, n, 20)); }

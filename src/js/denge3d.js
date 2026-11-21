@@ -142,7 +142,7 @@
       const dongu = (z) => {
         if (!renderer.domElement.isConnected) { renderer.dispose(); return; }
         const dt = Math.min(window.__testDt || 0.05, (z - son) / 1000); son = z; window.__d3kare = (window.__d3kare || 0) + 1;
-        if (say++ % 20 === 0) { const r = kap.getBoundingClientRect(); if (r.width) { renderer.setSize(r.width, r.height, false); kamera.aspect = r.width / r.height; kamera.updateProjectionMatrix(); } }
+        if (say++ % 20 === 0) { const r = renderer.domElement.getBoundingClientRect(); if (r.width) { renderer.setSize(r.width, r.height, false); kamera.aspect = r.width / r.height; kamera.updateProjectionMatrix(); } }
         /* yaylı kol: açısal yay + sönüm */
         for (let kalan = dt; kalan > 1e-6; kalan -= 1 / 120) { const hs = Math.min(1 / 120, kalan); hiz += ((hedefAci - aci) * 30 - hiz * 3.2) * hs; aci += hiz * hs; } kol.rotation.z = aci;
         kefeler.forEach((kf) => { const x = kf.s * 3.7 * Math.cos(aci), y = 4.25 + kf.s * 3.7 * Math.sin(aci); kf.grup.position.set(x, y, 0); kf.grup.rotation.z = Math.sin(z / 600 + kf.s) * 0.01 - THREE.MathUtils.clamp(hiz, -1, 1) * 0.03; });

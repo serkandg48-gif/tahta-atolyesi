@@ -141,7 +141,7 @@
     });
   }
   const oyunlar = {
-    "kup-gorunum": { ad: "Küp yapının görünümleri", ikon: "kup", renk: "#2F7FE0", renk2: "#DCEBFF", tur: 8, giris: "Yapıyı parmağınla çevir. İstenen yönden nasıl görünür?",
+    "kup-gorunum": { ad: "Önden, yandan, üstten", ikon: "kup", renk: "#2F7FE0", renk2: "#DCEBFF", tur: 8, giris: "Yapıyı parmağınla çevir. İstenen yönden nasıl görünür?",
       yeni(a, tur) {
         const H = yeniYapi(), v = gorunumler(H), yonlar = tur < 3 ? ["on", "ust", "sag"] : ["on", "arka", "sag", "sol", "ust"], yon = yonlar[rnd(0, yonlar.length - 1)];
         a.soru("Bu yapı " + YON[yon] + " bakınca nasıl görünür?");

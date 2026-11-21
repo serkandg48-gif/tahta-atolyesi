@@ -94,6 +94,7 @@ JS_ORDER = [
     "tasi.js",
     "ekran-sahne.js",
     "kumanda.js",
+    "ayiklama.js",
 ]
 
 

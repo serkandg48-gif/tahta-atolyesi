@@ -1,4 +1,4 @@
-window.SURUM="03d71a3aba";
+window.SURUM="0f1e7f260d";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -9116,11 +9116,11 @@ T.widgets.stopwatch.group = "Gizli";
         s.append(S("path", { d: `M44 ${y0} h-10 V${y0 + Hh} h10`, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
         return h("div",
           h("div.mz-soru", a + " × " + b + " = ", h("b", toplamOk ? a * b : "?")),
+          !tamam ? h("div.mz-durum", b + " sayısını hangi parçalara ayıralım? Birini seç:") : null,
+          !tamam ? h("div.mz-secimler.mz-ayirmalar", ayirmalar(b).map((L2) => h("button.mz-ayir", { onclick: () => { parca = L2.slice(); cevaplar = {}; toplamOk = false; ciz(); } }, h("b", b + " = " + L2.join(" + ")), h("small", L2.map((x) => a + " × " + x).join(" ve "))))) : null,
           h("div" + (tamam ? ".mz-yanyana" : ""), s, tamam ? h("div.mz-satirlar", parca.map((p, i) => h("div.mz-satir", h("span", a + " × " + p + " ="), cevaplar[i] === a * p ? h("b.dogru", a * p) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * p) { cevaplar[i] = a * p; ok(); } else no(); ciz(); })))),
             hepsi ? h("div.mz-satir.toplam", h("span", parca.map((p) => a * p).join(" + ") + " ="), toplamOk ? h("b.dogru", a * b) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * b) { toplamOk = true; ok(); kutla(); } else no(); ciz(); }))) : null,
             hepsi && !toplamOk ? h("div.mz-durum", "Şimdi parçaları topla.") : !hepsi ? h("div.mz-durum", "Her parçanın sonucunu yaz.") : null) : null),
-          !tamam ? h("div.mz-durum", parca.length ? "Kalan: " + (b - top) + ". " + b + " sayısını parçalamaya devam et." : b + " sayısını kolay parçalara ayır. Örnek: 10 ve " + (b - 10)) : null,
-          !tamam ? h("div.mz-secimler", [10, 5, 2, 1, b - top].filter((x, i, l) => x > 0 && x <= b - top && l.indexOf(x) === i).map((x) => h("button.mz-zipla", { onclick: () => { parca.push(x); ciz(); } }, x === b - top && x !== 10 && x !== 5 && x !== 2 && x !== 1 ? "Kalanın hepsi (" + x + ")" : "+" + x))) : null,
           h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { parca = []; cevaplar = {}; toplamOk = false; ciz(); } }, T.icon("reset"), toplamOk ? "Başka türlü parçala" : "Baştan")));
       }
       function bolCiz() {
@@ -9144,7 +9144,7 @@ T.widgets.stopwatch.group = "Gizli";
         if (tur === "carp") {
           const top = parca.reduce((t, x) => t + x, 0), tamam = top === b, hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
           giris = a + " × " + b + " işlemini tek seferde yapmak zor. " + b + " sayısını kolay parçalara ayır, her parçayı ayrı çarp, sonra topla.";
-          adimlar = [b + " sayısını parçala: aşağıdaki sayılara dokun. Dikdörtgen renkli parçalara bölünür.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
+          adimlar = [b + " sayısını kolay parçalara ayırmanın bir yolunu seç. Dikdörtgen o parçalara bölünür.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
           simdi = !tamam ? 0 : !hepsi ? 1 : !toplamOk ? 2 : 3;
         } else {
           const q = bolum.reduce((t, x) => t + x, 0), tamam = kalan === 0;
@@ -9160,6 +9160,19 @@ T.widgets.stopwatch.group = "Gizli";
       yeni();
     },
   });
+  /* bir sayıyı onluk ve beşlik gibi kolay parçalara ayırmanın birkaç yolu */
+  function ayirmalar(b) {
+    const L = [], ekle = (x) => { x = x.filter((v) => v > 0); if (x.length > 1 && x.reduce((t, v) => t + v, 0) === b && !L.some((y) => y.join() === x.join())) L.push(x); };
+    const on = Math.floor(b / 10) * 10, bir = b - on;
+    ekle([on, bir]);
+    if (on >= 20) ekle([...Array(on / 10).fill(10), bir]);
+    if (bir > 5) ekle([on, 5, bir - 5]);
+    if (bir >= 2 && bir < 5) ekle([on, 2, bir - 2].filter(Boolean));
+    if (on >= 10) ekle([on - 10, 10, bir].filter(Boolean).length > 2 ? [on - 10, 10, bir] : []);
+    ekle([10, b - 10]);
+    if (b > 10 && b < 20) ekle([5, 5, b - 10]);
+    return L.slice(0, 3);
+  }
   function sayiPadKucuk(onay) {
     const inp = h("input.in.mz-kucuk-girdi", { inputmode: "numeric", placeholder: "?", onkeydown: (e) => { if (e.key === "Enter" && inp.value) onay(inp.value.trim()); } });
     return h("span.mz-girdi-kap", inp, h("button.btn.sm.c-leaf", { onclick: () => inp.value && onay(inp.value.trim()) }, T.icon("check")));
@@ -9954,6 +9967,78 @@ T.widgets.stopwatch.group = "Gizli";
   const A = Math.atan2(5.2, 6.4), ACI = { on: A, sag: A - Math.PI / 2, arka: A - Math.PI, sol: A + Math.PI / 2, ust: A - 0.6 };
   const yonDugmeleri = (d) => h("div.ky-yonler", [["Önden", ACI.on], ["Sağdan", ACI.sag], ["Arkadan", ACI.arka], ["Soldan", ACI.sol], ["Çapraz", ACI.ust]].map(([l, a]) => h("button.btn.sm.c-chalk", { onclick: () => d.cevir && d.cevir(a) }, l)));
 
+
+  /* ---------- açınım: rastgele altılı kare, katlama benzetimiyle geçerli mi bulunur ---------- */
+  const YON4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  function altili() { const h0 = [[0, 0]], var_ = (x, y) => h0.some((c) => c[0] === x && c[1] === y);
+    while (h0.length < 6) { const c = h0[rnd(0, h0.length - 1)], d = YON4[rnd(0, 3)], x = c[0] + d[0], y = c[1] + d[1]; if (!var_(x, y)) h0.push([x, y]); } return h0; }
+  /* katlama: her hücre bir kök hücreye bağlı ağaç; hücre yönlerini 3B birim vektörlerle izleyip yüz normallerini hesapla */
+  function katlaBenzet(hucreler) {
+    const anahtar = (c) => c[0] + "," + c[1], kume = new Set(hucreler.map(anahtar));
+    for (const [x, y] of hucreler) if (kume.has(x + 1 + "," + y) && kume.has(x + "," + (y + 1)) && kume.has(x + 1 + "," + (y + 1))) return { gecerli: false };
+    /* çerçeve: konum p, ileri x ekseni ex, ileri y ekseni ey, normal nz (küp içine bakan) */
+    const kok = hucreler[0], durum = { [anahtar(kok)]: { ex: [1, 0, 0], ey: [0, 1, 0], nz: [0, 0, 1], m: [0.5, 0.5, 0] } };
+    const top = (a, b, k = 1) => a.map((v, i) => v + b[i] * k), neg = (a) => a.map((v) => -v);
+    const kuyruk = [kok];
+    while (kuyruk.length) { const c = kuyruk.shift(), f = durum[anahtar(c)];
+      for (const [dx, dy] of YON4) { const k = [c[0] + dx, c[1] + dy]; if (!kume.has(anahtar(k)) || durum[anahtar(k)]) continue;
+        /* komşu yüz: kenardan 90 derece içe katlanır */
+        const yon = dx ? (dx > 0 ? f.ex : neg(f.ex)) : (dy > 0 ? f.ey : neg(f.ey));
+        const m = top(top(f.m, yon, 0.5), f.nz, 0.5);
+        const yeniN = neg(yon);
+        const ex = dx ? f.nz.map((v) => v * dx) : f.ex, ey = dy ? f.nz.map((v) => v * dy) : f.ey;
+        durum[anahtar(k)] = { ex, ey, nz: yeniN, m }; kuyruk.push(k); } }
+    const merkezler = Object.values(durum).map((f) => f.m.map((v) => Math.round(v * 2)).join(","));
+    return { gecerli: new Set(merkezler).size === 6 };
+  }
+  function acinimBul(istenen) {
+    for (let i = 0; i < 400; i++) { const c = altili(); const r = katlaBenzet(c); if (r.gecerli === istenen) { const mx = Math.min(...c.map((q) => q[0])), my = Math.min(...c.map((q) => q[1])); return { hucreler: c.map(([x, y]) => [x - mx, y - my]), gecerli: r.gecerli }; } }
+    return { hucreler: [[1, 0], [0, 1], [1, 1], [2, 1], [3, 1], [1, 2]], gecerli: true };
+  }
+  /* 3B açınım: her yüz ebeveyn yüzüne kenarından menteşeli; katla() hepsini 90 derece kaldırır */
+  function acinim3B(kap, net) {
+    const durum = { katla() { durum.hedef = 1; }, ac() { durum.hedef = 0; }, hedef: 0, t: 0 };
+    const RENKLER = [0xF2A93B, 0x4F9CF0, 0x3FA36B, 0xE4553F, 0x9B6BE0, 0xF06FA8];
+    T.sahne3(kap, { kamera: [0.9, 5.4, 4.4], bak: [0, 0.3, 0], fov: 38, env: ["#FFFFFF", "#DCE8F6", "#3C4A60"], sigdir: 6.4, oran: 1.3 }, null).then((c) => {
+      if (!c) { kap.append(h("p.hint", "3B görünüm açılamadı.")); return; }
+      const THREE = c.THREE; c.sahne.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.3)); const dl = new THREE.DirectionalLight(0xffffff, 1.8); dl.position.set(3, 8, 4); c.sahne.add(dl);
+      const zemin = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0xE9EEF5, roughness: 0.95 })); zemin.rotation.x = -Math.PI / 2; zemin.position.y = -0.01; c.sahne.add(zemin);
+      const anahtar = (q) => q[0] + "," + q[1], kume = new Set(net.hucreler.map(anahtar));
+      const cx = (Math.max(...net.hucreler.map((q) => q[0])) + 1) / 2, cz = (Math.max(...net.hucreler.map((q) => q[1])) + 1) / 2;
+      const kok = net.hucreler.find((q) => { const n = YON4.filter(([dx, dy]) => kume.has(q[0] + dx + "," + (q[1] + dy))).length; return n >= 2; }) || net.hucreler[0];
+      const yuz = (i) => { const g = new THREE.Group(); const m = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.04, 0.98), new THREE.MeshStandardMaterial({ color: RENKLER[i % 6], roughness: 0.5 })); m.position.y = 0.02; g.add(m); const k = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(0.98, 0.04, 0.98)), new THREE.LineBasicMaterial({ color: 0x1B2A4A })); k.position.y = 0.02; g.add(k); return g; };
+      const menteseler = []; let sayac = 0;
+      const ziyaret = new Set([anahtar(kok)]);
+      const kokG = yuz(sayac++); kokG.position.set(kok[0] + 0.5 - cx, 0, kok[1] + 0.5 - cz); c.sahne.add(kokG);
+      const kuyruk = [[kok, kokG]];
+      while (kuyruk.length) { const [q, g] = kuyruk.shift();
+        for (const [dx, dy] of YON4) { const k = [q[0] + dx, q[1] + dy]; if (!kume.has(anahtar(k)) || ziyaret.has(anahtar(k))) continue; ziyaret.add(anahtar(k));
+          const piv = new THREE.Group(); piv.position.set(dx * 0.5, 0, dy * 0.5); g.add(piv);
+          const yg = yuz(sayac++); yg.position.set(dx * 0.5, 0, dy * 0.5); piv.add(yg);
+          menteseler.push({ piv, eksen: dx ? "z" : "x", isaret: dx ? dx : -dy }); kuyruk.push([k, yg]); } }
+      const kucult = 0.995;
+      c.kare = (dt) => { const eski = durum.t; durum.t += (durum.hedef - durum.t) * Math.min(1, dt * 2.2); if (Math.abs(durum.t - eski) < 1e-5 && Math.abs(durum.t - durum.hedef) < 1e-3) durum.t = durum.hedef;
+        const a = durum.t * Math.PI / 2 * kucult; menteseler.forEach((m) => { m.piv.rotation.set(0, 0, 0); m.piv.rotation[m.eksen] = m.isaret * a; }); };
+    });
+    return durum;
+  }
+  /* 3B onluk bloklar */
+  function onlukBlok3B(kap, y, o, b) {
+    T.sahne3(kap, { kamera: [1.5, 6.5, 6.2], bak: [0, 0, 0.3], fov: 36, env: ["#FFFFFF", "#DCE8F6", "#3C4A60"], sigdir: 8.6, oran: 1.5 }, null).then((c) => {
+      if (!c) { kap.append(h("p.hint", "3B görünüm açılamadı.")); return; }
+      const THREE = c.THREE; c.sahne.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.3)); const dl = new THREE.DirectionalLight(0xffffff, 1.9); dl.position.set(4, 9, 6); c.sahne.add(dl);
+      const zemin = new THREE.Mesh(new THREE.PlaneGeometry(30, 20), new THREE.MeshStandardMaterial({ color: 0xF1E6D2, roughness: 0.95 })); zemin.rotation.x = -Math.PI / 2; c.sahne.add(zemin);
+      const u = 0.42, geo = T.yuvKutu(THREE, u * 0.96, u * 0.96, u * 0.96, 0.03), kenar = new THREE.EdgesGeometry(new THREE.BoxGeometry(u * 0.97, u * 0.97, u * 0.97));
+      const mY = new THREE.MeshPhysicalMaterial({ color: 0x4F9CF0, roughness: 0.4, clearcoat: 0.5 }), mO = new THREE.MeshPhysicalMaterial({ color: 0x3FA36B, roughness: 0.4, clearcoat: 0.5 }), mB = new THREE.MeshPhysicalMaterial({ color: 0xF2A93B, roughness: 0.4, clearcoat: 0.5 }), cz = new THREE.LineBasicMaterial({ color: 0x1B2A4A, transparent: true, opacity: 0.3 });
+      const kup = (g, x, yy, z, m) => { const k = new THREE.Mesh(geo, m); k.position.set(x, yy, z); g.add(k); const e = new THREE.LineSegments(kenar, cz); e.position.copy(k.position); g.add(e); };
+      const g = new THREE.Group(); c.sahne.add(g); let x = 0;
+      for (let i = 0; i < y; i++) { for (let r = 0; r < 10; r++) for (let q = 0; q < 10; q++) kup(g, x + r * u, u / 2, q * u, mY); x += 10 * u + 0.35; }
+      for (let i = 0; i < o; i++) { for (let q = 0; q < 10; q++) kup(g, x, u / 2, q * u, mO); x += u + 0.18; }
+      x += 0.2; for (let i = 0; i < b; i++) kup(g, x + (i % 2) * (u + 0.1), u / 2, Math.floor(i / 2) * (u + 0.1), mB);
+      const kt = new THREE.Box3().setFromObject(g), mrk = kt.getCenter(new THREE.Vector3()); g.position.set(-mrk.x, 0, -mrk.z);
+      const gen = kt.max.x - kt.min.x; if (gen > 6) { const k = 6 / gen; g.scale.setScalar(k); g.position.multiplyScalar(k); }
+    });
+  }
   const oyunlar = {
     "kup-gorunum": { ad: "Küp yapının görünümleri", ikon: "kup", renk: "#2F7FE0", renk2: "#DCEBFF", tur: 8, giris: "Yapıyı parmağınla çevir. İstenen yönden nasıl görünür?",
       yeni(a, tur) {
@@ -9989,6 +10074,36 @@ T.widgets.stopwatch.group = "Gizli";
             else a.yanlis(s.ust !== v.ust ? "Üstten görünüşü karşılaştır: hangi karelerde küp var?" : s.on !== v.on ? "Önden görünüşte sütun yükseklikleri farklı." : "Sağdan görünüşü kontrol et."); } }, T.icon("check"), "Kontrol et")));
       } },
   };
+  Object.assign(oyunlar, {
+    "kup-say": { ad: "Kaç küp var?", ikon: "kup", renk: "#7B4FD6", renk2: "#ECE4FF", tur: 8, giris: "Yapıyı çevir, gizli küpleri de düşün. Kaç küp var?",
+      yeni(a, tur) {
+        const H = yeniYapi(), n = kupSay(H);
+        a.soru("Bu yapıda kaç birim küp var? Arkada ve altta kalanları da say.");
+        const kap = h("div.ky-3b"), d = yapi3B(kap, H); a.sahne.append(h("div.ky-sahne", kap, yonDugmeleri(d)));
+        const sec = new Set([n]); while (sec.size < 4) { const x = n + rnd(-3, 3); if (x > 0) sec.add(x); }
+        a.secenek([...sec].sort((x, y) => x - y), (x) => x === n, { ipucu: "Her sütunu ayrı say: üst üste kaç küp var? Sonra topla.", iyi: "Evet, " + n + " küp!" });
+      } },
+    "kup-acinim": { ad: "Açınımı katla", ikon: "kup", renk: "#D9622B", renk2: "#FFE9DD", tur: 8, giris: "Bu açınım katlanınca küp olur mu? Tahmin et, sonra katla!",
+      yeni(a, tur) {
+        const istenen = Math.random() < 0.5, net = acinimBul(istenen);
+        a.soru("Bu açınım katlanınca kapalı bir küp olur mu?");
+        const kap = h("div.ky-3b.ky-acinim"), kat = acinim3B(kap, net);
+        const katlaDug = h("button.btn.sm.c-chalk", { onclick: () => kat.katla() }, T.icon("turn"), "Katla, görelim");
+        a.sahne.append(h("div.ky-sahne", kap, h("div.ky-yonler", katlaDug, h("button.btn.sm.c-chalk", { onclick: () => kat.ac() }, T.icon("back"), "Aç"))));
+        a.secenek(["Evet, küp olur", "Hayır, olmaz"], (x) => (x[0] === "E") === net.gecerli, { iyi: net.gecerli ? "Doğru, altı yüz de yerine oturdu!" : "Doğru, iki yüz üst üste biniyor, bir yüz açık kalıyor.", ipucu: "Katla düğmesine basıp izle." });
+        a.alt.addEventListener("click", (e) => { if (e.target.closest(".dn-dug.iyi")) kat.katla(); });
+      } },
+    "onluk-blok": { ad: "Onluk bloklar", ikon: "kup", renk: "#1F8A5B", renk2: "#DDF5E8", tur: 8, giris: "Yüzlük plakalar, onluk çubuklar ve birlik küpler. Hangi sayı?",
+      yeni(a, tur) {
+        const buyuk = tur >= 3 || (T.store && T.store.grade && T.store.grade() >= 3);
+        const y = buyuk ? rnd(1, 4) : 0, o = rnd(buyuk ? 0 : 1, 9), b = rnd(0, 9), n = y * 100 + o * 10 + b;
+        a.soru("Bloklar hangi sayıyı gösteriyor?");
+        const kap = h("div.ky-3b"); onlukBlok3B(kap, y, o, b);
+        a.sahne.append(h("div.ky-sahne", kap, h("div.ky-yonler", h("span.ky-etiket", "Yüzlük plaka = 100"), h("span.ky-etiket", "Onluk çubuk = 10"), h("span.ky-etiket", "Birlik küp = 1"))));
+        const sec = new Set([n]); [y * 100 + b * 10 + o, n + 10, n - 10, n + 1, y + o * 10 + b * 100].forEach((x) => { if (x > 0 && x !== n && sec.size < 4) sec.add(x); });
+        a.secenek([...sec].sort((x, z) => x - z), (x) => x === n, { iyi: (y ? y + " yüzlük, " : "") + o + " onluk, " + b + " birlik: " + n, ipucu: "Önce plakaları, sonra çubukları, en son küpleri say." });
+      } },
+  });
   Object.entries(oyunlar).forEach(([id, o], i) => {
     T.tools[id] = { cat: "oyun", ilk: 40 + i, title: o.ad, icon: o.ikon, ikon3: "kup", tone: "sky", grades: [2, 3, 4, 5], short: o.giris.replace(/[!.]+$/, ""), render(host) { T.oyunKabuk(host, Object.assign({ baslik: o.ad, sahne: "sinif" }, o)); } };
   });

@@ -236,11 +236,11 @@
         s.append(S("path", { d: `M44 ${y0} h-10 V${y0 + Hh} h10`, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
         return h("div",
           h("div.mz-soru", a + " × " + b + " = ", h("b", toplamOk ? a * b : "?")),
+          !tamam ? h("div.mz-durum", b + " sayısını hangi parçalara ayıralım? Birini seç:") : null,
+          !tamam ? h("div.mz-secimler.mz-ayirmalar", ayirmalar(b).map((L2) => h("button.mz-ayir", { onclick: () => { parca = L2.slice(); cevaplar = {}; toplamOk = false; ciz(); } }, h("b", b + " = " + L2.join(" + ")), h("small", L2.map((x) => a + " × " + x).join(" ve "))))) : null,
           h("div" + (tamam ? ".mz-yanyana" : ""), s, tamam ? h("div.mz-satirlar", parca.map((p, i) => h("div.mz-satir", h("span", a + " × " + p + " ="), cevaplar[i] === a * p ? h("b.dogru", a * p) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * p) { cevaplar[i] = a * p; ok(); } else no(); ciz(); })))),
             hepsi ? h("div.mz-satir.toplam", h("span", parca.map((p) => a * p).join(" + ") + " ="), toplamOk ? h("b.dogru", a * b) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * b) { toplamOk = true; ok(); kutla(); } else no(); ciz(); }))) : null,
             hepsi && !toplamOk ? h("div.mz-durum", "Şimdi parçaları topla.") : !hepsi ? h("div.mz-durum", "Her parçanın sonucunu yaz.") : null) : null),
-          !tamam ? h("div.mz-durum", parca.length ? "Kalan: " + (b - top) + ". " + b + " sayısını parçalamaya devam et." : b + " sayısını kolay parçalara ayır. Örnek: 10 ve " + (b - 10)) : null,
-          !tamam ? h("div.mz-secimler", [10, 5, 2, 1, b - top].filter((x, i, l) => x > 0 && x <= b - top && l.indexOf(x) === i).map((x) => h("button.mz-zipla", { onclick: () => { parca.push(x); ciz(); } }, x === b - top && x !== 10 && x !== 5 && x !== 2 && x !== 1 ? "Kalanın hepsi (" + x + ")" : "+" + x))) : null,
           h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { parca = []; cevaplar = {}; toplamOk = false; ciz(); } }, T.icon("reset"), toplamOk ? "Başka türlü parçala" : "Baştan")));
       }
       function bolCiz() {
@@ -264,7 +264,7 @@
         if (tur === "carp") {
           const top = parca.reduce((t, x) => t + x, 0), tamam = top === b, hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
           giris = a + " × " + b + " işlemini tek seferde yapmak zor. " + b + " sayısını kolay parçalara ayır, her parçayı ayrı çarp, sonra topla.";
-          adimlar = [b + " sayısını parçala: aşağıdaki sayılara dokun. Dikdörtgen renkli parçalara bölünür.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
+          adimlar = [b + " sayısını kolay parçalara ayırmanın bir yolunu seç. Dikdörtgen o parçalara bölünür.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
           simdi = !tamam ? 0 : !hepsi ? 1 : !toplamOk ? 2 : 3;
         } else {
           const q = bolum.reduce((t, x) => t + x, 0), tamam = kalan === 0;
@@ -280,6 +280,19 @@
       yeni();
     },
   });
+  /* bir sayıyı onluk ve beşlik gibi kolay parçalara ayırmanın birkaç yolu */
+  function ayirmalar(b) {
+    const L = [], ekle = (x) => { x = x.filter((v) => v > 0); if (x.length > 1 && x.reduce((t, v) => t + v, 0) === b && !L.some((y) => y.join() === x.join())) L.push(x); };
+    const on = Math.floor(b / 10) * 10, bir = b - on;
+    ekle([on, bir]);
+    if (on >= 20) ekle([...Array(on / 10).fill(10), bir]);
+    if (bir > 5) ekle([on, 5, bir - 5]);
+    if (bir >= 2 && bir < 5) ekle([on, 2, bir - 2].filter(Boolean));
+    if (on >= 10) ekle([on - 10, 10, bir].filter(Boolean).length > 2 ? [on - 10, 10, bir] : []);
+    ekle([10, b - 10]);
+    if (b > 10 && b < 20) ekle([5, 5, b - 10]);
+    return L.slice(0, 3);
+  }
   function sayiPadKucuk(onay) {
     const inp = h("input.in.mz-kucuk-girdi", { inputmode: "numeric", placeholder: "?", onkeydown: (e) => { if (e.key === "Enter" && inp.value) onay(inp.value.trim()); } });
     return h("span.mz-girdi-kap", inp, h("button.btn.sm.c-leaf", { onclick: () => inp.value && onay(inp.value.trim()) }, T.icon("check")));

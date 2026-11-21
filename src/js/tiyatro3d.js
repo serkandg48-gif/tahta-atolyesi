@@ -325,7 +325,7 @@
         kart.replaceChildren(h("div.ot-cumle", soru.cumle)); kart.classList.toggle("kucuk", asama !== "oku");
         const b = (cls, ic, fn, lbl) => h("button.ot-b." + cls, { onclick: fn }, ic ? T.icon(ic) : null, lbl);
         const sor = yonerge ? "Kedi yönergeyi doğru uyguladı mı?" : "Kedi rolünü doğru yaptı mı?";
-        if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, yonerge ? "Hadi kedi, yap!" : "Hadi kedi, oyna!"));
+        if (asama === "oku") dugme.replaceChildren(b("oyna", "next", oynat, yonerge ? "Hadi kedi, yap!" : "Hadi kedi, oyna!"));
         else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", yonerge ? "Kedi yönergeyi uyguluyor, dikkatle izleyin..." : "Kedi rolünü oynuyor, dikkatle izleyin..."));
         else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", sor), b("evet", "check", () => karar(true), yonerge ? "Doğru uyguladı" : "Rolünü doğru yaptı"), b("hayir", "close", () => karar(false), yonerge ? "Yanlış uyguladı" : "Rolünü yanlış yaptı"));
         else if (asama === "sonuc") {

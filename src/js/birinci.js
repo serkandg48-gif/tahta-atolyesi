@@ -291,7 +291,7 @@
       scroller.append(chip);
 
       /* Yan araç çubuğu */
-      const TOOLS = [["el", "hand", "Dokun ve dinle", "Dinle"], ["kalem", "pen", "Kalem", "Kalem"], ["vurgu", "highlighter", "Fosforlu kalem", "Fosforlu"], ["silgi", "eraser", "Silgi", "Silgi"], ["cizgi", "line", "Çizgi", "Çizgi"], ["kutu", "square", "Kutu", "Kutu"], ["daire", "circle", "Daire", "Daire"], ["ok", "arrow", "Ok", "Ok"], ["yazi", "textT", "Yazı", "Yazı"], ["damga", "star", "Yıldız", "Yıldız"], ["onay", "check", "Onay işareti", "Onay"], ["spot", "sun", "Spot ışığı", "Spot"]];
+      const TOOLS = [["el", "hand", "Dokun ve hecele", "Hecele"], ["kalem", "pen", "Kalem", "Kalem"], ["vurgu", "highlighter", "Fosforlu kalem", "Fosforlu"], ["silgi", "eraser", "Silgi", "Silgi"], ["cizgi", "line", "Çizgi", "Çizgi"], ["kutu", "square", "Kutu", "Kutu"], ["daire", "circle", "Daire", "Daire"], ["ok", "arrow", "Ok", "Ok"], ["yazi", "textT", "Yazı", "Yazı"], ["damga", "star", "Yıldız", "Yıldız"], ["onay", "check", "Onay işareti", "Onay"], ["spot", "sun", "Spot ışığı", "Spot"]];
       const lab = (t) => h("span", { style: { fontSize: "11px", fontWeight: 600, lineHeight: 1 } }, t);
       const tb = { width: "52px", minHeight: "54px", flexDirection: "column", gap: "3px", padding: "4px 2px" };
       const side = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 52px)", gap: "6px", alignContent: "start", overflowY: "auto", maxHeight: "calc(100vh - var(--top-h) - var(--dock-h) - 96px)" } });
@@ -355,7 +355,7 @@
       function paintCurtain() { curtain.style.display = st.curtain ? "block" : "none"; curtain.style.height = st.curtain * 100 + "%"; }
       T.dragMove(curtain, { onStart: () => ({ h: st.curtain, H: pageWrap.clientHeight }), onMove: (dx, dy, e, s) => { st.curtain = T.clamp(s.h + dy / s.H, 0.04, 1); paintCurtain(); } });
 
-      /* Dokun ve dinle: metin katmanındaki kelimeye dokununca okunur, hecelenir */
+      /* Dokun ve hecele: metin katmanındaki kelimeye dokununca heceleri gösterilir */
       tl.addEventListener("click", (e) => {
         if (st.tool !== "el") return;
         const span = e.target.closest("span"); if (!span) return;
@@ -363,7 +363,6 @@
         // tıklanan kelimeyi bul
         try { const rng = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null; if (rng && rng.startContainer.nodeType === 3) { const s = rng.startContainer.textContent, i = rng.startOffset; const a = s.slice(0, i).search(/[^\s.,!?;:"'()]*$/), m = s.slice(i).match(/^[^\s.,!?;:"'()]*/); const w = (s.slice(a, i) + (m ? m[0] : "")).trim(); if (w.length > 1) text = w; } } catch (er) {}
         if (!text) return;
-        T.speak(text);
         const r = scroller.getBoundingClientRect();
         chip.style.display = "block"; chip.style.left = (e.clientX - r.left + scroller.scrollLeft + 10) + "px"; chip.style.top = (e.clientY - r.top + scroller.scrollTop + 16) + "px";
         chip.replaceChildren(text.split(/\s+/).length === 1 ? T.heceler(text).join(" - ") : text);

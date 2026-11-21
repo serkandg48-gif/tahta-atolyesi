@@ -56,7 +56,8 @@
       const wrap = h("div.view-inner");
       view.append(wrap);
       wrap.append(h("div.page-head", h("h1", "Matematik"), h("div.sub", "Sınıfın: " + g + ". sınıf. Araçlar sınıf seviyesine göre sıralanır; hepsi her sınıfta açılabilir.")),
-        h("div.tabs", { role: "tablist" }, CATS.filter(([k]) => k !== "orta" || g >= 5).map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l))));
+        h("div.tabs", { role: "tablist" }, CATS.filter(([k]) => k !== "orta" || g >= 5).map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l)),
+          T.tools["dort-islem"] ? h("a.dort-kisayol", { href: "#matematik-dort-islem", title: "Toplama, çıkarma, çarpma ve bölmeyi modelle yap" }, T.icon("math"), "Dört işlem atölyesi") : null));
       const list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
         .sort((a, b) => (a[1].ilk || 99) - (b[1].ilk || 99) || fitScore(b[1], g) - fitScore(a[1], g));
       wrap.append(h("div.tool-grid", list.map(([k, t]) => T.aracKart("matematik-" + k, Object.assign({}, t, { short: t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "") }), "sun"))));

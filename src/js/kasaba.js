@@ -1,7 +1,7 @@
 /* Ses Kasabası: 1. sınıf ilk okuma yazma.
    Her ses grubu bir mahalle, her ses bir dükkân. Dükkânın dört basamağı var: ses, hece, kelime, cümle.
    Müşteriler fişle gelir, çocuklar fişi okuyup doğru ürünü verir. Dört basamak bitince dükkân açılır, sıradaki dükkâna geçilir.
-   Otomatik konuşma yok; "Dinle" yalnızca basılınca çalışır. */
+   Otomatik konuşma yok. */
 (function () {
   const { h } = T;
   /* Panoyu başlığından tutup sahne içinde sürükleme (çark gibi küçük panolar için) */
@@ -344,7 +344,6 @@
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),
             h("div.ks-yan",
-              h("button.ot-b.dinle", { onclick: () => (asama === "ses" ? T.harfSesi(d.l) : T.speak(q.dinle || q.fis)) }, T.icon("speaker"), "Dinle"),
               h("button.ot-b.dinle", { onclick: () => yazilisGoster(d, false), "aria-label": "Harfin yazılışı" }, T.icon("pen"), "Yazılış"),
               h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))),
           );

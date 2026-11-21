@@ -1,4 +1,4 @@
-window.SURUM="ea7d643dfe";
+window.SURUM="03d71a3aba";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -3747,7 +3747,8 @@ T.yuzen = TahtaYap("ana");
       const wrap = h("div.view-inner");
       view.append(wrap);
       wrap.append(h("div.page-head", h("h1", "Matematik"), h("div.sub", "Sınıfın: " + g + ". sınıf. Araçlar sınıf seviyesine göre sıralanır; hepsi her sınıfta açılabilir.")),
-        h("div.tabs", { role: "tablist" }, CATS.filter(([k]) => k !== "orta" || g >= 5).map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l))));
+        h("div.tabs", { role: "tablist" }, CATS.filter(([k]) => k !== "orta" || g >= 5).map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l)),
+          T.tools["dort-islem"] ? h("a.dort-kisayol", { href: "#matematik-dort-islem", title: "Toplama, çıkarma, çarpma ve bölmeyi modelle yap" }, T.icon("math"), "Dört işlem atölyesi") : null));
       const list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
         .sort((a, b) => (a[1].ilk || 99) - (b[1].ilk || 99) || fitScore(b[1], g) - fitScore(a[1], g));
       wrap.append(h("div.tool-grid", list.map(([k, t]) => T.aracKart("matematik-" + k, Object.assign({}, t, { short: t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "") }), "sun"))));
@@ -5219,8 +5220,8 @@ T.yuzen = TahtaYap("ana");
 
   game("deniz-canavari", { title: "Deniz canavarı", icon: "bolt", tone: "sky", grades: [3, 5], short: "Çarpma ve bölme akıcılığı", timed: true,
     round(L) { const a = R(2, L === 0 ? 5 : 10), b = R(2, L === 2 ? 12 : 10); const div = L > 0 && Math.random() < 0.5; const s = box("0 0 700 200");
-      if (div) { s.append(txt(350, 100, `${a * b} ÷ ${a}`, 110)); return q("", s, b, nearOpts(b, 4, 3, 1)); }
-      s.append(txt(350, 100, `${a} × ${b}`, 110)); return q("", s, a * b, nearOpts(a * b, 4, Math.max(a, b), 1)); } });
+      if (div) { s.append(txt(350, 100, `${a * b} ÷ ${a}`, 110)); return q("Bölümü bul. Süre bitmeden doğru sayıya dokun.", s, b, nearOpts(b, 4, 3, 1)); }
+      s.append(txt(350, 100, `${a} × ${b}`, 110)); return q("Çarpımı bul. Süre bitmeden doğru sayıya dokun.", s, a * b, nearOpts(a * b, 4, Math.max(a, b), 1)); } });
 
   game("alan-avi", { title: "Alan ve çevre avı", icon: "area", tone: "tomato", grades: [3, 6], short: "Kareli kağıtta alan ve çevre",
     round(L) { const w = R(2, L ? 9 : 6), hh = R(2, L ? 7 : 5); const per = Math.random() < 0.5; const ans = per ? 2 * (w + hh) : w * hh;
@@ -5239,7 +5240,7 @@ T.yuzen = TahtaYap("ana");
       return q("Hangisi asal sayıdır?", null, ans, T.shuffle([...o]), `${ans} yalnızca 1'e ve kendisine bölünür.`); } });
 
   game("carpan", { title: "Çarpan çifti", icon: "algebra", tone: "sun", grades: [3, 6], short: "Eksik çarpanı bul",
-    round(L) { const a = R(2, L ? 12 : 9), b = R(2, L ? 12 : 9); const s = box("0 0 800 200"); s.append(txt(400, 100, `${a} × ? = ${a * b}`, 84)); return q("", s, b, nearOpts(b, 4, 3, 1), `${a * b} ÷ ${a} = ${b}`); } });
+    round(L) { const a = R(2, L ? 12 : 9), b = R(2, L ? 12 : 9); const s = box("0 0 800 200"); s.append(txt(400, 100, `${a} × ? = ${a * b}`, 84)); return q(`Soru işaretinin yerine hangi sayı gelir? ${a} ile kaçı çarparsan ${a * b} olur?`, s, b, nearOpts(b, 4, 3, 1), `${a * b} ÷ ${a} = ${b}`); } });
 
   game("kalanli", { title: "Kalanlı paylaşım", icon: "groups", tone: "pink", grades: [3, 5], short: "Bölme ve kalan",
     round(L) { const d = R(2, L ? 9 : 5), qq = R(1, L === 2 ? 12 : 6), r = R(0, d - 1), n = d * qq + r; const f = (a, b) => `${a}, kalan ${b}`; const ans = f(qq, r);
@@ -9137,8 +9138,24 @@ T.widgets.stopwatch.group = "Gizli";
           bolum.length ? h("div.mz-agac", h("div.mz-agac-ust", a + " : " + b), h("div.mz-agac-alt", bolum.map((k) => h("div.mz-agac-dal", h("span", b * k), h("i", "↓"), h("b", k)))), tamam ? h("div.mz-agac-son", bolum.join(" + ") + " = " + q) : null) : null,
           h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { disabled: bolum.length ? null : true, onclick: () => { kalan += b * bolum.pop(); ciz(); } }, T.icon("back"), "Son parçayı geri al"), h("button.btn.c-chalk", { onclick: () => { kalan = a; bolum = []; ciz(); } }, T.icon("reset"), tamam ? "Başka türlü parçala" : "Baştan")));
       }
+      /* Adım adım yönerge: çocuk hangi adımda olduğunu görür */
+      function yonerge() {
+        let adimlar, simdi, giris;
+        if (tur === "carp") {
+          const top = parca.reduce((t, x) => t + x, 0), tamam = top === b, hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
+          giris = a + " × " + b + " işlemini tek seferde yapmak zor. " + b + " sayısını kolay parçalara ayır, her parçayı ayrı çarp, sonra topla.";
+          adimlar = [b + " sayısını parçala: aşağıdaki sayılara dokun. Dikdörtgen renkli parçalara bölünür.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
+          simdi = !tamam ? 0 : !hepsi ? 1 : !toplamOk ? 2 : 3;
+        } else {
+          const q = bolum.reduce((t, x) => t + x, 0), tamam = kalan === 0;
+          giris = a + " içinde kaç tane " + b + " var? Hepsini birden bulmak zor. " + b + "'nın kolay katlarını parça parça çıkararak bul.";
+          adimlar = ["Aşağıdaki kartlardan birine dokun. Kart, " + a + " sayısından o kadarını çıkarır. Örneğin " + b + " × 10 = " + b * 10 + ".", "Kalan sıfır olana kadar kart seçmeye devam et.", "Kartların alt sayılarını topla. Kaç tane " + b + " çıkardıysan bölüm odur."];
+          simdi = !bolum.length ? 0 : !tamam ? 1 : 3;
+        }
+        return h("div.mz-yonerge", h("p", giris), h("ol", adimlar.map((a2, i) => h("li" + (i === simdi ? ".simdi" : i < simdi ? ".bitti" : ""), h("span.mz-adim-no", i < simdi ? "✓" : i + 1), h("span", a2)))));
+      }
       function ciz() {
-        kap.replaceChildren(h("div.mz-ust", seg([["carp", "Çarpma"], ["bol", "Bölme"]], tur, (v) => { tur = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni işlem")), tur === "carp" ? carpCiz() : bolCiz());
+        kap.replaceChildren(h("div.mz-ust", seg([["carp", "Çarpma"], ["bol", "Bölme"]], tur, (v) => { tur = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni işlem")), yonerge(), tur === "carp" ? carpCiz() : bolCiz());
       }
       yeni();
     },
@@ -11199,7 +11216,7 @@ Zeynep: Çok teşekkür ederim. Afiyetle yiyeceğim.`],
       function ciz(asama, sonuc) {
         kart.replaceChildren(h("div.ot-cumle", soru.cumle));
         const b = (cls, ic, fn, lbl) => h("button.ot-b." + cls, { onclick: fn }, ic ? T.icon(ic) : null, lbl);
-        if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, "Hadi kedi, oyna!"));
+        if (asama === "oku") dugme.replaceChildren(b("oyna", "next", oynat, "Hadi kedi, oyna!"));
         else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", "Kedi rolünü oynuyor, dikkatle izleyin..."));
         else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", "Kedi rolünü doğru yaptı mı?"), b("evet", "check", () => karar(true), "Rolünü doğru yaptı"), b("hayir", "close", () => karar(false), "Rolünü yanlış yaptı"));
         else if (asama === "sonuc") dugme.replaceChildren(h("div.ot-sonuc" + (sonuc ? ".iyi" : ""), sonuc ? "Harika! Dikkatli okudunuz." : soru.dogruMu ? "Aslında kedi rolünü doğru yaptı. Cümleyi bir daha okuyalım." : "Kedi rolünü yanlış yaptı. Cümle neyi anlatıyordu, bir daha okuyalım."), soru.dogruMu ? null : b("dinle", "eye", dogrusunuGoster, "Doğrusunu göster"), b("oyna", "next", async () => { await sifirla(); yeniSoru(); }, "Yeni cümle"));
@@ -11547,7 +11564,7 @@ Zeynep: Çok teşekkür ederim. Afiyetle yiyeceğim.`],
         kart.replaceChildren(h("div.ot-cumle", soru.cumle)); kart.classList.toggle("kucuk", asama !== "oku");
         const b = (cls, ic, fn, lbl) => h("button.ot-b." + cls, { onclick: fn }, ic ? T.icon(ic) : null, lbl);
         const sor = yonerge ? "Kedi yönergeyi doğru uyguladı mı?" : "Kedi rolünü doğru yaptı mı?";
-        if (asama === "oku") dugme.replaceChildren(b("dinle", "speaker", () => T.speak(soru.cumle), "Dinle"), b("oyna", "next", oynat, yonerge ? "Hadi kedi, yap!" : "Hadi kedi, oyna!"));
+        if (asama === "oku") dugme.replaceChildren(b("oyna", "next", oynat, yonerge ? "Hadi kedi, yap!" : "Hadi kedi, oyna!"));
         else if (asama === "oynuyor") dugme.replaceChildren(h("div.ot-not", yonerge ? "Kedi yönergeyi uyguluyor, dikkatle izleyin..." : "Kedi rolünü oynuyor, dikkatle izleyin..."));
         else if (asama === "karar") dugme.replaceChildren(h("div.ot-soru", sor), b("evet", "check", () => karar(true), yonerge ? "Doğru uyguladı" : "Rolünü doğru yaptı"), b("hayir", "close", () => karar(false), yonerge ? "Yanlış uyguladı" : "Rolünü yanlış yaptı"));
         else if (asama === "sonuc") {
@@ -12096,7 +12113,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
 /* Ses Kasabası: 1. sınıf ilk okuma yazma.
    Her ses grubu bir mahalle, her ses bir dükkân. Dükkânın dört basamağı var: ses, hece, kelime, cümle.
    Müşteriler fişle gelir, çocuklar fişi okuyup doğru ürünü verir. Dört basamak bitince dükkân açılır, sıradaki dükkâna geçilir.
-   Otomatik konuşma yok; "Dinle" yalnızca basılınca çalışır. */
+   Otomatik konuşma yok. */
 (function () {
   const { h } = T;
   /* Panoyu başlığından tutup sahne içinde sürükleme (çark gibi küçük panolar için) */
@@ -12439,7 +12456,6 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
           alt.replaceChildren(
             h("div.ks-tepsi", q.secenek.map((s2) => h("button.ks-urun" + (s2.harf ? ".harf" : s2.resim ? ".resim" : ""), { onclick: (e) => sec(e.currentTarget, s2.id === q.dogru, k, d) }, s2.resim ? h("span.ks-emoji", s2.resim) : s2.gorunum))),
             h("div.ks-yan",
-              h("button.ot-b.dinle", { onclick: () => (asama === "ses" ? T.harfSesi(d.l) : T.speak(q.dinle || q.fis)) }, T.icon("speaker"), "Dinle"),
               h("button.ot-b.dinle", { onclick: () => yazilisGoster(d, false), "aria-label": "Harfin yazılışı" }, T.icon("pen"), "Yazılış"),
               h("button.ks-kapat", { onclick: () => dukkandanCik(), "aria-label": "Dükkândan çık" }, T.icon("close"))),
           );
@@ -12504,7 +12520,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
    Tahtada resimli bir kelime kartı çıkar, altında boş hece yerleri var. Erkek öğrenci rehberdir. Çocuk kavanozlardaki heceleri doğru sırayla hamur kazanına atar.
    Kelime tamamlanınca o şekilde bir kurabiye pişer (tilki kurabiyesi, elma kurabiyesi...).
    Kelimeler öğrenilen seslerle okunabilenlerden seçilir (ses cep kartları, kelime tabloları, resimli kelimeler).
-   Otomatik konuşma yok; "Dinle" yalnızca basılınca çalışır. */
+   Otomatik konuşma yok. */
 (function () {
   const { h } = T;
   const dep = () => { const s = T.store.get(), id = T.store.activeClass().id; return ((s.mutfak || {})[id]) || {}; };
@@ -12642,7 +12658,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
             h("div.hm-kart-bas", h("b", "Kelime " + Math.min(TARIF_SAY, pisen + 1) + " / " + TARIF_SAY), okuyan ? h("span", okuyan + " okuyor") : null),
             h("div.hm-govde", resim ? h("div.hm-resim", resim) : h("div.hm-resim.yok", T.icon("speaker")),
             h("div.hm-sag", h("div.hm-yerler", hs.map((x, i) => h("span.hm-yer" + (i < dolu ? ".dolu" : ""), i < dolu ? x : ""))),
-            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => T.speak(kelime) }, T.icon("speaker"), "Dinle"),
+            h("div.ks-yan",
               resim ? null : h("button.ot-b.dinle", { onclick: (e) => { e.currentTarget.replaceWith(h("b.hm-ipucu", kelime)); } }, T.icon("eye"), "Kelimeyi göster"))))));
           tarif.classList.add("acik");
         }
@@ -13239,7 +13255,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
       scroller.append(chip);
 
       /* Yan araç çubuğu */
-      const TOOLS = [["el", "hand", "Dokun ve dinle", "Dinle"], ["kalem", "pen", "Kalem", "Kalem"], ["vurgu", "highlighter", "Fosforlu kalem", "Fosforlu"], ["silgi", "eraser", "Silgi", "Silgi"], ["cizgi", "line", "Çizgi", "Çizgi"], ["kutu", "square", "Kutu", "Kutu"], ["daire", "circle", "Daire", "Daire"], ["ok", "arrow", "Ok", "Ok"], ["yazi", "textT", "Yazı", "Yazı"], ["damga", "star", "Yıldız", "Yıldız"], ["onay", "check", "Onay işareti", "Onay"], ["spot", "sun", "Spot ışığı", "Spot"]];
+      const TOOLS = [["el", "hand", "Dokun ve hecele", "Hecele"], ["kalem", "pen", "Kalem", "Kalem"], ["vurgu", "highlighter", "Fosforlu kalem", "Fosforlu"], ["silgi", "eraser", "Silgi", "Silgi"], ["cizgi", "line", "Çizgi", "Çizgi"], ["kutu", "square", "Kutu", "Kutu"], ["daire", "circle", "Daire", "Daire"], ["ok", "arrow", "Ok", "Ok"], ["yazi", "textT", "Yazı", "Yazı"], ["damga", "star", "Yıldız", "Yıldız"], ["onay", "check", "Onay işareti", "Onay"], ["spot", "sun", "Spot ışığı", "Spot"]];
       const lab = (t) => h("span", { style: { fontSize: "11px", fontWeight: 600, lineHeight: 1 } }, t);
       const tb = { width: "52px", minHeight: "54px", flexDirection: "column", gap: "3px", padding: "4px 2px" };
       const side = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 52px)", gap: "6px", alignContent: "start", overflowY: "auto", maxHeight: "calc(100vh - var(--top-h) - var(--dock-h) - 96px)" } });
@@ -13303,7 +13319,7 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
       function paintCurtain() { curtain.style.display = st.curtain ? "block" : "none"; curtain.style.height = st.curtain * 100 + "%"; }
       T.dragMove(curtain, { onStart: () => ({ h: st.curtain, H: pageWrap.clientHeight }), onMove: (dx, dy, e, s) => { st.curtain = T.clamp(s.h + dy / s.H, 0.04, 1); paintCurtain(); } });
 
-      /* Dokun ve dinle: metin katmanındaki kelimeye dokununca okunur, hecelenir */
+      /* Dokun ve hecele: metin katmanındaki kelimeye dokununca heceleri gösterilir */
       tl.addEventListener("click", (e) => {
         if (st.tool !== "el") return;
         const span = e.target.closest("span"); if (!span) return;
@@ -13311,7 +13327,6 @@ T.KELIME_BANKASI = {"ü":{"hece":["ül","lü","ün","nü","üm","mü","üt","ük
         // tıklanan kelimeyi bul
         try { const rng = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null; if (rng && rng.startContainer.nodeType === 3) { const s = rng.startContainer.textContent, i = rng.startOffset; const a = s.slice(0, i).search(/[^\s.,!?;:"'()]*$/), m = s.slice(i).match(/^[^\s.,!?;:"'()]*/); const w = (s.slice(a, i) + (m ? m[0] : "")).trim(); if (w.length > 1) text = w; } } catch (er) {}
         if (!text) return;
-        T.speak(text);
         const r = scroller.getBoundingClientRect();
         chip.style.display = "block"; chip.style.left = (e.clientX - r.left + scroller.scrollLeft + 10) + "px"; chip.style.top = (e.clientY - r.top + scroller.scrollTop + 16) + "px";
         chip.replaceChildren(text.split(/\s+/).length === 1 ? T.heceler(text).join(" - ") : text);

@@ -2,7 +2,7 @@
    Tahtada resimli bir kelime kartı çıkar, altında boş hece yerleri var. Erkek öğrenci rehberdir. Çocuk kavanozlardaki heceleri doğru sırayla hamur kazanına atar.
    Kelime tamamlanınca o şekilde bir kurabiye pişer (tilki kurabiyesi, elma kurabiyesi...).
    Kelimeler öğrenilen seslerle okunabilenlerden seçilir (ses cep kartları, kelime tabloları, resimli kelimeler).
-   Otomatik konuşma yok; "Dinle" yalnızca basılınca çalışır. */
+   Otomatik konuşma yok. */
 (function () {
   const { h } = T;
   const dep = () => { const s = T.store.get(), id = T.store.activeClass().id; return ((s.mutfak || {})[id]) || {}; };
@@ -140,7 +140,7 @@
             h("div.hm-kart-bas", h("b", "Kelime " + Math.min(TARIF_SAY, pisen + 1) + " / " + TARIF_SAY), okuyan ? h("span", okuyan + " okuyor") : null),
             h("div.hm-govde", resim ? h("div.hm-resim", resim) : h("div.hm-resim.yok", T.icon("speaker")),
             h("div.hm-sag", h("div.hm-yerler", hs.map((x, i) => h("span.hm-yer" + (i < dolu ? ".dolu" : ""), i < dolu ? x : ""))),
-            h("div.ks-yan", h("button.ot-b.dinle", { onclick: () => T.speak(kelime) }, T.icon("speaker"), "Dinle"),
+            h("div.ks-yan",
               resim ? null : h("button.ot-b.dinle", { onclick: (e) => { e.currentTarget.replaceWith(h("b.hm-ipucu", kelime)); } }, T.icon("eye"), "Kelimeyi göster"))))));
           tarif.classList.add("acik");
         }

@@ -258,8 +258,24 @@
           bolum.length ? h("div.mz-agac", h("div.mz-agac-ust", a + " : " + b), h("div.mz-agac-alt", bolum.map((k) => h("div.mz-agac-dal", h("span", b * k), h("i", "↓"), h("b", k)))), tamam ? h("div.mz-agac-son", bolum.join(" + ") + " = " + q) : null) : null,
           h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { disabled: bolum.length ? null : true, onclick: () => { kalan += b * bolum.pop(); ciz(); } }, T.icon("back"), "Son parçayı geri al"), h("button.btn.c-chalk", { onclick: () => { kalan = a; bolum = []; ciz(); } }, T.icon("reset"), tamam ? "Başka türlü parçala" : "Baştan")));
       }
+      /* Adım adım yönerge: çocuk hangi adımda olduğunu görür */
+      function yonerge() {
+        let adimlar, simdi, giris;
+        if (tur === "carp") {
+          const top = parca.reduce((t, x) => t + x, 0), tamam = top === b, hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
+          giris = a + " × " + b + " işlemini tek seferde yapmak zor. " + b + " sayısını kolay parçalara ayır, her parçayı ayrı çarp, sonra topla.";
+          adimlar = [b + " sayısını parçala: aşağıdaki sayılara dokun. Dikdörtgen renkli parçalara bölünür.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
+          simdi = !tamam ? 0 : !hepsi ? 1 : !toplamOk ? 2 : 3;
+        } else {
+          const q = bolum.reduce((t, x) => t + x, 0), tamam = kalan === 0;
+          giris = a + " içinde kaç tane " + b + " var? Hepsini birden bulmak zor. " + b + "'nın kolay katlarını parça parça çıkararak bul.";
+          adimlar = ["Aşağıdaki kartlardan birine dokun. Kart, " + a + " sayısından o kadarını çıkarır. Örneğin " + b + " × 10 = " + b * 10 + ".", "Kalan sıfır olana kadar kart seçmeye devam et.", "Kartların alt sayılarını topla. Kaç tane " + b + " çıkardıysan bölüm odur."];
+          simdi = !bolum.length ? 0 : !tamam ? 1 : 3;
+        }
+        return h("div.mz-yonerge", h("p", giris), h("ol", adimlar.map((a2, i) => h("li" + (i === simdi ? ".simdi" : i < simdi ? ".bitti" : ""), h("span.mz-adim-no", i < simdi ? "✓" : i + 1), h("span", a2)))));
+      }
       function ciz() {
-        kap.replaceChildren(h("div.mz-ust", seg([["carp", "Çarpma"], ["bol", "Bölme"]], tur, (v) => { tur = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni işlem")), tur === "carp" ? carpCiz() : bolCiz());
+        kap.replaceChildren(h("div.mz-ust", seg([["carp", "Çarpma"], ["bol", "Bölme"]], tur, (v) => { tur = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni işlem")), yonerge(), tur === "carp" ? carpCiz() : bolCiz());
       }
       yeni();
     },

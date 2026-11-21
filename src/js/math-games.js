@@ -252,8 +252,8 @@
 
   game("deniz-canavari", { title: "Deniz canavarı", icon: "bolt", tone: "sky", grades: [3, 5], short: "Çarpma ve bölme akıcılığı", timed: true,
     round(L) { const a = R(2, L === 0 ? 5 : 10), b = R(2, L === 2 ? 12 : 10); const div = L > 0 && Math.random() < 0.5; const s = box("0 0 700 200");
-      if (div) { s.append(txt(350, 100, `${a * b} ÷ ${a}`, 110)); return q("", s, b, nearOpts(b, 4, 3, 1)); }
-      s.append(txt(350, 100, `${a} × ${b}`, 110)); return q("", s, a * b, nearOpts(a * b, 4, Math.max(a, b), 1)); } });
+      if (div) { s.append(txt(350, 100, `${a * b} ÷ ${a}`, 110)); return q("Bölümü bul. Süre bitmeden doğru sayıya dokun.", s, b, nearOpts(b, 4, 3, 1)); }
+      s.append(txt(350, 100, `${a} × ${b}`, 110)); return q("Çarpımı bul. Süre bitmeden doğru sayıya dokun.", s, a * b, nearOpts(a * b, 4, Math.max(a, b), 1)); } });
 
   game("alan-avi", { title: "Alan ve çevre avı", icon: "area", tone: "tomato", grades: [3, 6], short: "Kareli kağıtta alan ve çevre",
     round(L) { const w = R(2, L ? 9 : 6), hh = R(2, L ? 7 : 5); const per = Math.random() < 0.5; const ans = per ? 2 * (w + hh) : w * hh;
@@ -272,7 +272,7 @@
       return q("Hangisi asal sayıdır?", null, ans, T.shuffle([...o]), `${ans} yalnızca 1'e ve kendisine bölünür.`); } });
 
   game("carpan", { title: "Çarpan çifti", icon: "algebra", tone: "sun", grades: [3, 6], short: "Eksik çarpanı bul",
-    round(L) { const a = R(2, L ? 12 : 9), b = R(2, L ? 12 : 9); const s = box("0 0 800 200"); s.append(txt(400, 100, `${a} × ? = ${a * b}`, 84)); return q("", s, b, nearOpts(b, 4, 3, 1), `${a * b} ÷ ${a} = ${b}`); } });
+    round(L) { const a = R(2, L ? 12 : 9), b = R(2, L ? 12 : 9); const s = box("0 0 800 200"); s.append(txt(400, 100, `${a} × ? = ${a * b}`, 84)); return q(`Soru işaretinin yerine hangi sayı gelir? ${a} ile kaçı çarparsan ${a * b} olur?`, s, b, nearOpts(b, 4, 3, 1), `${a * b} ÷ ${a} = ${b}`); } });
 
   game("kalanli", { title: "Kalanlı paylaşım", icon: "groups", tone: "pink", grades: [3, 5], short: "Bölme ve kalan",
     round(L) { const d = R(2, L ? 9 : 5), qq = R(1, L === 2 ? 12 : 6), r = R(0, d - 1), n = d * qq + r; const f = (a, b) => `${a}, kalan ${b}`; const ans = f(qq, r);

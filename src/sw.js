@@ -1,7 +1,7 @@
 /* Tahta Atölyesi service worker. Uygulama dosyaları önbellekte durur; internet kesilse de site açılır.
    Sayfa önce ağdan istenir, ağ yoksa önbellekten gelir. Yapay zekâ istekleri (/api) hiç önbelleğe alınmaz. */
 const SURUM = "__SURUM__"; /* r2 */
-const ANA = "ta-" + SURUM, EK = "ta-ek";
+const ANA = "ta-" + SURUM, EK = "ta-ek2";
 const ON = __ONBELLEK__;
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(ANA).then((c) => Promise.all(ON.map((u) => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));

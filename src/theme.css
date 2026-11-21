@@ -3293,3 +3293,4 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .di-yaz { width: 1.4em; height: 1.4em; font: inherit; text-align: center; border: 3px solid #2E8FD6; border-radius: 8px; background: #fff; color: #1B2A4A; padding: 0; }
 .di-yaz.yanlis { border-color: #E4553F; animation: di-salla .3s; } @keyframes di-salla { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @media (prefers-reduced-motion: reduce) { .di-b.hazir, .di-b.bozulur { animation: none; } }
+.tv-aralik { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 700; }

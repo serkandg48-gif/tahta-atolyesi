@@ -113,8 +113,8 @@
       const q = mount(host, '<div class="nl-ctl">\n      <label>Başla <input id="a" type="number" value="7" min="0" max="20"></label>\n      <div class="seg" id="op"><button aria-pressed="true" data-v="+">Topla +</button><button aria-pressed="false" data-v="-">Çıkar −</button></div>\n      <label><input id="b" type="number" value="5" min="0" max="20"></label>\n      <label>Strateji <div class="seg" id="st"><button aria-pressed="true" data-v="on">10\'a tamamla</button><button aria-pressed="false" data-v="bir">Birer birer</button><button aria-pressed="false" data-v="tek">Tek atlayış</button></div></label>\n      <label>Hayvan <div class="seg" id="hv"><button aria-pressed="true" data-v="tavsan">Tavşan</button><button aria-pressed="false" data-v="kus">Kuş</button></div></label>\n      <button class="btn" id="go" style="margin-left:auto"><svg class="ic" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>Zıpla</button>\n    </div>\n    <div class="field"><svg id="nlsvg" viewBox="0 0 1260 520" aria-label="Sayı doğrusu"></svg><div class="nl-read" id="read"><small>Tavşan nerede?</small>7</div></div>\n  ');
 
   const svg = q("nlsvg"), read = q("read");
-  const W = 1260, Y = 400, X0 = 70, MAX = 20, STEP = (W - 2 * X0) / MAX;
-  const X = (n) => X0 + n * STEP;
+  const W = 1260, Y = 400, X0 = 70; let MIN = 0, MAX = 20, STEP = (W - 2 * X0) / (MAX - MIN);
+  const X = (n) => X0 + (n - MIN) * STEP;
   const defs = el("defs", {}, svg);
   defs.innerHTML = `
     <linearGradient id="ruler" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7EBD3"/><stop offset="1" stop-color="#E2CDA6"/></linearGradient>
@@ -125,11 +125,17 @@
   /* Cetvel gibi sayı doğrusu */
   el("rect", { x: 30, y: Y - 6, width: W - 60, height: 54, rx: 10, fill: "url(#ruler)", filter: "url(#ds)" }, svg);
   el("line", { x1: 40, y1: Y, x2: W - 40, y2: Y, stroke: "#5B4A2E", "stroke-width": 3 }, svg);
-  for (let n = 0; n <= MAX; n++) {
-    el("line", { x1: X(n), y1: Y, x2: X(n), y2: Y + (n % 5 === 0 ? 22 : 14), stroke: "#5B4A2E", "stroke-width": n % 10 === 0 ? 3 : 2 }, svg);
-    const t = el("text", { x: X(n), y: Y + 42, "text-anchor": "middle", "font-size": n % 10 === 0 ? 22 : 19, "font-weight": n % 10 === 0 ? 800 : 600, fill: n % 10 === 0 ? "#1B2A4A" : "#5B4A2E", "font-family": "Onest, sans-serif" }, svg);
-    t.textContent = n;
+  const cetvel = el("g", {}, svg);
+  function cetvelCiz() {
+    cetvel.innerHTML = ""; STEP = (W - 2 * X0) / (MAX - MIN);
+    const L = MAX - MIN, etiket = L <= 30 ? 1 : L <= 60 ? 5 : 10, kucuk = L <= 200 ? 1 : 5;
+    for (let n = MIN; n <= MAX; n += kucuk) {
+      const buyuk = n % 10 === 0, orta = n % 5 === 0;
+      el("line", { x1: X(n), y1: Y, x2: X(n), y2: Y + (orta ? 22 : 14), stroke: "#5B4A2E", "stroke-width": buyuk ? 3 : L > 60 ? 1.2 : 2 }, cetvel);
+      if (n % etiket === 0 || n === MIN || n === MAX) { const t = el("text", { x: X(n), y: Y + 42, "text-anchor": "middle", "font-size": L > 60 ? 17 : buyuk ? 22 : 19, "font-weight": buyuk ? 800 : 600, fill: buyuk ? "#1B2A4A" : "#5B4A2E", "font-family": "Onest, sans-serif" }, cetvel); t.textContent = n; }
+    }
   }
+  cetvelCiz();
   const arcs = el("g", {}, svg);
   /* Tavşan: yandan görünüş, sakin ve gerçekçiye yakın */
   function rabbit() {
@@ -173,13 +179,13 @@
   const setRead = (n, label) => { read.innerHTML = `<small>${label || (kind === "kus" ? "Kuş" : "Tavşan") + " nerede?"}</small>${n}`; };
   function hop(from, to) {
     return new Promise((res) => {
-      const x1 = X(from), x2 = X(to), d = Math.abs(to - from), h = Math.min(170, 40 + d * 16);
+      const x1 = X(from), x2 = X(to), d = Math.abs(to - from), h = Math.min(170, 40 + Math.abs(x2 - x1) * 0.3);
       const mid = (x1 + x2) / 2, top = Y - 10 - h;
       el("path", { d: `M${x1},${Y - 10} Q${mid},${top - h * .15} ${x2},${Y - 10}`, fill: "none", stroke: to > from ? "#1B2A4A" : "#C2453A", "stroke-width": 3, "stroke-dasharray": "2 9", "stroke-linecap": "round" }, arcs);
       const lbl = el("text", { x: mid, y: top - 10, "text-anchor": "middle", "font-size": 26, "font-weight": 800, fill: to > from ? "#1B2A4A" : "#C2453A", "font-family": "Onest, sans-serif" }, arcs);
       lbl.textContent = (to > from ? "+" : "−") + d;
       if (reduce) { place(x2); return res(); }
-      const T = 420 + d * 40, t0 = performance.now();
+      const T = 420 + Math.min(1400, Math.abs(x2 - x1) * 0.7), t0 = performance.now();
       dir = to >= from ? 1 : -1;
       const frame = (now) => {
         const t = Math.min(1, (now - t0) / T), x = x1 + (x2 - x1) * t, y = -4 * h * t * (1 - t);
@@ -193,9 +199,9 @@
   }
   async function go() {
     if (busy) return; busy = true; arcs.innerHTML = "";
-    let a = Math.max(0, Math.min(MAX, +q("a").value || 0)), b = Math.max(0, +q("b").value || 0);
+    let a = Math.max(MIN, Math.min(MAX, +q("a").value || 0)), b = Math.max(0, +q("b").value || 0);
     const sign = op() === "+" ? 1 : -1; let target = a + sign * b;
-    if (target < 0 || target > MAX) { setRead("?", `Sonuç 0 ile ${MAX} arasında olmalı`); busy = false; return; }
+    if (target < MIN || target > MAX) { setRead("?", `Sonuç ${MIN} ile ${MAX} arasında olmalı`); busy = false; return; }
     pos = a; place(X(a)); setRead(a);
     let legs = [];
     if (st() === "tek") legs = [target];
@@ -207,7 +213,15 @@
     busy = false;
   }
   q("go").onclick = go;
-  ["a"].forEach((id) => q(id).addEventListener("change", () => { if (busy) return; arcs.innerHTML = ""; pos = Math.max(0, Math.min(MAX, +q("a").value || 0)); place(X(pos)); setRead(pos); }));
+  ["a"].forEach((id) => q(id).addEventListener("change", () => { if (busy) return; arcs.innerHTML = ""; pos = Math.max(MIN, Math.min(MAX, +q("a").value || 0)); place(X(pos)); setRead(pos); }));
+  /* Doğrunun başı ve sonu ayarlanabilir */
+  const aralikKur = (mn, mx) => { if (busy || !(mx > mn) || mx - mn > 1000) return T.toast && T.toast("Bitiş başlangıçtan büyük olmalı, aralık en çok 1000"); MIN = mn; MAX = mx; q("a").min = mn; q("a").max = mx; q("b").max = mx - mn; arcs.innerHTML = ""; cetvelCiz(); pos = Math.max(MIN, Math.min(MAX, +q("a").value || MIN)); q("a").value = pos; place(X(pos)); setRead(pos); };
+  const iMin = Object.assign(document.createElement("input"), { type: "number", value: 0, className: "in" }), iMax = Object.assign(document.createElement("input"), { type: "number", value: 20, className: "in" });
+  [iMin, iMax].forEach((i) => { i.style.width = "80px"; i.onchange = () => aralikKur(+iMin.value, +iMax.value); });
+  const segA = document.createElement("div"); segA.className = "seg";
+  [10, 20, 50, 100].forEach((m) => { const b = document.createElement("button"); b.textContent = "0–" + m; b.setAttribute("aria-pressed", m === 20); b.onclick = () => { segA.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b)); iMin.value = 0; iMax.value = m; aralikKur(0, m); }; segA.append(b); });
+  const lab = document.createElement("div"); lab.className = "tv-aralik"; lab.append("Doğru ", segA, " Özel: ", iMin, " – ", iMax);
+  q("a").closest(".nl-ctl").append(lab);
 
     },
   };

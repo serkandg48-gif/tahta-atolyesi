@@ -14,21 +14,28 @@
       const mat = h("div.mat", { style: { height: "var(--stage-h)" } }, svg);
       const out = h("div.readout", { style: { color: "var(--chalk)" } });
       let pen = 1;
-      function setType(t) { type = t; cells = Array(t === 20 ? 20 : t).fill(0); paint(); }
+      let kay = [{ x: 0, y: 0 }, { x: 0, y: 0 }], tut = null;
+      function setType(t) { type = t; cells = Array(t === 20 ? 20 : t).fill(0); kay = [{ x: 0, y: 0 }, { x: 0, y: 0 }]; paint(); }
+      svg.addEventListener("pointermove", (e) => { if (!tut) return; const p = T.svgPoint(svg, e.clientX, e.clientY); kay[tut.f] = { x: tut.kx + p.x - tut.px, y: tut.ky + p.y - tut.py }; const g = svg.querySelector('[data-cerceve="' + tut.f + '"]'); if (g) g.setAttribute("transform", `translate(${kay[tut.f].x},${kay[tut.f].y})`); });
+      svg.addEventListener("pointerup", () => (tut = null));
       function paint() {
         svg.replaceChildren();
-        const frames = type === 20 ? 2 : 1, cols = type === 5 ? 5 : 5, rows = type === 5 ? 1 : 2, cw = 150;
+        const frames = type === 20 ? 2 : 1, cols = 5, rows = type === 5 ? 1 : 2, cw = 150;
+        svg.setAttribute("viewBox", frames === 2 ? "0 0 1000 820" : "0 0 1000 520");
         T.m3kur && T.m3kur();
         for (let f = 0; f < frames; f++) {
-          const ox = 500 - (cols * cw) / 2, oy = (frames === 1 ? (rows === 1 ? 185 : 110) : 20 + f * 260);
-          svg.append(S("rect", { x: ox - 18, y: oy - 18, width: cols * cw + 36, height: rows * cw + 36, rx: 16, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
+          const ox = 500 - (cols * cw) / 2, oy = (frames === 1 ? (rows === 1 ? 185 : 110) : 40 + f * 420);
+          const cg = S("g", { "data-cerceve": f, transform: `translate(${kay[f].x},${kay[f].y})` }); svg.append(cg);
+          const kasa = S("rect", { x: ox - 18, y: oy - 18, width: cols * cw + 36, height: rows * cw + 36, rx: 16, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)", style: frames === 2 ? "cursor:move" : "" });
+          if (frames === 2) kasa.addEventListener("pointerdown", (e) => { const p = T.svgPoint(svg, e.clientX, e.clientY); tut = { f, px: p.x, py: p.y, kx: kay[f].x, ky: kay[f].y }; svg.setPointerCapture(e.pointerId); });
+          cg.append(kasa);
           for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
             const i = f * 10 + r * cols + c;
             const g = S("g", { style: "cursor:pointer" });
             g.append(S("rect", { x: ox + c * cw + 5, y: oy + r * cw + 5, width: cw - 10, height: cw - 10, rx: 8, fill: "#F7EFDF", stroke: "#8A6238", "stroke-width": 2, filter: "url(#m3-ic)" }));
             if (cells[i]) g.append(S("circle", { cx: ox + c * cw + cw / 2, cy: oy + r * cw + cw / 2, r: 54, fill: T.m3 ? T.m3(COLS[cells[i]]) : COLS[cells[i]], filter: "url(#m3-golge)" }));
             g.addEventListener("click", () => { cells[i] = cells[i] === pen ? 0 : pen; T.sound.pop(); paint(); });
-            svg.append(g);
+            cg.append(g);
           }
         }
         const a = cells.filter((x) => x === 1).length, b = cells.filter((x) => x === 2).length;
@@ -97,33 +104,45 @@
   tool("rekenrek", {
     title: "Sayı boncuğu", icon: "beads", tone: "grape", grades: [1, 2], short: "Rekenrek: 20'lik ve 100'lük",
     render(host) {
-      let rowsN = 2; let left = [];
+      /* boncuklar başta solda toplu; sayılan boncuklar sağa kaydırılır */
+      let rowsN = 2, sag = [], boncuk = [];
       const svg = S("svg", { viewBox: "0 0 1000 560", style: "width:100%;height:100%" });
-      const mat = h("div.mat", { style: { height: "var(--stage-h)", background: "#f3ead9" } }, svg);
+      const mat = h("div.mat.rk-mat", svg);
       const out = h("div.readout", { style: { color: "var(--chalk)" } });
-      function setRows(n) { rowsN = n; left = Array(n).fill(0); paint(); }
-      function paint() {
-        svg.replaceChildren();
-        T.m3kur && T.m3kur();
-        svg.append(S("rect", { x: 40, y: 20, width: 920, height: 520, rx: 18, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
-        svg.append(S("rect", { x: 70, y: 46, width: 860, height: 468, rx: 8, fill: "#FBF3E2", filter: "url(#m3-ic)" }));
-        const gap = 468 / rowsN, r = Math.min(30, gap * 0.36);
+      function setRows(n) { rowsN = n; sag = Array(n).fill(0); kur(); }
+      function kur() {
+        svg.replaceChildren(); T.m3kur && T.m3kur();
+        if (!svg.querySelector("#rk-k")) svg.append(S("defs", {}, ...[["rk-k", "#ff8a7a", "#d8352a", "#7e1a12"], ["rk-b", "#ffffff", "#efe6d6", "#a8977b"]].map(([id, a1, a2, a3]) => { const g = S("radialGradient", { id, cx: ".35", cy: ".3", r: ".75" }); g.append(S("stop", { offset: "0", "stop-color": a1 }), S("stop", { offset: ".55", "stop-color": a2 }), S("stop", { offset: "1", "stop-color": a3 })); return g; })));
+        svg.append(S("rect", { x: 30, y: 14, width: 940, height: 532, rx: 22, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
+        svg.append(S("rect", { x: 62, y: 42, width: 876, height: 476, rx: 10, fill: "#FBF3E2", filter: "url(#m3-ic)" }));
+        const gap = 476 / rowsN, r = Math.min(30, gap * 0.38); boncuk = [];
         for (let row = 0; row < rowsN; row++) {
-          const y = 46 + gap * (row + 0.5);
-          svg.append(S("rect", { x: 66, y: y - 4, width: 868, height: 8, rx: 4, fill: "url(#m3-metal)" }));
+          const y = 42 + gap * (row + 0.5);
+          svg.append(S("rect", { x: 58, y: y - 4, width: 884, height: 8, rx: 4, fill: "url(#m3-metal)" }));
+          boncuk[row] = [];
           for (let k = 0; k < 10; k++) {
-            const isLeft = k < left[row];
-            const x = isLeft ? 110 + k * r * 2.1 + (k >= 5 ? 6 : 0) : 890 - (9 - k) * r * 2.1 - (k < 5 ? 6 : 0);
-            const c = S("circle", { cx: x, cy: y, r, fill: T.m3(k < 5 ? "#e2473b" : "#f4f1ea"), filter: "url(#m3-golge-k)", style: "cursor:pointer" });
-            c.addEventListener("click", () => { left[row] = isLeft ? k : k + 1; T.sound.tick(); paint(); });
-            svg.append(c);
+            const g = S("g", { class: "rk-bon", style: "cursor:pointer" });
+            g.append(S("ellipse", { cx: 0, cy: r * 0.9, rx: r * 0.9, ry: r * 0.25, fill: "rgba(60,40,20,.25)" }),
+              S("ellipse", { cx: 0, cy: 0, rx: r * 0.82, ry: r, fill: k < 5 ? "url(#rk-k)" : "url(#rk-b)", stroke: k < 5 ? "#8a1f15" : "#b9a888", "stroke-width": 1.5 }),
+              S("rect", { x: -r * 0.82, y: -3, width: r * 1.64, height: 6, fill: "rgba(0,0,0,.12)" }),
+              S("ellipse", { cx: -r * 0.28, cy: -r * 0.45, rx: r * 0.22, ry: r * 0.14, fill: "rgba(255,255,255,.75)" }));
+            g.addEventListener("click", () => { const saga = k >= 10 - sag[row]; sag[row] = saga ? 9 - k : 10 - k; T.sound.tick(); paint(); });
+            svg.append(g); boncuk[row][k] = { g, y, r };
           }
         }
-        out.textContent = left.reduce((a, b) => a + b, 0) + (rowsN === 2 ? `  (${left[0]} + ${left[1]})` : "");
+        paint(true);
+      }
+      function paint(ilk) {
+        boncuk.forEach((L, row) => L.forEach(({ g, y, r }, k) => {
+          const saga = k >= 10 - sag[row], d = r * 1.68;
+          const x = saga ? 920 - (9 - k) * d - r - (k < 5 && sag[row] > 5 ? 10 : 0) : 82 + k * d + r + (k >= 5 ? 10 : 0);
+          g.style.transition = ilk ? "none" : "transform .32s cubic-bezier(.3,1.35,.5,1)"; g.style.transform = `translate(${x}px, ${y}px)`;
+        }));
+        out.textContent = sag.reduce((a, b) => a + b, 0) + (rowsN === 2 ? `  (${sag[0]} + ${sag[1]})` : "");
       }
       host.append(h("div.row", h("div.seg", [[2, "20'lik"], [10, "100'lük"]].map(([n, l]) => h("button", { "aria-pressed": String(n === rowsN), onclick: (e) => { e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); setRows(n); } }, l)))),
-        mat, h("div.row", btn("chalk", "reset", "Hepsini sağa it", () => setRows(rowsN)), out,
-          h("span.hint", "Bir boncuğa dokun: o boncuk ve solundakiler bir hamlede kayar. 5'li renk grupları saymadan görmeyi sağlar.")));
+        mat, h("div.row", btn("chalk", "reset", "Hepsini sola it", () => setRows(rowsN)), out,
+          h("span.hint", "Bir boncuğa dokun: o boncuk ve sağındakiler bir hamlede sağa kayar. 5'li renk grupları saymadan görmeyi sağlar.")));
       setRows(2);
     },
   });
@@ -155,25 +174,58 @@
         });
         const rows = dens.map((d) => [d, Array.from({ length: d }, (_, k) => shaded[d + ":" + k]).filter(Boolean).length]).filter(([, n]) => n);
         out.textContent = rows.map(([d, n]) => (d === 1 ? n : n + "/" + d)).join("   ");
+        /* hizalama çizgisi: tam bu hizada biten parçalar çerçevelenir */
+        if (cizgi != null) {
+          const x = 20 + cizgi * 960;
+          dens.forEach((d, ri) => { const k = Math.round(cizgi * d); if (k > 0 && Math.abs(k / d - cizgi) < 1e-6) svg.append(S("rect", { x: 20, y: 10 + ri * rh, width: (960 * k) / d, height: rh - 6, rx: 3, fill: "none", stroke: "#1B2A4A", "stroke-width": 4 })); });
+          svg.append(S("line", { x1: x, y1: 0, x2: x, y2: 620, stroke: "#E4553F", "stroke-width": 5, "stroke-dasharray": "12 6" }), S("circle", { cx: x, cy: 610, r: 12, fill: "#E4553F" }));
+          const es = dens.map((d) => [d, Math.round(cizgi * d)]).filter(([d, k]) => k > 0 && Math.abs(k / d - cizgi) < 1e-6).map(([d, k]) => (d === 1 ? "1" : k + "/" + d));
+          out.textContent = es.join(" = ");
+        }
       }
+      let cizgi = null;
+      const uclar = [...new Set(dens.flatMap((d) => Array.from({ length: d }, (_, k) => +((k + 1) / d).toFixed(6))))].sort((x, y) => x - y);
+      svg.style.touchAction = "none";
+      svg.addEventListener("pointermove", (e) => { if (cizgi == null || !(e.buttons & 1)) return; const p = T.svgPoint(svg, e.clientX, e.clientY), v = (p.x - 20) / 960; cizgi = uclar.reduce((a2, b2) => (Math.abs(b2 - v) < Math.abs(a2 - v) ? b2 : a2)); paint(); });
       host.append(h("div.row", h("div.seg", [["kesir", "Kesir"], ["ondalik", "Ondalık"], ["yuzde", "Yüzde"], ["yok", "Etiketsiz"]].map(([k, l]) => h("button", { "aria-pressed": String(k === labels), onclick: (e) => { labels = k; e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); paint(); } }, l)))),
-        mat, h("div.row", btn("chalk", "reset", "Boyaları sil", () => { shaded = {}; paint(); }), out,
-          h("span.hint", "Parçaları boyayarak denk kesirleri bulun: 1/2 kadar yer kaplayan başka hangi parçalar var?")));
+        mat, h("div.row", btn("chalk", "reset", "Boyaları sil", () => { shaded = {}; paint(); }), btn("sun", "line", "Hizalama çizgisi", () => { cizgi = cizgi == null ? 0.5 : null; paint(); }), out,
+          h("span.hint", "Parçalara dokunarak boyayın. Hizalama çizgisini sürükleyin: aynı hizada biten kesirler denktir.")));
       paint();
     },
   });
 
   tool("kesir-serit", {
-    title: "Kesir şeritleri", icon: "fraction", tone: "leaf", grades: [3, 7], short: "Sürüklenebilir kesir parçaları",
+    title: "Kesir şeritleri", icon: "fraction", tone: "leaf", grades: [2, 6], short: "Bütünle birlikte büyüyen kesir parçaları",
     render(host) {
-      T.Tuval(host, {
-        palettes: [{ items: ["f1", "f2", "f3", "f4", "f5", "f6", "f8", "f10", "f12"] }], grid: true, snap: 5,
-        background: (W) => S("g", {}, S("rect", { x: 300, y: 40, width: 600, height: 56, fill: "none", stroke: "#2a2a2a", "stroke-width": 3, "stroke-dasharray": "8 6" }), S("text", { x: 290, y: 75, "text-anchor": "end", "font-family": "Lexend, sans-serif", "font-size": 18, fill: "#55625b" }, "1 bütün")),
-        readout: (ps) => {
-          const sum = ps.reduce((a, p) => a + (T.pieceTypes[p.type].value || 0), 0);
-          return "Toplam ≈ " + (Math.round(sum * 1000) / 1000).toLocaleString("tr-TR") + (Math.abs(sum - 1) < 1e-9 ? "  (tam 1 bütün)" : "");
-        },
-      });
+      /* Her parçanın boyu bütüne göre hesaplanır: bütün büyüyünce hepsi aynı oranda büyür, kıyaslama bozulmaz. */
+      const RENK = { 1: "#E4553F", 2: "#F2A93B", 3: "#F7D046", 4: "#7BC67B", 5: "#3FA3A3", 6: "#4F9CF0", 8: "#7B6CE0", 10: "#C468D8", 12: "#E86FA0" };
+      const renk = (q) => RENK[q] || `hsl(${(q * 47) % 360} 65% 60%)`;
+      let olcek = 0.8, parcalar = [], sira = 0;
+      const alan = h("div.ks-alan"), butun = h("div.ks-butun", h("b", "1 bütün"));
+      alan.append(butun);
+      const px = () => alan.clientWidth * olcek;
+      const yerlestir = (p) => { const w = px(); p.el.style.width = (p.pay / p.payda) * w + "px"; p.el.style.left = 16 + p.x * w + "px"; p.el.style.top = p.y + "px";
+        p.el.querySelectorAll(".ks-bol").forEach((d, i) => (d.style.left = ((i + 1) / p.pay) * 100 + "%")); };
+      const hepsi = () => { butun.style.width = px() + "px"; parcalar.forEach(yerlestir); };
+      const ekle = (pay, payda) => {
+        const el = h("div.ks-parca", { style: { background: renk(payda) } }, h("span", pay === payda && pay === 1 ? "1" : pay + "/" + payda), ...Array.from({ length: pay - 1 }, () => h("i.ks-bol")), h("button.ks-sil", { "aria-label": "Parçayı kaldır", onclick: (e) => { e.stopPropagation(); el.remove(); parcalar = parcalar.filter((q) => q.el !== el); } }, "×"));
+        const p = { pay, payda, x: 0, y: 84 + (sira++ % 8) * 58, el }; parcalar.push(p); alan.append(el); yerlestir(p);
+        let tut = null;
+        el.addEventListener("pointerdown", (e) => { if (e.target.closest(".ks-sil")) return; tut = { sx: e.clientX, sy: e.clientY, x: p.x, y: p.y }; el.setPointerCapture(e.pointerId); el.classList.add("tut"); });
+        el.addEventListener("pointermove", (e) => { if (!tut) return; const w = px(); p.x = tut.x + (e.clientX - tut.sx) / w; p.y = Math.max(70, tut.y + (e.clientY - tut.sy));
+          /* bütünün başına ve diğer parçaların ucuna yapışır */
+          const uclar = [0, 1, ...parcalar.filter((q) => q !== p).flatMap((q) => [q.x, q.x + q.pay / q.payda])]; const yak = uclar.find((u) => Math.abs(u - p.x) * w < 12); if (yak != null) p.x = yak;
+          yerlestir(p); });
+        el.addEventListener("pointerup", () => { tut = null; el.classList.remove("tut"); });
+      };
+      const payI = h("input.in", { type: "number", min: 1, max: 24, value: 3, "aria-label": "Pay" }), paydaI = h("input.in", { type: "number", min: 1, max: 24, value: 7, "aria-label": "Payda" });
+      host.append(h("div.row",
+          h("div.ks-palet", [1, 2, 3, 4, 5, 6, 8, 10, 12].map((q) => h("button.ks-pb", { style: { background: renk(q) }, onclick: () => ekle(1, q) }, q === 1 ? "1" : "1/" + q))),
+          h("label.ks-kendi", "Kendi kesrin:", payI, h("span", "/"), paydaI, h("button.btn.sm.c-leaf", { onclick: () => { const a2 = Math.max(1, Math.min(24, parseInt(payI.value, 10) || 1)), b2 = Math.max(1, Math.min(24, parseInt(paydaI.value, 10) || 1)); ekle(a2, b2); } }, T.icon("plus"), "Ekle"))),
+        h("div.row", h("label.ks-olcek", "Bütünün boyu", h("input", { type: "range", min: 30, max: 95, value: olcek * 100, oninput: (e) => { olcek = e.target.value / 100; hepsi(); } })),
+          btn("chalk", "reset", "Temizle", () => { parcalar.forEach((p) => p.el.remove()); parcalar = []; sira = 0; })),
+        alan, h("p.hint", "Parçaları sürükleyip bütünün altına diz. Bütünün boyunu değiştirince bütün parçalar aynı oranda büyür ya da küçülür."));
+      new ResizeObserver(hepsi).observe(alan); requestAnimationFrame(hepsi);
     },
   });
 
@@ -233,11 +285,11 @@
     title: "Yüzlük tablo", icon: "grid100", tone: "leaf", grades: [1, 5], short: "Örüntüler, katlar, gizli sayı",
     render(host) {
       let start = 1, col = "#ffc233", marks = {}, hide = false, hidden = {};
-      const grid = h("div.m-cep", { style: { display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: "6px 4px" } });
+      const grid = h("div.yt-tablo");
       function paint() {
         grid.replaceChildren(...Array.from({ length: 100 }, (_, i) => {
           const n = start + i;
-          return h("button.m-cep-kart", { style: { aspectRatio: "1.6", "--k": marks[n] || "#FFFDF7", fontFamily: "var(--display)", fontWeight: 800, fontSize: "clamp(14px, 2vw, 28px)", color: "#2a2a2a", borderRadius: "4px" },
+          return h("button.yt-h", { style: { background: marks[n] || "#fff" },
             onclick: () => { if (hide) { hidden[n] = !hidden[n]; } else { marks[n] = marks[n] === col ? null : col; T.sound.tick(); } paint(); } },
             hidden[n] ? "?" : n);
         }));
@@ -245,7 +297,7 @@
       const colors = ["#ffc233", "#ef5b3b", "#6cc04a", "#2e9bd6", "#f27ba9"];
       host.append(
         h("div.row", h("div.seg", [[1, "1-100"], [0, "0-99"], [101, "101-200"]].map(([s, l]) => h("button", { "aria-pressed": String(s === start), onclick: (e) => { start = s; marks = {}; hidden = {}; e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); paint(); } }, l))),
-          colors.map((c) => h("button", { "aria-label": "Renk seç", onclick: () => { col = c; hide = false; }, style: { width: "44px", height: "44px", borderRadius: "50%", border: "4px solid #fff", background: c } }))),
+          h("div.yt-renkler", colors.map((c) => h("button.yt-renk", { "aria-label": "Renk seç", onclick: (e) => { col = c; hide = false; e.currentTarget.parentNode.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === e.currentTarget)); }, style: { background: c } })))),
         grid,
         h("div.row",
           h("span.hint", { style: { color: "var(--chalk)" } }, "Katlarını boya:"), [2, 3, 4, 5, 9, 10].map((k) => h("button.btn.sm.c-chalk", { onclick: () => { for (let i = 0; i < 100; i++) { const n = start + i; if (n && n % k === 0) marks[n] = col; } paint(); } }, k + "'nin")),
@@ -260,32 +312,62 @@
   tool("geometri-tahtasi", {
     title: "Geometri tahtası", icon: "geoboard", tone: "grape", grades: [2, 7], short: "Lastiklerle şekil, alan ve çevre",
     render(host) {
-      let N = 9, bands = [[[1, 1], [5, 1], [5, 4], [1, 4]]], cur = 0;
-      const COLS = ["#ef5b3b", "#2e9bd6", "#6cc04a", "#8a5cd0", "#f0a329"];
+      /* Gerçek lastik: çividen tutup çek, başka çiviye bırak. Lastiğin köşesini ya da kenarını tutup başka çiviye takabilirsin. */
+      let N = 9, bands = [], sec = -1, cek = null;
+      const COLS = ["#E8473A", "#2E8FD6", "#4DB33D", "#8A5CD0", "#F0A329", "#E85AA0"];
       const svg = S("svg", { viewBox: "0 0 600 600", style: "width:100%;height:100%;touch-action:none" });
-      const mat = h("div.mat", { style: { height: "var(--stage-h)", aspectRatio: "1", background: "#5b7f9a", margin: "0 auto", width: "auto", maxWidth: "100%" } }, svg);
+      const mat = h("div.mat.gt-mat", svg);
       const out = h("div.readout", { style: { color: "var(--chalk)", fontSize: "22px" } });
       const P = (i) => 40 + (i * 520) / (N - 1);
-      function area(pts) { let s = 0; for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; s += x1 * y2 - x2 * y1; } return Math.abs(s) / 2; }
-      function perim(pts) { let s = 0; for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; s += Math.hypot(x2 - x1, y2 - y1); } return s; }
+      const svgNokta = (e) => T.svgPoint(svg, e.clientX, e.clientY);
+      const enYakinCivi = (p) => { const i = Math.round(((p.x - 40) * (N - 1)) / 520), j = Math.round(((p.y - 40) * (N - 1)) / 520); if (i < 0 || j < 0 || i >= N || j >= N) return null; return Math.hypot(P(i) - p.x, P(j) - p.y) < 520 / (N - 1) * 0.45 ? [i, j] : null; };
+      function area(pts) { let s2 = 0; for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; s2 += x1 * y2 - x2 * y1; } return Math.abs(s2) / 2; }
+      function perim(pts) { let s2 = 0; for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; s2 += Math.hypot(x2 - x1, y2 - y1); } return pts.length === 2 ? s2 / 2 : s2; }
+      const bandCiz = (pts, renk, kalin, titre) => {
+        const d = pts.map(([x, y]) => x + "," + y).join(" ");
+        const g = S("g", { class: titre ? "gt-titre" : "" });
+        g.append(S("polygon", { points: d, fill: renk, "fill-opacity": pts.length > 2 ? 0.14 : 0, stroke: "rgba(0,0,0,.28)", "stroke-width": kalin + 3, "stroke-linejoin": "round", transform: "translate(2,4)" }),
+          S("polygon", { points: d, fill: "none", stroke: renk, "stroke-width": kalin, "stroke-linejoin": "round", "stroke-opacity": 0.92 }),
+          S("polygon", { points: d, fill: "none", stroke: "rgba(255,255,255,.45)", "stroke-width": Math.max(1.5, kalin * 0.25), "stroke-linejoin": "round", transform: "translate(-1,-1.5)" }));
+        return g;
+      };
+      const kalinlik = (pts) => { let L = 0; for (let i = 0; i < pts.length; i++) { const a2 = pts[i], b2 = pts[(i + 1) % pts.length]; L += Math.hypot(b2[0] - a2[0], b2[1] - a2[1]); } return Math.max(4, 11 - L / 160); };
+      let titreyen = -1;
       function paint() {
         T.m3kur(); svg.replaceChildren(S("rect", { x: 10, y: 10, width: 580, height: 580, rx: 20, fill: "url(#m3-ahsap)", filter: "url(#m3-golge)" }));
+        for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) svg.append(S("circle", { cx: P(i), cy: P(j) + 3, r: 9, fill: "rgba(0,0,0,.25)" }), S("circle", { cx: P(i), cy: P(j), r: 9, fill: T.m3("#D9DDE2") }));
         bands.forEach((b, k) => {
-          if (b.length > 1) svg.append(S("polygon", { points: b.map(([i, j]) => P(i) + "," + P(j)).join(" "), fill: COLS[k % 5], "fill-opacity": b.length > 2 ? 0.18 : 0, filter: "url(#m3-golge-k)", "stroke-linejoin": "round", stroke: COLS[k % 5], "stroke-width": 7, "stroke-linejoin": "round" }));
+          let pts = b.pts.map(([i, j]) => [P(i), P(j)]);
+          if (cek && cek.band === k) { pts = pts.slice(); if (cek.yeniKose) pts.splice(cek.idx, 0, [cek.x, cek.y]); else pts[cek.idx] = [cek.x, cek.y]; }
+          const g = bandCiz(pts, b.renk, kalinlik(pts), titreyen === k);
+          g.style.cursor = "grab"; g.addEventListener("pointerdown", (e) => kenarTut(e, k)); svg.append(g);
         });
-        for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
-          const c = S("circle", { cx: P(i), cy: P(j), r: 9, fill: T.m3("#D9DDE2"), filter: "url(#m3-golge-k)", style: "cursor:pointer" });
-          c.addEventListener("pointerdown", () => { const b = bands[cur]; const idx = b.findIndex(([x, y]) => x === i && y === j); if (idx >= 0) b.splice(idx, 1); else b.push([i, j]); T.sound.tick(); paint(); });
-          svg.append(c);
-          svg.append(S("circle", { cx: P(i), cy: P(j), r: 24, fill: "transparent", style: "cursor:pointer", onpointerdown: () => { const b = bands[cur]; const idx = b.findIndex(([x, y]) => x === i && y === j); if (idx >= 0) b.splice(idx, 1); else b.push([i, j]); T.sound.tick(); paint(); } }));
-        }
-        const b = bands[cur];
-        out.textContent = b.length >= 3 ? `Alan: ${T.fmt(area(b))} birim kare   Çevre ≈ ${T.fmt(Math.round(perim(b) * 100) / 100)} birim   Köşe: ${b.length}` : "Çivilere sırayla dokun, lastik şekli sarar.";
+        if (cek && cek.band == null) svg.append(bandCiz([[cek.x0, cek.y0], [cek.x, cek.y]], COLS[bands.length % COLS.length], kalinlik([[cek.x0, cek.y0], [cek.x, cek.y]])));
+        /* çivi başları en üstte */
+        for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const c = S("circle", { cx: P(i), cy: P(j), r: 6, fill: T.m3("#EEF1F4"), style: "pointer-events:none" }); svg.append(c); }
+        const b = bands[sec];
+        out.textContent = !b ? "Bir çividen tutup başka bir çiviye çek." : b.pts.length >= 3 ? `Alan: ${T.fmt(area(b.pts))} birim kare   Çevre ≈ ${T.fmt(Math.round(perim(b.pts) * 100) / 100)} birim   Köşe: ${b.pts.length}` : `Uzunluk ≈ ${T.fmt(Math.round(perim(b.pts) * 100) / 100)} birim. Kenarından tutup başka bir çiviye çekersen köşe olur.`;
       }
-      host.append(h("div.row", h("div.seg", [[5, "5×5"], [9, "9×9"], [11, "11×11"]].map(([n, l]) => h("button", { "aria-pressed": String(n === N), onclick: (e) => { N = n; bands = [[]]; cur = 0; e.target.parentNode.querySelectorAll("button").forEach((bb) => bb.setAttribute("aria-pressed", String(bb === e.target))); paint(); } }, l))),
-        btn("sky", "plus", "Yeni lastik", () => { bands.push([]); cur = bands.length - 1; paint(); }),
-        btn("chalk", "back", "Son çiviyi çıkar", () => { bands[cur].pop(); paint(); }),
-        btn("chalk", "reset", "Hepsini kaldır", () => { bands = [[]]; cur = 0; paint(); })),
+      const bitir = (e) => {
+        if (!cek) return; const civi = enYakinCivi(svgNokta(e));
+        if (cek.band == null) { if (civi && (civi[0] !== cek.basla[0] || civi[1] !== cek.basla[1])) { bands.push({ pts: [cek.basla, civi], renk: COLS[bands.length % COLS.length] }); sec = bands.length - 1; titreyen = sec; T.sound.tick(); } }
+        else { const b = bands[cek.band]; if (civi && !b.pts.some(([x, y], i) => x === civi[0] && y === civi[1] && (cek.yeniKose || i !== cek.idx))) { if (cek.yeniKose) b.pts.splice(cek.idx, 0, civi); else b.pts[cek.idx] = civi; T.sound.tick(); } titreyen = cek.band; sec = cek.band; }
+        cek = null; paint(); setTimeout(() => { titreyen = -1; }, 450);
+      };
+      const kenarTut = (e, k) => {
+        e.stopPropagation(); const p = svgNokta(e), b = bands[k], pts = b.pts.map(([i, j]) => [P(i), P(j)]); sec = k;
+        const kose = pts.findIndex(([x, y]) => Math.hypot(x - p.x, y - p.y) < 22);
+        if (kose >= 0) cek = { band: k, idx: kose, x: p.x, y: p.y };
+        else { let enI = 0, enD = 1e9; for (let i = 0; i < pts.length; i++) { const a2 = pts[i], b2 = pts[(i + 1) % pts.length], t = Math.max(0, Math.min(1, ((p.x - a2[0]) * (b2[0] - a2[0]) + (p.y - a2[1]) * (b2[1] - a2[1])) / ((b2[0] - a2[0]) ** 2 + (b2[1] - a2[1]) ** 2 || 1))), d = Math.hypot(a2[0] + t * (b2[0] - a2[0]) - p.x, a2[1] + t * (b2[1] - a2[1]) - p.y); if (d < enD) { enD = d; enI = i + 1; } }
+          if (b.pts.length === 2) enI = 1; cek = { band: k, idx: enI, yeniKose: true, x: p.x, y: p.y }; }
+        svg.setPointerCapture(e.pointerId); paint();
+      };
+      svg.addEventListener("pointerdown", (e) => { if (cek) return; const p = svgNokta(e), civi = enYakinCivi(p); if (!civi) return; for (let k = bands.length - 1; k >= 0; k--) { const idx = bands[k].pts.findIndex(([x, y]) => x === civi[0] && y === civi[1]); if (idx >= 0) { sec = k; cek = { band: k, idx, x: p.x, y: p.y }; svg.setPointerCapture(e.pointerId); paint(); return; } } cek = { basla: civi, x0: P(civi[0]), y0: P(civi[1]), x: p.x, y: p.y }; svg.setPointerCapture(e.pointerId); paint(); });
+      svg.addEventListener("pointermove", (e) => { if (!cek) return; const p = svgNokta(e); cek.x = p.x; cek.y = p.y; paint(); });
+      svg.addEventListener("pointerup", bitir); svg.addEventListener("pointercancel", () => { cek = null; paint(); });
+      host.append(h("div.row", h("div.seg", [[5, "5×5"], [9, "9×9"], [11, "11×11"]].map(([n, l]) => h("button", { "aria-pressed": String(n === N), onclick: (e) => { N = n; bands = []; sec = -1; e.target.parentNode.querySelectorAll("button").forEach((bb) => bb.setAttribute("aria-pressed", String(bb === e.target))); paint(); } }, l))),
+        btn("chalk", "close", "Seçili lastiği çıkar", () => { if (sec >= 0) { bands.splice(sec, 1); sec = bands.length - 1; paint(); } }),
+        btn("chalk", "reset", "Hepsini kaldır", () => { bands = []; sec = -1; paint(); })),
         mat, out);
       paint();
     },
@@ -349,9 +431,9 @@
     render(host) {
       let t = 3 * 60 + 15, snap = 5, h24 = false, showDig = true, showRead = true;
       const svg = S("svg", { viewBox: "0 0 520 520", style: "width:100%;height:100%;touch-action:none" });
-      const mat = h("div.mat", { style: { height: "var(--stage-h)", display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(240px, .8fr)", alignItems: "center" } });
-      const side = h("div", { style: { padding: "20px", display: "grid", gap: "12px" } });
-      mat.append(h("div", { style: { height: "var(--stage-h)", minHeight: 0 } }, svg), side);
+      const mat = h("div.mat.saat-mat");
+      const side = h("div.saat-yan");
+      mat.append(h("div.saat-kadran", svg), side);
       function paint() {
         const hh = Math.floor(t / 60) % 24, mm = t % 60;
         T.m3kur && T.m3kur(); svg.replaceChildren(S("circle", { cx: 260, cy: 266, r: 250, fill: "rgba(40,25,10,.25)", filter: "url(#m3-golge)" }), S("circle", { cx: 260, cy: 260, r: 252, fill: "url(#m3-halka)" }), S("circle", { cx: 260, cy: 260, r: 232, fill: "url(#m3-kadran)", filter: "url(#m3-ic)" }));
@@ -366,7 +448,7 @@
           showDig ? h("div", { style: { fontFamily: "var(--display)", fontWeight: 800, fontSize: "72px", lineHeight: 1 } }, `${T.pad(h24 ? hh : hh % 12 || 12)}:${T.pad(mm)}`) : null,
           showRead ? h("div", { style: { fontSize: "26px", fontWeight: 600 } }, T.saatOku(hh, mm)) : null,
           h("div.hint", "Kırmızı akrep, mavi yelkovan. Yelkovanı çevirince akrep de ilerler."),
-          h("div.row", h("button.btn.c-sky", { onclick: () => T.speak(T.saatOku(hh, mm)) }, T.icon("speaker"), "Oku")));
+          null);
       }
       let which = null, lastAng = null;
       svg.addEventListener("pointerdown", (e) => { which = e.target.dataset.hand || "m"; svg.setPointerCapture(e.pointerId); lastAng = null; mv(e); });

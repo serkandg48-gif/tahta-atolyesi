@@ -383,7 +383,7 @@
         h("div.sb-akishead",
           h("div", h("div.sb-big2", ozet), simdi ? h("p.sb-line", "Şimdi: ", h("b", simdi.ad), ` · bitmesine ${dk(simdi.s) - m} dakika`) : null,
             yemegeKadar != null && yemegeKadar > 0 ? h("p.sb-line", `Öğle yemeğine ${yemegeKadar} ders var.`) : null),
-          h("div.row", h("button.btn.c-chalk", { onclick: () => T.speak(ozet) }, T.icon("speaker"), "Oku"), h("button.btn.c-chalk", { onclick: duzenle }, T.icon("edit"), "Akışı düzenle"))),
+          h("div.row", h("button.btn.c-chalk", { onclick: duzenle }, T.icon("edit"), "Akışı düzenle"))),
         h("div.meter.sb-meter", h("i", { style: { width: bar * 100 + "%" } })),
         h("div.sb-flow", rows.map((r, i) => {
           const gecti = dk(r.s) <= m, su = r === simdi;

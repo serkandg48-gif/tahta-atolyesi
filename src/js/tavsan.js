@@ -158,7 +158,7 @@
         alt.replaceChildren(
           S.durum === "soru" ? h("div.tv-ipucu", (AYAR.takim ? (S.sira === 0 ? "Mavi" : "Turuncu") + " takım: " : "") + "tavşanın duracağı taşa dokun") : null,
           S.durum === "bitti" ? h("button.btn.c-leaf.tv-sonraki", { onclick: () => { if (AYAR.takim) S.sira = 1 - S.sira; yeniSoru(); } }, "Sonraki soru") : null,
-          S.durum === "soru" ? h("button.btn.sm.c-chalk.tv-oku", { onclick: () => T.speak(soruMetni(S.soru)) }, T.icon("speaker"), "Oku") : null);
+          null);
       };
       const ayarCiz = () => {
         ayarlar.replaceChildren(

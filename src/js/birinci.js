@@ -150,7 +150,7 @@
       let d = 1;
       const bar = h("div.row"); const objs = h("div", { style: { fontSize: "54px", lineHeight: 1.1, minHeight: "64px" } });
       const pad = writingPad(host, { guide: (ctx, W, H, m) => letterGuide(String(d))(ctx, W, H, m) });
-      function paintBar() { bar.replaceChildren(...[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((x) => h("button.btn.sm.m-harf" + (x === d ? ".on" : ""), { style: { minWidth: "48px", fontSize: "24px", fontFamily: "var(--display)" }, onclick: () => { d = x; paintBar(); pad.repaint(); } }, x)), h("button.btn.c-sky", { onclick: () => T.speak(T.sayiOku(d)) }, T.icon("speaker"), "Oku")); objs.textContent = d ? "🍎".repeat(d) : "Hiç elma yok: sıfır"; }
+      function paintBar() { bar.replaceChildren(...[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((x) => h("button.btn.sm.m-harf" + (x === d ? ".on" : ""), { style: { minWidth: "48px", fontSize: "24px", fontFamily: "var(--display)" }, onclick: () => { d = x; paintBar(); pad.repaint(); } }, x))); objs.textContent = d ? "🍎".repeat(d) : "Hiç elma yok: sıfır"; }
       host.prepend(bar, objs); paintBar();
     } });
   const LINES = [

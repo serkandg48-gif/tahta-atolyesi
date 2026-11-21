@@ -3255,3 +3255,33 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .gs-gir { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; } .gs-gir .in { width: 110px; font: 800 1.2rem var(--display); text-align: center; }
 .nk-mat { height: min(var(--stage-h, 520px), 58vh); aspect-ratio: auto; }
 @media (max-width: 760px) { .nk-mat { height: auto; aspect-ratio: 8 / 5; } }
+
+/* Saat: telefonda kadran büyük, bilgiler altta */
+.saat-mat { height: var(--stage-h); display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, .8fr); align-items: center; }
+.saat-kadran { height: var(--stage-h); min-height: 0; } .saat-yan { padding: 20px; display: grid; gap: 12px; }
+@media (max-width: 760px) { .saat-mat { height: auto; grid-template-columns: 1fr; } .saat-kadran { height: auto; aspect-ratio: 1; width: 100%; } .saat-yan { padding: 10px 16px 16px; text-align: center; } }
+.rk-mat { height: var(--stage-h); background: #f3ead9; } @media (max-width: 760px) { .rk-mat { height: auto; aspect-ratio: 1000 / 560; } }
+
+/* Yüzlük tablo: kâğıttaki gibi sade */
+.yt-tablo { display: grid; grid-template-columns: repeat(10, 1fr); width: min(100%, 900px); margin: 0 auto; background: #fff; border: 2px solid #1B2A4A; border-radius: 6px; overflow: hidden; }
+.yt-h { aspect-ratio: 1.35; border: 0; border-right: 1px solid #c9d1de; border-bottom: 1px solid #c9d1de; font: 700 clamp(13px, 2.4vw, 26px) var(--display); color: #1B2A4A; cursor: pointer; padding: 0; transition: background .15s; }
+.yt-h:nth-child(10n) { border-right: 0; } .yt-h:nth-last-child(-n+10) { border-bottom: 0; }
+.yt-renkler { display: flex; gap: 6px; } .yt-renk { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px #c9d1de; cursor: pointer; } .yt-renk.on { box-shadow: 0 0 0 3px #1B2A4A; }
+
+.gt-mat { height: var(--stage-h); aspect-ratio: 1; background: #5b7f9a; margin: 0 auto; width: auto; max-width: 100%; }
+@media (max-width: 760px) { .gt-mat { height: auto; width: 100%; } }
+.gt-titre { animation: gt-titre .42s ease-out; transform-origin: center; transform-box: fill-box; }
+@keyframes gt-titre { 20% { transform: scale(1.012); } 45% { transform: scale(.994); } 70% { transform: scale(1.004); } }
+
+/* Kesir şeritleri */
+.ks-alan { position: relative; height: min(var(--stage-h, 560px), 600px); min-height: 380px; background: #fff; border-radius: 18px; box-shadow: inset 0 0 0 2px #e3e8ef; overflow: hidden; touch-action: none; }
+.ks-butun { position: absolute; left: 16px; top: 16px; height: 50px; border-radius: 8px; background: repeating-linear-gradient(135deg, #f3f5f9 0 10px, #e9edf3 10px 20px); border: 3px solid #1B2A4A; display: grid; place-items: center; font: 800 1.1rem var(--display); color: #1B2A4A; }
+.ks-parca { position: absolute; height: 50px; border: 2px solid rgba(27,42,74,.55); border-radius: 8px; display: grid; place-items: center; font: 800 1.05rem var(--display); color: #1B2A4A; cursor: grab; box-shadow: 0 4px 0 rgba(27,42,74,.18); user-select: none; overflow: hidden; }
+.ks-parca.tut { cursor: grabbing; box-shadow: 0 10px 18px rgba(27,42,74,.25); z-index: 5; }
+.ks-parca span { position: relative; z-index: 1; background: rgba(255,255,255,.55); padding: 0 6px; border-radius: 6px; }
+.ks-bol { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed rgba(27,42,74,.45); }
+.ks-sil { position: absolute; right: 2px; top: 2px; width: 18px; height: 18px; border: 0; border-radius: 50%; background: rgba(255,255,255,.8); font-size: 12px; line-height: 1; cursor: pointer; padding: 0; z-index: 2; }
+.ks-palet { display: flex; flex-wrap: wrap; gap: 6px; } .ks-pb { border: 2px solid rgba(27,42,74,.4); border-radius: 10px; min-width: 52px; padding: 8px 10px; font: 800 1rem var(--display); cursor: pointer; color: #1B2A4A; }
+.ks-kendi, .ks-olcek { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; } .ks-kendi .in { width: 64px; text-align: center; font: 800 1.1rem var(--display); }
+.rk-mat, .gt-mat { box-sizing: border-box; min-width: 0; max-width: 100%; }
+@media (max-width: 760px) { .rk-mat { width: 100% !important; } }

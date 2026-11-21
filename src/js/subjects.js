@@ -53,7 +53,7 @@
         }));
       }
       inp.addEventListener("input", paint);
-      host.append(inp, out, h("div.row", btn("tomato", "speaker", "Oku", () => T.speak(inp.value)), btn("chalk", "dice", "Heceleri karıştır / düzelt", () => { mix = !mix; paint(); }),
+      host.append(inp, out, h("div.row", btn("chalk", "dice", "Heceleri karıştır / düzelt", () => { mix = !mix; paint(); }),
         h("span.hint", "Bir heceye dokununca sesli okunur. Karıştır ile öğrenciler heceleri doğru sıraya dizmeye çalışır.")));
       paint();
     },

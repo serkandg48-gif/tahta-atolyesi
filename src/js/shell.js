@@ -135,7 +135,7 @@
     const git = (k, l, ic) => h("button.dock-item", { "aria-current": cur === k ? "page" : null, onclick: () => T.go(k) }, T.icon3d(ic), h("span", l));
     el.replaceChildren(
       git("ana", "Ana sayfa", "home"),
-      ana("arac", "Araçlar", "aletkutusu"), ana("ders", "Dersler", "canta"), ana("yasam", "Sınıf yaşamı", "tokalasma"), git("olcme", "Ölçme", "grafik"), ana("ogretmen", "Öğretmen", "teacher"),
+      ana("arac", "Araçlar", "aletkutusu"), ana("ders", "Dersler", "canta"), ana("yasam", "Sınıf yaşamı", "tokalasma"), git("olcme", "Ölçme", "grafik"), git("farkli", "Farklılaştırma", "filter"), ana("ogretmen", "Öğretmen", "teacher"),
       h("span.dock-sep", { "aria-hidden": "true" }),
       (() => { const cal = T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())); const b = ana("ortam", "Ortam", "gundogumu"); b.classList.add("dock-muzik"); if (cal) { b.classList.add("caliyor"); b.prepend(h("i.mc-dalga.dock-dalga", h("i"), h("i"), h("i"))); } dockOrtam = b; return b; })(),
       git("ayarlar", "Ayarlar", "settings"),

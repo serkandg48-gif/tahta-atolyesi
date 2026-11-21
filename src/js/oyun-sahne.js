@@ -50,7 +50,7 @@
       <path d="M520 520q40-60 80 0z" fill="#9b5de5" opacity=".6"/><path d="M640 520q30-40 60 0z" fill="#ef476f" opacity=".6"/></g>`,
   };
   /* Canva'da üretilen resim gibi sahneler; olanlar çizim yerine kullanılır */
-  const RESIM = { market: "/sahne/market.webp", mutfak: "/sahne/mutfak.webp", ciftlik: "/sahne/ciftlik.webp", bahce: "/sahne/bahce.webp", atolye: "/sahne/atolye.webp" };
+  const RESIM = { market: "/sahne/market.webp", mutfak: "/sahne/mutfak.webp", ciftlik: "/sahne/ciftlik.webp", bahce: "/sahne/bahce.webp", atolye: "/sahne/atolye.webp", sinif: "/sahne/sinif.webp" };
   T.oyunSahnesi = (ad) => RESIM[ad] ? `url("${RESIM[ad]}")` : (S[ad] ? "url(\"data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">${ortak}${S[ad]}</svg>`) + "\")" : null);
   /* hangi oyun hangi sahnede */
   T.OYUN_SAHNE = { "Market kasası: tahmin et": "market", "Market kasası: para üstü": "market", "Fide bahçesi": "bahce", "Kurabiye paylaşımı": "mutfak", "Sayı makinesi": "atolye", "Çiftlik problemleri": "ciftlik",

@@ -247,7 +247,7 @@
           h("div" + (tamam ? ".mz-yanyana" : ""), s, tamam ? h("div.mz-satirlar", parca.map((p, i) => h("div.mz-satir", h("span", a + " × " + p + " ="), cevaplar[i] === a * p ? h("b.dogru", a * p) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * p) { cevaplar[i] = a * p; ok(); } else no(); ciz(); })))),
             hepsi ? h("div.mz-satir.toplam", h("span", parca.map((p) => a * p).join(" + ") + " ="), toplamOk ? h("b.dogru", a * b) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * b) { toplamOk = true; ok(); kutla(); } else no(); ciz(); }))) : null,
             hepsi && !toplamOk ? h("div.mz-durum", "Şimdi parçaları topla.") : !hepsi ? h("div.mz-durum", "Her parçanın sonucunu yaz.") : null) : null),
-          kesiyor ? h("div.mz-durum", kesL.length ? b + " = " + segler.join(" + ") + ". Başka yerden de kesebilirsin. Kestiğin çizgiye yeniden dokunursan birleşir." : "Dikdörtgene dokun: dokunduğun yerden sütunların arasından kesilir. " + b + " sütunu kolay parçalara ayır.") : null,
+          kesiyor && kesL.length ? h("div.mz-durum", b + " = " + segler.join(" + ")) : null,
           kesiyor ? h("div.row", { style: { justifyContent: "center", gap: "8px", flexWrap: "wrap" } },
             h("button.btn.c-leaf", { disabled: kesL.length ? null : true, onclick: () => { parca = segler.slice(); cevaplar = {}; toplamOk = false; ciz(); } }, T.icon("check"), "Bu parçalarla çarp"),
             b > 10 && !kesik.has(10) ? h("button.btn.c-chalk", { onclick: () => { kesik = new Set([10]); ciz(); } }, T.icon("spark"), "İpucu: 10'dan kes") : null) : null,
@@ -270,19 +270,17 @@
       }
       /* Adım adım yönerge: çocuk hangi adımda olduğunu görür */
       function yonerge() {
-        let adimlar, simdi, giris;
+        /* kısa yönerge: yalnızca şu anki adım */
+        let metin, no;
         if (tur === "carp") {
           const top = parca.reduce((t, x) => t + x, 0), tamam = top === b, hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
-          giris = a + " × " + b + " işlemini tek seferde yapmak zor. " + b + " sayısını kolay parçalara ayır, her parçayı ayrı çarp, sonra topla.";
-          adimlar = ["Dikdörtgene dokunarak " + b + " sütunu kolay parçalara kes, sonra \"Bu parçalarla çarp\" düğmesine bas.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
-          simdi = !tamam ? 0 : !hepsi ? 1 : !toplamOk ? 2 : 3;
+          no = !tamam ? 1 : !hepsi ? 2 : !toplamOk ? 3 : 0;
+          metin = ["Bitti! Başka türlü parçalayıp yeniden dene.", "Dikdörtgeni kolay parçalara kes.", "Her parçayı ayrı çarp.", "Sonuçları topla."][no];
         } else {
-          const q = bolum.reduce((t, x) => t + x, 0), tamam = kalan === 0;
-          giris = a + " içinde kaç tane " + b + " var? Hepsini birden bulmak zor. " + b + "'nın kolay katlarını parça parça çıkararak bul.";
-          adimlar = ["Aşağıdaki kartlardan birine dokun. Kart, " + a + " sayısından o kadarını çıkarır. Örneğin " + b + " × 10 = " + b * 10 + ".", "Kalan sıfır olana kadar kart seçmeye devam et.", "Kartların alt sayılarını topla. Kaç tane " + b + " çıkardıysan bölüm odur."];
-          simdi = !bolum.length ? 0 : !tamam ? 1 : 3;
+          no = !bolum.length ? 1 : kalan !== 0 ? 2 : 0;
+          metin = ["Bitti! Kartların alttaki sayılarını topla.", "Bir kart seç, " + a + " sayısından çıkar.", "Kalan sıfır olana kadar devam et."][no];
         }
-        return h("div.mz-yonerge", h("p", giris), h("ol", adimlar.map((a2, i) => h("li" + (i === simdi ? ".simdi" : i < simdi ? ".bitti" : ""), h("span.mz-adim-no", i < simdi ? "✓" : i + 1), h("span", a2)))));
+        return h("div.mz-yonerge.kisa", no ? h("span.mz-adim-no", no) : h("span.mz-adim-no.bitti", "✓"), h("b", metin));
       }
       function ciz() {
         kap.replaceChildren(h("div.mz-ust", seg([["carp", "Çarpma"], ["bol", "Bölme"]], tur, (v) => { tur = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni işlem")), yonerge(), tur === "carp" ? carpCiz() : bolCiz());

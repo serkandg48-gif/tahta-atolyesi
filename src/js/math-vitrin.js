@@ -15,7 +15,7 @@
   defs.innerHTML = `
     <linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9BFAF"/><stop offset="1" stop-color="#A99D8B"/></linearGradient>
     <radialGradient id="cup" cx=".5" cy=".38" r=".6"><stop offset="0" stop-color="#9E9281"/><stop offset=".7" stop-color="#B8AD9C"/><stop offset="1" stop-color="#CFC6B7"/></radialGradient>
-    <radialGradient id="egg" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#FFF8EE"/><stop offset=".55" stop-color="#F1DCC2"/><stop offset="1" stop-color="#D2B08A"/></radialGradient>
+    <radialGradient id="egg" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#FFF8EE"/><stop offset=".55" stop-color="#F1DCC2"/><stop offset="1" stop-color="#D2B08A"/></radialGradient><radialGradient id="eggb" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#E9B98A"/><stop offset=".55" stop-color="#B87A45"/><stop offset="1" stop-color="#7E4B22"/></radialGradient>
     <filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#3D3020" flood-opacity=".28"/></filter>
     <filter id="es" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#3D3020" flood-opacity=".35"/></filter>`;
   bowl.innerHTML = `<defs>${defs.innerHTML}<linearGradient id="wk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B7895A"/><stop offset="1" stop-color="#8A6038"/></linearGradient></defs>`;
@@ -29,9 +29,9 @@
     cells.push({ cx, cy, egg: null });
   }
   const gEggs = el("g", {}, carton);
-  const eggShape = (g, x, y, s = 1) => {
+  const eggShape = (g, x, y, s = 1, kahve) => {
     const e = el("g", { transform: `translate(${x},${y}) scale(${s})`, filter: "url(#es)" }, g);
-    el("path", { d: "M0,-40 C24,-40 34,-6 32,12 C30,32 16,42 0,42 C-16,42 -30,32 -32,12 C-34,-6 -24,-40 0,-40Z", fill: "url(#egg)" }, e);
+    el("path", { d: "M0,-40 C24,-40 34,-6 32,12 C30,32 16,42 0,42 C-16,42 -30,32 -32,12 C-34,-6 -24,-40 0,-40Z", fill: kahve ? "url(#eggb)" : "url(#egg)" }, e);
     el("ellipse", { cx: -10, cy: -16, rx: 7, ry: 11, fill: "#fff", opacity: .55 }, e);
     return e;
   };
@@ -48,22 +48,24 @@
   const steps = q("steps"), msg = q("msg"), eq = q("eq"), prompt = q("prompt");
   const drawSteps = () => { if (!steps) return; steps.innerHTML = ROUNDS.map((_, i) => `<i class="${i < round ? "ok" : i === round ? "cur" : ""}"></i>`).join(""); };
   const filled = () => cells.filter((c) => c.egg).length;
-  const update = () => { const add = filled() - start; eq.innerHTML = `${start} + <span class="q">${add > 0 ? add : "?"}</span> = ${filled() === 10 ? 10 : "10"}`; };
-  function putEgg(cell, anim) {
-    cell.egg = eggShape(gEggs, cell.cx, cell.cy - 2, .92);
+  let cevapGir = null;
+  const update = () => { if (!cevapGir) { eq.innerHTML = ""; cevapGir = document.createElement("input"); cevapGir.className = "q-gir"; cevapGir.inputMode = "numeric"; cevapGir.maxLength = 2; cevapGir.setAttribute("aria-label", "Eksik sayı"); cevapGir.placeholder = "?"; eq.append(document.createTextNode(""), cevapGir, document.createTextNode("")); }
+    eq.firstChild.textContent = start + " + "; eq.lastChild.textContent = " = 10"; };
+  function putEgg(cell, anim, kahve) {
+    cell.egg = eggShape(gEggs, cell.cx, cell.cy - 2, .92, kahve);
     if (anim && !reduce) { const e = cell.egg, t0 = performance.now(); const f = (now) => { const t = Math.min(1, (now - t0) / 280), k = 1 - Math.pow(1 - t, 3); e.setAttribute("transform", `translate(${cell.cx},${cell.cy - 2 - 60 * (1 - k)}) scale(.92)`); if (t < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
     update();
   }
   function removeEgg(cell) { cell.egg.remove(); cell.egg = null; update(); }
   function setup() {
-    start = ROUNDS[round]; msg.textContent = ""; msg.className = "msg";
+    start = ROUNDS[round]; msg.textContent = ""; msg.className = "msg"; if (cevapGir) cevapGir.value = "";
     cells.forEach((c) => c.egg && removeEgg(c));
     cells.slice(0, start).forEach((c) => { putEgg(c, false); c.fixed = true; });
     cells.slice(start).forEach((c) => (c.fixed = false));
     prompt.innerHTML = `Kolide <b>${start}</b> yumurta var. Koliyi doldurmak için yumurta ekle.`;
     bowlEggs.innerHTML = "";
     [[70, 60], [118, 52], [166, 60], [94, 44], [142, 42], [190, 50]].forEach(([x, y]) => {
-      const e = eggShape(bowlEggs, x, y, .62); e.classList.add("egg-drag");
+      const e = eggShape(bowlEggs, x, y, .62, true); e.classList.add("egg-drag");
       e.addEventListener("pointerdown", drag);
     });
     drawSteps(); update();
@@ -82,20 +84,22 @@
       const p = pt.matrixTransform(carton.getScreenCTM().inverse());
       let best = null, bd = 1e9;
       cells.forEach((c) => { if (c.egg) return; const d = Math.hypot(c.cx - p.x, c.cy - p.y); if (d < bd) { bd = d; best = c; } });
-      if (best && bd < 90) putEgg(best, true);
+      if (best && bd < 90) putEgg(best, true, true);
     };
     addEventListener("pointermove", mv); addEventListener("pointerup", up);
   }
   carton.addEventListener("click", (e) => {
     const pt = carton.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const p = pt.matrixTransform(carton.getScreenCTM().inverse());
     const c = cells.find((c) => Math.hypot(c.cx - p.x, c.cy - p.y) < 46); if (!c) return;
-    if (c.egg && !c.fixed) removeEgg(c); else if (!c.egg) putEgg(c, true);
+    if (c.egg && !c.fixed) removeEgg(c); else if (!c.egg) putEgg(c, true, true);
   });
   q("check").onclick = () => {
-    if (filled() === 10) {
+    const yazilan = parseInt(cevapGir.value, 10);
+    if (filled() === 10 && yazilan === 10 - start) {
       msg.textContent = `Doğru. ${start} ile ${10 - start} birlikte 10 eder.`; msg.className = "msg ok-msg";
       setTimeout(() => { round = (round + 1) % ROUNDS.length; setup(); }, 1600);
-    } else { msg.textContent = `Kolide ${10 - filled()} boş göz kaldı. Bir daha bak.`; msg.className = "msg no-msg"; }
+    } else if (filled() !== 10) { msg.textContent = `Kolide ${10 - filled()} boş göz kaldı. Bir daha bak.`; msg.className = "msg no-msg"; }
+    else { msg.textContent = isNaN(yazilan) ? "Kaç kahverengi yumurta ekledin? Sayıyı soru işaretinin yerine yaz." : "Kahverengi yumurtaları yeniden say."; msg.className = "msg no-msg"; }
   };
   q("reset").onclick = setup;
   setup();

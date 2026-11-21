@@ -133,8 +133,13 @@
       const tabak = rnd(2, 4), her = rnd(2, 5), n = tabak * her, dolu = Array(tabak).fill(0);
       a.soru(n + " kurabiyeyi " + tabak + " tabağa eşit paylaştır. Kurabiyeleri tabaklara sürükle.");
       const kutu = h("div.dn-kavanoz"), tabaklar = Array.from({ length: tabak }, (_, i) => h("div.dn-tabak", { "data-hedef": i }, h("i.dn-tabak-say", "0")));
-      a.sahne.append(h("div.dn-mutfak", kutu, h("div.dn-tabaklar", tabaklar)));
-      const koy = (kb, hd) => { const j = +hd.dataset.hedef; dolu[j]++; hd.insertBefore(kb, hd.lastChild); hd.lastChild.textContent = dolu[j]; kb.classList.remove("secili"); T.sound && T.sound.pop && T.sound.pop(); if (!kutu.children.length) kontrolEt(); };
+      /* ritmik çıkarma: her turda her tabağa bir kurabiye gidince kutudan tabak kadar azalır */
+      const ritim = h("div.dn-ritmik");
+      const ritimCiz = () => { const tur2 = Math.min(...dolu), L = [h("b", n)];
+        for (let k = 1; k <= tur2; k++) L.push(h("span.dn-rt-ok", "− " + tabak), h("b", n - k * tabak));
+        ritim.replaceChildren(h("small", "Ritmik çıkarma"), h("div.dn-rt-dizi", ...L), tur2 ? h("small", tur2 + " kez " + tabak + " çıkardık") : h("small", "Her tabağa birer kurabiye koydukça kutudaki sayı azalır")); };
+      a.sahne.append(h("div.dn-mutfak", kutu, h("div.dn-tabaklar", tabaklar)), ritim); ritimCiz();
+      const koy = (kb, hd) => { const j = +hd.dataset.hedef; dolu[j]++; hd.insertBefore(kb, hd.lastChild); hd.lastChild.textContent = dolu[j]; kb.classList.remove("secili"); T.sound && T.sound.pop && T.sound.pop(); ritimCiz(); if (!kutu.children.length) kontrolEt(); };
       let secili = null;
       for (let i = 0; i < n; i++) { const kb = kurabiye(); kutu.append(kb); surukle(kb, { birak: (hd) => { if (hd && kb.parentNode === kutu) koy(kb, hd); else if (!hd && kb.parentNode === kutu) { if (secili) secili.classList.remove("secili"); secili = kb; kb.classList.add("secili"); } } }); }
       /* sürüklemek zor gelirse: kurabiyeye dokun, sonra tabağa dokun */
@@ -151,7 +156,7 @@
         if (op[0] === "÷" && x % 2) { op[0] = "+"; op[1] = rnd(2, 9); } if (op[0] === "-" && x - op[1] < 0) op[0] = "+"; if (op[0] === "×" && x * op[1] > 200) op[0] = "+";
         x = op[0] === "+" ? x + op[1] : op[0] === "-" ? x - op[1] : op[0] === "×" ? x * op[1] : x / op[1]; adim.push(op); }
       a.soru("Makineye " + bas + " giriyor. Çıkan sayı kaç?");
-      a.sahne.append(h("div.dn-makine", e3("robot", ".dn-robot"), h("div.dn-giren", bas), adim.map((op, i) => h("div.dn-cark", { style: { "--i": i } }, e3("disli", ".dn-disli"), h("b", op[0] + " " + op[1]))), h("div.dn-cikan", "?")));
+      a.sahne.append(h("div.dn-makine.okli", e3("robot", ".dn-robot"), h("div.dn-giren", bas), ...adim.flatMap((op, i) => [h("span.dn-ok", { "aria-hidden": "true" }, "➜"), h("div.dn-cark", { style: { "--i": i } }, e3("disli", ".dn-disli"), h("b", op[0] + " " + op[1]))]), h("span.dn-ok", { "aria-hidden": "true" }, "➜"), h("div.dn-cikan", "?")));
       a.tuslar((y) => y === x, { ipucu: "Her dişliyi sırayla uygula!" });
     } });
   /* MAT.3.2.6: Problem çiftliği (günlük yaşam) */
@@ -189,28 +194,107 @@
     } });
   /* MAT.3.3.1: Cisim inceleme (3B, elle çevrilir) */
   const CISIM = [["Küp", 8, 6, 12, "Küpün"], ["Kare prizma", 8, 6, 12, "Kare prizmanın"], ["Üçgen prizma", 6, 5, 9, "Üçgen prizmanın"], ["Kare piramit", 5, 5, 8, "Kare piramidin"], ["Silindir", 0, 3, 2], ["Koni", 1, 2, 1], ["Küre", 0, 1, 0]];
-  oyun("MAT.3.3.1.", { ad: "Cisim dedektifi", ikon: "kup", renk: "#0E8A8A", renk2: "#D6F3F3", giris: "Cismi parmağınla çevir, köşe, yüz ve ayrıtları say!",
+  oyun("MAT.3.3.1.", { ad: "Cisim dedektifi", ikon: "kup", renk: "#0E8A8A", renk2: "#D6F3F3", giris: "Cismi çevir, köşe, yüz ve ayrıtlara dokunarak say!",
     yeni(a) {
       const [ad, k, y, ay, ilgi] = CISIM[rnd(0, 3)], ne = rnd(0, 2), cvp = [k, y, ay][ne], kelime = ["köşesi", "yüzü", "ayrıtı"][ne];
-      a.soru(ilgi + " kaç " + kelime + " var?");
-      const kap = h("div.dn-cisim"); a.sahne.append(kap); cisimCiz(kap, ad);
-      a.secenek(farkli(cvp, cvp + 1, cvp - 1, cvp + 2, cvp + 4), (x) => x === cvp, { ipucu: ne === 0 ? "Köşe: ayrıtların buluştuğu nokta." : ne === 1 ? "Yüz: cismin düz yüzeyleri." : "Ayrıt: iki yüzün birleştiği çizgi." });
+      const tur = ["kose", "yuz", "ayrit"][ne];
+      a.soru(ilgi + " kaç " + kelime + " var? Dokunarak say.");
+      const sayac = h("div.dn-cs-sayac", h("span", ["Köşe", "Yüz", "Ayrıt"][ne] + " saydın:"), h("b", "0"));
+      const kap = h("div.dn-cisim"), acDug = h("button.btn.sm.c-chalk", T.icon("turn"), "Açınımını göster");
+      a.sahne.append(h("div.dn-cs", kap, h("div.dn-cs-alt", sayac, acDug, h("button.btn.sm.c-chalk", { onclick: () => ctl && ctl.sifirla() }, T.icon("reset"), "Sayımı sil"))));
+      let ctl = null;
+      cisimCiz(kap, ad, tur, (n) => (sayac.lastChild.textContent = n)).then((x) => { ctl = x; });
+      acDug.onclick = () => { if (!ctl) return; const acik = ctl.acKapa(); acDug.replaceChildren(T.icon("turn"), acik ? "Cisme geri katla" : "Açınımını göster"); };
+      a.tuslar((x) => x === cvp, { ipucu: ne === 0 ? "Köşe: ayrıtların buluştuğu nokta. Sarı noktalara dokun." : ne === 1 ? "Yüz: cismin düz yüzeyleri. Her yüze bir kez dokun." : "Ayrıt: iki yüzün birleştiği çizgi. Çizgilere dokun." });
     } });
-  function cisimCiz(kap, ad) {
-    T.sahne3(kap, { kamera: [3.6, 2.6, 5.2], bak: [0, 0, 0], fov: 38, env: ["#FFFFFF", "#D6F3F3", "#2A4A70"], sigdir: 6.2, oran: 1.6 }, null).then((c) => {
-      if (!c) return; const THREE = c.THREE;
+  /* 3B cisim: dokunarak sayma ve açınım */
+  function cisimCiz(kap, ad, tur, say) {
+    return T.sahne3(kap, { kamera: [3.6, 2.8, 5.4], bak: [0, 0, 0], fov: 38, env: ["#FFFFFF", "#D6F3F3", "#2A4A70"], sigdir: 6.6, oran: 1.6 }, null).then((c) => {
+      if (!c) return null; const THREE = c.THREE;
+      c.sahne.add(new THREE.HemisphereLight(0xffffff, 0x88a0b0, 1.2)); const dl = new THREE.DirectionalLight(0xffffff, 1.8); dl.position.set(3, 5, 4); c.sahne.add(dl);
+      const RENK = 0x3DB9B9, SECILI = 0xF2A93B;
       const geo = ad === "Küp" ? new THREE.BoxGeometry(1.8, 1.8, 1.8) : ad === "Kare prizma" ? new THREE.BoxGeometry(1.4, 2.4, 1.4) : ad === "Üçgen prizma" ? new THREE.CylinderGeometry(1.2, 1.2, 2.2, 3) : new THREE.ConeGeometry(1.5, 2.2, 4);
-      const m = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ color: 0x3DB9B9, roughness: 0.35, clearcoat: 0.8, clearcoatRoughness: 0.2, flatShading: true }));
-      const ayrit = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x1B2A4A }));
-      const kose = new THREE.Group(); const p = geo.attributes.position, gor = new Set();
-      for (let i = 0; i < p.count; i++) { const key = [p.getX(i), p.getY(i), p.getZ(i)].map((v) => v.toFixed(2)).join(); if (gor.has(key)) continue; gor.add(key); const s = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), new THREE.MeshStandardMaterial({ color: 0xF2B705 })); s.position.set(p.getX(i), p.getY(i), p.getZ(i)); kose.add(s); }
-      const g = new THREE.Group(); g.add(m, ayrit, kose); c.sahne.add(g); c.sahne.add(new THREE.HemisphereLight(0xffffff, 0x88a0b0, 1.2));
-      const dl = new THREE.DirectionalLight(0xffffff, 1.8); dl.position.set(3, 5, 4); c.sahne.add(dl);
-      let surt = null, hiz = 0.4;
-      c.r.domElement.addEventListener("pointerdown", (e) => { surt = [e.clientX, e.clientY]; hiz = 0; });
+      const g = new THREE.Group(); c.sahne.add(g);
+      /* yüzler: üçgenleri normale göre grupla, her yüz ayrı ağ */
+      const ng = geo.index ? geo.toNonIndexed() : geo; ng.computeVertexNormals();
+      const P = ng.attributes.position, gruplar = new Map();
+      for (let i = 0; i < P.count; i += 3) {
+        const v = [0, 1, 2].map((j) => new THREE.Vector3(P.getX(i + j), P.getY(i + j), P.getZ(i + j)));
+        const n = new THREE.Vector3().subVectors(v[1], v[0]).cross(new THREE.Vector3().subVectors(v[2], v[0])).normalize();
+        const key = [n.x, n.y, n.z].map((x) => x.toFixed(2)).join();
+        if (!gruplar.has(key)) gruplar.set(key, []); gruplar.get(key).push(...v);
+      }
+      const yuzler = [...gruplar.values()].map((vs) => { const gg = new THREE.BufferGeometry().setFromPoints(vs); gg.computeVertexNormals(); const m = new THREE.Mesh(gg, new THREE.MeshPhysicalMaterial({ color: RENK, roughness: 0.35, clearcoat: 0.8, flatShading: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1 })); m.userData.tip = "yuz"; g.add(m); return m; });
+      /* ayrıtlar: kalın, dokunulabilir çubuklar */
+      const E = new THREE.EdgesGeometry(geo).attributes.position, ayritlar = [];
+      for (let i = 0; i < E.count; i += 2) {
+        const p1 = new THREE.Vector3(E.getX(i), E.getY(i), E.getZ(i)), p2 = new THREE.Vector3(E.getX(i + 1), E.getY(i + 1), E.getZ(i + 1));
+        const boy = p1.distanceTo(p2), cub = new THREE.Mesh(new THREE.CylinderGeometry(tur === "ayrit" ? 0.06 : 0.03, tur === "ayrit" ? 0.06 : 0.03, boy, 10), new THREE.MeshStandardMaterial({ color: 0x1B2A4A }));
+        cub.position.copy(p1).add(p2).multiplyScalar(0.5); cub.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), p2.clone().sub(p1).normalize()); cub.userData.tip = "ayrit"; g.add(cub); ayritlar.push(cub);
+        if (tur === "ayrit") { const tut = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, boy * 0.9, 8), new THREE.MeshBasicMaterial({ visible: false })); tut.position.copy(cub.position); tut.quaternion.copy(cub.quaternion); tut.userData = { tip: "ayrit", gercek: cub }; g.add(tut); }
+      }
+      /* köşeler */
+      const gor = new Set(), koseler = [];
+      /* köşe: ayrıtların uç noktaları (silindir kapaklarının merkezi köşe sayılmaz) */
+      for (let i = 0; i < E.count; i++) { const key = [E.getX(i), E.getY(i), E.getZ(i)].map((v) => v.toFixed(2)).join(); if (gor.has(key)) continue; gor.add(key);
+        const sp = new THREE.Mesh(new THREE.SphereGeometry(tur === "kose" ? 0.13 : 0.08, 18, 14), new THREE.MeshStandardMaterial({ color: 0xF2B705 })); sp.position.set(E.getX(i), E.getY(i), E.getZ(i)); sp.userData.tip = "kose"; g.add(sp); koseler.push(sp); }
+      const secili = new Set();
+      const isaretle = (m) => {
+        const gercek = m.userData.gercek || m; if (gercek.userData.tip !== tur) return;
+        if (secili.has(gercek)) { secili.delete(gercek); gercek.material.color.setHex(tur === "yuz" ? RENK : tur === "kose" ? 0xF2B705 : 0x1B2A4A); }
+        else { secili.add(gercek); gercek.material.color.setHex(tur === "kose" ? 0xE4553F : SECILI); }
+        T.sound && T.sound.pop && T.sound.pop(); say(secili.size);
+      };
+      /* çevirme ve dokunma */
+      const ray = new THREE.Raycaster(), nk = new THREE.Vector2(); let surt = null, ilk = null, hiz = 0.25;
+      c.r.domElement.style.touchAction = "none";
+      c.r.domElement.addEventListener("pointerdown", (e) => { surt = [e.clientX, e.clientY]; ilk = [e.clientX, e.clientY]; hiz = 0; });
       addEventListener("pointermove", (e) => { if (!surt) return; g.rotation.y += (e.clientX - surt[0]) * 0.01; g.rotation.x += (e.clientY - surt[1]) * 0.01; surt = [e.clientX, e.clientY]; });
-      addEventListener("pointerup", () => (surt = null));
-      c.kare = (dt) => { g.rotation.y += hiz * dt; };
+      addEventListener("pointerup", (e) => { if (!surt) return; surt = null; if (acik || Math.hypot(e.clientX - ilk[0], e.clientY - ilk[1]) > 8) return;
+        const b = c.r.domElement.getBoundingClientRect(); nk.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); ray.setFromCamera(nk, c.kamera);
+        const hedef = g.children.filter((o) => o.userData.tip === tur), v = ray.intersectObjects(hedef)[0]; if (v) isaretle(v.object); });
+      /* açınım */
+      let acik = false, net = null, t = 0;
+      const netKur = () => {
+        const M = (w, hgt, uc) => { const sh = new THREE.Shape(); if (uc) { sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(0, hgt); } else { sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(w / 2, hgt); sh.lineTo(-w / 2, hgt); } sh.closePath();
+          const gg = new THREE.ShapeGeometry(sh); gg.rotateX(Math.PI / 2); /* yatay, +z yönüne uzanır */
+          const m = new THREE.Mesh(gg, new THREE.MeshPhysicalMaterial({ color: RENK, roughness: 0.4, clearcoat: 0.6, side: THREE.DoubleSide })); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(gg), new THREE.LineBasicMaterial({ color: 0x1B2A4A }))); return m; };
+        const kok = new THREE.Group(), menteseler = [];
+        /* kenar: ebeveyn içinde konum, yön (açı y ekseninde) ve katlı açı */
+        const ekle = (ebeveyn, konum, yonY, w, hgt, uc, katli) => { const piv = new THREE.Group(); piv.position.copy(konum); piv.rotation.y = yonY; const ic = new THREE.Group(); piv.add(ic); ic.add(M(w, hgt, uc)); ebeveyn.add(piv); menteseler.push({ ic, katli }); return ic; };
+        const V = (x, y2, z) => new THREE.Vector3(x, y2, z);
+        if (ad === "Küp" || ad === "Kare prizma") {
+          const w = ad === "Küp" ? 1.8 : 1.4, d = w, hh = ad === "Küp" ? 1.8 : 2.4;
+          const taban = M(w, d); taban.position.z = -d / 2; kok.add(taban);
+          const k90 = -Math.PI / 2;
+          ekle(kok, V(0, 0, d / 2), 0, w, hh, false, k90);
+          const arka = ekle(kok, V(0, 0, -d / 2), Math.PI, w, hh, false, k90);
+          ekle(kok, V(w / 2, 0, 0), Math.PI / 2, d, hh, false, k90);
+          ekle(kok, V(-w / 2, 0, 0), -Math.PI / 2, d, hh, false, k90);
+          const ust = new THREE.Group(); ust.position.z = hh; arka.add(ust); const ustIc = ekle(ust, V(0, 0, 0), 0, w, d, false, k90);
+        } else if (ad === "Kare piramit") {
+          const w = 2.12, H = 2.2, s2 = Math.hypot(H, w / 2), alfa = Math.atan2(H, w / 2);
+          const taban = M(w, w); taban.position.z = -w / 2; kok.add(taban);
+          [[V(0, 0, w / 2), 0], [V(0, 0, -w / 2), Math.PI], [V(w / 2, 0, 0), Math.PI / 2], [V(-w / 2, 0, 0), -Math.PI / 2]].forEach(([p2, r]) => ekle(kok, p2, r, w, s2, true, -(Math.PI - alfa)));
+        } else {
+          const a2 = 1.2 * Math.sqrt(3), L = 2.2, uh = (a2 * Math.sqrt(3)) / 2;
+          const taban = M(a2, L); taban.position.z = -L / 2; kok.add(taban);
+          ekle(kok, V(a2 / 2, 0, 0), Math.PI / 2, L, a2, false, -(Math.PI - Math.PI / 3));
+          ekle(kok, V(-a2 / 2, 0, 0), -Math.PI / 2, L, a2, false, -(Math.PI - Math.PI / 3));
+          ekle(kok, V(0, 0, L / 2), 0, a2, uh, true, -Math.PI / 2);
+          ekle(kok, V(0, 0, -L / 2), Math.PI, a2, uh, true, -Math.PI / 2);
+        }
+        kok.userData.menteseler = menteseler; return kok;
+      };
+      const ctl = {
+        sifirla() { secili.forEach((m) => m.material.color.setHex(tur === "yuz" ? RENK : tur === "kose" ? 0xF2B705 : 0x1B2A4A)); secili.clear(); say(0); },
+        acKapa() { acik = !acik; if (acik && !net) { net = netKur(); net.position.y = -0.4; c.sahne.add(net); } g.visible = !acik; if (net) net.visible = true; return acik; },
+      };
+      c.kare = (dt) => {
+        if (!acik && !surt) g.rotation.y += hiz * dt;
+        if (net) { const hedefT = acik ? 1 : 0; t += (hedefT - t) * Math.min(1, dt * 2); net.userData.menteseler.forEach((m) => (m.ic.rotation.x = m.katli * (1 - t))); net.rotation.y += acik ? 0 : 0; if (!acik && t < 0.02) { net.visible = false; g.visible = true; } }
+      };
+      return ctl;
     });
   }
   /* MAT.3.3.2: Şekil kutuları (sürükle) */
@@ -243,20 +327,44 @@
       a.alt.append(h("button.btn.c-chalk", { onclick: () => { kat.replaceChildren(); cizgi.length = 0; ilkN = sonN = null; nokta.forEach((n) => { n.setAttribute("fill", "#9AA6BF"); n.setAttribute("r", 9); }); } }, T.icon("reset"), "Sil, yeniden çiz"));
     } });
   /* MAT.3.3.4: Çevre tahmini, karınca yürür */
-  oyun("MAT.3.3.4.", { ad: "Karınca turu", ikon: "karinca", renk: "#B8661A", renk2: "#FFEBCF", giris: "Karınca şeklin çevresini dolaşacak. Önce tahmin et!",
+  oyun("MAT.3.3.4.", { ad: "Karınca turu", ikon: "karinca", renk: "#B8661A", renk2: "#FFEBCF", giris: "Karınca şeklin çevresini dolaşacak. Birimleri say!",
     yeni(a) {
       const w = rnd(2, 7), hh = rnd(2, 5), cevre = 2 * (w + hh), u = 44;
-      a.soru("Her kare kenarı 1 cm. Karınca kaç cm yürür? Yaklaşık tahmin et.");
+      a.soru("Her kare kenarı 1 birim. Karınca şeklin çevresini dolaşınca kaç birim yürür?");
       const W = (w + 2) * u, H = (hh + 2) * u, svg = svgKok(W, H);
       for (let i = 0; i <= w + 2; i++) svg.append(sv("line", { x1: i * u, y1: 0, x2: i * u, y2: H, stroke: "#DDE3EE", "stroke-width": 2 }));
       for (let j = 0; j <= hh + 2; j++) svg.append(sv("line", { x1: 0, y1: j * u, x2: W, y2: j * u, stroke: "#DDE3EE", "stroke-width": 2 }));
-      svg.append(sv("rect", { x: u, y: u, width: w * u, height: hh * u, fill: "#FFD9A8", stroke: L, "stroke-width": 5, rx: 4 }));
-      const karImg = sv("image", { href: "/oyun3d/karinca.webp", width: 46, height: 46, x: u - 23, y: u - 23 }); svg.append(karImg);
-      const kar = { setAttribute: (k, v) => karImg.setAttribute(k, v - 23) };
+      svg.append(sv("rect", { x: u, y: u, width: w * u, height: hh * u, fill: "#FFD9A8", rx: 2 }));
+      /* çevrenin birim parçaları: karınca geçtikçe renklenir */
+      const kose = [[u, u], [u + w * u, u], [u + w * u, u + hh * u], [u, u + hh * u], [u, u]], birimler = [];
+      for (let k = 0; k < 4; k++) { const [x1, y1] = kose[k], [x2, y2] = kose[k + 1], n = Math.round(Math.hypot(x2 - x1, y2 - y1) / u);
+        for (let i = 0; i < n; i++) { const ax = x1 + ((x2 - x1) * i) / n, ay = y1 + ((y2 - y1) * i) / n, bx = x1 + ((x2 - x1) * (i + 1)) / n, by = y1 + ((y2 - y1) * (i + 1)) / n;
+          const ln = sv("line", { x1: ax, y1: ay, x2: bx, y2: by, stroke: "#9A7A55", "stroke-width": 6, "stroke-linecap": "round" }); svg.append(ln);
+          const no = sv("text", { x: (ax + bx) / 2 + (y1 === y2 ? 0 : x1 === u ? -16 : 16), y: (ay + by) / 2 + (y1 === y2 ? (y1 === u ? -10 : 22) : 5), "text-anchor": "middle", "font-size": 15, "font-weight": 800, fill: "#1B2A4A", opacity: 0 }); no.textContent = birimler.length + 1; svg.append(no);
+          birimler.push({ ln, no }); } }
+      const RENK = ["#E4553F", "#2E7DD1", "#3FA36B", "#F2A93B", "#8A5BD6"];
+      const kg = sv("g", { transform: `translate(${u},${u})` }), ic = sv("g"), karImg = sv("image", { href: "/oyun3d/karinca.webp", width: 50, height: 50, x: -25, y: -25 });
+      ic.append(karImg); kg.append(ic); svg.append(kg);
       a.sahne.append(h("div.dn-izgara", svg));
-      const yuru = () => { const yol = [[u, u], [u + w * u, u], [u + w * u, u + hh * u], [u, u + hh * u], [u, u]]; let t = 0; const top = cevre * 140; const bas = performance.now(); const ad = () => { t = Math.min(1, (performance.now() - bas) / top); let d = t * cevre * u, i = 0; while (i < 4) { const L2 = Math.hypot(yol[i + 1][0] - yol[i][0], yol[i + 1][1] - yol[i][1]); if (d <= L2) break; d -= L2; i++; } i = Math.min(i, 3); const L2 = Math.hypot(yol[i + 1][0] - yol[i][0], yol[i + 1][1] - yol[i][1]) || 1, k = d / L2; kar.setAttribute("x", yol[i][0] + (yol[i + 1][0] - yol[i][0]) * k); kar.setAttribute("y", yol[i][1] + (yol[i + 1][1] - yol[i][1]) * k); if (t < 1) requestAnimationFrame(ad); }; ad(); };
-      const sec = farkli(cevre, w * hh, cevre + 4, cevre - 4 > 2 ? cevre - 4 : cevre + 8, w + hh);
-      a.alt.replaceChildren(h("div.dn-secenek", sec.map((x) => h("button.dn-dug", { onclick: (e) => { yuru(); if (x === cevre) { e.currentTarget.classList.add("iyi"); a.dogru("Karınca tam " + cevre + " cm yürüdü!"); } else { e.currentTarget.classList.add("kotu"); e.currentTarget.disabled = true; a.yanlis("Karıncayı izle: kenarları say ve topla!"); } } }, "≈ " + x + " cm"))));
+      let yuruyor = false;
+      const yuru = () => {
+        if (yuruyor) return; yuruyor = true; birimler.forEach((b2) => { b2.ln.setAttribute("stroke", "#9A7A55"); b2.no.setAttribute("opacity", 0); });
+        const birimSure = 650, top = cevre * birimSure, bas = performance.now(); let sonBirim = -1;
+        const ad = (z) => {
+          const t = Math.min(1, (z - bas) / top), d = t * cevre; /* birim cinsinden yol */
+          let kal = d, k = 0; while (k < 3 && kal > (k % 2 === 0 ? w : hh)) { kal -= k % 2 === 0 ? w : hh; k++; }
+          const [x1, y1] = kose[k], [x2, y2] = kose[k + 1], uz = k % 2 === 0 ? w : hh, f = Math.min(1, kal / uz);
+          const x = x1 + (x2 - x1) * f, y = y1 + (y2 - y1) * f, yon = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI + 180;
+          /* doğal yürüyüş: adım ritminde hafif sallanma ve sekme */
+          const adim = z / 90, sal = Math.sin(adim) * 7, sek = Math.abs(Math.sin(adim)) * 1.6;
+          kg.setAttribute("transform", `translate(${x},${y - sek})`); ic.setAttribute("transform", `rotate(${yon + sal})`);
+          const bitti = Math.min(birimler.length - 1, Math.floor(d - 1e-6));
+          for (let i = sonBirim + 1; i <= bitti; i++) { if (d >= i + 1 - 1e-6 || t === 1) { birimler[i].ln.setAttribute("stroke", RENK[i % RENK.length]); birimler[i].no.setAttribute("opacity", 1); sonBirim = i; T.sound && T.sound.pop && T.sound.pop(); } }
+          if (t < 1) requestAnimationFrame(ad); else { yuruyor = false; ic.setAttribute("transform", "rotate(180)"); }
+        };
+        requestAnimationFrame(ad);
+      };
+      a.tuslar((x) => x === cevre, { ipucu: "Karıncayı yürüt, renklenen birimleri say.", yardim: h("button.btn.c-sun", { onclick: yuru }, T.icon("play"), "Karıncayı yürüt") });
     } });
   /* MAT.3.3.5: Sıvı tahmini, sürahi doldur */
   oyun("MAT.3.3.5.", { ad: "Limonata standı", ikon: "limon", renk: "#E0A21E", renk2: "#FFF4C9", giris: "Bir bardak 250 mililitre. Sürahi kaç bardak alır?",

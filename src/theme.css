@@ -3219,3 +3219,36 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
   .sh-kap:fullscreen { justify-content: center; padding: 14px; overflow: auto; }
   .sh-kap:fullscreen .tv-islem, .sh-kap:fullscreen .tv-soru { color: #fff; }
 }
+
+.mz-yonerge.kisa { display: flex; align-items: center; gap: 10px; padding: 8px 14px; width: fit-content; max-width: 100%; }
+.mz-yonerge.kisa b { font-size: 1.05rem; color: var(--navy); } .mz-yonerge.kisa .mz-adim-no { background: var(--sun, #F2A93B); color: #fff; } .mz-yonerge.kisa .mz-adim-no.bitti { background: #3FA36B; }
+
+/* Kurabiye: ritmik çıkarma */
+.dn-ritmik { margin-top: 10px; background: rgba(255,255,255,.92); border-radius: 16px; padding: 8px 14px; display: grid; gap: 4px; justify-items: center; }
+.dn-ritmik small { color: var(--ink-soft); font-weight: 700; }
+.dn-rt-dizi { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; font: 800 clamp(20px, 2.4vw, 30px) var(--display); color: var(--navy); }
+.dn-rt-ok { font-size: .7em; color: #C2453A; background: #FDE8E4; border-radius: 999px; padding: 2px 10px; }
+/* Sayı makinesi: işlem sırası okları */
+.dn-makine.okli { display: flex !important; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+.dn-makine.okli .dn-robot { flex-basis: 100%; max-width: 120px; margin: 0 auto; }
+.dn-ok { font-size: clamp(26px, 3vw, 40px); color: #7A3FD1; font-weight: 900; }
+.dn-makine.okli .dn-cark { position: relative !important; inset: auto !important; transform: none !important; }
+.dn-makine.okli .dn-cark { width: clamp(76px, 18vw, 120px); height: clamp(76px, 18vw, 120px); } .dn-makine.okli .dn-giren, .dn-makine.okli .dn-cikan { width: clamp(64px, 16vw, 96px); height: clamp(64px, 16vw, 96px); font-size: clamp(26px, 6vw, 42px); }
+/* Eşitlik terazisi: her ekran genişliğinde sığar */
+.dn-terazi { width: min(560px, 100%) !important; height: auto !important; aspect-ratio: 560 / 260; container-type: inline-size; justify-self: center; }
+.dn-ayak { width: 7cqw; margin-left: -3.5cqw; height: 65%; }
+.dn-kol { left: 5%; right: 5%; top: 27%; height: 7%; }
+.dn-kefe { top: 37%; width: 38%; height: 35%; border-radius: 0 0 50% 50% / 0 0 100% 100%; } .dn-kefe.sol { left: 2%; } .dn-kefe.sag { right: 2%; }
+.dn-kefe b { font-size: clamp(16px, 6.2cqw, 34px) !important; white-space: nowrap; }
+.dn-ana:has(.dn-terazi) { grid-template-columns: 1fr !important; }
+.dn-ana:has(.dn-terazi) .dn-alt { justify-self: center; }
+
+.dn-cs { display: grid; gap: 8px; justify-items: center; width: min(100%, 620px); }
+.dn-cs-alt { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+.dn-cs-sayac { display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 999px; padding: 6px 16px; border: 3px solid var(--cz); }
+.dn-cs-sayac b { font: 900 1.6rem var(--display); color: #0E8A8A; }
+
+/* Yumurta kolisi: eksik sayıyı çocuk yazar */
+.kitchen .eq .q-gir { width: 1.6em; font: inherit; color: #E0742B; text-align: center; border: 0; border-bottom: 4px dashed #E0742B; background: #FFF6E8; border-radius: 8px; padding: 0 .1em; }
+.kitchen .prompt { white-space: normal !important; overflow-wrap: anywhere; text-overflow: clip !important; }
+.kitchen .prompt { width: min(92%, 640px); text-align: center; font-size: clamp(16px, 4vw, 22px); }

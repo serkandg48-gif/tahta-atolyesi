@@ -87,7 +87,7 @@
   const dersler = () => T.menu().map((m) => ({ k: m[0], l: dersAd[m[0]] || m[1], ic: dersIk[m[0]] || m[3], gizli: !T.bolumGorunur(m[0]), ac: () => T.go(m[0]) }))
     .concat({ k: "sabah", l: "Sabah rutini", ic: "sun", ac: () => T.go("sabah") }, { k: "sinif", l: "Sınıfım", ic: "class", ac: () => T.go("sinif") }, { k: "plan", l: "Plan", ic: "plan", ac: () => T.go("plan") }, { k: "vekil", l: "Dersimi dolduracak öğretmene notlar", ic: "not", ac: () => T.go("vekil") });
   /* Alttaki menünün panelleri: her bölüm tek bir yerde durur */
-  const PANEL = { ders: ["turkce", "matematik"], yasam: ["duygu", "kultur", "sabah"], ogretmen: ["olcme", "sinif", "plan", "kitaplar", "vekil"] };
+  const PANEL = { ders: ["turkce", "matematik"], yasam: ["duygu", "kultur", "sabah"], ogretmen: ["sinif", "plan", "kitaplar", "vekil"] };
   let dockOrtam = null;
   const ortamOgeler = () => [
     { k: "bg", l: "Arka plan", ic: "bg", ac: () => aracAc("bg") },
@@ -106,7 +106,7 @@
     else if (tur === "ortam") gruplar = [["", ortamOgeler()]];
     else if (tur === "diger") { const D = dersler(); gruplar = [["Öğretmen", PANEL.ogretmen.map((k) => D.find((x) => x.k === k)).filter(Boolean)], ["Diğer", [{ k: "ortam", l: "Ortam", ic: "gundogumu", ac: () => setTimeout(() => panelAc("ortam", cur), 0) }, { k: "ayarlar", l: "Ayarlar", ic: "settings", ac: () => T.go("ayarlar") }]]]; }
     else { const D = dersler(); gruplar = [["", PANEL[tur].map((k) => D.find((x) => x.k === k)).filter(Boolean)]]; }
-    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, sınıf düzeni ve sabah rutini"], ogretmen: ["Öğretmen", "Ölçme ve düşünme rutinleri, sınıfım, plan, kitaplar, yerine gelecek öğretmene notlar"], ortam: ["Ortam", "Arka plan, odaklanarak çalışma ve müzik"], diger: ["Diğer", "Öğretmen, ortam ve ayarlar"] }[tur];
+    const BAS = { arac: ["Araçlar", "Her derste kullanılan sınıf araçları"], ders: ["Dersler", "Derse git"], yasam: ["Sınıf yaşamı", "SDÖ, sınıf düzeni ve sabah rutini"], ogretmen: ["Öğretmen", "Sınıfım, plan, kitaplar, yerine gelecek öğretmene notlar"], ortam: ["Ortam", "Arka plan, odaklanarak çalışma ve müzik"], diger: ["Diğer", "Öğretmen, ortam ve ayarlar"] }[tur];
     const az = gruplar.reduce((t, [, l]) => t + l.length, 0) <= 8;
     const p = h("div.altp" + (az ? ".az" : ""), { role: "dialog", "aria-label": BAS[0] },
       h("div.altp-bas", h("b", BAS[0]), h("span.hint", BAS[1]), tur === "arac" ? h("button.btn.sm.c-chalk.altp-hepsi", { onclick: () => { panelKapat(); aracAc("hepsi"); } }, T.icon("plus"), "Tüm araçlar") : null, h("div.spacer"), h("button.altp-kapat", { "aria-label": "Kapat", onclick: panelKapat }, T.icon("close"))),
@@ -135,7 +135,7 @@
     const git = (k, l, ic) => h("button.dock-item", { "aria-current": cur === k ? "page" : null, onclick: () => T.go(k) }, T.icon3d(ic), h("span", l));
     el.replaceChildren(
       git("ana", "Ana sayfa", "home"),
-      ana("arac", "Araçlar", "aletkutusu"), ana("ders", "Dersler", "canta"), ana("yasam", "Sınıf yaşamı", "tokalasma"), ana("ogretmen", "Öğretmen", "teacher"),
+      ana("arac", "Araçlar", "aletkutusu"), ana("ders", "Dersler", "canta"), ana("yasam", "Sınıf yaşamı", "tokalasma"), git("olcme", "Ölçme", "grafik"), ana("ogretmen", "Öğretmen", "teacher"),
       h("span.dock-sep", { "aria-hidden": "true" }),
       (() => { const cal = T.muzik && (T.muzik.aktif() || (T.spotify && T.spotify.acik())); const b = ana("ortam", "Ortam", "gundogumu"); b.classList.add("dock-muzik"); if (cal) { b.classList.add("caliyor"); b.prepend(h("i.mc-dalga.dock-dalga", h("i"), h("i"), h("i"))); } dockOrtam = b; return b; })(),
       git("ayarlar", "Ayarlar", "settings"),

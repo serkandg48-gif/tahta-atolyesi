@@ -49,7 +49,9 @@
       ${["#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#9b5de5"].map((c, i) => `<circle cx="${480 + i * 70}" cy="${110 + (i % 2) * 30}" r="${26 + (i % 3) * 6}" fill="${c}" opacity=".55"/>`).join("")}
       <path d="M520 520q40-60 80 0z" fill="#9b5de5" opacity=".6"/><path d="M640 520q30-40 60 0z" fill="#ef476f" opacity=".6"/></g>`,
   };
-  T.oyunSahnesi = (ad) => (S[ad] ? "url(\"data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">${ortak}${S[ad]}</svg>`) + "\")" : null);
+  /* Canva'da üretilen resim gibi sahneler; olanlar çizim yerine kullanılır */
+  const RESIM = { market: "/sahne/market.webp" };
+  T.oyunSahnesi = (ad) => RESIM[ad] ? `url("${RESIM[ad]}")` : (S[ad] ? "url(\"data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">${ortak}${S[ad]}</svg>`) + "\")" : null);
   /* hangi oyun hangi sahnede */
   T.OYUN_SAHNE = { "Market kasası: tahmin et": "market", "Market kasası: para üstü": "market", "Fide bahçesi": "bahce", "Kurabiye paylaşımı": "mutfak", "Sayı makinesi": "atolye", "Çiftlik problemleri": "ciftlik",
     "Problem kurucu": "sinif", "Eşitlik terazisi": "atolye", "Cisim dedektifi": "atolye", "Şekil kutuları": "sinif", "Nokta tahtası": "sinif", "Karınca turu": "bahce", "Limonata standı": "mutfak",

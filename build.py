@@ -137,6 +137,10 @@ def main():
         shutil.copytree(SRC / "oyun3d", ROOT / "dist" / "oyun3d", dirs_exist_ok=True)
     if (SRC / "orman").exists():
         shutil.copytree(SRC / "orman", ROOT / "dist" / "orman", dirs_exist_ok=True)
+    if (dist / "sahne").exists():
+        shutil.rmtree(dist / "sahne")
+    if (SRC / "sahne").exists():
+        shutil.copytree(SRC / "sahne", ROOT / "dist" / "sahne", dirs_exist_ok=True)
     if (SRC / "kitaplar").exists():
         shutil.copytree(SRC / "kitaplar", ROOT / "dist" / "kitaplar", dirs_exist_ok=True)
         import json as _j

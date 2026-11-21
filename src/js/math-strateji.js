@@ -203,22 +203,24 @@
   oyun("strateji-carpma-bolme", 3, {
     title: "Çarpma ve bölme", icon: "fraction", grades: [3, 4], short: "Kolay parçalara ayırarak zihinden çarp ve böl",
     render(host) {
-      let tur = "carp", a, b, parca, cevaplar, kalan, bolum, toplamOk = false;
+      let tur = "carp", a, b, parca, cevaplar, kalan, bolum, toplamOk = false, kesik = new Set();
       const kap = h("div.mz-oyun"); host.append(kap);
       function yeni() {
-        if (tur === "carp") { a = T.pick([25, 12, 15, 14, 24, 35, 45, 18, 16, 21]); b = T.pick([16, 13, 14, 17, 12, 18, 23, 15]); parca = []; cevaplar = {}; toplamOk = false; }
+        if (tur === "carp") { a = T.pick([25, 12, 15, 14, 24, 35, 45, 18, 16, 21]); b = T.pick([16, 13, 14, 17, 12, 18, 23, 15]); parca = []; cevaplar = {}; toplamOk = false; kesik = new Set(); }
         else { b = T.pick([14, 16, 18, 26, 12, 15, 24, 32, 7, 13]); const q = T.pick([22, 31, 21, 14, 32, 42, 101, 23, 213, 12]); a = b * q; kalan = a; bolum = []; }
         ciz();
       }
       function carpCiz() {
         const top = parca.reduce((s, x) => s + x, 0), tamam = top === b;
         const hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
-        /* birim kareler: a satır × b sütun, kareler gerçekten kare */
-        const W = 760, u = Math.min((W - 90) / b, 250 / a), Hh = a * u, s = S("svg", { viewBox: `0 0 ${60 + b * u + 20} ${Hh + 100}`, class: "mz-alan" });
+        /* birim kareler: a satır × b sütun; satır çoksa kareler biraz basık çizilir ki sütunlar kesilebilecek genişlikte kalsın */
+        const W = 760, u = Math.min((W - 90) / b, 48), uy = Math.min(u, 280 / a), Hh = a * uy, s = S("svg", { viewBox: `0 0 ${60 + b * u + 20} ${Hh + 100}`, class: "mz-alan" });
         const renk = ["#5DADE8", "#F4A261", "#90BE6D", "#E76F51", "#8E7DBE"], y0 = 40;
-        const izgara = (x0, sut, cizgi) => { let d = ""; for (let c = 1; c < sut; c++) d += `M${x0 + c * u} ${y0}V${y0 + Hh}`; for (let r = 1; r < a; r++) d += `M${x0} ${y0 + r * u}H${x0 + sut * u}`; s.append(S("path", { d, stroke: cizgi, "stroke-width": u > 14 ? 1.2 : 0.7, fill: "none" })); };
+        const izgara = (x0, sut, cizgi) => { let d = ""; for (let c = 1; c < sut; c++) d += `M${x0 + c * u} ${y0}V${y0 + Hh}`; for (let r = 1; r < a; r++) d += `M${x0} ${y0 + r * uy}H${x0 + sut * u}`; s.append(S("path", { d, stroke: cizgi, "stroke-width": u > 14 ? 1.2 : 0.7, fill: "none" })); };
         let x = 60;
-        parca.forEach((p, i) => {
+        /* kesme aşaması: çocuk dikdörtgene dokunarak sütunların arasından keser */
+        const kesiyor = !parca.length, kesL = [...kesik].sort((p1, p2) => p1 - p2), segler = kesiyor ? [...kesL, b].map((k, i, L) => k - (i ? L[i - 1] : 0)) : parca;
+        segler.forEach((p, i) => {
           const w = p * u;
           s.append(S("rect", { x, y: y0, width: w, height: Hh, fill: renk[i % 5], opacity: 0.85 }));
           izgara(x, p, "rgba(255,255,255,.75)");
@@ -227,7 +229,13 @@
           const k = S("text", { x: x + w / 2, y: 28, "text-anchor": "middle", class: "mz-alan-k" }); k.textContent = p; s.append(k);
           x += w;
         });
-        if (top < b) { s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "#F4F6FA" })); izgara(x, b - top, "#D3DAE6"); s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "none", stroke: "#9AA4B5", "stroke-width": 2, "stroke-dasharray": "8 6" })); }
+        if (kesiyor) {
+          kesL.forEach((k) => { const kx = 60 + k * u; s.append(S("line", { x1: kx, y1: y0 - 8, x2: kx, y2: y0 + Hh + 8, stroke: "#E4553F", "stroke-width": 5, "stroke-dasharray": "10 6", "stroke-linecap": "round" })); const m = S("text", { x: kx, y: y0 - 12, "text-anchor": "middle", "font-size": 22 }); m.textContent = "✂️"; s.append(m); });
+          const ortu = S("rect", { x: 60, y: y0, width: b * u, height: Hh, fill: "transparent", style: "cursor: crosshair" });
+          ortu.addEventListener("click", (e) => { const pt = s.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const q = pt.matrixTransform(s.getScreenCTM().inverse()); const k = Math.round((q.x - 60) / u); if (k <= 0 || k >= b) return; kesik.has(k) ? kesik.delete(k) : kesik.add(k); T.sound.pop && T.sound.pop(); ciz(); });
+          s.append(ortu);
+        }
+        else if (top < b) { s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "#F4F6FA" })); izgara(x, b - top, "#D3DAE6"); s.append(S("rect", { x, y: y0, width: (b - top) * u, height: Hh, fill: "none", stroke: "#9AA4B5", "stroke-width": 2, "stroke-dasharray": "8 6" })); }
         const yan = S("text", { x: 18, y: y0 + Hh / 2 + 9, "text-anchor": "middle", class: "mz-alan-k" }); yan.textContent = a; s.append(yan);
         /* alt kenar: ikinci çarpanın tamamı, köşeli ayraçla */
         const yb = y0 + Hh + 14, xb = 60 + b * u;
@@ -236,12 +244,14 @@
         s.append(S("path", { d: `M44 ${y0} h-10 V${y0 + Hh} h10`, fill: "none", stroke: "#1B2A4A", "stroke-width": 3 }));
         return h("div",
           h("div.mz-soru", a + " × " + b + " = ", h("b", toplamOk ? a * b : "?")),
-          !tamam ? h("div.mz-durum", b + " sayısını hangi parçalara ayıralım? Birini seç:") : null,
-          !tamam ? h("div.mz-secimler.mz-ayirmalar", ayirmalar(b).map((L2) => h("button.mz-ayir", { onclick: () => { parca = L2.slice(); cevaplar = {}; toplamOk = false; ciz(); } }, h("b", b + " = " + L2.join(" + ")), h("small", L2.map((x) => a + " × " + x).join(" ve "))))) : null,
           h("div" + (tamam ? ".mz-yanyana" : ""), s, tamam ? h("div.mz-satirlar", parca.map((p, i) => h("div.mz-satir", h("span", a + " × " + p + " ="), cevaplar[i] === a * p ? h("b.dogru", a * p) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * p) { cevaplar[i] = a * p; ok(); } else no(); ciz(); })))),
             hepsi ? h("div.mz-satir.toplam", h("span", parca.map((p) => a * p).join(" + ") + " ="), toplamOk ? h("b.dogru", a * b) : h("span.mz-girdi", sayiPadKucuk((v) => { if (+v === a * b) { toplamOk = true; ok(); kutla(); } else no(); ciz(); }))) : null,
             hepsi && !toplamOk ? h("div.mz-durum", "Şimdi parçaları topla.") : !hepsi ? h("div.mz-durum", "Her parçanın sonucunu yaz.") : null) : null),
-          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { parca = []; cevaplar = {}; toplamOk = false; ciz(); } }, T.icon("reset"), toplamOk ? "Başka türlü parçala" : "Baştan")));
+          kesiyor ? h("div.mz-durum", kesL.length ? b + " = " + segler.join(" + ") + ". Başka yerden de kesebilirsin. Kestiğin çizgiye yeniden dokunursan birleşir." : "Dikdörtgene dokun: dokunduğun yerden sütunların arasından kesilir. " + b + " sütunu kolay parçalara ayır.") : null,
+          kesiyor ? h("div.row", { style: { justifyContent: "center", gap: "8px", flexWrap: "wrap" } },
+            h("button.btn.c-leaf", { disabled: kesL.length ? null : true, onclick: () => { parca = segler.slice(); cevaplar = {}; toplamOk = false; ciz(); } }, T.icon("check"), "Bu parçalarla çarp"),
+            b > 10 && !kesik.has(10) ? h("button.btn.c-chalk", { onclick: () => { kesik = new Set([10]); ciz(); } }, T.icon("spark"), "İpucu: 10'dan kes") : null) : null,
+          h("div.row", { style: { justifyContent: "center" } }, h("button.btn.c-chalk", { onclick: () => { parca = []; cevaplar = {}; toplamOk = false; kesik = new Set(); ciz(); } }, T.icon("reset"), toplamOk ? "Başka türlü parçala" : "Baştan")));
       }
       function bolCiz() {
         const q = bolum.reduce((s, x) => s + x, 0), tamam = kalan === 0;
@@ -264,7 +274,7 @@
         if (tur === "carp") {
           const top = parca.reduce((t, x) => t + x, 0), tamam = top === b, hepsi = tamam && parca.every((x, i) => cevaplar[i] === a * x);
           giris = a + " × " + b + " işlemini tek seferde yapmak zor. " + b + " sayısını kolay parçalara ayır, her parçayı ayrı çarp, sonra topla.";
-          adimlar = [b + " sayısını kolay parçalara ayırmanın bir yolunu seç. Dikdörtgen o parçalara bölünür.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
+          adimlar = ["Dikdörtgene dokunarak " + b + " sütunu kolay parçalara kes, sonra \"Bu parçalarla çarp\" düğmesine bas.", "Her parçanın sonucunu yaz. Örneğin " + a + " × 10 kolaydır.", "Parçaların sonuçlarını topla. Bulduğun sayı " + a + " × " + b + " işleminin cevabıdır."];
           simdi = !tamam ? 0 : !hepsi ? 1 : !toplamOk ? 2 : 3;
         } else {
           const q = bolum.reduce((t, x) => t + x, 0), tamam = kalan === 0;

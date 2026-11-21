@@ -59,6 +59,7 @@ JS_ORDER = [
     "kazanim-mat3.js",
     "kazanim-mat3b.js",
     "kup-oyun.js",
+    "turkce-oyun.js",
     "math-talks.js",
     "subjects.js",
     "turkce2.js",

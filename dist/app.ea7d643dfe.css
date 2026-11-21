@@ -3660,3 +3660,20 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .zm-takim b { font-size: clamp(26px, calc(14vw / var(--n, 2)), 72px); }
 .zm-takim-sil { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border: 0; border-radius: 50%; background: rgba(27,42,74,.08); display: grid; place-items: center; cursor: pointer; color: inherit; }
 .zm-takim-sil svg { width: 14px; height: 14px; }
+
+/* Hareket molası: oyun biçimleri */
+.ml-sonuc { min-height: 0; overflow: auto; }
+.ml-oyun { gap: 6px; }
+.ml-oyun-alan { width: 100%; display: grid; justify-items: center; gap: 6px; }
+.ml-komut { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 16px; font: 800 1.15rem var(--display); text-align: left; }
+.ml-komut svg { width: 64px; height: 64px; flex: none; }
+.ml-komut.der { background: #e3f4e8; color: #20623c; } .ml-komut.demez { background: #fde8e4; color: #8f2c1f; }
+.ml-donma { font: 800 1.6rem var(--display); padding: 14px 22px; border-radius: 18px; background: #eef1f6; color: var(--navy); }
+.ml-donma.dans { background: #e3f4e8; color: #2f7d4f; animation: ml-salla .42s ease-in-out infinite alternate; }
+.ml-donma.dur { background: #E4553F; color: #fff; }
+@keyframes ml-salla { from { rotate: -3deg; } to { rotate: 3deg; } }
+.ml-zar { display: grid; justify-items: center; } .ml-zar-yuz { font-size: 72px; line-height: 1; } .ml-zar b { font: 800 1.3rem var(--display); }
+.ml-hikaye-anahtar { display: flex; flex-wrap: wrap; gap: 4px 10px; justify-content: center; font-size: .85rem; }
+.ml-hikaye-anahtar b { background: #ffe58a; padding: 0 6px; border-radius: 6px; }
+.ml-hikaye { text-align: left; font-size: 1.05rem; line-height: 1.6; margin: 0; } .ml-hikaye mark { background: #ffe58a; font-weight: 800; padding: 0 3px; border-radius: 4px; }
+.ml-lider { display: grid; justify-items: center; gap: 2px; } .ml-lider b { font: 800 1.4rem var(--display); }

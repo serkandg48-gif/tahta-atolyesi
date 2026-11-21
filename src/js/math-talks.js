@@ -43,12 +43,12 @@
       let list = SCENES.filter((s) => g >= s.g[0] && g <= s.g[1]); if (!list.length) list = SCENES;
       let cur = list[0], photo = null, step = 0, notes = { 1: [], 2: [], 3: [] }, hints = false, aiQs = null;
       const STEPS = ["Sessizce bak", "Ne fark ettin?", "Ne merak ediyorsun?", "Matematik hikâyesi"];
-      const pic = h("div.mat", { style: { height: "var(--stage-h)", display: "grid", placeItems: "center", background: "#fff" } });
+      const pic = h("div.mat.ms-pic", { style: { display: "grid", placeItems: "center", background: "#fff" } });
       const side = h("div.paper", { style: { padding: "16px", display: "grid", gap: "10px", alignContent: "start", maxHeight: "var(--stage-h)", overflow: "auto" } });
       const stepBar = h("div.row", { style: { gap: "8px" } });
       const chooser = h("div.row", { style: { gap: "6px" } });
       function paintPic() {
-        if (photo) { pic.replaceChildren(h("img", { src: photo.url, alt: "Öğretmenin yüklediği fotoğraf", style: { maxWidth: "100%", maxHeight: "100%", objectFit: "contain" } })); return; }
+        if (photo) { pic.replaceChildren(h("figure.ms-foto", h("img", { src: photo.url, alt: "Seçilen fotoğraf", style: { maxWidth: "100%", maxHeight: "100%", objectFit: "contain" } }), photo.kunye ? h("figcaption", photo.kunye) : null)); return; }
         const s = S("svg", { viewBox: "0 0 1000 560", style: "width:100%;height:100%" }); cur.draw(s); pic.replaceChildren(s);
       }
       function paintSteps() {
@@ -71,7 +71,7 @@
             SCENES.map((s, i) => h("option", { value: i, selected: s === cur && !photo }, `${s.t} (${s.cat})`))),
           h("button.btn.c-chalk", { onclick: () => { const i = (SCENES.indexOf(cur) + 1) % SCENES.length; cur = SCENES[i]; photo = null; step = 0; notes = { 1: [], 2: [], 3: [] }; paintAll(); } }, T.icon("next"), "Başka resim"),
           h("label.btn.c-sun", { style: { cursor: "pointer" } }, T.icon("bg"), "Kendi fotoğrafın", h("input", { type: "file", accept: "image/*", style: { display: "none" }, onchange: (e) => { const f = e.target.files[0]; if (!f) return; photo = { url: URL.createObjectURL(f), file: f }; aiQs = null; step = 0; notes = { 1: [], 2: [], 3: [] }; paintAll(); } })),
-          photo && T.ai.mode() ? h("button.btn.c-grape", { onclick: askAI }, T.icon("spark"), "Fotoğraf için soru öner") : null);
+          photo && photo.file && T.ai.mode() ? h("button.btn.c-grape", { onclick: askAI }, T.icon("spark"), "Fotoğraf için soru öner") : null);
       }
       async function askAI() {
         side.replaceChildren(h("div.ai-status", h("div.spinner"), "Fotoğraf inceleniyor..."));
@@ -85,7 +85,9 @@ JSON: {"notice": ["..."], "wonder": ["..."], "story": "..."}`, { images: [photo.
         } catch (e) { side.replaceChildren(h("p", "Öneri alınamadı: " + (e.message || "bağlantı sorunu"))); }
       }
       function paintAll() { paintChooser(); paintPic(); paintSteps(); paintSide(); }
-      host.append(chooser, stepBar, h("div", { style: { display: "grid", gridTemplateColumns: "minmax(0, 2.2fr) minmax(260px, 1fr)", gap: "16px" } }, pic, side),
+      /* Görsel aramadan gelen fotoğraf (dosya yok, yalnız adres ve künye) */
+      host._fotoKoy = (url, kunye) => { photo = { url, file: null, kunye }; aiQs = null; step = 0; notes = { 1: [], 2: [], 3: [] }; paintAll(); };
+      host.append(chooser, stepBar, h("div.ms-duzen", pic, side),
         h("p.hint", "Kendi fotoğrafını kullan: sınıftaki bir raf, bahçedeki çiçekler, yemekhanedeki tabaklar. Öğrencilerin çevresindeki matematik en iyi konuşmayı başlatır."));
       paintAll();
     },

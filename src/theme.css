@@ -3301,3 +3301,30 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 
 .fm-bil { background: #FFF8E6; border: 2px solid #F0C870; border-radius: 14px; padding: 10px 14px; margin: 10px 0; }
 .fm-bil b { font: 800 1rem var(--display); color: #8A5A10; } .fm-bil ul { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; } .fm-bil li { font-size: 1.05rem; }
+/* Matematik sohbetleri */
+.ms-seg { flex-wrap: wrap; margin-bottom: 10px; }
+.ms-duzen { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 860px) { .ms-duzen { grid-template-columns: 1fr; } }
+.ms-sahne { aspect-ratio: 1000 / 560; background: #fff; border-radius: 22px; overflow: hidden; box-shadow: 0 6px 18px rgba(27,42,74,.12); display: grid; place-items: center; }
+.ms-bilgi { display: grid; gap: 10px; align-content: start; }
+.ms-soru { font: 800 1.35rem var(--display); color: var(--ink, #1B2A4A); margin: 0; background: #fff; padding: 10px 14px; border-radius: 14px; }
+.ms-notkap { background: #fff; border-radius: 14px; padding: 10px; display: grid; gap: 8px; } .ms-notkap > b { font-size: .95rem; }
+.ms-notlar { display: flex; flex-wrap: wrap; gap: 6px; } .ms-not { background: #FFF6B8; padding: 6px 10px; border-radius: 6px; font-family: var(--hand, inherit); font-size: 1.15rem; box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+.ms-not:nth-child(4n+2) { background: #D7F0FF; } .ms-not:nth-child(4n+3) { background: #FFE0D6; } .ms-not:nth-child(4n) { background: #E3F7D9; }
+.ms-hf-kap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 760px; margin: 0 auto 10px; }
+.ms-hf { background: #fff; border: 3px solid transparent; border-radius: 20px; aspect-ratio: 1.25; padding: 8px; cursor: pointer; display: grid; grid-template-rows: 1fr auto; box-shadow: 0 4px 12px rgba(27,42,74,.1); min-width: 0; }
+.ms-hf svg { max-height: 100%; } .ms-hf.sec { border-color: #F4B400; box-shadow: 0 0 0 5px rgba(244,180,0,.3); }
+.ms-hf small { font-size: .95rem; color: #1B2A4A; background: #FFF6D6; border-radius: 10px; padding: 4px 8px; }
+.ms-kendi summary { cursor: pointer; font-weight: 700; padding: 8px 12px; background: #fff; border-radius: 12px; } .ms-kendi-ic { display: grid; gap: 6px; margin-top: 6px; grid-template-columns: repeat(2, minmax(0,1fr)); } .ms-kendi-ic textarea, .ms-kendi-ic button { grid-column: 1 / -1; }
+.ms-tsler { display: grid; gap: 8px; } .ms-ts { background: #fff; border-radius: 12px; padding: 8px 10px; display: grid; grid-template-columns: 110px 1fr; gap: 6px; align-items: center; } .ms-ts .ms-thl { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.ms-th { background: #E8F1FF; border-radius: 999px; padding: 2px 10px; font-weight: 800; }
+.ms-dizgi { display: grid; gap: 8px; max-width: 640px; margin: 0 auto 10px; } .ms-dz { display: flex; justify-content: space-between; gap: 20px; border: 0; background: #fff; border-radius: 16px; padding: 10px 20px; font: 800 1.6rem var(--display); color: #8592A6; cursor: pointer; }
+.ms-dz.son { font-size: 2.6rem; color: #1B2A4A; box-shadow: 0 0 0 4px #F4B400; } .ms-dz b { color: #1F7AE0; }
+.ms-esit { font: 800 1.4rem var(--display); background: #fff; border-radius: 12px; padding: 6px 12px; }
+.ms-foto { margin: 0; width: 100%; height: 100%; display: grid; grid-template-rows: 1fr auto; } .ms-foto img { width: 100%; height: 100%; object-fit: contain; min-height: 0; } .ms-foto figcaption { font-size: .72rem; color: #5b6577; padding: 4px 8px; background: rgba(255,255,255,.9); }
+.ms-ara { position: fixed; inset: 0; z-index: 9000; background: rgba(10,20,40,.5); display: grid; place-items: center; padding: 16px; }
+.ms-ara-ic { background: #fff; border-radius: 20px; width: min(900px, 100%); max-height: 88vh; overflow: auto; padding: 16px; display: grid; gap: 10px; } .ms-ara-ic .in { flex: 1; min-width: 0; }
+.ms-ara-sonuc { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; } .ms-ara-k { border: 0; padding: 0; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; cursor: pointer; background: #eef1f5; } .ms-ara-k img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ms-pic { height: var(--stage-h); } @media (max-width: 860px) { .ms-pic { height: auto; aspect-ratio: 1000 / 560; } }
+.ms-pic { width: 100%; min-width: 0; overflow: hidden; box-sizing: border-box; } .ms-pic > svg { width: 100%; height: 100%; display: block; } .ms-duzen > * { min-width: 0; }
+@media (max-width: 860px) { .mat.ms-pic { height: auto !important; min-height: 0 !important; aspect-ratio: 1000 / 560; } }

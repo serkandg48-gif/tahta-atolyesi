@@ -144,3 +144,4 @@
 })();
 /* Kronometre artık zamanlayıcının içinde: ayrı listede görünmesin, eski panolardaki kronometreler yine açılır. */
 T.widgets.stopwatch.group = "Gizli";
+/* sürüm: önbellek yenileme */

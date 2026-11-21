@@ -1,6 +1,6 @@
 /* Tahta Atölyesi service worker. Uygulama dosyaları önbellekte durur; internet kesilse de site açılır.
    Sayfa önce ağdan istenir, ağ yoksa önbellekten gelir. Yapay zekâ istekleri (/api) hiç önbelleğe alınmaz. */
-const SURUM = "__SURUM__";
+const SURUM = "__SURUM__"; /* r2 */
 const ANA = "ta-" + SURUM, EK = "ta-ek";
 const ON = __ONBELLEK__;
 self.addEventListener("install", (e) => {
@@ -22,7 +22,9 @@ self.addEventListener("fetch", (e) => {
   const yerel = u.origin === location.origin, font = /fonts\.(googleapis|gstatic)\.com$/.test(u.hostname);
   if (!yerel && !font) return;
   const ag = () => fetch(r).then((y) => {
-    if (y.ok || y.type === "opaque") { const k = y.clone(); caches.open(yerel && /\/app\./.test(u.pathname) ? ANA : EK).then((c) => c.put(r, k)); }
+    /* bulunamayan dosya yerine gelen sayfayı (index.html) asla saklama */
+    const html = (y.headers.get("content-type") || "").includes("text/html");
+    if ((y.ok && !html) || y.type === "opaque") { const k = y.clone(); caches.open(yerel && /\/app\./.test(u.pathname) ? ANA : EK).then((c) => c.put(r, k)); }
     return y;
   });
   /* uygulama dosyaları sürüm adlı, değişmez; diğerleri önbellekten hemen gelir, arkada tazelenir */

@@ -1,4 +1,4 @@
-window.SURUM="07d6a90aef";
+window.SURUM="f143f4fee6";
 /* ---- core.js ---- */
 /* Çekirdek yardımcılar. Her şey tek bir T nesnesinde durur. */
 "use strict";
@@ -8183,6 +8183,7 @@ T.yuzen = TahtaYap("ana");
 })();
 /* Kronometre artık zamanlayıcının içinde: ayrı listede görünmesin, eski panolardaki kronometreler yine açılır. */
 T.widgets.stopwatch.group = "Gizli";
+/* sürüm: önbellek yenileme */
 
 /* ---- bes-dakika.js ---- */
 /* 5 dakika kaldı: ders erken bitince ya da tören, servis beklenirken tek dokunuşla hazırlıksız bir etkinlik.

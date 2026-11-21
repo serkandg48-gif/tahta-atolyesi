@@ -109,6 +109,15 @@ def main():
     surum = hashlib.sha1((css + js).encode("utf-8")).hexdigest()[:10]
     dist = ROOT / "dist"
     dist.mkdir(exist_ok=True)
+    # Küçültme: esbuild bulunursa JS ve CSS sıkıştırılır (yaklaşık yarı boyut). Bulunmazsa olduğu gibi yazılır.
+    import os, subprocess, shutil as _sh
+    esb = os.environ.get("ESBUILD") or _sh.which("esbuild") or "/home/claude/araclar/node_modules/.bin/esbuild"
+    if esb and os.path.exists(esb):
+        try:
+            js = subprocess.run([esb, "--minify", "--loader=js", "--target=es2020", "--legal-comments=none"], input=js, capture_output=True, text=True, check=True).stdout
+            css = subprocess.run([esb, "--minify", "--loader=css"], input=css, capture_output=True, text=True, check=True).stdout
+        except subprocess.CalledProcessError as e:
+            print("esbuild küçültemedi, ham dosya yazılıyor:", e.stderr[:400])
     # CSS ve JS sürüm adlı ayrı dosyalara yazılır: tarayıcı önbelleğe alır, yalnızca değişince yeniden indirir.
     for eski in list(dist.glob("app.*.js")) + list(dist.glob("app.*.css")):
         eski.unlink()

@@ -3182,3 +3182,16 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 @media (max-aspect-ratio: 1/1) {
   .dn-kok.sahneli { background-size: 100% auto !important; background-position: center bottom !important; background-repeat: no-repeat !important; background-color: #fbf0d6; }
 }
+/* Market: dar ekranda kasa ürünlerin üstüne binmesin */
+@media (max-width: 620px) {
+  .dn-market { display: grid; gap: 10px; justify-items: center; height: auto !important; padding-bottom: 12px; }
+  .dn-market .dn-kasa { position: static; width: auto; min-width: 170px; height: auto; padding: 8px 14px; gap: 4px; }
+  .dn-market .dn-kasa b { font-size: 28px; }
+  .dn-market .dn-sepet { position: static; flex-wrap: wrap; justify-content: center; }
+}
+@media (max-width: 620px) {
+  .dn-kok { height: auto !important; min-height: 0 !important; }
+  .dn-gov { overflow: visible; }
+  .dn-ana { grid-template-rows: auto auto auto; }
+  .dn-sahne { overflow: visible; }
+}

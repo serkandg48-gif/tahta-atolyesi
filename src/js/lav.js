@@ -22,7 +22,7 @@
     const sh = Sh.olustur(host, "Lav atlaması sahnesi"), P = Sh.parcacik();
     const afis = T.h("div.tv-afis"), skor = T.h("div.tv-skor"), alt = T.h("div.tv-alt"); sh.ust.append(afis, skor, alt);
     const ayar = T.h("div.row.tv-ayar"); host.append(ayar);
-    let R = null, durum = "soru", tahmin = null, yol = [], adim = null, etiket = [];
+    let R = null, durum = "soru", tahmin = null, yol = [], adim = null, etiket = [], suan = 0, uyari = "";
     const tv = { x: 0, y: 0, sq: 1, yon: 1, havada: false, kirp: 0, sk: 3, mutlu: 0 };
     const konum = (n) => { const r = Math.floor((n - 1) / 10) - R.ilk, c = (n - 1) % 10; return { x: X0 + c * DX, y: Y0 + r * DY }; };
     const yeni = () => {
@@ -32,14 +32,15 @@
       const ilk = Math.max(0, Math.min(10 - SATIR, Math.floor((a - 1) / 10) - (Math.floor((ans - 1) / 10) - Math.floor((a - 1) / 10) >= SATIR - 1 ? 0 : 0)));
       R = { a, k, ans, tens, ones, ilk: Math.min(ilk, Math.floor((ans - 1) / 10)) };
       if (Math.floor((ans - 1) / 10) - R.ilk > SATIR - 1) R.ilk = Math.floor((ans - 1) / 10) - (SATIR - 1);
-      yol = []; let n = a; for (let i = 0; i < tens; i++) { n += 10; yol.push([n, "+10"]); } for (let i = 0; i < Math.abs(ones); i++) { n += Math.sign(ones); yol.push([n, ones > 0 ? "+1" : "−1"]); }
+      yol = []; suan = a; uyari = "";
       const p = konum(a); tv.x = p.x; tv.y = p.y; tv.yon = 1; durum = "soru"; tahmin = null; adim = null; tv.mutlu = 0; ciz();
     };
     const ciz = () => {
-      afis.replaceChildren(T.h("div.tv-soru", durum === "soru" ? "Tavşan " + T.sayiEk(R.a, "da") + ". " + R.k + " eklersek hangi taşa varır?" : durum === "bitti" ? (tahmin === R.ans ? "Doğru! " : "Tavşan " + T.sayiEk(R.ans, "e") + " vardı. ") + R.a + " + " + R.k + " = " + R.ans : "Her sıra aşağısı 10 fazla..."),
-        durum === "bitti" ? T.h("div.tv-islem", R.tens + " onluk aşağı" + (R.ones ? ", " + Math.abs(R.ones) + (R.ones > 0 ? " ileri" : " geri") : "")) : null);
+      const say = (m) => yol.filter((y) => y[1] === m).length, on = say("+10") - say("−10"), bir = say("+1") - say("−1");
+      afis.replaceChildren(T.h("div.tv-soru", durum === "soru" ? (uyari || "Tavşan " + T.sayiEk(R.a, "da") + ". " + R.k + " ekle. Her zıplamada gideceği taşa dokun.") : "Doğru! " + R.a + " + " + R.k + " = " + R.ans),
+        durum === "bitti" ? T.h("div.tv-islem", (on ? on + " onluk aşağı" : "") + (on && bir ? ", " : "") + (bir ? Math.abs(bir) + (bir > 0 ? " ileri" : " geri") : "")) : null);
       Sh.skor(skor, D);
-      alt.replaceChildren(durum === "soru" ? T.h("div.tv-ipucu", (D.takim ? (D.sira ? "Turuncu" : "Mavi") + " takım: " : "") + "varacağı taşa dokun") : null,
+      alt.replaceChildren(durum === "soru" ? T.h("div.tv-ipucu", (D.takim ? (D.sira ? "Turuncu" : "Mavi") + " takım: " : "") + (yol.length ? "Şu an " + suan + ". Sıradaki taşa dokun" : "Bir sıra aşağısı 10 fazla, yanı 1 fazla")) : null,
         durum === "bitti" ? T.h("button.btn.c-leaf.tv-sonraki", { onclick: () => { if (D.takim) D.sira = 1 - D.sira; yeni(); } }, "Sonraki") : null);
       ayar.replaceChildren(T.h("div.seg", [[0, "+10"], [1, "+10, +20, +30"], [2, "+9, +11, +19, +21..."]].map(([k, l]) => T.h("button", { "aria-pressed": String(L === k), onclick: () => { L = k; yeni(); } }, l))),
         T.h("div.seg", [[true, "İki takım"], [false, "Tek sınıf"]].map(([k, l]) => T.h("button", { "aria-pressed": String(D.takim === k), onclick: () => { D.takim = k; ciz(); } }, l))),
@@ -48,18 +49,20 @@
     sh.cv.addEventListener("pointerdown", (e) => {
       if (durum !== "soru") return; const p = sh.nokta(e);
       const c = Math.round((p.x - X0) / DX), r = Math.round((p.y - Y0) / DY); if (c < 0 || c > 9 || r < 0 || r >= SATIR) return;
-      const n = (R.ilk + r) * 10 + c + 1; if (n === R.a) return;
-      tahmin = n; durum = "zipla"; Sh.ses.tik(); adim = { i: 0, t: -0.2 }; ciz();
+      const n = (R.ilk + r) * 10 + c + 1; if (n === suan || adim) return;
+      const d = n - suan, et = { 10: "+10", "-10": "−10", 1: "+1", "-1": "−1" }[d];
+      if (!et) { uyari = "Tek zıplamada bir sıra aşağı (+10) ya da bir taş yana (+1) gidebilirsin."; Sh.ses.yanlis(); ciz(); return; }
+      uyari = ""; yol.push([n, et]); durum = "soru"; Sh.ses.tik(); adim = { i: yol.length - 1, t: -0.1 }; ciz();
     });
     sh.baslat((dt) => {
       P.guncelle(dt); tv.sk -= dt; tv.kirp = tv.sk < 0 ? 1 : 0; if (tv.sk < -0.13) tv.sk = 2 + Math.random() * 3;
       etiket.forEach((e) => { e.t += dt; e.y -= 40 * dt; }); etiket = etiket.filter((e) => e.t < 1.1);
-      if (durum === "zipla" && adim) {
+      if (adim) {
         adim.t += dt / 0.55; const [hedef, et] = yol[adim.i], bas = adim.i ? yol[adim.i - 1][0] : R.a, p0 = konum(bas), p1 = konum(hedef);
         if (adim.t < 0) tv.sq = 0.85;
         else if (adim.t < 1) { if (!tv.havada) { tv.havada = true; Sh.ses.zipla(); } tv.yon = p1.x < p0.x ? -1 : p1.x > p0.x ? 1 : tv.yon; const e = Sh.ease(adim.t); tv.x = Sh.lerp(p0.x, p1.x, e); tv.y = Sh.lerp(p0.y, p1.y, e) - Math.sin(adim.t * Math.PI) * 110; tv.sq = 1.12; }
         else { tv.havada = false; tv.x = p1.x; tv.y = p1.y; tv.sq = 0.8; Sh.ses.kon(); P.toz(tv.x, tv.y); etiket.push({ x: p1.x, y: p1.y - 110, m: et, t: 0 }); adim.i++; adim.t = -0.15;
-          if (adim.i >= yol.length) { adim = null; durum = "bitti"; if (tahmin === R.ans) { Sh.ses.dogru(); P.kutla(tv.x, tv.y - 80); tv.mutlu = 1; D.puan[D.takim ? D.sira : 0]++; } else Sh.ses.yanlis(); ciz(); } }
+          if (adim.i >= yol.length) { adim = null; suan = hedef; if (suan === R.ans) { durum = "bitti"; Sh.ses.dogru(); P.kutla(tv.x, tv.y - 80); tv.mutlu = 1; D.puan[D.takim ? D.sira : 0]++; } ciz(); } }
       } else if (!tv.havada) tv.sq += (1 - tv.sq) * Math.min(1, dt * 10);
     }, (ctx) => {
       const t = sh.zaman;
@@ -80,11 +83,11 @@
         const tur = durum === "bitti" && n === R.ans ? 2 : n === tahmin ? 1 : 0;
         const isik = ctx.createRadialGradient(x, y + 20, 10, x, y + 20, 80); isik.addColorStop(0, "rgba(255,120,40,.25)"); isik.addColorStop(1, "rgba(255,120,40,0)"); ctx.fillStyle = isik; ctx.beginPath(); ctx.arc(x, y + 20, 80, 0, Math.PI * 2); ctx.fill();
         ctx.drawImage(sp[tur], x - 65, y - 42);
-        if (n === R.a && durum === "soru") { ctx.strokeStyle = "rgba(140,200,255,.9)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x, y, 60, 30, 0, 0, Math.PI * 2); ctx.stroke(); }
+        if (n === suan && durum === "soru") { ctx.strokeStyle = "rgba(140,200,255,.9)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x, y, 60, 30, 0, 0, Math.PI * 2); ctx.stroke(); }
         Sh.yazi(ctx, String(n), x, y + (Math.hypot(x - tv.x, y - tv.y) < 40 ? 48 : 0), 34, tur ? "#2A1A08" : "#FFE9D0", tur ? "rgba(255,255,255,.6)" : "rgba(0,0,0,.55)");
       }
       /* yol izi */
-      if (durum !== "soru") { ctx.save(); ctx.setLineDash([8, 10]); ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = 4; const yapildi = adim ? adim.i : yol.length; let p0 = konum(R.a); for (let i = 0; i < yapildi; i++) { const p1 = konum(yol[i][0]); ctx.beginPath(); ctx.moveTo(p0.x, p0.y - 20); ctx.quadraticCurveTo((p0.x + p1.x) / 2, Math.min(p0.y, p1.y) - 110, p1.x, p1.y - 20); ctx.stroke(); p0 = p1; } ctx.restore(); }
+      if (yol.length) { ctx.save(); ctx.setLineDash([8, 10]); ctx.strokeStyle = "rgba(255,255,255,.8)"; ctx.lineWidth = 4; const yapildi = adim ? adim.i : yol.length; let p0 = konum(R.a); for (let i = 0; i < yapildi; i++) { const p1 = konum(yol[i][0]); ctx.beginPath(); ctx.moveTo(p0.x, p0.y - 20); ctx.quadraticCurveTo((p0.x + p1.x) / 2, Math.min(p0.y, p1.y) - 110, p1.x, p1.y - 20); ctx.stroke(); p0 = p1; } ctx.restore(); }
       /* tavşan */
       if (Sh.tavsan) { ctx.save(); ctx.translate(tv.x, tv.y - 6); ctx.scale(0.66, 0.66); Sh.tavsan(ctx, 0, 0, { sq: tv.sq, yon: tv.yon, t, kirp: tv.kirp, mutlu: tv.mutlu > 0.4 && durum === "bitti" ? 1 : 0, havada: tv.havada, kulak: tv.havada ? -0.3 : 0 }); ctx.restore(); }
       etiket.forEach((e) => { ctx.save(); ctx.globalAlpha = Math.max(0, 1 - e.t / 1.1); Sh.yazi(ctx, e.m, e.x, e.y, 44, "#FFE066"); ctx.restore(); });

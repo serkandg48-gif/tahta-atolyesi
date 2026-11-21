@@ -175,7 +175,7 @@
       const bear = box("0 0 300 220"); bear.innerHTML = '<circle cx="90" cy="60" r="34" fill="#a0673a" stroke="#2a2a2a" stroke-width="4"/><circle cx="210" cy="60" r="34" fill="#a0673a" stroke="#2a2a2a" stroke-width="4"/><circle cx="150" cy="120" r="90" fill="#b97a47" stroke="#2a2a2a" stroke-width="5"/><circle cx="120" cy="105" r="10" fill="#2a2a2a"/><circle cx="180" cy="105" r="10" fill="#2a2a2a"/><ellipse cx="150" cy="160" rx="40" ry="28" fill="#2a2a2a"/>';
       return { prompt: "Ayı diyor ki: " + txtR, visual: bear, answer: ans, options: opts, render: (o) => shapeSVG(o, P(["#2e9bd6", "#ffc233", "#6cc04a", "#f27ba9"])), explain: ans + ": " + SHAPES[ans].kose + " köşe, " + SHAPES[ans].kenar + " kenar." }; } });
 
-  game("solucan", { title: "Solucanı ölç", icon: "ruler", tone: "leaf", grades: [1, 3], short: "Uzunluk ölçme ve karşılaştırma",
+  game("solucan", { title: "Tırtılı ölç", icon: "ruler", tone: "leaf", grades: [1, 3], short: "Uzunluk ölçme ve karşılaştırma",
     round(L) { const a = R(2, 12), b = R(2, 12); const s = box("0 0 980 260"); const U = 70;
       const worm = (y, n, col) => { for (let i = 0; i < n; i++) s.append(S("circle", { cx: 50 + i * U + U / 2, cy: y, r: 30, fill: col, stroke: "#2a2a2a", "stroke-width": 3 })); s.append(S("circle", { cx: 50 + (n - 1) * U + U / 2 + 8, cy: y - 8, r: 5, fill: "#2a2a2a" })); };
       const ruler = (y) => { s.append(S("rect", { x: 50, y, width: 13 * U, height: 40, fill: "#ffe38a", stroke: "#2a2a2a", "stroke-width": 3 })); for (let i = 0; i <= 13; i++) { s.append(S("line", { x1: 50 + i * U, y1: y, x2: 50 + i * U, y2: y + 20, stroke: "#2a2a2a", "stroke-width": 3 })); s.append(txt(50 + i * U, y + 30, i, 18)); } };

@@ -125,7 +125,7 @@
   }
   /* 3B onluk bloklar */
   function onlukBlok3B(kap, y, o, b) {
-    T.sahne3(kap, { kamera: [1.5, 6.5, 6.2], bak: [0, 0, 0.3], fov: 36, env: ["#FFFFFF", "#DCE8F6", "#3C4A60"], sigdir: 8.6, oran: 1.5 }, null).then((c) => {
+    T.sahne3(kap, { kamera: [0.6, 2.6, 9.2], bak: [0, 2.0, 0], fov: 36, env: ["#FFFFFF", "#DCE8F6", "#3C4A60"], sigdir: 9, oran: 1.5 }, null).then((c) => {
       if (!c) { kap.append(h("p.hint", "3B görünüm açılamadı.")); return; }
       const THREE = c.THREE; c.sahne.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.3)); const dl = new THREE.DirectionalLight(0xffffff, 1.9); dl.position.set(4, 9, 6); c.sahne.add(dl);
       const zemin = new THREE.Mesh(new THREE.PlaneGeometry(30, 20), new THREE.MeshStandardMaterial({ color: 0xF1E6D2, roughness: 0.95 })); zemin.rotation.x = -Math.PI / 2; c.sahne.add(zemin);
@@ -133,11 +133,11 @@
       const mY = new THREE.MeshPhysicalMaterial({ color: 0x4F9CF0, roughness: 0.4, clearcoat: 0.5 }), mO = new THREE.MeshPhysicalMaterial({ color: 0x3FA36B, roughness: 0.4, clearcoat: 0.5 }), mB = new THREE.MeshPhysicalMaterial({ color: 0xF2A93B, roughness: 0.4, clearcoat: 0.5 }), cz = new THREE.LineBasicMaterial({ color: 0x1B2A4A, transparent: true, opacity: 0.3 });
       const kup = (g, x, yy, z, m) => { const k = new THREE.Mesh(geo, m); k.position.set(x, yy, z); g.add(k); const e = new THREE.LineSegments(kenar, cz); e.position.copy(k.position); g.add(e); };
       const g = new THREE.Group(); c.sahne.add(g); let x = 0;
-      for (let i = 0; i < y; i++) { for (let r = 0; r < 10; r++) for (let q = 0; q < 10; q++) kup(g, x + r * u, u / 2, q * u, mY); x += 10 * u + 0.35; }
-      for (let i = 0; i < o; i++) { for (let q = 0; q < 10; q++) kup(g, x, u / 2, q * u, mO); x += u + 0.18; }
-      x += 0.2; for (let i = 0; i < b; i++) kup(g, x + (i % 2) * (u + 0.1), u / 2, Math.floor(i / 2) * (u + 0.1), mB);
-      const kt = new THREE.Box3().setFromObject(g), mrk = kt.getCenter(new THREE.Vector3()); g.position.set(-mrk.x, 0, -mrk.z);
-      const gen = kt.max.x - kt.min.x; if (gen > 6) { const k = 6 / gen; g.scale.setScalar(k); g.position.multiplyScalar(k); }
+      for (let i = 0; i < y; i++) { for (let r = 0; r < 10; r++) for (let q = 0; q < 10; q++) kup(g, x + r * u, u / 2 + q * u, 0, mY); x += 10 * u + 0.35; }
+      for (let i = 0; i < o; i++) { for (let q = 0; q < 10; q++) kup(g, x, u / 2 + q * u, 0, mO); x += u + 0.18; }
+      x += 0.2; for (let i = 0; i < b; i++) kup(g, x + (i % 2) * (u + 0.1), u / 2 + Math.floor(i / 2) * (u + 0.04), 0, mB);
+      const kt = new THREE.Box3().setFromObject(g), mrk = kt.getCenter(new THREE.Vector3()); g.position.set(-mrk.x, 0, 0);
+      const gen = kt.max.x - kt.min.x, yuk = kt.max.y; const uz = Math.max(9.2, gen * 1.55, yuk * 2.6); c.kamera.position.set(0.6, yuk * 0.55 + 0.4, uz); c.kamera.lookAt(0, yuk * 0.5, 0);
     });
   }
   const oyunlar = {

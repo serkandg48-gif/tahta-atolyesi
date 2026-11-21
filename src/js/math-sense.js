@@ -95,7 +95,7 @@
         const H = Math.floor(n / 100), Tn = Math.floor((n % 100) / 10), O = n % 10;
         out.replaceChildren(
           h("div.home-hero", { style: { marginBottom: "18px" } },
-            h("div.greet", h("div.daycount", h("div.daycount-big", n), h("div.daycount-txt", "Okulun " + n + ". günü", h("small", T.sayiOku(n)))), tally(n)),
+            h("div.greet", h("div.daycount", h("div.daycount-big", n), h("div.daycount-txt", (n === Math.max(1, T.cal.dayNumber()) ? "Okulun " + n + ". günü" : "Günün sayısı"), h("small", T.sayiOku(n)))), tally(n)),
             h("div.paper", { style: { padding: "18px", display: "grid", gap: "10px", alignContent: "start" } },
               h("div.hint", "Basamaklar"), blocks(n),
               h("div.row", h("span.pill", H + " yüzlük"), h("span.pill", Tn + " onluk"), h("span.pill", O + " birlik")))),
@@ -107,7 +107,7 @@
             h("button.btn.c-chalk", { onclick: () => { n = Math.max(0, n - 1); paint(); } }, T.icon("minus")),
             h("button.btn.c-chalk", { onclick: () => { n++; paint(); } }, T.icon("plus")),
             h("button.btn.c-leaf", { onclick: () => { n = Math.max(1, T.cal.dayNumber()); paint(); } }, T.icon("calendar"), "Bugüne dön"),
-            h("button.btn.c-sun", { onclick: () => T.speak(T.sayiOku(n)) }, T.icon("speaker"), "Oku"),
+            h("label.gs-gir", "Sayıyı yaz:", h("input.in", { type: "number", min: 0, max: 9999, value: n, "aria-label": "Günün sayısı", onchange: (e) => { const v = parseInt(e.target.value, 10); if (v >= 0) { n = Math.min(9999, v); paint(); } } })),
             h("span.hint", "Her sabah sınıfça: sayıyı okuyun, bloklarla gösterin, bir önceki ve sonrakini bulun.")));
       }
       paint();
@@ -120,10 +120,11 @@
     render(host) {
       const g = T.store.grade();
       let lvl = g <= 1 ? 1 : g <= 2 ? 2 : 3, secs = 3, shown = true, pts = [];
-      const mat = h("div.mat", { style: { height: "var(--stage-h)", display: "grid", placeItems: "center" } });
+      const mat = h("div.mat.nk-mat", { style: { display: "grid", placeItems: "center" } });
       const cnt = h("div.readout", { style: { color: "var(--chalk)" } });
+      let zm = 0;
       function gen() {
-        const W = 800, H = 500; pts = [];
+        const W = 800, H = 500; pts = []; clearTimeout(zm);
         const add = (cx, cy, arr, r = 26) => arr.forEach(([x, y]) => pts.push([cx + x * r * 2.4, cy + y * r * 2.4]));
         const kinds = lvl === 1 ? ["zar", "cerceve", "grup2"] : lvl === 2 ? ["cerceve2", "grup3", "zar2"] : ["grup4", "dizi", "zar3"];
         const k = T.pick(kinds);
@@ -135,7 +136,7 @@
         } else if (k === "dizi") { const r = T.rand(3, 5), c = T.rand(4, 7); for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) pts.push([W / 2 - (c - 1) * 35 + j * 70, H / 2 - (r - 1) * 35 + i * 70]); }
         else { const m = +k.slice(-1); for (let i = 0; i < m; i++) { const cx = 140 + (i % 2) * 360 + T.rand(0, 120), cy = 130 + Math.floor(i / 2) * 230 + T.rand(-20, 20); add(cx, cy, DIE[T.rand(2, 5)], 20); } }
         shown = true; paint();
-        if (secs) setTimeout(() => { shown = false; paint(); }, secs * 1000);
+        if (secs) zm = setTimeout(() => { shown = false; paint(); }, secs * 1000);
       }
       function paint() {
         const s = S("svg", { viewBox: "0 0 800 500", style: "width:100%;height:100%" });
@@ -149,7 +150,8 @@
           h("div.seg", [[2, "2 sn"], [3, "3 sn"], [5, "5 sn"], [0, "Hep açık"]].map(([v, l]) => h("button", { "aria-pressed": String(v === secs), onclick: (e) => { secs = v; e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); } }, l)))),
         mat,
         h("div.row", h("button.btn.big.c-grape", { onclick: gen }, T.icon("dots"), "Yeni noktalar"),
-          h("button.btn.c-chalk", { onclick: () => { shown = true; paint(); cnt.textContent = pts.length + " nokta"; } }, T.icon("eye"), "Tekrar göster"), cnt,
+          h("button.btn.c-chalk", { onclick: () => { clearTimeout(zm); shown = true; paint(); if (secs) zm = setTimeout(() => { shown = false; paint(); }, secs * 1000); } }, T.icon("eye"), "Tekrar göster"),
+          h("button.btn.c-leaf", { onclick: () => { clearTimeout(zm); shown = true; paint(); cnt.textContent = pts.length + " nokta"; } }, T.icon("check"), "Cevabı göster"), cnt,
           h("span.hint", "Öğrenciler saymadan, gruplayarak görmeye çalışır. Sonra her biri nasıl gördüğünü tahtada çizerek anlatır.")));
       gen();
     },
@@ -280,19 +282,19 @@
 
   /* ---------- Doğruda nerede? ---------- */
   tool("dogruda-nerede", {
-    title: "Doğruda nerede?", icon: "line", tone: "tomato", cat: "his", grades: [2, 8], short: "Sayı doğrusunda konum tahmini",
+    title: "Doğruda nerede?", icon: "line", tone: "tomato", cat: "his", grades: [1, 4], short: "Sayı doğrusunda konum tahmini",
     render(host) {
-      const g = T.store.grade();
-      const ranges = g <= 2 ? [[0, 20], [0, 100]] : g <= 4 ? [[0, 100], [0, 1000], [0, 1]] : g <= 6 ? [[0, 1], [0, 10], [0, 1000]] : [[-10, 10], [-1, 1], [0, 1]];
-      let [a, b] = T.pick(ranges), target = 0, guess = null, show = false;
+      /* aralığı öğretmen seçer; negatif sayı yok */
+      let ust = T.store.grade() <= 2 ? 10 : 100, a = 0, b = ust, target = 0, guess = null, show = false;
       const svg = S("svg", { viewBox: "0 0 1000 260", style: "width:100%;height:100%;touch-action:none" });
       const mat = h("div.mat", { style: { height: "300px" } }, svg);
       const msg = h("div.readout", { style: { color: "var(--chalk)", fontSize: "24px" } });
-      const nice = (v) => (Math.abs(b - a) <= 1 ? (Math.round(v * 100) / 100).toLocaleString("tr-TR") : Math.round(v).toLocaleString("tr-TR"));
+      const nice = (v) => Math.round(v).toLocaleString("tr-TR");
+      const secim = h("div.seg", [10, 100, 1000].map((u) => h("button", { "aria-pressed": String(u === ust), onclick: (e) => { ust = u; secim.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === e.currentTarget))); gen(); } }, "0 ile " + u.toLocaleString("tr-TR"))));
       function gen() {
-        [a, b] = T.pick(ranges);
-        const span = b - a;
-        target = span <= 2 ? Math.round((a + Math.random() * span) * 20) / 20 : Math.round(a + Math.random() * span);
+        a = 0; b = ust;
+        const adim = ust === 10 ? 1 : ust === 100 ? (Math.random() < 0.5 ? 1 : 5) : (Math.random() < 0.5 ? 10 : 50);
+        do { target = Math.round((Math.random() * ust) / adim) * adim; } while (target <= 0 || target >= ust);
         guess = null; show = false; paint();
       }
       const X = (v) => 80 + ((v - a) / (b - a)) * 840;
@@ -309,7 +311,7 @@
         msg.textContent = show && guess != null ? `Fark: ${nice(Math.abs(guess - target))}` : "";
       }
       svg.addEventListener("pointerdown", (e) => { const p = T.svgPoint(svg, e.clientX, e.clientY); guess = a + T.clamp((p.x - 80) / 840, 0, 1) * (b - a); show = false; paint(); });
-      host.append(mat, h("div.row",
+      host.append(h("div.row", secim), mat, h("div.row",
         h("button.btn.big.c-tomato", { onclick: gen }, T.icon("reset"), "Yeni sayı"),
         h("button.btn.c-chalk", { onclick: () => { show = true; paint(); } }, T.icon("eye"), "Doğru yeri göster"), msg),
         h("p.hint", "Bir öğrenci doğruya dokunarak tahminini işaretler, sınıf gerekçesini tartışır: yarısından önce mi sonra mı?"));

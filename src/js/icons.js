@@ -173,5 +173,9 @@ T.avatar = function (seed, size = 64) {
 T.IKON3D = new Set(["kitap", "ampul", "tekrar", "kaktus", "fide", "lale", "havali", "sersem", "tirmanan", "kutlama", "kulak", "goz", "buyutec", "kalem", "sarikart", "ornek", "gunesbulut", "firtina", "konusma", "ates", "sicak", "tamam", "susss", "bulut", "buz", "kahraman", "uyari", "termometre", "trafik", "maske", "lotus", "gul", "teleskop", "dusunen", "parlakkalp", "tokalasma", "soru", "abc", "algebra", "area", "beads", "bg", "blocks", "board", "bolt", "book", "brain", "calendar", "canvas", "car", "cart", "chart", "check", "circuit", "class", "clock", "coinflip", "coord", "dice", "dots", "eye", "fen", "filter", "flower", "fraction", "frame", "geoboard", "graph", "grid100", "groups", "hand", "hands", "heart", "hece", "help", "home", "ingilizce", "integer", "jar", "leaf", "letters", "line", "lock", "magnet", "map", "math", "money", "moon", "music", "name", "noise", "odd", "pattern", "pen", "percent", "piggy", "pit", "plan", "plus", "qr", "recipe", "ruler", "scale", "settings", "snow", "sosyal", "spark", "speaker", "speed", "spell", "stairs", "star", "stopwatch", "sun", "talk", "tangram", "teacher", "telescope", "text", "thermo", "ticket", "timeline", "timer", "traffic", "train", "tree", "trophy", "turkce", "turn", "wall", "zeka"]);
 T.icon3d = function (name, cls = "") {
   if (!T.IKON3D.has(name)) return T.icon(name, cls);
-  return T.h("img.ikon3d" + (cls ? "." + cls : ""), { src: "ikon3d/" + name + ".webp", alt: "", "aria-hidden": "true", draggable: "false", width: 48, height: 48, decoding: "async" });
+  const img = T.h("img.ikon3d" + (cls ? "." + cls : ""), { src: "/ikon3d/" + name + ".webp", alt: "", "aria-hidden": "true", draggable: "false", width: 48, height: 48, decoding: "async" });
+  /* yüklenemezse bir kez önbelleği atlayarak yeniden dene, yine olmazsa çizgi ikona dön */
+  let deneme = 0;
+  img.addEventListener("error", () => { if (deneme++ === 0) img.src = "/ikon3d/" + name + ".webp?y=" + Date.now(); else { const y = T.icon(name, cls); img.replaceWith(y); } });
+  return img;
 };

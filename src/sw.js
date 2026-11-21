@@ -1,7 +1,7 @@
 /* Tahta Atölyesi service worker. Uygulama dosyaları önbellekte durur; internet kesilse de site açılır.
    Sayfa önce ağdan istenir, ağ yoksa önbellekten gelir. Yapay zekâ istekleri (/api) hiç önbelleğe alınmaz. */
 const SURUM = "__SURUM__"; /* r2 */
-const ANA = "ta-" + SURUM, EK = "ta-ek2";
+const ANA = "ta-" + SURUM, EK = "ta-ek3";
 const ON = __ONBELLEK__;
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(ANA).then((c) => Promise.all(ON.map((u) => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));
@@ -28,5 +28,5 @@ self.addEventListener("fetch", (e) => {
     return y;
   });
   /* uygulama dosyaları sürüm adlı, değişmez; diğerleri önbellekten hemen gelir, arkada tazelenir */
-  e.respondWith(caches.match(r).then((v) => { if (v) { if (!/\/app\./.test(u.pathname)) e.waitUntil(ag().catch(() => {})); return v; } return ag(); }));
+  e.respondWith(caches.match(r).then((v) => { if (v && (v.headers.get("content-type") || "").includes("text/html") && !/\.html?$/.test(u.pathname)) v = null; if (v) { if (!/\/app\./.test(u.pathname)) e.waitUntil(ag().catch(() => {})); return v; } return ag(); }));
 });

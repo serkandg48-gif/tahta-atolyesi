@@ -80,7 +80,7 @@
   T.derseInis = function () {
     if (document.getElementById("derse-inis")) return;
     const halka = h("div.di-halka"), yazi = h("div.di-yazi", "Hazırlan"), alt = h("div.di-alt", "Bir dakika birlikte yavaşlıyoruz");
-    const el = h("div#derse-inis", { role: "dialog", "aria-label": "Sakinleşme dakikası" }, h("button.di-kapat", { "aria-label": "Kapat", onclick: () => bitir() }, T.icon("close")), halka, yazi, alt);
+    const el = h("div#derse-inis", { role: "dialog", "aria-label": "Sakinleşme zamanı" }, h("button.di-kapat", { "aria-label": "Kapat", onclick: () => bitir() }, T.icon("close")), halka, yazi, alt);
     document.body.append(el);
     const zam = []; const sonra = (ms, f) => zam.push(setTimeout(f, ms));
     const bitir = () => { zam.forEach(clearTimeout); el.classList.add("kapan"); setTimeout(() => el.remove(), 400); removeEventListener("keydown", tus); };
@@ -94,5 +94,5 @@
     sonra(61500, () => { yazi.textContent = "Hazırız"; alt.textContent = "Derse başlayabiliriz"; T.sound.bell && T.sound.bell(); });
     sonra(65000, bitir);
   };
-  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Sakinleşme dakikası (teneffüs sonrası)", ic: "lotus", ac: () => T.derseInis(), ek: "Teneffüs sonrası nefes ve dikkat" });
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Sakinleşme zamanı (teneffüs sonrası)", ic: "lotus", ac: () => T.derseInis(), ek: "Teneffüs sonrası nefes ve dikkat" });
 })();

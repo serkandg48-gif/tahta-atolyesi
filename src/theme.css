@@ -3177,3 +3177,8 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .at-havuz { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .at-kelime { border: 0; border-radius: 14px; background: #fff; padding: 10px 18px; font: 800 clamp(20px, 2.2vw, 30px) var(--display); color: var(--navy); box-shadow: 0 4px 0 #cfd7e3; cursor: pointer; }
 .at-kelime:disabled { opacity: .25; box-shadow: none; }
+
+/* Dikey ekranda resimli sahne kırpılmasın: tüm resim altta, üstü duvar rengiyle dolar */
+@media (max-aspect-ratio: 1/1) {
+  .dn-kok.sahneli { background-size: 100% auto !important; background-position: center bottom !important; background-repeat: no-repeat !important; background-color: #fbf0d6; }
+}

@@ -7,7 +7,7 @@
   const kaydet = (l) => { try { localStorage.setItem(A, JSON.stringify(l)); } catch (e) { T.toast("Kaydedilemedi"); } };
   const HAZIR = [
     ["Grup çalışması", "groups", [{ type: "groups", x: 0, y: 0, w: 0.55, h: 1 }, { type: "timer", x: 0.55, y: 0, w: 0.45, h: 0.55 }, { type: "noise", x: 0.55, y: 0.55, w: 0.45, h: 0.45 }]],
-    ["Sessiz okuma", "book", [{ type: "dogazaman", x: 0, y: 0, w: 0.6, h: 1, data: { sahne: "cicek", total: 900, left: 900 } }, { type: "text", x: 0.6, y: 0, w: 0.4, h: 0.55, data: { text: "Sessiz okuma zamanı\nKitabını seç, yerine otur, okumaya başla." } }, { type: "orman", x: 0.6, y: 0.55, w: 0.4, h: 0.45 }]],
+    ["Sessiz okuma", "book", [{ type: "timer", x: 0, y: 0, w: 0.6, h: 1, data: { mod: "mum", total: 900, left: 900 } }, { type: "text", x: 0.6, y: 0, w: 0.4, h: 0.55, data: { text: "Sessiz okuma zamanı\nKitabını seç, yerine otur, okumaya başla." } }, { type: "orman", x: 0.6, y: 0.55, w: 0.4, h: 0.45 }]],
     ["İstasyonlar", "groups", [{ type: "istasyon", x: 0, y: 0, w: 0.72, h: 1 }, { type: "noise", x: 0.72, y: 0, w: 0.28, h: 0.55 }, { type: "traffic", x: 0.72, y: 0.55, w: 0.28, h: 0.45 }]],
     ["Sınıf tartışması", "talk", [{ type: "sozagi", x: 0, y: 0, w: 0.6, h: 1 }, { type: "name", x: 0.6, y: 0, w: 0.4, h: 0.6 }, { type: "timer", x: 0.6, y: 0.6, w: 0.4, h: 0.4 }]],
     ["Bireysel çalışma", "pen", [{ type: "text", x: 0, y: 0, w: 0.5, h: 0.6, data: { text: "Bugünkü görevimiz\n1. \n2. \n3. " } }, { type: "timer", x: 0.5, y: 0, w: 0.5, h: 0.6 }, { type: "traffic", x: 0, y: 0.6, w: 0.5, h: 0.4 }, { type: "noise", x: 0.5, y: 0.6, w: 0.5, h: 0.4 }]],
@@ -30,7 +30,7 @@
   };
   /* Yan yana: soldaki ve sağdaki aracı seç, oranı seç */
   function yanYana() {
-    const secenek = Object.entries(T.widgets).filter(([, w]) => w.title).sort((a, b) => a[1].title.localeCompare(b[1].title, "tr"));
+    const secenek = Object.entries(T.widgets).filter(([, w]) => w.title && w.group !== "Gizli").sort((a, b) => a[1].title.localeCompare(b[1].title, "tr"));
     const sol = h("select.in", { "aria-label": "Sol araç" }, secenek.map(([k, w]) => h("option", { value: k, selected: k === "text" ? true : null }, w.title)));
     const sag = h("select.in", { "aria-label": "Sağ araç" }, secenek.map(([k, w]) => h("option", { value: k, selected: k === "draw" ? true : null }, w.title)));
     let oran = 0.5;

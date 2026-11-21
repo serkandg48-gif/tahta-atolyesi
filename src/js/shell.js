@@ -68,9 +68,9 @@
      Araçlar ve Dersler düğmeleri aşağıdan yükselen, gruplu bir panel açar; her şey tek bakışta görünür, kaydırma gerekmez.
      Şeritte son kullanılan dört şey hızlı erişim için durur. */
   const ARAC_GRUP = [
-    ["Zaman", ["timer", "dogazaman", "stopwatch", "clock", "takvim", "!besDakika|5 dakika kaldı|stopwatch"]],
+    ["Zaman", ["timer", "clock", "takvim", "!besDakika|5 dakika kaldı|stopwatch"]],
     ["Seçim ve gruplar", ["name", "dice", "groups", "istasyon", "sozagi"]],
-    ["Sınıf düzeni", ["traffic", "noise", "orman", "dikkat", "sira", "mola", "bitirdim", "!derseInis|Derse iniş|lotus", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock", "!ogrenciBoyu|Öğrenci boyu|hand", "!kumanda|Cep kumandası|qr"]],
+    ["Sınıf düzeni", ["traffic", "noise", "orman", "dikkat", "sira", "mola", "bitirdim", "!derseInis|Sakinleşme dakikası|lotus", "!perde|Ekran perdesi|moon", "!kilit|Öğrenci modu|lock", "!ogrenciBoyu|Öğrenci boyu|hand", "!kumanda|Cep kumandası|qr"]],
     ["Yazı ve panolar", ["yazitahtasi", "draw", "text", "yavasbakis", "@kesif-siniflandir|Sınıflandırma panosu|filter"]],
   ];
   const sonlar = () => { try { return JSON.parse(localStorage.getItem("ta-son") || "[]"); } catch (e) { return []; } };

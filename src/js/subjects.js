@@ -165,7 +165,7 @@
           h("button.btn.sm.c-chalk", { onclick: () => { const last = rows[rows.length - 1] || [0, 0]; rows.push([last[0] + (rows.length > 1 ? rows[rows.length - 1][0] - rows[rows.length - 2][0] : 1), last[1]]); paint(); } }, T.icon("plus"), "Ölçüm ekle"));
       }
       host.append(h("div", { style: { display: "grid", gridTemplateColumns: "minmax(0,1fr) 300px", gap: "16px" } }, mat, tb),
-        h("div.row", btn("leaf", "timer", "Ders ekranına zamanlayıcı koy", () => T.board.add("stopwatch")), btn("chalk", "reset", "Tabloyu boşalt", () => { rows = [[0, 0]]; paint(); }),
+        h("div.row", btn("leaf", "timer", "Ders ekranına zamanlayıcı koy", () => T.board.add("timer", { data: { mod: "kronometre" } })), btn("chalk", "reset", "Tabloyu boşalt", () => { rows = [[0, 0]]; paint(); }),
           h("span.hint", "Beklenen sonuç çıkmazsa tabloyu silmeyin: farklı çıkan ölçüm, neyin değiştiğini konuşmak için en iyi kanıttır.")));
       paint();
     },

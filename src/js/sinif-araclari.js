@@ -124,20 +124,33 @@
     render(body, w, api) {
       const d = w.data, c = api.cls();
       body.style.gridTemplateRows = "auto 1fr"; body.style.gap = "8px";
-      const liste = h("ol.sr-liste");
+      const liste = h("ol.sr-liste"), ipucu = h("p.hint.sr-ipucu");
       const sirala = () => {
         const yok = bugunYok(c); let L = c.students.filter((st) => yok[st.id] !== "yok");
-        if (d.mod === "karisik" && d.karisik && d.tarih === T.isoDate()) L = d.karisik.map((id) => L.find((x) => x.id === id)).filter(Boolean).concat(L.filter((x) => !d.karisik.includes(x.id)));
+        if (d.mod === "ogretmen") { const oz = d.ozel || []; L = oz.map((id) => L.find((x) => x.id === id)).filter(Boolean).concat(L.filter((x) => !oz.includes(x.id))); }
+        else if (d.mod === "karisik" && d.karisik && d.tarih === T.isoDate()) L = d.karisik.map((id) => L.find((x) => x.id === id)).filter(Boolean).concat(L.filter((x) => !d.karisik.includes(x.id)));
         else if (L.length) { const n = (Math.max(1, T.cal.dayNumber()) - 1) % L.length; L = L.slice(n).concat(L.slice(0, n)); }
         return L;
       };
+      let secili = null;
+      const tasi = (id, hedef) => { const L = sirala().map((x) => x.id); const tum = (d.ozel || []).filter((x) => !L.includes(x)); const i = L.indexOf(id); if (i < 0) return; L.splice(i, 1); L.splice(Math.max(0, Math.min(L.length, hedef)), 0, id); d.ozel = L.concat(tum); api.save(); ciz(); };
       const ciz = () => {
         const L = sirala();
+        if (d.mod === "ogretmen") {
+          liste.classList.add("sr-duzen");
+          liste.replaceChildren(...(L.length ? L.map((st, i) => h("li" + (i === 0 ? ".bas" : "") + (secili === st.id ? ".secili" : ""), { onclick: () => { if (secili && secili !== st.id) { const s0 = secili; secili = null; tasi(s0, i); } else { secili = secili === st.id ? null : st.id; ciz(); } } },
+            h("span.sr-no", i + 1), T.avatar(st.name, 30), h("span", st.name),
+            h("span.sr-ok", h("button.btn.sm.icon.c-chalk", { "aria-label": st.name + " yukarı", disabled: i === 0 ? true : null, onclick: (e) => { e.stopPropagation(); tasi(st.id, i - 1); } }, "▲"),
+              h("button.btn.sm.icon.c-chalk", { "aria-label": st.name + " aşağı", disabled: i === L.length - 1 ? true : null, onclick: (e) => { e.stopPropagation(); tasi(st.id, i + 1); } }, "▼")))) : [h("p.hint", "Sınıf listesi boş.")]));
+          ipucu.textContent = secili ? "Şimdi gideceği yere dokun" : "Bir isme dokun, sonra gideceği yere dokun. Oklarla da taşıyabilirsin.";
+          return;
+        }
+        liste.classList.remove("sr-duzen"); ipucu.textContent = "";
         liste.replaceChildren(...(L.length ? L.map((st, i) => h("li" + (i === 0 ? ".bas" : i === L.length - 1 ? ".son" : ""), h("span.sr-no", i + 1), T.avatar(st.name, 30), h("span", st.name), i === 0 ? h("em", "Hat başı") : i === 1 ? h("em", "Kapıyı tutar") : i === L.length - 1 && L.length > 2 ? h("em", "Işıkları kapatır") : null)) : [h("div.hint", "Sınıf listesi boş.")]));
       };
       body.append(h("div.row", { style: { gap: "6px", flexWrap: "wrap", justifyContent: "center" } },
-        h("div.seg", [["gun", "Her gün döner"], ["karisik", "Karışık"]].map(([k, l]) => h("button", { "aria-pressed": String(d.mod === k), onclick: (e) => { d.mod = k; if (k === "karisik" && d.tarih !== T.isoDate()) { d.karisik = T.shuffle(c.students.map((x) => x.id)); d.tarih = T.isoDate(); } e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); api.save(); ciz(); } }, l))),
-        h("button.btn.sm.c-chalk", { onclick: () => { d.mod = "karisik"; d.karisik = T.shuffle(c.students.map((x) => x.id)); d.tarih = T.isoDate(); T.sound.drum && T.sound.drum(); api.save(); body.replaceChildren(); W.sira.render(body, w, api); } }, T.icon("turn"), "Yeniden karıştır")), liste);
+        h("div.seg", [["gun", "Her gün döner"], ["karisik", "Karışık"], ["ogretmen", "Ben belirlerim"]].map(([k, l]) => h("button", { "aria-pressed": String(d.mod === k), onclick: (e) => { d.mod = k; if (k === "ogretmen" && !d.ozel) d.ozel = sirala().map((x) => x.id); if (k === "karisik" && d.tarih !== T.isoDate()) { d.karisik = T.shuffle(c.students.map((x) => x.id)); d.tarih = T.isoDate(); } e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); api.save(); ciz(); } }, l))),
+        h("button.btn.sm.c-chalk", { onclick: () => { d.mod = "karisik"; d.karisik = T.shuffle(c.students.map((x) => x.id)); d.tarih = T.isoDate(); T.sound.drum && T.sound.drum(); api.save(); body.replaceChildren(); W.sira.render(body, w, api); } }, T.icon("turn"), "Yeniden karıştır")), h("div.sr-govde", ipucu, liste));
       ciz();
     },
   };

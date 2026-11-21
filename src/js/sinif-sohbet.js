@@ -63,9 +63,12 @@
   const SORU = ["Ne görüyorsun?", "Bu sana ne düşündürüyor?", "Neyi merak ediyorsun?", "Neden öyle düşünüyorsun?", "Yeni parça fikrini değiştirdi mi?"];
   W.yavasbakis = {
     title: "Yavaş bakış", icon: "eye", tone: "sky", w: 760, h: 560, desc: "Görsel parça parça açılır; gör, düşün, merak et",
-    init: () => ({ n: 3, acik: [], gorsel: null }),
+    init: () => ({ n: 3, acik: [], gorsel: null, tip: "zoom", adim: 0 }),
     render(body, w, api) {
-      const d = w.data; d.acik = d.acik || [];
+      const d = w.data; d.acik = d.acik || []; d.tip = d.tip || "parca"; d.adim = d.adim || 0;
+      const OLCEK = [8, 5, 3.2, 2.2, 1.5, 1];
+      const yeniOdak = () => { d.odak = { x: T.rand(18, 82), y: T.rand(18, 82) }; d.adim = 0; };
+      if (!d.odak) yeniOdak();
       body.style.gridTemplateRows = "auto 1fr auto"; body.style.gap = "8px";
       const soru = h("div.yb-soru"), sahne = h("div.yb-sahne"), alt = h("div.row", { style: { gap: "6px", justifyContent: "center" } });
       body.append(soru, sahne, alt);
@@ -73,17 +76,40 @@
         const f = e.target.files[0]; if (!f) return;
         const b = T.gorselKucult ? await T.gorselKucult(f, 1600) : f; const k = "yb-" + w.id;
         if (!(await T.gorselDepo.put(k, b))) return T.toast("Görsel kaydedilemedi");
-        d.gorsel = k; d.acik = []; api.save(); ciz();
+        d.gorsel = k; d.acik = []; yeniOdak(); api.save(); ciz();
       } });
+      const ZSORU = ["Bu ne olabilir? Sadece gördüğünü söyle.", "Biraz daha görünüyor. Tahminin değişti mi?", "Yeni ne fark ettin?", "Bu parça neyin parçası olabilir?", "Neredeyse tamam. Hangi ipucu seni yönlendirdi?", "Bütün resim önünde. İlk tahminin neydi?"];
+      async function zoomCiz() {
+        const son = d.adim >= OLCEK.length - 1;
+        soru.textContent = ZSORU[Math.min(d.adim, ZSORU.length - 1)];
+        alt.replaceChildren(
+          h("label.btn.sm.c-chalk", { style: { cursor: "pointer" } }, T.icon("frame"), "Başka görsel", dosya),
+          tipSec(),
+          h("button.btn.sm.c-chalk", { disabled: d.adim <= 0 ? true : null, "aria-label": "Yakınlaş", onclick: () => { d.adim = Math.max(0, d.adim - 1); api.save(); uygula(); } }, T.icon("plus")),
+          h("button.btn.sm.c-sky", { disabled: son ? true : null, onclick: () => { d.adim = Math.min(OLCEK.length - 1, d.adim + 1); api.save(); uygula(); } }, T.icon("minus"), "Uzaklaş"),
+          h("button.btn.sm.c-chalk", { onclick: () => { yeniOdak(); api.save(); uygula(); } }, T.icon("dice"), "Başka ayrıntı"));
+        const b = await T.gorselDepo.get(d.gorsel); if (!b) { d.gorsel = null; api.save(); return ciz(); }
+        if (sahne._url) URL.revokeObjectURL(sahne._url); sahne._url = URL.createObjectURL(b);
+        const img = h("img", { src: sahne._url, alt: "Yavaş bakış görseli", draggable: false });
+        const cer = h("div.yb-cerceve.yb-zoom", img, h("div.yb-ipucu", "Tam resimde bir yere dokunursan oraya yakınlaşır"));
+        img.onload = () => cer.style.setProperty("--r", (img.naturalWidth / img.naturalHeight).toFixed(4));
+        cer.addEventListener("click", (e) => { if (d.adim < OLCEK.length - 1) return; const r = cer.getBoundingClientRect(); d.odak = { x: Math.round((e.clientX - r.left) / r.width * 100), y: Math.round((e.clientY - r.top) / r.height * 100) }; d.adim = 0; api.save(); uygula(); });
+        function uygula() { img.style.transformOrigin = d.odak.x + "% " + d.odak.y + "%"; img.style.transform = "scale(" + OLCEK[d.adim] + ")"; cer.classList.toggle("tam", d.adim >= OLCEK.length - 1); soru.textContent = ZSORU[Math.min(d.adim, ZSORU.length - 1)];
+          const [yk, uz] = alt.querySelectorAll("button[aria-label=Yakınlaş], .c-sky"); if (yk) yk.disabled = d.adim <= 0; if (uz) uz.disabled = d.adim >= OLCEK.length - 1; }
+        sahne.replaceChildren(cer); uygula();
+      }
+      const tipSec = () => h("div.seg", [["zoom", "Yakından"], ["parca", "Parça parça"]].map(([k, l]) => h("button", { "aria-pressed": String(d.tip === k), onclick: () => { d.tip = k; api.save(); ciz(); } }, l)));
       async function ciz() {
+        if (d.gorsel && d.tip === "zoom") return zoomCiz();
         const toplam = d.n * d.n, acik = d.acik.length;
         soru.textContent = !d.gorsel ? "Bir görsel seç: sanat eseri, doğa fotoğrafı, eski bir belge" : acik === 0 ? "Hazır mıyız? İlk parçayı açalım." : acik >= toplam ? "Bütün resim önünde. İlk tahminin neydi?" : SORU[(acik - 1) % SORU.length];
         alt.replaceChildren(
           h("label.btn.sm.c-chalk", { style: { cursor: "pointer" } }, T.icon("frame"), d.gorsel ? "Başka görsel" : "Görsel seç", dosya),
+          d.gorsel ? tipSec() : null,
           d.gorsel ? h("div.seg", [3, 4, 5].map((n) => h("button", { "aria-pressed": String(d.n === n), onclick: () => { d.n = n; d.acik = []; api.save(); ciz(); } }, n + "×" + n))) : null,
           d.gorsel ? h("button.btn.sm.c-sky", { disabled: acik >= toplam ? true : null, onclick: () => { const kapali = [...Array(toplam).keys()].filter((i) => !d.acik.includes(i)); if (!kapali.length) return; d.acik.push(kapali[T.rand(0, kapali.length - 1)]); api.save(); ciz(); } }, T.icon("dice"), "Rastgele aç") : null,
           d.gorsel ? h("button.btn.sm.c-chalk", { onclick: () => { d.acik = acik >= toplam ? [] : [...Array(toplam).keys()]; api.save(); ciz(); } }, acik >= toplam ? "Yeniden kapat" : "Hepsini aç") : null);
-        if (!d.gorsel) { sahne.replaceChildren(h("div.yb-bos", T.icon3d("buyutec"), h("p", "Öğrenciler önce küçük bir ayrıntıya bakar, gördüklerini ve tahminlerini paylaşır. Sen parçaları tek tek açarsın."))); return; }
+        if (!d.gorsel) { sahne.replaceChildren(h("div.yb-bos", T.icon3d("buyutec"), h("p", "Görsel çok yakından açılır. Öğrenciler küçük bir ayrıntıya bakıp tahmin eder, sen adım adım uzaklaşırsın. İstersen parça parça açma biçimine de geçebilirsin."))); return; }
         const b = await T.gorselDepo.get(d.gorsel); if (!b) { d.gorsel = null; api.save(); return ciz(); }
         if (sahne._url) URL.revokeObjectURL(sahne._url); sahne._url = URL.createObjectURL(b);
         const img = h("img", { src: sahne._url, alt: "Yavaş bakış görseli" });
@@ -95,54 +121,6 @@
       }
       ciz();
       api.onDestroy && api.onDestroy(() => { if (sahne._url) URL.revokeObjectURL(sahne._url); });
-    },
-  };
-
-  /* ---------- Doğa zamanlayıcısı: rakam yok; süre ilerledikçe güneş batar, çiçek açar ya da tekne dereyi geçer ---------- */
-  const SAHNE = [["gunes", "Gün batımı"], ["cicek", "Çiçek açıyor"], ["tekne", "Kâğıt tekne"]];
-  const karis = (a, b, t) => { const p = (x) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16)); const A = p(a), B = p(b); return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")"; };
-  W.dogazaman = {
-    title: "Doğa zamanlayıcısı", icon: "sun", tone: "leaf", w: 560, h: 470, desc: "Rakamsız sakin zamanlayıcı",
-    init: () => ({ sahne: "gunes", total: 300, left: 300, running: false, endAt: 0 }),
-    render(body, w, api) {
-      const d = w.data;
-      body.style.gridTemplateRows = "1fr auto auto"; body.style.gap = "8px";
-      const svg = el("svg", { viewBox: "0 0 400 260", class: "dz-svg", preserveAspectRatio: "xMidYMid slice" });
-      const oyna = h("button.btn.sm.c-leaf", { onclick: () => { T.sound.unlock(); if (d.running) { d.left = Math.max(0, (d.endAt - Date.now()) / 1000); d.running = false; } else { if (d.left <= 0) d.left = d.total; d.endAt = Date.now() + d.left * 1000; d.running = true; } api.save(); boya(); } });
-      body.append(h("div.dz-kap", svg),
-        h("div.row", { style: { justifyContent: "center", gap: "6px" } }, h("div.seg", SAHNE.map(([k, l]) => h("button", { "aria-pressed": String(d.sahne === k), onclick: () => { d.sahne = k; api.save(); api.rerender(); } }, l)))),
-        h("div.row", { style: { justifyContent: "center", gap: "6px" } }, [1, 3, 5, 10, 15].map((m) => h("button.btn.sm.c-chalk", { "aria-pressed": String(d.total === m * 60), onclick: () => { d.total = d.left = m * 60; d.running = false; api.save(); api.rerender(); } }, m + " dk")), oyna));
-      /* sahneyi bir kez kur, sonra yalnızca değerleri güncelle */
-      const g = {};
-      if (d.sahne === "gunes") {
-        svg.append(g.gok = el("rect", { width: 400, height: 260 }), g.gunes = el("circle", { cx: 200, r: 34, fill: "#FFD45A" }),
-          el("path", { d: "M0 190 Q80 150 160 180 T320 170 T400 180 V260 H0Z", fill: "#3d5a4a" }), el("path", { d: "M0 215 Q100 190 200 210 T400 205 V260 H0Z", fill: "#2c4337" }), g.gece = el("rect", { width: 400, height: 260, fill: "#0e1a33", opacity: 0 }));
-      } else if (d.sahne === "cicek") {
-        svg.append(el("rect", { width: 400, height: 260, fill: "#dff1fb" }), el("rect", { y: 215, width: 400, height: 45, fill: "#8fc977" }),
-          g.sap = el("line", { x1: 200, y1: 216, x2: 200, y2: 216, stroke: "#4c9a4a", "stroke-width": 7, "stroke-linecap": "round" }),
-          g.yap1 = el("ellipse", { rx: 0, ry: 0, fill: "#5fb35a" }), g.yap2 = el("ellipse", { rx: 0, ry: 0, fill: "#5fb35a" }), g.tac = el("g"));
-        for (let i = 0; i < 8; i++) g.tac.append(el("ellipse", { cx: 0, cy: -22, rx: 11, ry: 22, fill: i % 2 ? "#F29BB8" : "#EE7FA6", transform: "rotate(" + i * 45 + ")" }));
-        g.tac.append(el("circle", { r: 13, fill: "#F4CF4B" }));
-      } else {
-        svg.append(el("rect", { width: 400, height: 260, fill: "#cfe8d0" }), el("path", { d: "M-10 150 C80 110 140 200 220 160 S350 120 410 150 L410 210 C330 180 260 240 190 210 S60 170 -10 205Z", fill: "#7cc2e6" }),
-          el("path", { d: "M-10 170 C80 130 140 215 220 180 S350 140 410 172", fill: "none", stroke: "#a8daf2", "stroke-width": 3, "stroke-dasharray": "14 12" }),
-          el("rect", { x: 352, y: 118, width: 40, height: 70, rx: 6, fill: "#c98b54" }), el("path", { d: "M346 120 L372 96 L398 120Z", fill: "#b8473a" }),
-          g.tekne = el("path", { d: "M-18 -6 L18 -6 L10 6 L-10 6Z M0 -6 L0 -26 L14 -8Z", fill: "#fff", stroke: "#8a96ae", "stroke-width": 1.5 }));
-      }
-      const yol = (t) => { const x = -10 + t * 370; const y = 175 - 22 * Math.sin((x + 30) / 60) ; return [x, y]; };
-      let caldi = false;
-      function boya() {
-        const left = d.running ? Math.max(0, (d.endAt - Date.now()) / 1000) : d.left, t = 1 - left / d.total;
-        if (d.running && left <= 0) { d.running = false; d.left = 0; api.save(); if (!caldi) { caldi = true; T.sound.bell(); } } if (left > 0) caldi = false;
-        if (d.sahne === "gunes") { g.gok.setAttribute("fill", t < 0.6 ? karis("#8ec9ee", "#f6b26b", t / 0.6) : karis("#f6b26b", "#c4506a", (t - 0.6) / 0.4)); g.gunes.setAttribute("cy", 50 + t * 165); g.gunes.setAttribute("fill", karis("#FFE27A", "#F2673A", t)); g.gece.setAttribute("opacity", Math.max(0, (t - 0.85) * 2.4)); }
-        else if (d.sahne === "cicek") { const boy = 20 + t * 130, ty = 216 - boy; g.sap.setAttribute("y2", ty); const ya = Math.min(1, t * 2.2);
-          g.yap1.setAttribute("cx", 182); g.yap1.setAttribute("cy", 216 - boy * 0.4); g.yap1.setAttribute("rx", 18 * ya); g.yap1.setAttribute("ry", 8 * ya);
-          g.yap2.setAttribute("cx", 218); g.yap2.setAttribute("cy", 216 - boy * 0.6); g.yap2.setAttribute("rx", 18 * ya); g.yap2.setAttribute("ry", 8 * ya);
-          const ac = Math.max(0.15, Math.min(1, (t - 0.35) / 0.65)); g.tac.setAttribute("transform", "translate(200 " + ty + ") scale(" + ac + ")"); }
-        else { const [x, y] = yol(Math.min(1, t)); g.tekne.setAttribute("transform", "translate(" + x + " " + y + ") rotate(" + (Math.cos((x + 30) / 60) * -12) + ")"); }
-        oyna.replaceChildren(T.icon(d.running ? "pause" : "play"), d.running ? "Durdur" : left <= 0 ? "Yeniden" : "Başlat");
-      }
-      const iv = setInterval(boya, 300); api.onDestroy(() => clearInterval(iv)); boya();
     },
   };
 

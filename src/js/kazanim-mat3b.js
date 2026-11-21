@@ -414,10 +414,24 @@
   /* MAT.3.4.1: Sınıf anketi ve grafik */
   oyun("MAT.3.4.1.", { ad: "Sınıf anketi", ikon: "grafik", renk: "#2F7FE0", renk2: "#DCEBFF", tur: 3, giris: "Sınıfa soralım, verileri toplayıp grafik yapalım!",
     yeni(a) {
-      const SORU = [["En sevdiğimiz meyve hangisi?", [["🍎", "Elma"], ["🍌", "Muz"], ["🍓", "Çilek"], ["🍊", "Portakal"]]], ["Okula nasıl geliyoruz?", [["🚶", "Yürüyerek"], ["🚌", "Servisle"], ["🚗", "Arabayla"], ["🚲", "Bisikletle"]]], ["En sevdiğimiz mevsim?", [["🌸", "İlkbahar"], ["☀️", "Yaz"], ["🍂", "Sonbahar"], ["❄️", "Kış"]]]][rnd(0, 2)];
+      /* Varsayılan konu yok: soruyu ve seçenekleri öğretmen yazar */
+      if (!a.anket) {
+        const soruI = h("input.in.an-soru", { placeholder: "Sorumuz ne? Örnek: Okula nasıl geliyoruz?", "aria-label": "Anket sorusu" });
+        const secI = [0, 1, 2, 3].map((i) => h("input.in.an-sec", { placeholder: i < 2 ? "Seçenek " + (i + 1) : "Seçenek " + (i + 1) + " (isteğe bağlı)", "aria-label": "Seçenek " + (i + 1) }));
+        a.soru("Önce anket sorusunu ve seçenekleri yazın.");
+        a.sahne.append(h("div.an-kur", soruI, h("div.an-secler", secI)));
+        a.alt.replaceChildren(h("button.btn.big.c-sun", { onclick: () => {
+          const secler = secI.map((x) => x.value.trim()).filter(Boolean);
+          if (!soruI.value.trim() || secler.length < 2) return a.konus("Bir soru ve en az iki seçenek yazın.", "uyari");
+          a.anket = [soruI.value.trim(), secler.map((x) => ["", x])]; a.sahne.replaceChildren(); this.yeni(a);
+        } }, T.icon("check"), "Ankete başla"));
+        return;
+      }
+      const SORU = a.anket;
       const say = SORU[1].map(() => 0);
       a.soru(SORU[0] + " Her öğrenci seçimine bir kez dokunsun.");
-      const sutun = SORU[1].map(([em, ad], i) => { const bar = h("i.dn-bar"), n = h("b", "0"); const b = h("button.dn-sutun", { onclick: () => { say[i]++; n.textContent = say[i]; bar.style.height = Math.min(100, say[i] * 7) + "%"; T.sound && T.sound.pop && T.sound.pop(); } }, h("div.dn-bar-kap", bar), n, h("span", em), h("small", ad)); return b; });
+      const RENKLER = ["#E0574B", "#2E6FB0", "#3FA35B", "#E9A23B"];
+      const sutun = SORU[1].map(([, ad], i) => { const bar = h("i.dn-bar", { style: { background: RENKLER[i % 4] } }), n = h("b", "0"); const b = h("button.dn-sutun", { onclick: () => { say[i]++; n.textContent = say[i]; bar.style.height = Math.min(100, say[i] * 7) + "%"; T.sound && T.sound.pop && T.sound.pop(); } }, h("div.dn-bar-kap", bar), n, h("small", ad)); return b; });
       a.sahne.append(h("div.dn-grafik", sutun));
       a.alt.replaceChildren(h("button.btn.big.c-sun", { onclick: () => {
         const top = say.reduce((x, y) => x + y, 0); if (top < 3) return a.konus("Önce birkaç öğrenci oy versin!", "uyari");

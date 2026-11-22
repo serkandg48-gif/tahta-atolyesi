@@ -3436,3 +3436,12 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .by-cocuk:hover { background: rgba(255,255,255,.35); } .by-sahne.sec .by-cocuk { outline: 2px dashed #1F7AE0; }
 .by-bilgi { font-weight: 700; }
 .guven { margin: 8px 0; padding-left: 20px; display: grid; gap: 4px; }
+/* Telefonda tahta: araçlar üst üste tam genişlikte, araç çubuğu kaydırılabilir şerit */
+@media (max-width: 760px) {
+  .board:not(.home-board) { overflow-y: auto !important; display: flex; flex-direction: column; gap: 12px; padding: 12px 10px 190px !important; }
+  .board:not(.home-board) > .wd { position: relative !important; left: auto !important; top: auto !important; right: auto !important; width: 100% !important; height: min(64vh, 560px) !important; transform: none !important; flex: none; }
+  .board-tools { position: fixed !important; z-index: 40; left: 8px !important; right: 8px !important; width: auto !important; transform: none !important; overflow-x: auto; flex-wrap: nowrap !important; justify-content: flex-start !important; padding: 6px !important; gap: 6px !important; scrollbar-width: none; }
+  .board-tools::-webkit-scrollbar { display: none; }
+  .board-tools .btn { flex: none; }
+}
+@media (max-width: 760px) { html .board-tools, html.alt-menu .board-tools { top: auto !important; margin: 0 !important; bottom: 10px !important; } }

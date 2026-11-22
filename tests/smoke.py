@@ -23,6 +23,16 @@ with sync_playwright() as p:
         try: pg.evaluate("k => { (T.board.aktif() ? T.board : T.yuzen).add(k) }", k); pg.wait_for_timeout(250)
         except Exception as e: hatalar.append((k, str(e)[:160]))
     pg.evaluate("T.$$('.wd, .yz-w').forEach(x => x.remove())")
+    # Telefon: her sayfada yana taşma var mı?
+    tl = b.new_page(viewport={"width": 390, "height": 844}, service_workers="block", is_mobile=True, has_touch=True)
+    tl.on("pageerror", lambda e: hatalar.append(("tel:" + simdi["r"], str(e)[:160])))
+    tl.goto(URL); tl.evaluate("localStorage.setItem('ta-hosgeldin','1')"); tl.goto(URL); tl.wait_for_timeout(1500)
+    tasan = []
+    for r in rotalar:
+        simdi["r"] = r; tl.evaluate("h => { location.hash = h }", r); tl.wait_for_timeout(300)
+        w = tl.evaluate("() => { const v = document.querySelector('#view'); return Math.max(document.documentElement.scrollWidth, v ? v.scrollWidth : 0) - window.innerWidth; }")
+        if w > 2: tasan.append((r, w))
+    for r, w in tasan: print("TAŞMA", r, "->", w, "px")
     for r, h in hatalar: print("HATA", r, "->", h)
-    print("bitti,", len(hatalar), "hata")
-    sys.exit(1 if hatalar else 0)
+    print("bitti,", len(hatalar), "hata,", len(tasan), "taşma")
+    sys.exit(1 if hatalar or tasan else 0)

@@ -3387,3 +3387,19 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .fk-kartlar { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 10px; }
 .fk-kart { background: #fff; border-radius: 16px; padding: 16px; font: 700 1.2rem var(--display); border-top: 6px solid var(--c); min-height: 90px; transition: transform .15s; } .fk-kart.gel { transform: scale(1.05); box-shadow: 0 0 0 4px var(--c), 0 12px 24px rgba(27,42,74,.2); }
 .fk-istler .row, .fk-esit .row { flex-wrap: nowrap; } .fk-istler .row .in, .fk-esit .row .in { flex: 1; min-width: 0; }
+@media (max-width: 760px) { .dock .dock-item.mobil-gizle { display: none !important; } }
+/* Telefonda araç sahnesi ekrandan taşmasın */
+@media (max-width: 760px) {
+  .arac-govde { grid-template-columns: minmax(0, 1fr) !important; min-width: 0; }
+  .stage-wrap { min-width: 0; max-width: 100%; }
+  .stage-wrap > * { max-width: 100%; min-width: 0; box-sizing: border-box; }
+  .np-pano, .sn-kutular, .dy-sakin { min-width: 0 !important; }
+  .nk-mat { width: 100% !important; }
+}
+@media (max-width: 760px) {
+  .np-pano { grid-template-columns: minmax(0, 1fr) !important; }
+  .sn-kutular { grid-template-columns: minmax(0, 1fr) !important; }
+  .stage-wrap div[style*="repeat(4, 1fr)"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .dy-sakin .row { flex-wrap: wrap; } .dy-sakin > * { min-width: 0; max-width: 100%; } .dy-calm { min-width: 0; }
+}
+@media (max-width: 760px) { .dy-nefes-sahne { flex-direction: column; } .dy-calm > * { max-width: 100%; min-width: 0; } .dy-calm { padding: 14px; } }

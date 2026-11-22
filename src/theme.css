@@ -3445,3 +3445,8 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
   .board-tools .btn { flex: none; }
 }
 @media (max-width: 760px) { html .board-tools, html.alt-menu .board-tools { top: auto !important; margin: 0 !important; bottom: 10px !important; } }
+
+.ka-alan { min-height: 0; display: grid; place-items: center; overflow: hidden; } .ka-kap { position: relative; background: radial-gradient(circle, #F7F2FF, #FFFFFF 70%); border-radius: 50%; }
+.ka-ogr { position: absolute; transform: translate(-50%, -50%); border: 0; background: none; display: grid; justify-items: center; cursor: pointer; padding: 0; font: 700 .8rem var(--body, inherit); color: #1B2A4A; transition: opacity .3s; }
+.ka-ogr span { background: rgba(255,255,255,.9); border-radius: 999px; padding: 0 6px; margin-top: -4px; } .ka-ogr i { position: absolute; top: -4px; right: -6px; background: #7B4FD6; color: #fff; font-style: normal; font-size: 11px; min-width: 20px; height: 20px; border-radius: 10px; display: grid; place-items: center; }
+.ka-ogr.son .av { box-shadow: 0 0 0 4px #F4B400; border-radius: 50%; } .ka-ogr.sessiz { opacity: .45; } .ka-bilgi { font-weight: 700; }

@@ -235,4 +235,35 @@
       ciz();
     },
   };
+
+  /* ---------- 8. Konuşma ağı: kim kimden sonra konuştu, örümcek ağı gibi ---------- */
+  W.konusma = {
+    title: "Konuşma ağı", icon: "talk", tone: "grape", w: 760, h: 640, desc: "Tartışmada kim konuştu, söz nasıl dolaştı",
+    init: () => ({ sira: [] }),
+    render(body, w, api) {
+      const d = w.data, S = T.svg, kap = h("div.ka-kap"), alan = h("div.ka-alan", kap), bilgi = h("div.ka-bilgi");
+      body.style.gridTemplateRows = "minmax(0, 1fr) auto"; body.style.gap = "8px";
+      /* ağ her zaman tam yuvarlak kalsın: alanın kısa kenarına göre kare */
+      new ResizeObserver(() => { const r = alan.getBoundingClientRect(), k = Math.max(200, Math.min(r.width, r.height)); kap.style.width = kap.style.height = k + "px"; }).observe(alan);
+      body.append(alan, h("div.row", { style: { gap: "6px", flexWrap: "wrap" } }, bilgi, h("div.spacer"),
+        h("button.btn.sm.c-chalk", { onclick: () => { d.sira.pop(); api.save(); ciz(); } }, T.icon("undo"), "Geri al"),
+        h("button.btn.sm.c-chalk", { onclick: () => { d.sira = []; api.save(); ciz(); } }, T.icon("reset"), "Temizle")));
+      function ciz() {
+        const L = gelenler(api.cls()), n = L.length, say = {}; d.sira.forEach((id) => (say[id] = (say[id] || 0) + 1));
+        const R = 300, C = 360, poz = {}; L.forEach((st, i) => { const a = (i / n) * Math.PI * 2 - Math.PI / 2; poz[st.id] = [C + R * Math.cos(a), C + R * Math.sin(a)]; });
+        const svg = S("svg", { viewBox: "0 0 720 720", style: "width:100%;height:100%" });
+        /* ağın iplikleri: eskiler soluk, yeniler koyu */
+        d.sira.forEach((id, i) => { if (!i) return; const a = poz[d.sira[i - 1]], b = poz[id]; if (!a || !b) return; const yeni = i / d.sira.length;
+          const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, cx = mx + (C - mx) * 0.35, cy = my + (C - my) * 0.35;
+          svg.append(S("path", { d: `M${a[0]} ${a[1]} Q${cx} ${cy} ${b[0]} ${b[1]}`, fill: "none", stroke: `hsl(${265 - yeni * 60} 70% ${62 - yeni * 22}%)`, "stroke-width": 2 + yeni * 3, "stroke-linecap": "round", opacity: 0.35 + yeni * 0.6 })); });
+        kap.replaceChildren(svg);
+        L.forEach((st) => { const [x, y] = poz[st.id], k = say[st.id] || 0, son = d.sira[d.sira.length - 1] === st.id;
+          const b = h("button.ka-ogr" + (son ? ".son" : "") + (!k && d.sira.length > 3 ? ".sessiz" : ""), { style: { left: (x / 720) * 100 + "%", top: (y / 720) * 100 + "%" }, onclick: () => { d.sira.push(st.id); api.save(); T.sound.pop(); ciz(); } }, T.avatar(st.name, 46), h("span", st.name), k ? h("i", String(k)) : null);
+          kap.append(b); });
+        const konusan = Object.keys(say).length;
+        bilgi.textContent = d.sira.length ? `${d.sira.length} söz, ${konusan} / ${n} öğrenci konuştu.` + (d.sira.length > 3 && konusan < n ? " Soluk görünenler henüz konuşmadı." : "") : "Konuşan öğrencinin adına dokun. Söz dolaştıkça ağ örülür.";
+      }
+      ciz();
+    },
+  };
 })();

@@ -22,7 +22,7 @@
       view.append(wrap);
       const tabs = [["yoklama", "Yoklama", "check"], ["puan", "Davranış puanı", "star"], ["oturma", "Oturma planı", "groups"], ["gorev", "Görevler", "trophy"], ["gecmis", "Devam özeti", "calendar"], ["nabiz", "Bu hafta", "chart"], ["dogum", "Doğum günleri", "star"], ["getirdi", "Kim getirdi?", "check"], ["liste", "Sınıf listesi", "edit"]];
       wrap.append(
-        h("div.page-head", h("h1", c.name + " sınıfı"), h("div.sub", c.students.length + " öğrenci. Kayıtlar bu cihazda tutulur; Google ile giriş açılınca bütün cihazlarında görünecek."), h("div.grow"), classPicker()),
+        h("div.page-head", h("h1", c.name + " sınıfı"), h("div.sub", c.students.length + " öğrenci. " + (T.auth && T.auth.user() && T.auth.depo && T.auth.depo() ? "Kayıtlar bu cihazda ve Google hesabının bulut kasasında kilitli tutulur." : "Kayıtlar bu cihazda tutulur. Google ile giriş yaparsan bütün cihazlarında görünür.")), h("div.grow"), classPicker()),
         h("div.tabs", { role: "tablist" }, tabs.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(tab === k), onclick: () => { tab = k; T.route(); } }, T.icon(ic), l))));
       const area = h("div"); wrap.append(area);
       ({ yoklama, puan, oturma, gorev, gecmis, nabiz, dogum, liste, getirdi: T.kimGetirdi })[tab](area, s, c);
@@ -92,7 +92,8 @@
         h("button.btn.c-chalk", { onclick: () => T.copyText(summary, "Yoklama özeti kopyalandı. e-Okul'a girerken kullanabilirsin.") }, T.icon("copy"), "Özeti kopyala")),
       !school ? h("p.hint", { style: { marginTop: "-6px" } }, "Bu tarih takvimde okul günü görünmüyor: " + (T.cal.closedReason(d) || "hafta sonu") + ".") : null,
       h("p.hint", "Kartlara dokundukça durum değişir: Geldi, Gelmedi, Geç kaldı, İzinli. Gelmeyenler isim çekme ve grup kurma araçlarına dahil edilmez."),
-      grid);
+      grid,
+      dateSel === T.isoDate() && c.students.some((st) => day[st.id] === "yok") ? h("div.gm-serit", h("b", "Gelmeyenlere bugünün özeti:"), c.students.filter((st) => day[st.id] === "yok").map((st) => h("button.btn.sm.c-sky", { onclick: () => T.gelmeyenMesaj(c, st) }, T.icon("copy"), st.name))) : null);
   }
 
   /* ---------- Davranış puanı ---------- */
@@ -182,7 +183,7 @@
     list.append(h("label.paper", { style: { padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" } }, h("input", { type: "checkbox", checked: oto ? true : null, onchange: (e) => { T.store.update((st) => { st.nobetOto = st.nobetOto || {}; st.nobetOto[c.id] = e.target.checked; }); T.route(); } }), h("div", h("b", "Nöbetçi her okul günü kendiliğinden değişsin"), h("div.hint", oto ? "Sıra listesine göre her gün bir sonraki öğrenci; o gün gelmeyen atlanır. Bugün: " + ((T.nobetci(c) || {}).name || "-") : "Kapalıyken nöbetçiyi aşağıdan sen seçersin."))));
     Object.entries(dt).forEach(([g, sid]) => {
       const otoN = g === "Nöbetçi" && oto;
-      const sel = otoN ? h("div.hint", "Kendiliğinden değişiyor") : h("select.in", { "aria-label": g, onchange: (e) => { T.store.update(() => (dt[g] = e.target.value)); T.route(); } }, c.students.map((st) => h("option", { value: st.id, selected: st.id === sid }, st.name)));
+      const sel = otoN ? h("div.hint", "Kendiliğinden değişiyor") : h("select.in", { "aria-label": g, onchange: (e) => { T.store.update(() => (dt[g] = e.target.value)); T.adalet.ekle("gorev", e.target.value, c.id); T.route(); } }, c.students.map((st) => h("option", { value: st.id, selected: st.id === sid }, st.name)));
       const st = otoN ? T.nobetci(c) : c.students.find((x) => x.id === sid);
       list.append(h("div.paper", { style: { padding: "12px 16px", display: "flex", alignItems: "center", gap: "14px" } },
         st ? T.avatar(st.name, 52) : null, h("div", { style: { flex: 1 } }, h("div", { style: { fontWeight: 800, fontSize: "18px" } }, g), sel),
@@ -192,12 +193,12 @@
     area.append(
       h("div.row", { style: { marginBottom: "16px" } },
         h("button.btn.c-sun", { onclick: () => {
-          const ids = c.students.map((x) => x.id);
-          T.store.update(() => Object.keys(dt).forEach((g) => { dt[g] = ids[(ids.indexOf(dt[g]) + Object.keys(dt).length) % ids.length]; }));
-          T.toast("Görevler bir sonraki öğrencilere geçti"); T.route();
+          T.store.update(() => T.adalet.devret(c, dt));
+          T.toast("Görevler bu dönem en az görev alanlara geçti"); T.route();
         } }, T.icon("rotate"), "Haftalık devret"),
         inp, h("button.btn.c-chalk", { onclick: () => { const v = inp.value.trim(); if (!v) return; T.store.update(() => (dt[v] = c.students[0].id)); T.route(); } }, T.icon("plus"), "Ekle"),
         h("button.btn.c-chalk", { onclick: () => T.gorevliPenceresi(c) }, T.icon("edit"), "Görev adlarını düzenle"),
+        h("button.btn.c-chalk", { onclick: () => T.adaletPenceresi() }, T.icon("chart"), "Bu dönem kim kaç kez"),
         h("button.btn.c-chalk", { onclick: () => T.board.add("duties") }, T.icon("board"), "Tahtaya koy")),
       list);
   }

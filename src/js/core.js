@@ -174,7 +174,7 @@ T.gorevliPenceresi = function (c = T.store.activeClass(), sonra) {
         if (dt[yeni] !== undefined) { T.toast("Bu adla bir görev zaten var"); e.target.value = g; return; }
         yaz((d) => { const o = {}; Object.entries(d).forEach(([k, v]) => (o[k === g ? yeni : k] = v)); Object.keys(d).forEach((k) => delete d[k]); Object.assign(d, o); }); ciz();
       } });
-      const sec = otoN ? h("div.hint", "Bugün " + (st ? st.name : "-") + ". Her okul günü kendiliğinden değişir.") : h("select.in", { "aria-label": g + " için öğrenci", onchange: (e) => { yaz((d) => (d[g] = e.target.value)); ciz(); } }, c.students.map((x) => h("option", { value: x.id, selected: x.id === sid ? true : null }, x.name)));
+      const sec = otoN ? h("div.hint", "Bugün " + (st ? st.name : "-") + ". Her okul günü kendiliğinden değişir.") : h("select.in", { "aria-label": g + " için öğrenci", onchange: (e) => { yaz((d) => (d[g] = e.target.value)); T.adalet.ekle("gorev", e.target.value, c.id); ciz(); } }, c.students.map((x) => h("option", { value: x.id, selected: x.id === sid ? true : null }, x.name)));
       return h("div.gv-satir", st ? T.avatar(st.name, 48) : h("span.gv-bos"), h("div.gv-orta", ad, sec),
         h("button.btn.sm.icon.c-tomato", { "aria-label": g + " görevini sil", title: "Sil", onclick: () => { yaz((d) => delete d[g]); ciz(); } }, T.icon("trash")));
     });
@@ -184,7 +184,7 @@ T.gorevliPenceresi = function (c = T.store.activeClass(), sonra) {
       satirlar.length ? h("div.gv-liste", satirlar) : h("p.hint", "Henüz görev yok. Aşağıya ilk görevi yaz."),
       h("div.gv-ekle", yeni, h("button.btn.c-leaf", { onclick: ekle }, T.icon("plus"), "Ekle")),
       h("div.row", { style: { gap: "8px", flexWrap: "wrap" } },
-        h("button.btn.c-sun", { onclick: () => { const ids = c.students.map((x) => x.id); yaz((d) => { const n = Object.keys(d).length; Object.keys(d).forEach((g) => (d[g] = ids[(ids.indexOf(d[g]) + n) % ids.length])); }); T.toast("Görevler sıradaki öğrencilere geçti"); ciz(); } }, T.icon("rotate"), "Görevleri devret"),
+        h("button.btn.c-sun", { onclick: () => { yaz((d) => T.adalet.devret(c, d)); T.toast("Görevler bu dönem en az görev alanlara geçti"); ciz(); } }, T.icon("rotate"), "Görevleri devret"),
         h("label.row", { style: { gap: "8px", cursor: "pointer" } }, h("input", { type: "checkbox", checked: T.nobetciOto(c) ? true : null, onchange: (e) => { T.store.update((st) => { st.nobetOto = st.nobetOto || {}; st.nobetOto[c.id] = e.target.checked; }); ciz(); } }), h("span.hint", "Nöbetçi her gün değişsin"))));
   };
   ciz();

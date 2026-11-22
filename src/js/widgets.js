@@ -104,7 +104,8 @@
         T.sound.unlock();
         const p = pool(); if (!p.length) { T.toast("Sınıf listesi boş"); return; }
         if (d.fair && p.every((s) => d.used.includes(s.id))) d.used = [];
-        const winner = T.pick(p.filter((s) => !d.fair || !d.used.includes(s.id)).length ? p.filter((s) => !d.fair || !d.used.includes(s.id)) : p);
+        const aday = p.filter((s) => !d.fair || !d.used.includes(s.id)).length ? p.filter((s) => !d.fair || !d.used.includes(s.id)) : p;
+        const winner = aday[T.kuralIsimSec ? T.kuralIsimSec(aday) : T.rand(0, aday.length - 1)];
         let i = 0; const n = 14;
         const step = () => {
           if (i < n) { show(T.pick(p)); T.sound.tick(); i++; setTimeout(step, 40 + i * 12); }

@@ -88,6 +88,7 @@
         h("label.tarih-sec", T.icon("calendar"), dateSel.split("-").reverse().join("."), h("input", { type: "date", value: dateSel, "aria-label": "Tarih", onchange: (e) => { dateSel = e.target.value || T.isoDate(); T.route(); }, onclick: (e) => { try { e.target.showPicker(); } catch (x) {} } })),
         h("div.legend", ORDER.map((k) => h("span.pill." + DUR[k].pill, DUR[k].label + ": " + counts[k]))),
         h("div.spacer"),
+        h("button.btn.c-sun", { onclick: () => T.board.add("buradayim") }, T.icon("hand"), "Çocuklar kendisi alsın"),
         h("button.btn.c-leaf", { onclick: () => { T.store.update(() => c.students.forEach((st) => (day[st.id] = "var"))); T.route(); } }, T.icon("check"), "Herkes geldi"),
         h("button.btn.c-chalk", { onclick: () => T.copyText(summary, "Yoklama özeti kopyalandı. e-Okul'a girerken kullanabilirsin.") }, T.icon("copy"), "Özeti kopyala")),
       !school ? h("p.hint", { style: { marginTop: "-6px" } }, "Bu tarih takvimde okul günü görünmüyor: " + (T.cal.closedReason(d) || "hafta sonu") + ".") : null,

@@ -173,4 +173,66 @@
     T.modal({ title: st.name + " için özet mesaj", body: h("div", { style: { display: "grid", gap: "8px" } }, odevI, onizle, h("p.hint", { style: { margin: 0 } }, "Metni düzenleyebilirsiniz. Kopyalayıp veli mesajlaşma uygulamasına yapıştırın.")),
       actions: [{ label: "Kapat" }, { label: "Kopyala", tone: "c-leaf", onClick: () => T.copyText(onizle.value, "Mesaj kopyalandı") }] });
   };
+
+  /* ---------- 7. Buradayım: çocuk kendi yoklamasını alır ---------- */
+  T.avatarSec = (st, sonra) => {
+    const c = T.store.activeClass(), K = T.KARAKTER; let sec = Object.assign({}, T.karakterAyar(st.name));
+    const govde = h("div.av-kur");
+    const yaz = () => T.store.update((s) => { s.avatarlar = s.avatarlar || {}; (s.avatarlar[c.id] = s.avatarlar[c.id] || {})[st.name] = Object.assign({}, sec); });
+    const satir = (et, L, alan, ic) => h("div.av-satir", h("b", et), h("div.av-sira", L.map((x, i) => h("button.av-sec" + (sec[alan] === i ? ".on" : ""), { "aria-label": et + " " + (typeof x === "string" && !x.startsWith("#") ? x : i + 1), onclick: () => { sec[alan] = i; ciz(); } }, ic(x, i)))));
+    const renk = (x) => h("i.av-renk", { style: { background: x } });
+    const ciz = () => { yaz();
+      govde.replaceChildren(h("div.av-onizle", T.karakter(st.name, 200)), h("div.av-secenek",
+        satir("Ten", K.TEN, "t", renk), satir("Saç", K.SAC, "s", (x) => h("span", x)), satir("Saç rengi", K.SAC_RENK, "r", renk),
+        satir("Kıyafet", K.KIYAFET, "k", renk), satir("Aksesuar", K.AKS, "a", (x) => h("span", x)))); };
+    ciz();
+    T.modal({ title: st.name + ", karakterini seç", body: govde, actions: [{ label: "Tamam", tone: "c-leaf", onClick: () => sonra && sonra() }], onClose: () => sonra && sonra() });
+  };
+  W.buradayim = {
+    title: "Buradayım", icon: "check", tone: "leaf", w: 980, h: 620, desc: "Çocuklar gelince kendi karakterine dokunur",
+    init: () => ({ tarih: "", gelen: [] }),
+    render(body, w, api) {
+      const d = w.data; if (d.tarih !== T.isoDate()) { d.tarih = T.isoDate(); d.gelen = []; api.save(); }
+      const sahne = h("div.by-sahne"), sinif = h("div.by-sinif"), bahce = h("div.by-bahce"), bilgi = h("div.by-bilgi");
+      let secMod = false;
+      sahne.append(h("div.by-cati"), sinif, h("div.by-yol"), bahce);
+      body.style.gridTemplateRows = "1fr auto"; body.style.gap = "8px";
+      body.append(sahne, h("div.row", { style: { gap: "8px", flexWrap: "wrap" } }, bilgi, h("div.spacer"),
+        h("button.btn.sm.c-chalk", { onclick: () => { secMod = !secMod; ciz(); } }, T.icon("edit"), "Karakterimi seç"),
+        h("button.btn.sm.c-leaf", { onclick: bitir }, T.icon("check"), "Yoklamaya işle")));
+      const kart = (st) => h("button.by-cocuk", { "data-id": st.id, "aria-label": st.name }, T.karakter(st.name, api.cls().students.length > 20 ? 70 : 86), h("span", st.name));
+      function gel(st, el) {
+        if (secMod) return T.avatarSec(st, () => { secMod = false; ciz(); });
+        if (d.gelen.includes(st.id)) return;
+        const a = el.getBoundingClientRect(); d.gelen.push(st.id); api.save();
+        T.store.update((s) => { const at = (s.attendance[api.cls().id] = s.attendance[api.cls().id] || {}); (at[T.isoDate()] = at[T.isoDate()] || {})[st.id] = "var"; });
+        ciz(); const yeni = sinif.querySelector(`[data-id="${st.id}"]`); if (!yeni) return; const b = yeni.getBoundingClientRect();
+        const dx = a.left - b.left, dy = a.top - b.top;
+        /* zıplayarak sınıfa girer: üç sekme, son sekmede yerine oturur */
+        yeni.animate([
+          { transform: `translate(${dx}px, ${dy}px) scale(1)` },
+          { transform: `translate(${dx * 0.66}px, ${dy * 0.66 - 70}px) scale(1.1) rotate(-6deg)`, offset: 0.25 },
+          { transform: `translate(${dx * 0.4}px, ${dy * 0.4}px) scale(.95, 1.05)`, offset: 0.45 },
+          { transform: `translate(${dx * 0.18}px, ${dy * 0.18 - 50}px) scale(1.08) rotate(5deg)`, offset: 0.68 },
+          { transform: "translate(0, 0) scale(1.1, .9)", offset: 0.88 },
+          { transform: "translate(0, 0) scale(1)" }], { duration: 1100, easing: "ease-in-out" });
+        T.sound.pop(); setTimeout(() => T.sound.ok(), 1000);
+      }
+      function ciz() {
+        const cls = api.cls(), L = cls.students;
+        sinif.replaceChildren(...L.filter((s) => d.gelen.includes(s.id)).map((st) => kart(st)));
+        bahce.replaceChildren(...L.filter((s) => !d.gelen.includes(s.id)).map((st) => { const k = kart(st); k.onclick = () => gel(st, k); return k; }));
+        if (secMod) sinif.querySelectorAll(".by-cocuk").forEach((k) => { const st = L.find((x) => x.id === k.dataset.id); k.onclick = () => T.avatarSec(st, () => { secMod = false; ciz(); }); });
+        sahne.classList.toggle("sec", secMod);
+        bilgi.textContent = secMod ? "Adına dokun, karakterini seç." : "Sınıfta: " + d.gelen.length + " / " + L.length + ". Gelince kendi karakterine dokun.";
+      }
+      async function bitir() {
+        const cls = api.cls(), gelmeyen = cls.students.filter((s) => !d.gelen.includes(s.id));
+        if (!(await T.confirm("Yoklamaya işle", gelmeyen.length ? "Dokunmayan " + gelmeyen.length + " öğrenci Gelmedi olarak işaretlensin mi? Sınıfım > Yoklama'dan değiştirebilirsiniz." : "Herkes gelmiş. Yoklama kaydedilsin mi?", "İşle"))) return;
+        T.store.update((s) => { const at = (s.attendance[cls.id] = s.attendance[cls.id] || {}), g = (at[T.isoDate()] = at[T.isoDate()] || {}); cls.students.forEach((st) => (g[st.id] = d.gelen.includes(st.id) ? (g[st.id] === "gec" ? "gec" : "var") : "yok")); });
+        T.toast("Yoklama kaydedildi");
+      }
+      ciz();
+    },
+  };
 })();

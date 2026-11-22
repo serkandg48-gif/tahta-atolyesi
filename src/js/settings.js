@@ -98,11 +98,8 @@
               h("button.btn.c-chalk", { onclick: () => { T.store.update(() => (s.calendar = JSON.parse(JSON.stringify(T.cal.def)))); T.route(); } }, "MEB takvimine dön"))),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Verilerim"),
             T.esitle ? bulutKutu() : null,
-            h("p.hint", { style: { margin: 0 } }, "Öğrenci fotoğrafı tutulmaz, yapay zekâya öğrenci adı gönderilmez."),
-            h("details.kvkk", h("summary", "Öğrenci verileri ve KVKK"),
-              h("p", "Giriş yapmadıysan öğrencilerle ilgili her şey (ad, yoklama, puan, notlar, duygu kayıtları) yalnızca bu tarayıcıda durur. Google ile giriş yaptığında bu veriler kendi hesabının bulut kasasına kilitli olarak kaydedilir ki başka bir tahtada ya da tarayıcı temizlendiğinde kaybolmasın. Kasayı yalnızca sen açarsın. İstersen parolayla kilitleyip sunucunun bile açamamasını sağlayabilir, istediğin an buluttaki kaydı silebilirsin."),
-              h("p", "Yine de şu üç alışkanlık işini kolaylaştırır: yalnızca öğrencinin adını yaz, soyadı ve numara yazma. Tahtayı başka öğretmenlerle paylaşıyorsan dersten sonra Sınıf listesini temizle ya da kendi bilgisayarını kullan. Yedek dosyasını okul dışında paylaşma."),
-              h("p", "Okulunun veri sorumlusu müdürlüktür. Velilerden alınan açık rıza ve aydınlatma metinleri için okul yönetimine danış."),
+            h("details.kvkk", h("summary", "Öğrenci bilgileri güvende mi?"),
+              h("ul.guven", h("li", "Öğrenci bilgilerini satmayız, reklam göstermeyiz."), h("li", "Yapay zekâya öğrenci adı gitmez."), h("li", "Giriş yapmazsan her şey yalnızca bu cihazda kalır. Giriş yaparsan kendi hesabının kasasında kilitli durur, istediğin an silebilirsin."), h("li", "Öğrencinin adını yazmak yeter. Soyadı ve numara gerekmez.")),
               h("a", { href: "/gizlilik.html", target: "_blank", rel: "noopener" }, "Gizlilik politikası")),
             h("div.row", h("button.btn.c-sky", { onclick: () => T.download("tahta-atolyesi-yedek.json", backup(), "application/json") }, T.icon("download"), "Yedek indir"),
               h("label.btn.c-chalk", { style: { cursor: "pointer" } }, T.icon("save"), "Yedekten yükle", h("input", { type: "file", accept: ".json,application/json", style: { display: "none" }, onchange: async (e) => {

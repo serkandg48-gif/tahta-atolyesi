@@ -3435,3 +3435,4 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .by-cocuk span { background: rgba(255,255,255,.85); border-radius: 999px; padding: 1px 8px; margin-top: 2px; }
 .by-cocuk:hover { background: rgba(255,255,255,.35); } .by-sahne.sec .by-cocuk { outline: 2px dashed #1F7AE0; }
 .by-bilgi { font-weight: 700; }
+.guven { margin: 8px 0; padding-left: 20px; display: grid; gap: 4px; }

@@ -76,6 +76,8 @@ T.auth = (function () {
     available: () => Boolean(cfg),
     user: () => (cfg && sess ? sess.user : null),
     quota: () => (sess && sess.quota) || null,
+    token: () => (sess && sess.token) || "",
+    depo: () => !!(cfg && cfg.depo),
   };
 })();
 

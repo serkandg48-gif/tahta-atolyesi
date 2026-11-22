@@ -3403,3 +3403,4 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
   .dy-sakin .row { flex-wrap: wrap; } .dy-sakin > * { min-width: 0; max-width: 100%; } .dy-calm { min-width: 0; }
 }
 @media (max-width: 760px) { .dy-nefes-sahne { flex-direction: column; } .dy-calm > * { max-width: 100%; min-width: 0; } .dy-calm { padding: 14px; } }
+.bulut-kutu { display: grid; gap: 10px; background: #F4F8FD; border-radius: 14px; padding: 12px 14px; } .bulut-durum { margin: 0; font-weight: 700; } .bulut-durum.hata { color: #B2392E; }

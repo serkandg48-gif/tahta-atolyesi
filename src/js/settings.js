@@ -1,6 +1,27 @@
 /* Ayarlar */
 (function () {
   const { h } = T;
+  /* Bulut kaydı kutusu: giriş, son eşitleme, parola kilidi */
+  function bulutKutu() {
+    const kutu = h("div.bulut-kutu");
+    const ciz = () => {
+      const st = T.esitle.durum(), u = T.auth.user();
+      const zaman = st.zaman ? new Date(st.zaman).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" }) : "";
+      if (!T.auth.available()) { kutu.replaceChildren(h("p", { style: { margin: 0 } }, "Veriler bu cihazda, bu tarayıcıda tutulur. Ara ara yedek indir.")); return; }
+      if (!u) { kutu.replaceChildren(h("p", { style: { margin: 0 } }, "Google ile giriş yaparsan sınıf listen, yoklaman ve planların hesabına kaydedilir. Başka tahtada ya da tarayıcı temizlendiğinde aynı hesapla girince hepsi geri gelir."), T.auth.button()); return; }
+      if (!T.auth.depo()) { kutu.replaceChildren(h("p", { style: { margin: 0 } }, "Bulut kaydı henüz açılmadı. Şimdilik veriler bu cihazda. Ara ara yedek indir.")); return; }
+      kutu.replaceChildren(
+        h("p.bulut-durum" + (st.hata ? ".hata" : ""), st.hata ? st.hata : !st.bagli ? "Eşitleme kapalı." : st.gidiyor ? "Kaydediliyor..." : st.kirli ? "Değişiklikler birazdan kaydedilecek." : "Bulutta kayıtlı" + (zaman ? ": " + zaman : "") + ". Hesap: " + (u.email || "")),
+        h("div.row", { style: { gap: "8px", flexWrap: "wrap" } },
+          h("button.btn.sm.c-leaf", { onclick: () => T.esitle.simdi() }, T.icon("rotate"), st.bagli ? "Şimdi eşitle" : "Eşitlemeyi aç"),
+          h("button.btn.sm.c-chalk", { onclick: () => (st.kilit ? T.esitle.parolaKaldir() : T.esitle.parolaKoy()) }, T.icon("lock"), st.kilit ? "Parola kilidini kaldır" : "Parolayla kilitle"),
+          h("button.btn.sm.c-chalk", { onclick: () => T.esitle.dunkuHal() }, T.icon("undo"), "Önceki hâle dön"),
+          h("button.btn.sm.c-chalk", { onclick: () => T.esitle.bulutuSil() }, T.icon("trash"), "Buluttaki kaydı sil")),
+        st.kilit ? h("p.hint", { style: { margin: 0 } }, "Kayıt parolanla kilitli. Başka bir cihazda ilk girişte parolan sorulur.") : null);
+    };
+    ciz(); const k1 = T.esitle.on(ciz), k2 = T.auth.on(ciz); T.cleanups && T.cleanups.push(k1, k2);
+    return kutu;
+  }
   T.sections.ayarlar = {
     title: "Ayarlar", icon: "settings", tone: "chalk", desc: "Hesap, kademe, takvim, veriler",
     render(view) {
@@ -76,10 +97,10 @@
             } }, T.icon("save"), "Takvimi kaydet"),
               h("button.btn.c-chalk", { onclick: () => { T.store.update(() => (s.calendar = JSON.parse(JSON.stringify(T.cal.def)))); T.route(); } }, "MEB takvimine dön"))),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "14px" } }, h("h2", { style: { fontSize: "22px" } }, "Verilerim"),
-            h("p", { style: { margin: 0 } }, "Sınıf listeleri, yoklama ve planlar şimdilik yalnızca bu cihazda, bu tarayıcıda tutulur. Google ile giriş açıldığında bütün cihazlarında eşitlenecek. O zamana kadar ara ara yedek al."),
+            T.esitle ? bulutKutu() : null,
             h("p.hint", { style: { margin: 0 } }, "Öğrenci fotoğrafı tutulmaz, yapay zekâya öğrenci adı gönderilmez."),
             h("details.kvkk", h("summary", "Öğrenci verileri ve KVKK"),
-              h("p", "Bu sitede öğrencilerle ilgili her şey (ad, yoklama, puan, notlar, duygu kayıtları) yalnızca bu tarayıcıda durur. Sunucuya gönderilmez, başka biri göremez."),
+              h("p", "Giriş yapmadıysan öğrencilerle ilgili her şey (ad, yoklama, puan, notlar, duygu kayıtları) yalnızca bu tarayıcıda durur. Google ile giriş yaptığında bu veriler kendi hesabının bulut kasasına kilitli olarak kaydedilir ki başka bir tahtada ya da tarayıcı temizlendiğinde kaybolmasın. Kasayı yalnızca sen açarsın. İstersen parolayla kilitleyip sunucunun bile açamamasını sağlayabilir, istediğin an buluttaki kaydı silebilirsin."),
               h("p", "Yine de şu üç alışkanlık işini kolaylaştırır: yalnızca öğrencinin adını yaz, soyadı ve numara yazma. Tahtayı başka öğretmenlerle paylaşıyorsan dersten sonra Sınıf listesini temizle ya da kendi bilgisayarını kullan. Yedek dosyasını okul dışında paylaşma."),
               h("p", "Okulunun veri sorumlusu müdürlüktür. Velilerden alınan açık rıza ve aydınlatma metinleri için okul yönetimine danış."),
               h("a", { href: "/gizlilik.html", target: "_blank", rel: "noopener" }, "Gizlilik politikası")),

@@ -5,6 +5,8 @@
    Cloudflare panelinde tanımlanması gerekenler (Settings > Variables and Secrets):
    GEMINI_API_KEY   (Secret)  Google AI Studio anahtarı. Öğretmenler bu anahtarı hiç görmez.
    GOOGLE_CLIENT_ID (wrangler.jsonc içinde, gizli değil) Google ile giriş için istemci kimliği.
+   DEPO_ANAHTAR     (Secret)  Bulut kaydını kilitleyen uzun, rastgele bir metin. Bir kez yazılır, hiç değiştirilmez.
+                              Değişirse ya da silinirse buluttaki kayıtlar okunamaz.
    İsteğe bağlı: DAILY_LIMIT (öğretmen başına günlük hak, varsayılan 10), GLOBAL_LIMIT (site geneli günlük tavan, varsayılan 400), GEMINI_MODEL, SESSION_SECRET. */
 import { DurableObject } from "cloudflare:workers";
 
@@ -230,6 +232,74 @@ export class Eslesme extends DurableObject {
   async alarm() { this.ctx.getWebSockets().forEach((w) => { try { w.close(4002, "süre doldu"); } catch (e) {} }); await this.ctx.storage.deleteAll(); }
 }
 
+
+/* ---------- Bulut kaydı: her öğretmenin verisi kendi kasasında, kilitli ---------- */
+const DEPO_MAX = 6e6, PARCA = 500000;
+async function depoAnahtar(env, email) {
+  const ham = await crypto.subtle.importKey("raw", enc.encode(env.DEPO_ANAHTAR), "HKDF", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "HKDF", hash: "SHA-256", salt: enc.encode("tahta-atolyesi-depo"), info: enc.encode(email) }, ham, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+export class Depo extends DurableObject {
+  async meta() { return (await this.ctx.storage.get("m")) || { surum: 0, zaman: 0, n: 0 }; }
+  async al() {
+    const m = await this.meta(); if (!m.surum) return { surum: 0, zaman: 0 };
+    const p = await this.ctx.storage.get(Array.from({ length: m.n }, (_, i) => "p" + i));
+    return { surum: m.surum, zaman: m.zaman, iv: m.iv, veri: Array.from({ length: m.n }, (_, i) => p.get("p" + i) || "").join("") };
+  }
+  async koy(taban, iv, veri) {
+    const m = await this.meta();
+    if (taban !== m.surum) return { cakisma: true, surum: m.surum, zaman: m.zaman };
+    /* günde bir kez önceki hâlin kopyasını sakla: yanlışlıkla silinen veri geri alınabilsin */
+    const onceki = await this.ctx.storage.get("om");
+    if (m.surum && (!onceki || new Date(onceki.alindi + 3 * 3600e3).toISOString().slice(0, 10) !== new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10))) {
+      const p = await this.ctx.storage.get(Array.from({ length: m.n }, (_, i) => "p" + i)), kopya = { om: Object.assign({}, m, { alindi: Date.now() }) };
+      for (let i = 0; i < m.n; i++) kopya["op" + i] = p.get("p" + i) || "";
+      if (onceki && onceki.n > m.n) await this.ctx.storage.delete(Array.from({ length: onceki.n - m.n }, (_, i) => "op" + (m.n + i)));
+      await this.ctx.storage.put(kopya);
+    }
+    const n = Math.ceil(veri.length / PARCA), yeni = { surum: m.surum + 1, zaman: Date.now(), n, iv }, kayit = { m: yeni };
+    for (let i = 0; i < n; i++) kayit["p" + i] = veri.slice(i * PARCA, (i + 1) * PARCA);
+    await this.ctx.storage.put(kayit);
+    if (m.n > n) await this.ctx.storage.delete(Array.from({ length: m.n - n }, (_, i) => "p" + (n + i)));
+    return { surum: yeni.surum, zaman: yeni.zaman };
+  }
+  async onceki() {
+    const m = await this.ctx.storage.get("om"); if (!m) return { surum: 0 };
+    const p = await this.ctx.storage.get(Array.from({ length: m.n }, (_, i) => "op" + i));
+    return { surum: m.surum, zaman: m.zaman, iv: m.iv, veri: Array.from({ length: m.n }, (_, i) => p.get("op" + i) || "").join("") };
+  }
+  async sil() { await this.ctx.storage.deleteAll(); return { ok: true }; }
+}
+const depo = (env, email) => env.DEPO.get(env.DEPO.idFromName("depo:" + email));
+async function depoApi(request, env, path) {
+  if (!env.DEPO || !env.DEPO_ANAHTAR) return err("depo_kapali", "Bulut kaydı henüz kurulmadı.", 503);
+  const user = await readSession(env, request);
+  if (!user) return err("login", "Önce Google ile giriş yap.", 401);
+  const kasa = depo(env, user.email);
+  if (request.method === "GET") {
+    const onc = new URL(request.url).searchParams.get("onceki") === "1";
+    const d = onc ? await kasa.onceki() : await kasa.al(); if (!d.surum) return json({ surum: 0 });
+    const k = await depoAnahtar(env, user.email);
+    let duz; try { duz = new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64u(d.iv) }, k, unb64u(d.veri))); }
+    catch { return err("depo_okunamadi", "Buluttaki kayıt açılamadı.", 500); }
+    return json({ surum: d.surum, zaman: d.zaman, veri: duz, onceki: onc || undefined });
+  }
+  if (request.method === "PUT") {
+    const boy = +(request.headers.get("content-length") || 0); if (boy > DEPO_MAX) return err("buyuk", "Kayıt çok büyük.", 413);
+    const metin = await request.text(); if (metin.length > DEPO_MAX) return err("buyuk", "Kayıt çok büyük.", 413);
+    let b; try { b = JSON.parse(metin); } catch { return err("bad_request", "İstek okunamadı.", 400); }
+    if (typeof b.veri !== "string" || !Number.isInteger(b.taban)) return err("bad_request", "Eksik bilgi.", 400);
+    const q = await env.KOTA.get(env.KOTA.idFromName("depo:" + user.email)).kullan(today(), 2000);
+    if (!q.ok) return err("limit", "Bugün çok fazla kayıt yapıldı. Yarın yeniden eşitlenecek.", 429);
+    const k = await depoAnahtar(env, user.email), iv = crypto.getRandomValues(new Uint8Array(12));
+    const kilitli = b64u(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, k, enc.encode(b.veri)));
+    const r = await kasa.koy(b.taban, b64u(iv), kilitli);
+    return r.cakisma ? json({ error: { code: "cakisma", message: "Başka bir cihazda daha yeni bir kayıt var." }, surum: r.surum, zaman: r.zaman }, 409) : json(r);
+  }
+  if (request.method === "DELETE") { await kasa.sil(); return json({ ok: true }); }
+  return err("not_found", "Böyle bir adres yok.", 404);
+}
+
 async function api(request, env, path) {
   if (path === "/api/kumanda" && env.ESLESME) {
     const oda = new URL(request.url).searchParams.get("oda") || "";
@@ -239,7 +309,11 @@ async function api(request, env, path) {
   const clientId = env.GOOGLE_CLIENT_ID || "";
   const ready = Boolean(clientId && env.GEMINI_API_KEY);
 
-  if (path === "/api/config" && request.method === "GET") return json({ clientId: ready ? clientId : "", ready });
+  if (path === "/api/config" && request.method === "GET") return json({ clientId: ready ? clientId : "", ready, depo: Boolean(env.DEPO && env.DEPO_ANAHTAR) });
+  if (path === "/api/depo") {
+    const o = request.headers.get("origin"); if (o && o !== new URL(request.url).origin) return err("origin", "İzin verilmeyen kaynak.", 403);
+    return depoApi(request, env, path);
+  }
 
   if (path === "/api/login" && request.method === "POST") {
     if (!ready) return err("not_configured", "Google ile giriş henüz kurulmadı.", 503);

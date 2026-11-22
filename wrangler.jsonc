@@ -17,7 +17,7 @@
     "GEMINI_MODEL": "gemini-3.5-flash-lite"
   },
   "durable_objects": {
-    "bindings": [{ "name": "KOTA", "class_name": "Kota" }, { "name": "SES", "class_name": "SesDeposu" }, { "name": "ESLESME", "class_name": "Eslesme" }]
+    "bindings": [{ "name": "KOTA", "class_name": "Kota" }, { "name": "SES", "class_name": "SesDeposu" }, { "name": "ESLESME", "class_name": "Eslesme" }, { "name": "DEPO", "class_name": "Depo" }]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Kota"] }, { "tag": "v2", "new_sqlite_classes": ["SesDeposu"] }, { "tag": "v3", "new_sqlite_classes": ["Eslesme"] }]
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Kota"] }, { "tag": "v2", "new_sqlite_classes": ["SesDeposu"] }, { "tag": "v3", "new_sqlite_classes": ["Eslesme"] }, { "tag": "v4", "new_sqlite_classes": ["Depo"] }]
 }

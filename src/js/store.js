@@ -76,3 +76,5 @@ T.store = (function () {
     student(cid, sid) { const c = (state || load()).classes.find((x) => x.id === cid); return c && c.students.find((s) => s.id === sid); },
   };
 })();
+/* Tarayıcıdan, yer darlığında bu sitenin verisini kendiliğinden silmemesini iste. Öğretmenin "site verilerini temizle" demesini engellemez. */
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then((p) => { if (!p) navigator.storage.persist(); }); } catch (e) {}

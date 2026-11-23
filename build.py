@@ -30,6 +30,7 @@ JS_ORDER = [
     "sabah.js",
     "math-sense.js",
     "math-manip.js",
+    "izometrik.js",
     "math-sims.js",
     "math-middle.js",
     "math-games.js",

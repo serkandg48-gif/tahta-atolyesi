@@ -17,7 +17,8 @@
       const an = () => { gecmis.push(JSON.stringify(D)); if (gecmis.length > 80) gecmis.shift(); };
       const ox = VW / 2, oy = 150;
       const P = (x, y, z) => [ox + (x - y) * C, oy + (x + y) * YH - z * KENAR];
-      const svg = S("svg", { viewBox: `0 0 ${VW} ${VH}`, class: "izo-svg" });
+      const dar = matchMedia("(max-width: 860px)").matches;
+      const svg = S("svg", { viewBox: dar ? `330 30 540 560` : `0 0 ${VW} ${VH}`, class: "izo-svg" + (dar ? " dar" : "") });
       const pano = h("div.izo-pano", svg);
       const gorKap = h("div.izo-gor");
 
@@ -102,19 +103,21 @@
         gorKap.replaceChildren(izGrid("Önden", hc(on), W, Hh), izGrid("Yandan", hc(yan), Dd, Hh), izGrid("Üstten", hc(ust), W, Dd));
       }
 
-      const modBtn = (k, ic, ad) => h("button.izo-mod", { "data-k": k, "aria-pressed": String(mod === k), onclick: () => { mod = k; cizBas = null; arac.querySelectorAll(".izo-mod").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === k))); ciz(); } }, T.icon(ic), h("span", ad));
+      const IPUCU = { ekle: "Boş noktaya dokununca zemine küp gelir. Bir küpün yüzüne dokununca o yüzün üstüne yeni küp eklenir.", kupboya: "Renk seç, sonra bir küpe dokun. Küpün bütün yüzleri o renge boyanır.", boya: "Renk seç, sonra bir yüze dokun. Yalnız o yüz boyanır.", cizgi: "Bir noktaya, sonra başka bir noktaya dokun. İkisi arasına çizgi çekilir.", sil: "Silmek istediğin küpe dokun." };
+      const ipucu = h("span.hint.izo-ipucu", IPUCU.ekle);
+      const modBtn = (k, ic, ad) => h("button.izo-mod", { "data-k": k, title: ad, "aria-label": ad, "aria-pressed": String(mod === k), onclick: () => { mod = k; cizBas = null; arac.querySelectorAll(".izo-mod[data-k]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === k))); ipucu.textContent = IPUCU[k]; ciz(); } }, T.icon(ic), h("span", ad));
       const palet = h("div.izo-palet", RENK.map((r) => h("button.izo-renk" + (r === renk ? ".on" : ""), { style: { background: r }, "aria-label": "Renk", onclick: (e) => { renk = r; palet.querySelectorAll(".izo-renk").forEach((b) => b.classList.toggle("on", b === e.currentTarget)); if (cizBas) ciz(); } })));
       const bilgi = h("span.izo-bilgi");
       const arac = h("div.izo-arac",
-        modBtn("ekle", "plus", "Küp ekle"), modBtn("kupboya", "blocks", "Küp boya"), modBtn("boya", "edit", "Yüz boya"), modBtn("cizgi", "pen", "Çizgi"), modBtn("sil", "trash", "Sil"),
+        modBtn("ekle", "plus", "Küp ekle"), modBtn("kupboya", "blocks", "Küp boya"), modBtn("boya", "highlighter", "Yüz boya"), modBtn("cizgi", "line", "Çizgi"), modBtn("sil", "eraser", "Sil"),
         palet,
         h("div.izo-alt",
-          h("button.izo-mod", { onclick: () => dondur(1) }, T.icon("rotate"), h("span", "Döndür")),
-          h("button.izo-mod", { onclick: () => { const g = gecmis.pop(); if (g) { Object.assign(D, JSON.parse(g)); kaydet(); ciz(); } } }, T.icon("undo"), h("span", "Geri al")),
-          h("button.izo-mod", { onclick: async () => { if (!Object.keys(D.kup).length && !D.cizgi.length) return; if (await T.confirm("Temizle", "Bütün küpler ve çizgiler silinsin mi?", "Temizle")) { an(); D.kup = {}; D.yuz = {}; D.cizgi = []; kaydet(); ciz(); } } }, T.icon("reset"), h("span", "Temizle")),
-          h("button.izo-mod", { "aria-pressed": "false", onclick: (e) => { gorunum = !gorunum; e.currentTarget.setAttribute("aria-pressed", String(gorunum)); gorKap.hidden = !gorunum; ciz(); } }, T.icon("eye"), h("span", "Görünümler"))));
+          h("button.izo-mod", { title: "Döndür", "aria-label": "Döndür", onclick: () => dondur(1) }, T.icon("rotate"), h("span", "Döndür")),
+          h("button.izo-mod", { title: "Geri al", "aria-label": "Geri al", onclick: () => { const g = gecmis.pop(); if (g) { Object.assign(D, JSON.parse(g)); kaydet(); ciz(); } } }, T.icon("undo"), h("span", "Geri al")),
+          h("button.izo-mod", { title: "Temizle", "aria-label": "Temizle", onclick: async () => { if (!Object.keys(D.kup).length && !D.cizgi.length) return; if (await T.confirm("Temizle", "Bütün küpler ve çizgiler silinsin mi?", "Temizle")) { an(); D.kup = {}; D.yuz = {}; D.cizgi = []; kaydet(); ciz(); } } }, T.icon("reset"), h("span", "Temizle")),
+          h("button.izo-mod", { title: "Görünümler", "aria-label": "Görünümler", "aria-pressed": "false", onclick: (e) => { gorunum = !gorunum; e.currentTarget.setAttribute("aria-pressed", String(gorunum)); gorKap.hidden = !gorunum; ciz(); } }, T.icon("eye"), h("span", "Görünümler"))));
       gorKap.hidden = true;
-      host.append(h("div.izo-kap", arac, h("div.izo-orta", pano, h("div.izo-durum", bilgi, h("span.hint", "Boş noktaya dokununca zemine küp gelir. Bir küpün yüzüne dokununca o yüzün üstüne yeni küp eklenir."))), gorKap));
+      host.append(h("div.izo-kap", arac, h("div.izo-orta", pano, h("div.izo-durum", bilgi, ipucu)), gorKap));
       ciz();
     },
   };

@@ -35,7 +35,20 @@
     const kok = h("div.dn-kok", { style: { "--dn": o.renk || "#2F7FE0", "--dn2": o.renk2 || "#BFE3FF" } },
       h("div.dn-ust", turEl, h("b.dn-baslik", o.baslik), puan, h("button.dn-tam", { "aria-label": "Tam ekran", title: "Tam ekran", onclick: () => { try { document.fullscreenElement ? document.exitFullscreen() : kok.requestFullscreen(); } catch (e) {} } }, T.icon("full"))),
       h("div.dn-gov", h("div.dn-rehber", rehber, balon), h("div.dn-ana", soru, sahne, alt)));
-    host.append(kok);
+    /* Oyun sabit bir tasarım boyutunda çizilir (1180 × 700) ve bulunduğu alana sığacak kadar küçültülür ya da büyütülür.
+       Böylece tam ekrana geçmeden de soru, sahne ve düğmeler kesilmez. Telefonda ve tam ekranda kendi akışında kalır. */
+    const cerceve = h("div.dn-cerceve", kok); host.append(cerceve);
+    const DW = 1180, DH = 700;
+    const sigdir = () => {
+      if (!cerceve.isConnected) return;
+      if (innerWidth <= 760 || document.fullscreenElement === kok) { cerceve.classList.remove("olcekli"); kok.style.zoom = ""; cerceve.style.height = ""; return; }
+      cerceve.classList.add("olcekli");
+      const r = cerceve.getBoundingClientRect(), dock = document.querySelector("#dock"), dr = dock && dock.offsetParent !== null ? dock.getBoundingClientRect() : null;
+      const alt = dr && dr.top > r.top + 200 && dr.top < innerHeight ? dr.top - 12 : innerHeight - 12;
+      const z = Math.max(0.45, Math.min(1.35, r.width / DW, (alt - r.top) / DH));
+      kok.style.zoom = String(Math.round(z * 1000) / 1000); cerceve.style.height = Math.floor(DH * z) + "px";
+    };
+    new ResizeObserver(() => requestAnimationFrame(sigdir)).observe(host); addEventListener("resize", sigdir); document.addEventListener("fullscreenchange", sigdir); setTimeout(sigdir, 0); setTimeout(sigdir, 400);
     const sahneArka = T.oyunSahnesi && T.oyunSahnesi(o.sahne || (T.OYUN_SAHNE || {})[o.baslik]);
     if (o.arka) kok.style.backgroundImage = o.arka; else if (sahneArka) { kok.style.backgroundImage = sahneArka; kok.classList.add("sahneli"); }
     const yaz = () => { puan.textContent = "⭐ " + dogru; turEl.textContent = "Tur " + Math.min(tur + 1, TUR) + " / " + TUR; };

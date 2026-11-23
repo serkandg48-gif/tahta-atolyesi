@@ -135,7 +135,9 @@ async function sesModel(env, metin, model, istem, ses_) {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: istem || "Aşağıdaki metin Türkçedir. İngilizce kelimeye benzese bile Türkçe harf sesleriyle, Türkiye Türkçesi telaffuzuyla oku. Sıcak ve net bir sesle, ilkokul öğretmeninin çocuklara okuması gibi, doğal hızda söyle. Metin: «" + metin + "»" }] }],
+      /* Yönerge metnin içine yazılınca model bazen yönergeyi de sesli okuyor. Dil kodu kabul edilirse yalnızca metin gider;
+         edilmezse kısa bir "şunu söyle" kalıbı kullanılır. */
+      contents: [{ parts: [{ text: istem || (dilKodu ? metin : "Say this Turkish text in Turkish, warmly and clearly: " + metin) }] }],
       generationConfig: { responseModalities: ["AUDIO"], speechConfig: Object.assign({ voiceConfig: { prebuiltVoiceConfig: { voiceName: ses_ || env.TTS_VOICE || "Kore" } } }, dilKodu ? { languageCode: "tr-TR" } : {}) },
     }),
   });
@@ -335,7 +337,7 @@ async function api(request, env, path) {
     const kim = b.tur === "karakter" ? String(b.kim || "") : "";
     if (kim && (!KARAKTER[kim] || !KARAKTER_SOZ.includes(metin))) return err("bad_request", "Bu söz tanınmadı.", 400);
     const istem = harf ? harfIstemi(harf) : kim ? karakterIstemi(kim, metin) : null, sesAdi = kim ? KARAKTER[kim] : null;
-    const anahtar = await sha((harf ? "harf1|" : kim ? "kar1|" + kim + "|" : "v2|") + (sesAdi || env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
+    const anahtar = await sha((harf ? "harf1|" : kim ? "kar1|" + kim + "|" : "v3|") + (sesAdi || env.TTS_VOICE || "Kore") + "|" + metin.toLocaleLowerCase("tr"));
     const depo = env.SES.get(env.SES.idFromName("ses:" + anahtar.slice(0, 2)));
     const varolan = await depo.al(anahtar);
     const ses_h = { "content-type": "audio/wav", "cache-control": "public, max-age=31536000, immutable" };

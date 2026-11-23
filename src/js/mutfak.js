@@ -82,11 +82,13 @@
 
         /* kelime havuzu */
         const L = () => IO.learned();
-        const sozcukler = () => { const s = new Set(IO.PICS.map(([w]) => w)); Object.values(BANKA).forEach((v) => { (v.kelime || []).forEach((w) => w === T.trLower(w) && s.add(w)); (v.tablo || []).forEach((w) => s.add(w)); }); return [...s]; };
-        const havuz = () => { const l = L(), uz = dep().uzunluk || "2", resimli = dep().tur !== "hepsi";
+        const sozcukler = () => { const s = new Set(IO.PICS.map(([w]) => w).concat(IO.WORDS || [])); Object.values(BANKA).forEach((v) => { (v.kelime || []).forEach((w) => w === T.trLower(w) && s.add(w)); (v.tablo || []).forEach((w) => s.add(w)); }); return [...s]; };
+        let resimYok = false;
+        const havuz = (zorla) => { const l = L(), uz = dep().uzunluk || "2", resimli = !zorla && dep().tur !== "hepsi";
           return sozcukler().filter((w) => /^[a-zçğıöşü]+$/.test(w) && IO.okWord(w, l)).filter((w) => { const n = T.heceler(w).length; return uz === "2" ? n === 2 : uz === "3" ? n === 3 : n >= 2 && n <= 4; }).filter((w) => !resimli || (PIC.has(w) && !INSAN.test(PIC.get(w)))); };
         const deste = []; let son = "";
-        const cek = () => { if (!deste.length) deste.push(...T.shuffle(havuz())); if (!deste.length) return null; let i = deste.findIndex((w) => w !== son); if (i < 0) i = 0; son = deste.splice(i, 1)[0]; return son; };
+        /* Öğrenilen seslerle okunabilen resimli kelime yoksa resimsiz kelimelere geç; boş ekran kalmasın */
+        const cek = () => { if (!deste.length) { const r = havuz(); resimYok = !r.length && dep().tur !== "hepsi"; deste.push(...T.shuffle(r.length ? r : havuz(true))); } if (!deste.length) return null; let i = deste.findIndex((w) => w !== son); if (i < 0) i = 0; son = deste.splice(i, 1)[0]; return son; };
         const heceHavuzu = () => [...new Set(havuz().concat(sozcukler().filter((w) => IO.okWord(w, L()))).flatMap((w) => T.heceler(w)))];
 
         let kelime = "", hs = [], dolu = 0, pisen = 0, kilit = false, okuyan = null;
@@ -123,7 +125,7 @@
           bekleyen.forEach(clearTimeout); bekleyen = []; sahneEl.querySelectorAll(".hm-sihir,.hm-ucan").forEach((e) => e.remove());
           kelime = cek(); dolu = 0; kilit = false; buharGuc = 0.15;
           if (!kelime) {
-            tarif.replaceChildren(h("div.hm-kart", h("b", "Kelime yok"), h("p", "Bu ayarla okunabilen kelime yok. Daha çok ses öğrenince ya da \"Hepsi\" seçilince kelimeler gelir.")));
+            tarif.replaceChildren(h("div.hm-kart", h("b", "Kelime yok"), h("p", "Öğrenilen seslerle okunabilecek kelime yok. Türkçe sayfasında birkaç ses daha işaretleyince kelimeler gelir.")));
             tarif.classList.add("acik"); raf.replaceChildren(); alt.replaceChildren(); return;
           }
           hs = T.heceler(kelime);
@@ -138,7 +140,7 @@
           const resim = PIC.get(kelime);
           tarif.replaceChildren(h("div.hm-kart",
             h("div.hm-kart-bas", h("b", "Kelime " + Math.min(TARIF_SAY, pisen + 1) + " / " + TARIF_SAY), okuyan ? h("span", okuyan + " okuyor") : null),
-            h("div.hm-govde", resim ? h("div.hm-resim", resim) : h("div.hm-resim.yok", T.icon("speaker")),
+            resimYok ? h("small.hm-not", "Bu seslerle resimli kelime yok, resimsiz kelimeler geliyor.") : null, h("div.hm-govde", resim ? h("div.hm-resim", resim) : null,
             h("div.hm-sag", h("div.hm-yerler", hs.map((x, i) => h("span.hm-yer" + (i < dolu ? ".dolu" : ""), i < dolu ? x : ""))),
             h("div.ks-yan",
               resim ? null : h("button.ot-b.dinle", { onclick: (e) => { e.currentTarget.replaceWith(h("b.hm-ipucu", kelime)); } }, T.icon("eye"), "Kelimeyi göster"))))));

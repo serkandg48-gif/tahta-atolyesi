@@ -22,7 +22,9 @@
       const kartlar = [...gecici.querySelectorAll(".tool-grid > *")];
       const gorulen = new Set([...inner.querySelectorAll(".tool-card")].map((c) => c.textContent));
       const yeni = kartlar.filter((k) => !gorulen.has((k.querySelector(".tool-card") || k).textContent));
-      if (yeni.length) inner.append(h("div.section-title", h("h2", "1. sınıf okuma yazma")), h("div.tool-grid", yeni));
+      /* sekmeye basar basmaz öğrenilen sesler paneli de görünsün */
+      const sesler = gecici.querySelector(".view-inner > .paper");
+      if (yeni.length) inner.append(h("div.section-title", h("h2", "1. sınıf okuma yazma")), sesler || null, h("div.tool-grid", yeni));
       return;
     }
     T.sections.birinci.render.call(this, view, sub);

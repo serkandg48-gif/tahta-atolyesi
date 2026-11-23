@@ -56,7 +56,7 @@
     return ids.concat("kitaplar", "olcme", "duygu", "kultur").map((k) => D[k]);
   };
   /* Yüzen alt menü: Araçlar şeridi (hızlı sınıf araçları) ve Atölyeler şeridi (bölümler) */
-  const ARACLAR = [["bg", "Arka plan", "bg"], ["yazitahtasi", "Yazı tahtası", "pen"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim", "palet"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["dep", "Düşün, eşleş, paylaş", "talk"], ["kimnerede", "Kim nerede?", "clock"], ["yardim", "Yardım bekliyorum", "hand"], ["buradayim", "Buradayım (yoklama)", "check"], ["konusma", "Konuşma ağı", "talk"], ["hepsi", "Tüm araçlar", "plus"]];
+  const ARACLAR = [["bg", "Arka plan", "bg"], ["yazitahtasi", "Yazı tahtası", "pen"], ["timer", "Zamanlayıcı"], ["name", "İsim çek"], ["dice", "Zar at"], ["groups", "Grup kur"], ["traffic", "Trafik ışığı"], ["noise", "Ses ölçer"], ["draw", "Çizim", "palet"], ["text", "Yönerge"], ["stopwatch", "Kronometre"], ["clock", "Saat"], ["takvim", "Takvim"], ["bitirdim", "Etkinliğim bitti"], ["mola", "Hareket molası"], ["dikkat", "Dikkat çağrıları"], ["sira", "Sıraya geçme"], ["dep", "Düşün, eşleş, paylaş", "talk"], ["kimnerede", "Kim nerede?", "clock"], ["yardim", "Yardım bekliyorum", "hand"], ["buradayim", "Buradayım (yoklama)", "check"], ["hepsi", "Tüm araçlar", "plus"]];
   function dockYaz(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function aracAc(k) {
     if (k === "bg") { T.arkaPlanSec(); return; }

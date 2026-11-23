@@ -3446,7 +3446,16 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 }
 @media (max-width: 760px) { html .board-tools, html.alt-menu .board-tools { top: auto !important; margin: 0 !important; bottom: 10px !important; } }
 
-.ka-alan { min-height: 0; display: grid; place-items: center; overflow: hidden; } .ka-kap { position: relative; background: radial-gradient(circle, #F7F2FF, #FFFFFF 70%); border-radius: 50%; }
-.ka-ogr { position: absolute; transform: translate(-50%, -50%); border: 0; background: none; display: grid; justify-items: center; cursor: pointer; padding: 0; font: 700 .8rem var(--body, inherit); color: #1B2A4A; transition: opacity .3s; }
-.ka-ogr span { background: rgba(255,255,255,.9); border-radius: 999px; padding: 0 6px; margin-top: -4px; } .ka-ogr i { position: absolute; top: -4px; right: -6px; background: #7B4FD6; color: #fff; font-style: normal; font-size: 11px; min-width: 20px; height: 20px; border-radius: 10px; display: grid; place-items: center; }
-.ka-ogr.son .av { box-shadow: 0 0 0 4px #F4B400; border-radius: 50%; } .ka-ogr.sessiz { opacity: .45; } .ka-bilgi { font-weight: 700; }
+
+
+/* Simge büyüklüğü ayarı (telefonda 1) */
+@media (min-width: 761px) { #dock, #topbar, .tool-grid, .board-tools, .altp { zoom: var(--ui-olcek, 1); } }
+.hm-not { display: block; font-size: .8rem; color: #8a6a3a; margin-bottom: 4px; }
+
+/* Oyun kabuğu tasarım boyutunda, alana sığdırılarak */
+.dn-cerceve { width: 100%; display: flex; justify-content: center; }
+.dn-cerceve.olcekli > .dn-kok { width: 1180px; height: 700px !important; min-height: 0 !important; flex: none; }
+/* Ses kasabası ve hece mutfağındaki üst katmanlar sahneye sığmazsa kayar, kesilmez */
+.ks-yazilis { overflow: auto; place-content: safe center; }
+.ks-yazilis .yz-svg { height: clamp(120px, 28vh, 300px); }
+.dn-cerceve.olcekli .dn-sahne { overflow: hidden; } .dn-cerceve.olcekli .dn-sahne > * { max-height: 100%; min-height: 0; }

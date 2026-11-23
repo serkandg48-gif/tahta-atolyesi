@@ -11,7 +11,7 @@
   const setLearned = (arr) => T.store.update((s) => (s.settings.learned = ORDER.filter((l) => arr.includes(l))));
   const okWord = (w, L) => [...T.trLower(w).replace(/[^a-zçğıöşüâîû]/g, "")].every((c) => L.includes(c));
 
-  const WORDS = ("an at ata ana anne nane nine tane ten et en net tat tatlı ne in ilet ile ilan lale ela al ala el ilk ilik iki kek kel kil kale kalem kalın kına koli kol kot kule kum kuru kurt kutu kulak kumru kukla lokum limon mama masal mum mutlu nar not nota okul oku okur olur on onu otel otur oturan ırmak inek kemer kimi kare tekne teli tel ter tren termos tok tutum kemik kirli tilki ütü üzüm üç ördek öykü ses su simit sabun saat sarı sıra soru süt yol yıl yılan yumurta yaprak deniz dede dal davul ders zil zar zeytin çanta çay çiçek bebek balık bal bulut bilgi gemi göz güneş gül şeker şapka cam ceviz ceket pasta pul hava halı horoz dağ ağaç yağmur vazo vapur fil fare fener jeton jöle elma armut kitap kalemlik minare roket robot tamam ninni anahtar mektup kurabiye").split(" ");
+  const WORDS = ("an at ata ana anne nane nine tane ten et en net tat tatlı ne in ilet ile ilan lale ela al ala el ilk ilik iki kek kel kil kale kalem kalın kına koli kol kot kule kum kuru kurt kutu kulak kumru kukla lokum limon mama masal mum mutlu nar not nota okul oku okur olur on onu otel otur oturan ırmak inek kemer kimi kare tekne teli tel ter tren termos tok tutum kemik kirli tilki ütü üzüm üç ördek öykü ses su simit sabun saat sarı sıra soru süt yol yıl yılan yumurta yaprak deniz dede dal davul ders zil zar zeytin çanta çay çiçek bebek balık bal bulut bilgi gemi göz güneş gül şeker şapka cam ceviz ceket pasta pul hava halı horoz dağ ağaç yağmur vazo vapur fil fare fener jeton jöle elma armut kitap kalemlik minare roket robot tamam ninni anahtar mektup kurabiye naneli tatil anten tente atlet elli telli eline inat inatla anla anlat anlatan atla iletti elle eti ete ani ninem nenem tene tanesi okulu kolon kalan kalkan kutuya korku kurtar kurallı kural tekerlek kertenkele kilit kilitli kolonya kalemi kalemler kelle kekik kekeme tokat toka tokalı teneke tenekeler nakit lokumlu oklar ok okla torun torunu tur turna turta turuncu uyku kurtul korkak kumral kurallar okurlar rol rota kartal karton karne kiraz kira kireç keten ketenli ürün narin notlar etek eteklik ekim ekin ekmek erik elek ekler irin iri ikili ikiz kina kıl kılık kır kırk kırmızı ılık ılgın ıtır akıl akıllı altın altı mayo masa masallar mavi mumlu mutluluk meyve melek melekler mimar minik mini ümit ütüle küme kürek kürk sütlü süs süslü sürü sürat söz sözlük sözlü sönük yolcu yumak yüz yüzük yüzme yemek yemiş yeni yel yelek yelken yaka yakut yayla dere deli demir defne derin dolap dolma domates doktor durak düdük düğme dünya zeki zor zürafa zarf çatal çilek çorap çorba çocuk çizgi çikolata baba bilet biber bisiklet boya boyalı bardak göl gece gülen cetvel cep cami şemsiye şişe para pazar pembe pide pilav hamur hasta hediye vagon fındık fırın jilet").split(" ");
   const NAMES = ["Ali", "Ela", "Nil", "Lale", "Ata", "Ilgın", "Tolga", "Kemal", "Ömer", "Nur", "Mine", "Melek", "Tarık", "Kerem", "Umut", "Ümit", "Mert", "Arda", "Nurten", "Emre"];
   const SENTENCES = ["Ela, nane al.", "Ali, nane al.", "Anne, lale al.", "Ela, limon al.", "Ali, kalem al.", "Ela, kalemi al.", "Melek, lokum al.", "Nur, kuru erik al.", "Okul tatil oldu.", "Tarık kumu eler.", "Kerem kulaklarını tıkar.", "Ali kalemini tut.", "Nurten limonata alır.", "Anne ekmek alır.", "Ümit okula erken iner.", "Ömer tren ile okula iner.", "Mert ile Ela kumda oynar.", "Kedi mama ile oynar.", "Kemal okul kitabını okur.", "Lale ile Nil okulda oturur.", "Dedem bize simit aldı.", "Bulut gibi yumuşak bir kedimiz var.", "Sabah erkenden okula gittik.", "Güneş doğunca kuşlar öttü.", "Çiçekleri her gün sularız."];
   const PICS = [["at", "🐴"], ["ana", "👩"], ["nane", "🌿"], ["el", "✋"], ["elma", "🍎"], ["etek", "👗"], ["ekmek", "🍞"], ["inek", "🐮"], ["ilaç", "💊"], ["limon", "🍋"], ["lale", "🌷"], ["ok", "🏹"], ["okul", "🏫"], ["kalem", "✏️"], ["kek", "🍰"], ["kedi", "🐱"], ["kitap", "📘"], ["kule", "🗼"], ["kutu", "📦"], ["uçak", "✈️"], ["roket", "🚀"], ["robot", "🤖"], ["ırmak", "🏞️"], ["ışık", "💡"], ["mum", "🕯️"], ["muz", "🍌"], ["mantar", "🍄"], ["üzüm", "🍇"], ["simit", "🥨"], ["saat", "⌚"], ["ördek", "🦆"], ["yumurta", "🥚"], ["yıldız", "⭐"], ["deniz", "🌊"], ["davul", "🥁"], ["zil", "🔔"], ["zürafa", "🦒"], ["çanta", "🎒"], ["çiçek", "🌸"], ["balık", "🐟"], ["bulut", "☁️"], ["gemi", "🚢"], ["güneş", "☀️"], ["şeker", "🍬"], ["şapka", "👒"], ["ceviz", "🌰"], ["pasta", "🎂"], ["peynir", "🧀"], ["havuç", "🥕"], ["horoz", "🐓"], ["dağ", "⛰️"], ["ağaç", "🌳"], ["vazo", "🏺"], ["fil", "🐘"], ["fare", "🐭"], ["tavuk", "🐔"], ["top", "⚽"], ["tren", "🚂"], ["karpuz", "🍉"], ["kiraz", "🍒"], ["anahtar", "🔑"], ["arı", "🐝"], ["ayı", "🐻"], ["aslan", "🦁"], ["araba", "🚗"], ["tilki", "🦊"], ["nine", "👵"], ["anne", "👩"], ["et", "🥩"], ["kale", "🏰"], ["kum", "⛱️"], ["mama", "🥣"], ["kurt", "🐺"], ["kemik", "🦴"], ["tekne", "⛵"], ["kumru", "🕊️"], ["kukla", "🧸"], ["süt", "🥛"], ["sabun", "🧼"], ["yaprak", "🍃"], ["yol", "🛣️"], ["yılan", "🐍"], ["dede", "👴"], ["zar", "🎲"], ["zeytin", "🫒"], ["çay", "🍵"], ["bebek", "👶"], ["bal", "🍯"], ["göz", "👁️"], ["gül", "🌹"], ["cam", "🪟"], ["ceket", "🧥"], ["pul", "📮"], ["fener", "🏮"], ["jeton", "🪙"], ["armut", "🍐"], ["vapur", "⛴️"]];
@@ -194,13 +194,19 @@
     } });
 
   /* ---------- Kelime kur ---------- */
-  tool("kelime-kur", { title: "Kelime kuralım", icon: "hece", tone: "pink", short: "Karışık heceleri sıraya diz",
+  tool("kelime-kur", { title: "Kelime oluşturalım", icon: "hece", tone: "pink", short: "Karışık heceleri sıraya diz",
     render(host) {
-      const L = learned(); const pool = WORDS.filter((w) => okWord(w, L) && T.heceler(w).length > 1);
+      const L = learned();
+      /* hece sayısı seçilebilir: iki, üç ya da karışık (2-4) */
+      let uz = (() => { try { return localStorage.getItem("ta-kk-hece") || "k"; } catch (e) { return "k"; } })();
+      const uygun = (w) => { const n = T.heceler(w).length; return uz === "2" ? n === 2 : uz === "3" ? n === 3 : n >= 2 && n <= 4; };
+      let pool = WORDS.filter((w) => okWord(w, L) && uygun(w));
+      const secim = h("div.seg", { style: { marginBottom: "10px" } }, [["2", "İki heceli"], ["3", "Üç heceli"], ["k", "Karışık"]].map(([v, t]) => h("button", { "aria-pressed": String(v === uz), onclick: (e) => { uz = v; try { localStorage.setItem("ta-kk-hece", v); } catch (er) {} secim.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.currentTarget))); pool = WORDS.filter((w) => okWord(w, L) && uygun(w)); next(); } }, t)));
+      host.append(secim);
       const box = h("div.mat.mat-pad.m-masa", { style: { minHeight: "auto", display: "grid", gap: "20px", justifyItems: "center" } });
       let score = 0;
       function next() {
-        if (!pool.length) { box.replaceChildren(h("p", { style: { fontSize: "20px" } }, "Bu seslerle iki heceli kelime çıkmıyor. Birkaç ses daha öğrenince oyun açılacak.")); return; }
+        if (!pool.length) { box.replaceChildren(h("p", { style: { fontSize: "20px" } }, uz === "k" ? "Bu seslerle kelime çıkmıyor. Birkaç ses daha öğrenince oyun açılacak." : "Bu seslerle " + (uz === "2" ? "iki" : "üç") + " heceli kelime çıkmıyor. Karışık'ı seçin ya da birkaç ses daha işaretleyin.")); return; }
         const w = T.pick(pool), hs = T.heceler(w); let picked = [];
         let mixed = T.shuffle(hs.map((x, i) => ({ x, i }))); if (hs.length > 1 && mixed.every((m, i) => m.i === i)) mixed.reverse();
         const slot = h("div.row", { style: { justifyContent: "center", minHeight: "90px", gap: "8px" } });
@@ -221,7 +227,7 @@
     } });
 
   /* ---------- Cümle kur ---------- */
-  tool("cumle-kur", { title: "Cümle kuralım", icon: "text", tone: "leaf", short: "Karışık kelimeleri sıraya diz",
+  tool("cumle-kur", { title: "Cümle oluşturalım", icon: "text", tone: "leaf", short: "Karışık kelimeleri sıraya diz",
     render(host) {
       const L = learned(); const pool = SENTENCES.filter((s) => okWord(s, L));
       const box = h("div.mat.mat-pad.m-masa", { style: { minHeight: "auto", display: "grid", gap: "20px", justifyItems: "center" } });

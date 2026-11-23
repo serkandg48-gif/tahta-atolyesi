@@ -8,7 +8,7 @@
     if (t.compact) {
       const bar = h("div.stage-bar.tek-serit", h("button.btn.icon.c-chalk", { "aria-label": "Geri", onclick: () => T.go(t.back || "matematik") }, T.icon("back")), h("h2", t.title), h("div.grow"), h("div.serit-yuva"), T.seritSonu ? T.seritSonu(id) : null);
       host._bar = bar.querySelector(".serit-yuva"); wrap.style.paddingTop = "14px"; wrap.style.paddingBottom = "10px"; wrap.style.maxWidth = "none";
-      wrap.append(bar, host); view.append(wrap); const pu = view.querySelector(".pencere-ust"); if (pu) bar.append(pu); t.render(host); return;
+      wrap.append(bar, host); view.append(wrap); const pu = view.querySelector(".pencere-ust"); if (pu) bar.append(pu); t.render(host); T.sigdir(host); return;
     }
     const kitapVar = false; /* MEB kitabı yalnızca Kitaplar bölümünde açılır */
     const kitapAcik = () => { try { return localStorage.getItem("ta-kitap-acik") === "1"; } catch (e) { return false; } };
@@ -27,8 +27,26 @@
     wrap.append(bar, govde);
     view.append(wrap);
     const pu = view.querySelector(".pencere-ust"); if (pu) bar.append(pu);
-    t.render(host);
+    t.render(host); T.sigdir(host);
     if (kitapVar && kitapAcik()) kitapYap(true);
+  };
+  /* Araç ekrana sığmıyorsa tam ekrana gerek kalmadan küçülterek sığdırır (alt menünün üstünde kalır). Telefonda kapalı. */
+  T.sigdir = function (host) {
+    let z = 1, bekle = 0;
+    const olc = () => {
+      bekle = 0; if (!host.isConnected) return gozcu.disconnect();
+      if (innerWidth <= 760) { if (z !== 1) { z = 1; host.style.zoom = ""; } return; }
+      const r = host.getBoundingClientRect(), dogal = r.height / z; if (dogal < 50) return;
+      const dock = document.querySelector("#dock"), dr = dock && dock.offsetParent !== null ? dock.getBoundingClientRect() : null;
+      const alt = dr && dr.top < innerHeight && dr.top > r.top ? dr.top - 10 : innerHeight - 10;
+      const ust = r.top + (document.querySelector("#view") || document.documentElement).scrollTop * 0;
+      const yer = alt - ust; const yeni = dogal > yer + 4 ? Math.max(0.62, Math.floor((yer / dogal) * 100) / 100) : 1;
+      if (Math.abs(yeni - z) > 0.015) { z = yeni; host.style.zoom = z === 1 ? "" : String(z); }
+    };
+    const iste = () => { if (!bekle) bekle = requestAnimationFrame(olc); };
+    const gozcu = new ResizeObserver(iste); gozcu.observe(host); Array.from(host.children).forEach((c) => gozcu.observe(c));
+    new MutationObserver(() => { Array.from(host.children).forEach((c) => gozcu.observe(c)); iste(); }).observe(host, { childList: true });
+    addEventListener("resize", iste); setTimeout(iste, 60); setTimeout(iste, 600); setTimeout(iste, 1800);
   };
   /* Ders ekranında aracı açan küçük kısayol */
   T.widgets.toollink = {

@@ -431,3 +431,14 @@ T.sayiOku = function (n) {
   setTimeout(bak, 20000); setInterval(bak, 5 * 60000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) bak(); });
 })();
+
+/* Simge büyüklüğü: alt menü, üst çubuk ve araç kartları birlikte ölçeklenir. Cihaza özgüdür. */
+T.uiOlcek = (function () {
+  const A = "ta-ui-olcek";
+  const secim = () => { try { return localStorage.getItem(A) || "oto"; } catch (e) { return "oto"; } };
+  /* otomatik: geniş ekranlarda (akıllı tahta) biraz küçült, dar ekranlarda dokunma */
+  const deger = () => { const s = secim(); if (s !== "oto") return +s || 1; const w = innerWidth; return w >= 1800 ? 0.78 : w >= 1500 ? 0.86 : 1; };
+  const uygula = () => document.documentElement.style.setProperty("--ui-olcek", innerWidth <= 760 ? 1 : deger());
+  addEventListener("resize", uygula); uygula();
+  return { secim, uygula, yaz: (v) => { try { localStorage.setItem(A, v); } catch (e) {} uygula(); } };
+})();

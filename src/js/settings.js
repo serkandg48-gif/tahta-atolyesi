@@ -72,6 +72,9 @@
               g.kart.length ? h("div", h("b", "Gizlediğin kartlar"), h("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" } }, g.kart.map((r) => h("button.btn.sm.c-chalk", { onclick: () => { T.gorunumYaz((x) => (x.kart = x.kart.filter((y) => y !== r))); T.route(); } }, T.icon("eye"), kartAd(r)))),
                 h("button.btn.sm.c-chalk", { style: { marginTop: "8px" }, onclick: () => { T.gorunumYaz((x) => (x.kart = [])); T.route(); } }, "Hepsini geri aç")) : h("p.hint", { style: { margin: 0 } }, "Bir etkinlik kartının köşesindeki göz simgesiyle o kartı gizleyebilirsin."));
           })(),
+          h("section.paper", { style: { padding: "20px", display: "grid", gap: "12px" } }, h("h2", { style: { fontSize: "22px" } }, "Simge büyüklüğü"),
+            h("div.seg", { style: { flexWrap: "wrap" } }, [["oto", "Otomatik"], ["0.7", "Çok küçük"], ["0.82", "Küçük"], ["1", "Orta"], ["1.15", "Büyük"]].map(([v, l]) => h("button", { "aria-pressed": String(T.uiOlcek.secim() === v), onclick: () => { T.uiOlcek.yaz(v); T.route(); } }, l))),
+            h("p.hint", { style: { margin: 0 } }, "Alt menüyü, üst çubuğu ve araç kartlarını büyütür ya da küçültür. Menünün yeri değişmez. Otomatik, büyük ekranlarda simgeleri biraz küçültür. Bu ayar yalnızca bu cihaz için geçerli.")),
           h("section.paper", { style: { padding: "20px", display: "grid", gap: "12px" } }, h("h2", { style: { fontSize: "22px" } }, "Zil hatırlatmaları"),
             h("p.hint", { style: { margin: 0 } }, "Ders bitmeden toparlanma, teneffüs bitmeden sıradaki ders ve malzemeler. " + (T.zilAyar && T.zilAyar().acik ? "Şu an açık." : "Şu an kapalı.")),
             h("button.btn.sm.c-chalk", { style: { justifySelf: "start" }, onclick: () => T.zilPenceresi() }, T.icon("bell"), "Ayarla")),

@@ -85,11 +85,12 @@
       const kap = h("div.mz-oyun"); host.append(kap);
       const esit = (x, y) => x[0] * y[1] === y[0] * x[1];
       const toplamOf = (l) => l.reduce((t, p) => KESIR.ekle(t, p), [0, 1]);
-      /* birim dönüşümü: 60 dk = 1 saat, 100 cm = 1 m; etiket otomatik */
+      /* birim dönüşümü: 60 dk = 1 saat, 100 cm = 1 m, 1000 g = 1 kg; etiket otomatik */
       const satirlar = ([n, d]) => {
         if (tur === "kesir") return null;
         if (tur === "dakika") { const sa = Math.floor(n / 60), dk = n % 60; return [sa ? sa + " saat" : null, dk || !sa ? dk + " dk" : null].filter(Boolean); }
         if (tur === "metre") { const m = Math.floor(n / 100), cm = n % 100; return [m ? m + " m" : null, cm || !m ? cm + " cm" : null].filter(Boolean); }
+        if (tur === "kg") { const kg = Math.floor(n / 1000), g = n % 1000; return [kg ? kg + " kg" : null, g || !kg ? g + " g" : null].filter(Boolean); }
         return [String(n)];
       };
       const metin = (p) => (tur === "kesir" ? KESIR.yaz(p) : satirlar(p).join(" "));
@@ -100,6 +101,7 @@
         if (tur === "bin") { const w = rnd(12, 99) * 10, x = rnd(1, w / 10 - 1) * 10 + T.pick([0, 0, 5]); return [[x, 1], [w - x, 1]].filter((p) => p[0] > 0); }
         if (tur === "dakika") return T.pick([[60, 15], [60, 30], [60, 60], [45, 60], [60, 60, 15], [90, 30], [60, 25], [120, 15], [60, 60, 30], [40, 60]]).map((x) => [x, 1]);
         if (tur === "metre") return T.pick([[150, 100], [100, 75], [100, 100, 50], [120, 80], [200, 35], [100, 60], [250, 100], [100, 100, 20]]).map((x) => [x, 1]);
+        if (tur === "kg") return T.pick([[1000, 250], [500, 500], [750, 250], [1000, 500], [600, 400], [1000, 1000, 500], [250, 250, 500], [1000, 750], [800, 200], [2000, 500]]).map((x) => [x, 1]);
         const d = T.pick([2, 3, 4, 5, 6, 8]), x = rnd(1, d - 1), y = rnd(1, d); return [[x, d], [y, d]];
       }
       function yeni() {
@@ -181,13 +183,13 @@
         }
         }
         const t = toplamOf(parca), parcTamam = buMod === "parcala" && esit(t, hedef) && parca.length > 1;
-        const BIRIM = { dakika: "Dakika olarak yaz. 60 dakika = 1 saat.", metre: "Santimetre olarak yaz. 100 cm = 1 m.", kesir: "Kesir için / tuşunu kullan. Örnek: 3/4" }[tur] || "";
+        const BIRIM = { dakika: "Dakika olarak yaz. 60 dakika = 1 saat.", metre: "Santimetre olarak yaz. 100 cm = 1 m.", kg: "Gram olarak yaz. 1000 g = 1 kg.", kesir: "Kesir için / tuşunu kullan. Örnek: 3/4" }[tur] || "";
         let durum;
         if (buMod === "parcala") durum = parcTamam && !uyari ? "Oldu! " + metin(hedef) + " = " + parca.map(metin).join(" + ") : uyari || "Bütünü parçalara ayır. " + (parca.length ? "Şu ana kadar: " + metin(t) + ". " : "") + BIRIM;
         else if (cozuldu) durum = metin(hedef) + " = " + verilen.map(metin).join(" + ");
         else durum = uyari || (buMod === "butun" ? "Parçalar verildi. Bütün kaç? " : "Bütün ve bir parça verildi. Eksik parça kaç? ") + BIRIM;
         kap.replaceChildren(
-          h("div.mz-ust", seg([["yirmi", "20 içinde"], ["yuz", "100 içinde"], ["bin", "1000 içinde"], ["dakika", "Saat ve dakika"], ["metre", "Metre ve santimetre"], ["kesir", "Kesirler"]], tur, (v) => { tur = v; yeni(); }),
+          h("div.mz-ust", seg([["yirmi", "20 içinde"], ["yuz", "100 içinde"], ["bin", "1000 içinde"], ["dakika", "Saat ve dakika"], ["metre", "Metre ve santimetre"], ["kg", "Kilogram ve gram"], ["kesir", "Kesirler"]], tur, (v) => { tur = v; yeni(); }),
             seg([["karisik", "Karışık"], ["parcala", "Parçala"], ["eksik", "Eksik parça"], ["butun", "Bütünü bul"]], mod, (v) => { mod = v; yeni(); }), h("div.spacer"), h("button.btn.sm.c-chalk", { onclick: yeni }, T.icon("reset"), "Yeni soru")),
           h("div.mz-yan", h("div", sv || boncukSahne(altlar),
             h("div.mz-durum" + ((parcTamam && !uyari) || cozuldu ? ".iyi" : uyari ? ".kotu" : ""), durum),

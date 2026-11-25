@@ -3496,3 +3496,12 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
   .d3-sec { min-width: 70px; font-size: 20px !important; padding: .25em .6em !important; }
   .tv-afis { width: min(64%, 980px); }
 }
+
+/* Kesir modelleri denetimi */
+.km-kontrol { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; background: rgba(255,255,255,.88); padding: 8px 14px; border-radius: 20px; box-shadow: 0 8px 22px rgba(30,60,90,.18); }
+.km-kesir { display: grid; justify-items: center; gap: 2px; } .km-kesir i { width: 100%; height: 4px; border-radius: 2px; background: #1B2A4A; }
+.km-sat { display: flex; align-items: center; gap: 8px; } .km-sat b { font: 900 clamp(26px, 3vw, 46px)/1 var(--display); color: #1B2A4A; min-width: 1.4em; text-align: center; }
+.km-ok { width: 44px; height: 44px; border: 0; border-radius: 12px; background: #E6EEF7; color: #1B2A4A; font-size: 18px; cursor: pointer; }
+.km-ok:active { transform: scale(.94); }
+.km-model { display: flex; gap: 6px; flex-wrap: wrap; } .km-m { border: 0; border-radius: 999px; padding: 10px 16px; background: #EEF2F7; font: 800 16px var(--display); color: #1B2A4A; cursor: pointer; min-height: 44px; }
+.km-m[aria-pressed="true"] { background: #1B2A4A; color: #fff; }

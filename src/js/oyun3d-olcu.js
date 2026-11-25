@@ -5,6 +5,7 @@
   const yakin = (ans, n = 4, sp = 3, min = 1) => { const o = new Set([ans]); let t = 0; while (o.size < n && t++ < 200) { const v = ans + R(-sp, sp); if (v >= min && v !== ans) o.add(v); } return T.shuffle([...o]); };
   const kayit = (id, title, icon, tone, grades, short) => { T.tools["oyun-" + id] = { cat: "oyun", title, icon, tone, grades, short, render() {} }; };
   kayit("kesir-dogru", "Kesir sayı doğrusu", "lale", "leaf", [2, 4], "Uğur böceği taştan taşa zıplar: basit ve bileşik kesirler");
+  kayit("kesir-model", "Kesir modelleri", "cikolata", "sun", [2, 4], "Pizza, çikolata, bardak, pasta: payı ve paydayı değiştir, kesri gör");
   kayit("cetvel", "Cetvelle ölç", "cetvel", "sky", [1, 4], "Nesneyi cetvelle ölç, en yakın santimetreyi bul");
   kayit("havuz", "Kesirle doldur", "damla", "sea", [2, 4], "Havuz, sürahi, buz kalıbı: eş parçaları doldur, kesri oku");
 
@@ -56,23 +57,26 @@
     g.position.y = r; return g;
   }
   function makas(c, L) {
-    const { THREE } = c, g = new THREE.Group(), sap = Math.min(3.0, L * 0.42), bicak = L - sap;
-    const celik = new THREE.MeshStandardMaterial({ color: 0xd9dde3, metalness: 0.9, roughness: 0.22 });
-    const kirmizi = new THREE.MeshPhysicalMaterial({ color: P([0xe0483a, 0x2f7fd8, 0xf28c28]), roughness: 0.35, clearcoat: 0.7 });
+    const { THREE } = c, g = new THREE.Group(), sap = Math.min(2.4, L * 0.36), bicak = L - sap;
+    const celik = new THREE.MeshStandardMaterial({ color: 0xdfe3e8, metalness: 0.9, roughness: 0.2 });
+    const renk = new THREE.MeshPhysicalMaterial({ color: P([0xe0483a, 0x2f7fd8, 0xf28c28]), roughness: 0.35, clearcoat: 0.7 });
     [-1, 1].forEach((s) => {
-      const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.lineTo(bicak, s * 0.05); sh.lineTo(0, s * 0.34); sh.lineTo(0, 0);
-      const b = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.05, bevelEnabled: false }), celik); b.rotation.x = -Math.PI / 2; b.position.set(sap, 0.08 + (s > 0 ? 0.06 : 0), 0); g.add(b);
-      const h = new THREE.Mesh(new THREE.TorusGeometry(sap * 0.38, 0.11, 14, 40), kirmizi); h.rotation.x = Math.PI / 2; h.scale.set(1.15, 0.8, 1); h.position.set(sap * 0.45, 0.12, s * sap * 0.33); g.add(h);
-      const bag = new THREE.Mesh(new THREE.BoxGeometry(sap * 0.25, 0.12, 0.16), kirmizi); bag.position.set(sap * 0.88, 0.12, s * 0.12); g.add(bag);
+      /* bıçak: uca doğru incelen ince üçgen */
+      const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.lineTo(bicak, s * 0.02); sh.lineTo(bicak * 0.15, s * 0.3); sh.lineTo(0, s * 0.26); sh.lineTo(0, 0);
+      const b = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.04, bevelEnabled: false }), celik); b.rotation.x = -Math.PI / 2; b.position.set(sap, 0.06 + (s > 0 ? 0.05 : 0), 0); g.add(b);
+      /* kulp: oval halka, bıçağa kısa bir kolla bağlı */
+      const r = sap * 0.3;
+      const h = new THREE.Mesh(new THREE.TorusGeometry(r, 0.09, 14, 44), renk); h.rotation.x = Math.PI / 2; h.scale.set(1.35, 0.85, 1); h.position.set(r * 1.35 + 0.05, 0.1, s * (r * 0.85 + 0.16)); g.add(h);
+      const kol = new THREE.Mesh(new THREE.BoxGeometry(sap - r * 2.6, 0.12, 0.17), renk); kol.position.set(r * 2.7 + (sap - r * 2.6) / 2, 0.1, s * 0.16); g.add(kol);
     });
-    const vida = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.26, 20), celik); vida.position.set(sap + 0.2, 0.12, 0); g.add(vida);
+    const vida = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.22, 20), celik); vida.position.set(sap + 0.15, 0.1, 0); g.add(vida);
     return g;
   }
-  const NESNE = [["kalem", kalem, 7, 17, 2.1], ["silgi", silgi, 3, 6, 1.6], ["pastel boya", pastel, 5, 9, 2.1], ["makas", makas, 9, 15, 1.15]];
+  const NESNE = [["kalem", kalem, 7, 17, 2.1], ["silgi", silgi, 3, 6, 1.6], ["pastel boya", pastel, 5, 9, 2.1], ["makas", makas, 9, 15, 1.25]];
 
   T.oyun3B("cetvel", { ortam: "masa",
     surukle(c, grup, Rr, x, y) { const sg = grup.userData.surgu; if (!sg || !sg.visible) return; const { THREE } = c, ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(x, y), c.kamera);
-      const p = new THREE.Vector3(); if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), p)) return; sg.position.x = Math.max(X0, Math.min(X0 + CM * U, p.x)); }, seviyeler: ["0'dan başlar", "En yakın santimetre", "0'dan başlamıyor"], kamera: { poz: [0, 12.6, 0.35], bak: [0, 0, -0.45], fov: 40 },
+      const p = new THREE.Vector3(); if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), p)) return; grup.worldToLocal(p); sg.position.x = Math.max(X0, Math.min(X0 + CM * U, p.x)); }, seviyeler: ["0'dan başlar", "En yakın santimetre", "0'dan başlamıyor"], kamera: { poz: [0, 3.4, 13], bak: [0, 3.25, 0], fov: 40 },
     seviye: (g) => (g <= 1 ? 0 : g <= 3 ? 1 : 2),
     tur(L) {
       const [ad, yap, a, b, olc] = P(NESNE); const n = R(a, b);
@@ -83,7 +87,11 @@
       return { soru, cevap: cevap + " cm", secenekler: yakin(cevap, 4, L === 2 ? 3 : 2, 1).map((v) => v + " cm"), aciklama,
         ipucu: (L === 2 ? "Başladığı çizgiyi de hesaba kat. " : "") + "Mavi noktayı sürükle, nesnenin ucuna getir, cetvelden oku.", ikinciSans: true,
         goster(c, grup) {
-          const { THREE } = c; cetvelKur(c, grup);
+          const { THREE } = c; grup.rotation.x = Math.PI / 2; grup.position.set(0, 3.2, 0);
+          const pano = new THREE.Mesh(new THREE.BoxGeometry(CM * U + 3, 0.12, 6.4), new THREE.MeshStandardMaterial({ color: 0x3f78c8, roughness: 0.8 })); pano.position.set(0, -0.08, -0.15); pano.receiveShadow = true; grup.add(pano);
+          const cer = new THREE.Mesh(new THREE.BoxGeometry(CM * U + 3.4, 0.1, 6.8), new THREE.MeshStandardMaterial({ color: 0xe8edf3, roughness: 0.5 })); cer.position.set(0, -0.16, -0.15); grup.add(cer);
+          const isik = new THREE.DirectionalLight(0xffffff, 1.1); isik.position.set(2, 9, 3); grup.add(isik); grup.add(isik.target);
+          cetvelKur(c, grup);
           const o = yap(c, gercek * U); o.position.x = X0 + bas * U; o.position.z = 0.7; o.scale.y = o.scale.z = olc; c.golge(o); o.userData.y0 = o.position.y * olc; o.userData.in = 1; grup.add(o); grup.userData.o = o;
           /* başlangıç ve bitiş kılavuz çizgileri */
           const kilavuz = (x, renk) => { const pts = []; for (let z = -1.1; z < 2.3; z += 0.14) pts.push(new THREE.Vector3(x, 0.03, z), new THREE.Vector3(x, 0.03, z + 0.07)); const l = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: renk })); grup.add(l); return l; };
@@ -94,7 +102,7 @@
           const cubuk = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.02, 3.5), new THREE.MeshBasicMaterial({ color: 0x1e3a66, transparent: true, opacity: 0.35 })); cubuk.position.set(0, 0.03, 0.6); surgu.add(cubuk);
           surgu.position.x = X0; surgu.visible = false; grup.add(surgu); grup.userData.surgu = surgu; grup.userData.isaret = isaret;
         },
-        adim(c, grup, dt) { genisSigdir(c, CM * U / 2 + 0.9, [0, 12.6, 0.35], [0, 0, -0.45]); const o = grup.userData.o; if (o && o.userData.in > 0) { o.userData.in = Math.max(0, o.userData.in - dt * 2.2); o.position.y = o.userData.y0 + o.userData.in * o.userData.in * 3; }
+        adim(c, grup, dt) { genisSigdir(c, CM * U / 2 + 1.0, [0, 3.4, 13], [0, 3.25, 0]); const o = grup.userData.o; if (o && o.userData.in > 0) { o.userData.in = Math.max(0, o.userData.in - dt * 2.2); o.position.y = o.userData.y0 + o.userData.in * o.userData.in * 3; }
           const is = grup.userData.isaret; if (is && grup.userData.surgu.visible) is.scale.setScalar(1 + Math.sin(c.zaman * 4) * 0.12); },
         yanlis(c, grup) { const sg = grup.userData.surgu; if (sg && !sg.visible) { sg.visible = true; sg.position.x = X0 + (bas ? bas : 0) * U - U * 1.5; } },
         dogru(c, grup) { const s = grup.userData.son; if (s) s.visible = true; },
@@ -112,7 +120,7 @@
     [-0.08, 0.08].forEach((x) => { const e = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 8), new THREE.MeshStandardMaterial({ color: 0xffffff })); e.position.set(x, 0.14, 0.56); g.add(e); const an = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.3, 6), nok); an.position.set(x * 1.5, 0.3, 0.5); an.rotation.x = 0.5; an.rotation.z = -x * 4; g.add(an); });
     g.rotation.y = Math.PI / 2; c.golge(g); return g;
   }
-  T.oyun3B("kesir-dogru", { ortam: "cayir", seviyeler: ["Böcek nerede?", "Taşı bul (0-1)", "Bileşik kesir (0-2)"], kamera: { poz: [0, 5.6, 8.2], bak: [0, 0.3, 0.6], fov: 40 },
+  T.oyun3B("kesir-dogru", { ortam: "cayir", seviyeler: ["Böcek nerede?", "Taşı bul (0-1)", "Bileşik kesir (0-2)"], kamera: { poz: [0, 3.4, 9.2], bak: [0, 0.5, 0.3], fov: 40 },
     seviye: (g) => (g <= 2 ? 0 : g <= 3 ? 1 : 2),
     tur(L) {
       const n = L === 2 ? P([2, 3, 4]) : P([2, 3, 4, 5, 6, 8]), ust = L === 2 ? 2 : 1, top = n * ust;
@@ -141,7 +149,7 @@
           b.position.set(X0 + u.konum * adim, 0.27, 0);
         },
         adim(c, grup, dt) {
-          genisSigdir(c, 7.2, [0, 5.6, 8.2], [0, 0.3, 0.6]); const u = grup.userData, b = u.bocek; if (!b) return;
+          genisSigdir(c, 7.2, [0, 3.4, 9.2], [0, 0.5, 0.3]); const u = grup.userData, b = u.bocek; if (!b) return;
           if (u.konum !== u.hedef) { u.zip += dt * 2.6; const yon = Math.sign(u.hedef - u.konum); if (u.zip >= 1) { u.zip = 0; u.konum += yon; T.Sahne.ses.zipla(); } const x = u.X0 + (u.konum + yon * u.zip) * u.adimW; b.position.set(x, 0.27 + Math.sin(Math.PI * u.zip) * 0.9, 0); }
           else b.position.y = 0.27 + Math.abs(Math.sin(c.zaman * 3)) * 0.04;
         },
@@ -159,6 +167,99 @@
       const hit = ray.intersectObjects(u.tas.map((t) => t.v))[0]; if (!hit) return null;
       const i = hit.object.userData.i, n = +Rr.cevap.split("/")[1];
       return i + "/" + n;
+    } });
+
+  /* ---------- Kesir modelleri: pizza, çikolata, bardak, pasta ---------- */
+  const MODEL = ["pizza", "çikolata", "bardak", "pasta"];
+  function modelKur(c, kok, model, pay, payda, eski) {
+    const { THREE } = c; kok.clear();
+    const butun = Math.max(1, Math.ceil(pay / payda)), ara = 3.4, hayal = new THREE.MeshStandardMaterial({ color: 0xdfe6ee, transparent: true, opacity: 0.35, roughness: 0.8 });
+    const kenar = new THREE.LineBasicMaterial({ color: 0x6b7a90 });
+    const pizzaDoku = c.doku(256, 256, (x, w, h) => { x.fillStyle = "#F3C75A"; x.fillRect(0, 0, w, h); x.fillStyle = "#E89A3C"; for (let i = 0; i < 60; i++) { x.globalAlpha = 0.25; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 6 + Math.random() * 10, 0, 7); x.fill(); } x.globalAlpha = 1; x.fillStyle = "#C2352B"; for (let i = 0; i < 14; i++) { x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 14, 0, 7); x.fill(); } x.fillStyle = "#3E8E3A"; for (let i = 0; i < 18; i++) x.fillRect(Math.random() * w, Math.random() * h, 8, 5); });
+    const M = {
+      pizza: [new THREE.MeshStandardMaterial({ color: 0xd99a4e, roughness: 0.8 }), new THREE.MeshStandardMaterial({ map: pizzaDoku, roughness: 0.6 })],
+      pasta: [new THREE.MeshStandardMaterial({ color: 0xf1d6a0, roughness: 0.7 }), new THREE.MeshStandardMaterial({ color: 0xfff6ee, roughness: 0.5 }), new THREE.MeshStandardMaterial({ color: 0x6b3a22, roughness: 0.6 })],
+      cik: new THREE.MeshPhysicalMaterial({ color: 0x5a2f1a, roughness: 0.35, clearcoat: 0.6 }),
+    };
+    for (let b = 0; b < butun; b++) {
+      const g = new THREE.Group(); g.position.x = (b - (butun - 1) / 2) * ara; kok.add(g);
+      const dolu = Math.min(payda, Math.max(0, pay - b * payda));
+      for (let i = 0; i < payda; i++) {
+        const on = i < dolu, yeni = on && (!eski || b * payda + i >= eski);
+        let m;
+        if (model === "pizza" || model === "pasta") {
+          const t0 = Math.PI / 2 + (i * 2 * Math.PI) / payda, tl = (2 * Math.PI) / payda, Rr = 1.4, hh = model === "pizza" ? 0.18 : 0.85;
+          const geo = new THREE.CylinderGeometry(Rr, Rr, hh, Math.max(6, Math.ceil(64 / payda)), 1, false, t0, tl);
+          if (on) {
+            if (model === "pizza") { m = new THREE.Mesh(geo, [M.pizza[0], M.pizza[1], M.pizza[0]]); }
+            else { m = new THREE.Group(); const alt = new THREE.Mesh(geo, [M.pasta[0], M.pasta[1], M.pasta[0]]); m.add(alt); const krem = new THREE.Mesh(new THREE.CylinderGeometry(Rr * 1.01, Rr * 1.01, 0.12, Math.max(6, Math.ceil(64 / payda)), 1, false, t0, tl), M.pasta[1]); krem.position.y = 0.06; m.add(krem); const cik = new THREE.Mesh(new THREE.CylinderGeometry(Rr * 1.005, Rr * 1.005, 0.14, Math.max(6, Math.ceil(64 / payda)), 1, false, t0, tl), M.pasta[2]); cik.position.y = hh / 2 - 0.07; m.add(cik);
+              const cil = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), new THREE.MeshStandardMaterial({ color: 0xd8262c, roughness: 0.3 })); const ta = t0 + tl / 2; cil.position.set(Math.sin(ta) * Rr * 0.65, hh / 2 + 0.08, Math.cos(ta) * Rr * 0.65); m.add(cil); }
+          } else { m = new THREE.Mesh(geo, hayal); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), kenar)); }
+          const ta = t0 + tl / 2, ayr = payda > 1 ? 0.07 : 0; m.position.set(Math.sin(ta) * ayr, hh / 2 + 0.02, Math.cos(ta) * ayr);
+        } else if (model === "çikolata") {
+          const W = 2.8, d = W / payda, geo = new THREE.BoxGeometry(d - 0.05, 0.22, 1.3);
+          m = new THREE.Mesh(geo, on ? M.cik : hayal); if (!on) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), kenar));
+          m.position.set(-W / 2 + d * (i + 0.5), 0.13, 0);
+          if (on) { const ust = new THREE.Mesh(new THREE.BoxGeometry(d - 0.25, 0.06, 1.05), M.cik); ust.position.y = 0.13; m.add(ust); }
+        } else { m = null; }
+        if (m) { if (on) m.traverse((o) => { o.userData.dolu = 1; }); c.golge(m); if (yeni) { m.userData.in = 1; m.position.y += 1.6; m.userData.y = m.position.y - 1.6; } g.add(m); }
+      }
+      if (model === "bardak") {
+        const H = 2.6, Rr = 0.9, cam = new THREE.MeshStandardMaterial({ color: 0xd4e4f2, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.28, depthWrite: false, side: THREE.DoubleSide });
+        const halka = new THREE.MeshStandardMaterial({ color: 0x8da3b8, roughness: 0.3 }); [[H, Rr], [0.02, Rr * 0.9]].forEach(([yy, rr]) => { const t = new THREE.Mesh(new THREE.TorusGeometry(rr, 0.035, 8, 48), halka); t.rotation.x = Math.PI / 2; t.position.y = yy; g.add(t); });
+        const gv = new THREE.Mesh(new THREE.CylinderGeometry(Rr, Rr * 0.9, H, 40, 1, true), cam); gv.position.y = H / 2; g.add(gv);
+        const dip = new THREE.Mesh(new THREE.CylinderGeometry(Rr * 0.9, Rr * 0.9, 0.08, 40), cam); dip.position.y = 0.04; g.add(dip);
+        for (let i = 1; i < payda; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(Rr * (0.9 + 0.1 * i / payda) + 0.01, 0.018, 6, 48, Math.PI * 0.8), new THREE.MeshBasicMaterial({ color: 0x1e3a66 })); t.rotation.x = Math.PI / 2; t.rotation.z = Math.PI * 0.1; t.position.y = 0.08 + (i * (H - 0.1)) / payda; g.add(t); }
+        if (dolu) { const hh = (dolu * (H - 0.1)) / payda, su = new THREE.Mesh(new THREE.CylinderGeometry(Rr * 0.95 * (0.9 + 0.1 * dolu / payda), Rr * 0.86, hh, 40), new THREE.MeshStandardMaterial({ color: 0x2f9ee0, roughness: 0.15, transparent: true, opacity: 0.88 })); su.position.y = 0.08 + hh / 2; g.add(su); }
+      }
+    }
+    kok.userData.butun = butun;
+    kok.rotation.x = model === "bardak" ? 0 : model === "pasta" ? 0.5 : Math.PI / 2;
+    kok.position.y = model === "bardak" ? 0.6 : model === "pasta" ? 1.7 : 2.15; kok.position.z = model === "bardak" ? -0.4 : 0;
+  }
+  function kesirKontrol(R, ciz, tamamYok) {
+    const ok = (yon, alan) => T.h("button.km-ok", { "aria-label": (alan === "pay" ? "Pay" : "Payda") + (yon > 0 ? " artır" : " azalt"), onclick: () => { R.degis(alan, yon); ciz(); } }, yon > 0 ? "▲" : "▼");
+    return T.h("div.km-kontrol",
+      T.h("div.km-kesir", T.h("div.km-sat", ok(-1, "pay"), T.h("b", String(R.pay)), ok(1, "pay")), T.h("i"), T.h("div.km-sat", ok(-1, "payda"), T.h("b", String(R.payda)), ok(1, "payda"))),
+      R.modelSec ? T.h("div.km-model", MODEL.map((m) => T.h("button.km-m", { "aria-pressed": String(R.model === m), onclick: () => { R.model = m; R.yenile(); ciz(); } }, m[0].toLocaleUpperCase("tr") + m.slice(1)))) : null,
+      tamamYok ? null : T.h("button.btn.big.c-chalk.d3-sec", { onclick: () => R.sec(R.pay + "/" + R.payda) }, "Tamam"));
+  }
+  T.oyun3B("kesir-model", { ortam: "masa", seviyeler: ["Keşfet", "Kesri oluştur", "Modeli oku"], kamera: { poz: [0, 2.0, 8.2], bak: [0, 1.75, 0], fov: 40 },
+    dokun(c, grup, Rr, x, y) { const u = grup.userData; if (!u.kok || !Rr.degis || Rr._L === 2) return null; const ray = new c.THREE.Raycaster(); ray.setFromCamera(new c.THREE.Vector2(x, y), c.kamera);
+      if (u.kase && ray.intersectObject(u.kase)[0]) { Rr.degis("pay", 1); Rr._altCiz && Rr._altCiz(); return null; }
+      const h = ray.intersectObject(u.kok, true).find((q) => q.object.userData.dolu); if (h) { Rr.degis("pay", -1); Rr._altCiz && Rr._altCiz(); } return null; },
+    seviye: () => 0,
+    tur(L) {
+      const model = P(MODEL), payda = L === 0 ? 4 : R(2, 8), bilesik = L === 2 && Math.random() < 0.35;
+      const hp = bilesik ? R(payda + 1, payda * 2 - 1) : R(1, payda - 1), hedef = hp + "/" + payda;
+      const Rr = { model, pay: L === 0 ? 1 : L === 1 ? 0 : 1, payda: L === 1 ? 1 : L === 2 ? 1 : payda, cevap: L === 0 ? "—" : hedef, secenekler: [], modelSec: L === 0,
+        soru: L === 0 ? "Payı ve paydayı değiştir ya da kâseye dokunup parça ekle. Bir bütün dolunca yeni bütün gelir." : L === 1 ? `Modelde ${oku(hedef, "ni")} göster. Payı ve paydayı ayarla, sonra Tamam'a bas.` : "Model hangi kesri gösteriyor? Payı ve paydayı ayarla, sonra Tamam'a bas.",
+        aciklama: L === 2 && bilesik ? `Her bütün ${payda} eş parça, toplam ${hp} parça: ${hedef}.` : `Bütün ${payda} eş parça, ${hp} tanesi dolu: ${hedef}.`,
+        ipucu: L === 2 ? "Bir bütün kaç eş parça? Payda o. Kaç parça dolu? Pay o." : "Önce paydayı ayarla: bütün kaç eş parça olacak?",
+        cevapYazi: hedef,
+        goster(c, grup) { const { THREE } = c; const kok = new THREE.Group(); grup.add(kok); grup.userData.kok = kok; grup.userData.c = c;
+          const pano = new THREE.Mesh(new THREE.BoxGeometry(16, 5.6, 0.2), new THREE.MeshStandardMaterial({ color: 0xe3eef9, roughness: 0.9 })); pano.position.set(0, 2.6, -1.6); pano.receiveShadow = true; grup.add(pano);
+          const isik = new THREE.DirectionalLight(0xffffff, 0.9); isik.position.set(2, 4, 9); grup.add(isik);
+          if (L !== 2) { /* parça kâsesi: modellerin sağında */
+            const kg = new THREE.Group(); kg.position.set(0, 0, -1.2); grup.add(kg); grup.userData.kg = kg;
+            const prof = []; for (let i = 0; i <= 10; i++) { const t = i / 10; prof.push(new THREE.Vector2(0.9 + t * 0.7, t * 0.75)); }
+            const kase = new THREE.Mesh(new THREE.LatheGeometry(prof, 48), new THREE.MeshStandardMaterial({ color: 0x7fb2e6, roughness: 0.4, side: THREE.DoubleSide })); kase.position.set(0, 0.05, 1.5); c.golge(kase); kg.add(kase);
+            const dip = new THREE.Mesh(new THREE.CircleGeometry(0.9, 40), kase.material); dip.rotation.x = -Math.PI / 2; dip.position.set(0, 0.06, 1.5); kg.add(dip);
+            for (let k = 0; k < 5; k++) { const pc = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.16, 0.45), new THREE.MeshStandardMaterial({ color: 0xf6c431, roughness: 0.5 })); pc.position.set(-0.6 + k * 0.3, 0.6 + (k % 2) * 0.08, 1.45 + (k % 3 - 1) * 0.2); pc.rotation.y = k * 0.7; kg.add(pc); }
+            const vur = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.2, 1.2, 16), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); vur.position.set(0, 0.5, 1.5); kg.add(vur); grup.userData.kase = vur;
+            grup.userData.kaseEtiket = (pd) => { if (grup.userData.et) kg.remove(grup.userData.et); const et = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.MeshBasicMaterial({ map: c.sayiDoku("1/" + pd, "#FFFFFF", "#EEF3F8", "#1B2A4A", true), transparent: true })); et.position.set(0, 0.42, 2.32); kg.add(et); grup.userData.et = et; };
+          }
+          Rr.yenile(); },
+        adim(c, grup, dt) { const kok = grup.userData.kok; if (!kok) return; const bd = Rr.model === "bardak" && L !== 2 || (L === 2 && model === "bardak"); const kg = grup.userData.kg, sol = kok.position.x - kok.userData.butun * 1.7 - 0.3, sag = kg ? kg.position.x + 1.8 : -sol, ox = (sol + sag) / 2; genisSigdir(c, Math.max(2.6, (sag - sol) / 2), [ox, 2.0, 8.2], [ox, 1.75, 0]);
+          kok.traverse((m) => { if (m.userData.in > 0) { m.userData.in = Math.max(0, m.userData.in - dt * 3); m.position.y = m.userData.y + m.userData.in * m.userData.in * 1.6; } }); },
+        dogru(c, grup, goster) { if (L === 2 || goster) { Rr.pay = hp; Rr.payda = payda; } if (L === 1) Rr.yenile(); },
+      };
+      let gr = null, sonPay = 0;
+      Rr.yenile = () => { const g = T._d3m; if (!g) return; const c = g.userData.c, goster = L === 2 ? [hp, payda] : [Rr.pay, Rr.payda]; modelKur(c, g.userData.kok, Rr.model, goster[0], goster[1], L === 2 ? 99 : sonPay); sonPay = Rr.pay; g.userData.kaseEtiket && g.userData.kaseEtiket(Rr.payda); const kok = g.userData.kok, yg = kok.userData.butun * 1.7, kg = g.userData.kg; if (kg) { kok.position.x = -1.3; kg.position.x = kok.position.x + yg + 1.9; } else kok.position.x = 0; };
+      Rr.degis = (alan, yon) => { if (alan === "payda") { Rr.payda = Math.max(1, Math.min(10, Rr.payda + yon)); Rr.pay = Math.min(Rr.pay, Rr.payda * 4); } else Rr.pay = Math.max(0, Math.min(Rr.payda * 4, Rr.pay + yon)); if (L !== 2) Rr.yenile(); T.Sahne.ses.tik(); };
+      Rr._L = L; Rr.altOzel = (sec) => { Rr.sec = sec; const kutu = T.h("div"); const ciz = () => kutu.replaceChildren(kesirKontrol(Rr, ciz, L === 0)); Rr._altCiz = ciz; ciz(); return kutu; };
+      const g0 = Rr.goster; Rr.goster = (c, grup) => { T._d3m = grup; g0(c, grup); };
+      return Rr;
     } });
 
   /* ---------- Kesir havuzu ---------- */
@@ -219,7 +320,7 @@
   /* buz kalıbı: gözlere tek tek su konur */
   function kalipKur(c, grup, n) {
     const { THREE } = c, sira = n > 5 ? 2 : 1, sut = Math.ceil(n / sira), G = 1.25, Y = 0.95;
-    c.kamera.position.set(0, 8.6, 6.4); c.kamera.lookAt(0, 0.8, 0.3); grup.userData.kam = [4.5, [0, 8.6, 6.4], [0, 0.8, 0.3]];
+    c.kamera.position.set(0, 5.0, 7.6); c.kamera.lookAt(0, 0.9, 0.3); grup.userData.kam = [4.5, [0, 5.0, 7.6], [0, 0.9, 0.3]];
     const masa = new THREE.Mesh(new THREE.BoxGeometry(sut * G + 4, 0.3, sira * G + 3), new THREE.MeshStandardMaterial({ map: c.tahta(), roughness: 0.6 })); masa.position.y = 0.65; c.golge(masa); grup.add(masa);
     const pM = new THREE.MeshPhysicalMaterial({ color: P([0x7fd0ee, 0xf7a6c4, 0xa7e3a1]), roughness: 0.3, clearcoat: 0.6, transmission: 0.2 });
     const tab = new THREE.Mesh(new THREE.BoxGeometry(sut * G + 0.3, 0.12, sira * G + 0.3), pM); tab.position.y = Y + 0.06; c.golge(tab); grup.add(tab);
@@ -300,7 +401,7 @@
       dogru(c, grup, goster) { const u = grup.userData; if (goster) u.katman = Array(a).fill(r1).concat(Array(b).fill(r2)); sonra(u); u.karis = 0; } });
   }
   const KAP = [
-    { ad: "havuz", tam: "Havuzun", kur: (c, grup, n) => { c.kamera.position.set(0, 9.4, 8.6); c.kamera.lookAt(0, 0.4, 0.3); grup.userData.kam = [7.0, [0, 9.4, 8.6], [0, 0.4, 0.3]]; return havuzKur(c, grup, n); }, nler: [2, 3, 4, 5, 6, 8] },
+    { ad: "havuz", tam: "Havuzun", kur: (c, grup, n) => { c.kamera.position.set(0, 6.2, 10.4); c.kamera.lookAt(0, 0.2, 0.4); grup.userData.kam = [7.0, [0, 6.2, 10.4], [0, 0.2, 0.4]]; return havuzKur(c, grup, n); }, nler: [2, 3, 4, 5, 6, 8] },
     { ad: "sürahi", tam: "Sürahinin", kur: surahiKur, nler: [2, 3, 4, 5, 6] },
     { ad: "buz kalıbı", tam: "Buz kalıbının", kur: kalipKur, nler: [2, 3, 4, 5, 6, 8, 10] },
     { ad: "boya", boya: true },

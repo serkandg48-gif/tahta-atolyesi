@@ -83,7 +83,7 @@
           R = def.tur(L, c); grup = new THREE.Group(); sahne.add(grup); R.goster && R.goster(c, grup); durum = "soru"; deneme = 0; ciz();
         };
         const ciz = () => {
-          afis.replaceChildren(T.h("div.tv-soru", durum === "soru" ? R.soru : durum === "dogru" ? (R.tebrik || "Doğru! ") + (R.aciklama || "") : durum === "yanlis" ? (R.ipucu || "Bir daha dene.") : "Doğrusu " + R.cevap + ". " + (R.aciklama || "")));
+          afis.replaceChildren(T.h("div.tv-soru", durum === "soru" ? R.soru : durum === "dogru" ? (R.tebrik || "Doğru! ") + (R.aciklama || "") : durum === "yanlis" ? (R.ipucu || "Bir daha dene.") : "Doğrusu " + (R.cevapYazi || R.cevap) + ". " + (R.aciklama || "")));
           Sh.skor(skor, D);
           alt.replaceChildren(...(durum === "soru" || durum === "yanlis" ? R.secenekler.map((v) => T.h("button.btn.big.c-chalk.d3-sec" + (String(v).length > 6 ? ".uzun" : ""), { disabled: R._elendi && R._elendi.includes(v) ? true : null, onclick: () => sec(v) }, String(v))) : [T.h("button.btn.c-leaf.tv-sonraki", { onclick: () => { if (D.takim) D.sira = 1 - D.sira; yeni(); } }, "Sonraki")]));
           ayar.replaceChildren(T.h("div.seg", (def.seviyeler || ["Kolay", "Orta", "Zor"]).map((l, kk) => T.h("button", { "aria-pressed": String(L === kk), onclick: () => { L = kk; yeni(); } }, l))),

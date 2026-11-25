@@ -47,6 +47,7 @@ JS_ORDER = [
     "kumbara3d.js",
     "oyun3d.js",
     "oyunlar3d.js",
+    "oyun3d-olcu.js",
     "kural.js",
     "araclar3d.js",
     "sinif-yonetim.js",

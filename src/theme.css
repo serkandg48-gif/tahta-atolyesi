@@ -3487,3 +3487,12 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
   .izo-ipucu { font-size: .8rem; }
   .izo-gor { width: auto; grid-template-columns: repeat(3, 1fr); }
 }
+
+/* yatay telefonda 3B oyun sahnesi ekranı doldursun */
+@media (max-height: 520px) and (orientation: landscape) {
+  .tv-sahne, .sh-kap { max-height: calc(100vh - 16px); }
+  .tv-soru { font-size: clamp(13px, 2vw, 18px); padding: .4em .8em; }
+  .tv-takim { padding: .2em .5em; } .tv-takim b { font-size: 20px; } .tv-takim span { display: none; }
+  .d3-sec { min-width: 70px; font-size: 20px !important; padding: .25em .6em !important; }
+  .tv-afis { width: min(64%, 980px); }
+}

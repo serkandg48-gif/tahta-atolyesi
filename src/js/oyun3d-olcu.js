@@ -8,6 +8,9 @@
   kayit("cetvel", "Cetvelle ölç", "cetvel", "sky", [1, 4], "Nesneyi cetvelle ölç, en yakın santimetreyi bul");
   kayit("havuz", "Kesirle doldur", "damla", "sea", [2, 4], "Havuz, sürahi, buz kalıbı: eş parçaları doldur, kesri oku");
 
+  /* dar ekranda (telefon dikey) sahnenin genişliği sığsın diye kamerayı geri çeker */
+  const genisSigdir = (c, yg, poz, bak) => { const K = c.kamera, v = (K.fov * Math.PI) / 360, h = Math.atan(Math.tan(v) * K.aspect), d0 = Math.hypot(poz[0] - bak[0], poz[1] - bak[1], poz[2] - bak[2]);
+    const k = Math.max(1, yg / Math.tan(h) / d0); K.position.set(bak[0] + (poz[0] - bak[0]) * k, bak[1] + (poz[1] - bak[1]) * k, bak[2] + (poz[2] - bak[2]) * k); K.lookAt(bak[0], bak[1], bak[2]); };
   /* ---------- Cetvelle ölç ---------- */
   const U = 0.56, CM = 20, X0 = -(CM * U) / 2;
   function cetvelKur(c, grup) {
@@ -16,15 +19,15 @@
       const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#F7FBFE"); g.addColorStop(1, "#DCEBF6"); x.fillStyle = g; x.fillRect(0, 0, w, h);
       const px = (mm) => ((pay + (mm / 10) * U) / W) * w;
       x.strokeStyle = "#1E3A66"; x.fillStyle = "#1E3A66";
-      for (let mm = 0; mm <= CM * 10; mm++) { const uz = mm % 10 === 0 ? 0.42 : mm % 5 === 0 ? 0.3 : 0.18; x.lineWidth = mm % 10 === 0 ? 7 : 4; x.beginPath(); x.moveTo(px(mm), 0); x.lineTo(px(mm), h * uz); x.stroke(); }
+      for (let mm = 0; mm <= CM * 10; mm++) { const uz = mm % 10 === 0 ? 0.42 : mm % 5 === 0 ? 0.3 : 0.18; x.lineWidth = mm % 10 === 0 ? 7 : 4; x.beginPath(); x.moveTo(px(mm), h); x.lineTo(px(mm), h * (1 - uz)); x.stroke(); }
       x.font = "800 92px Nunito, 'Baloo 2', system-ui, sans-serif"; x.textAlign = "center"; x.textBaseline = "alphabetic";
-      for (let i = 0; i <= CM; i++) x.fillText(String(i), px(i * 10), h * 0.78);
-      x.textAlign = "left"; x.font = "800 70px Nunito, system-ui, sans-serif"; x.fillStyle = "#5B7699"; x.fillText("cm", 18, h * 0.94);
+      for (let i = 0; i <= CM; i++) x.fillText(String(i), px(i * 10), h * 0.47);
+      x.textAlign = "left"; x.font = "800 70px Nunito, system-ui, sans-serif"; x.fillStyle = "#5B7699"; x.fillText("cm", 18, h * 0.24);
     });
     const mat = new THREE.MeshPhysicalMaterial({ map: doku, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.15 });
     const yan = new THREE.MeshPhysicalMaterial({ color: 0xcfe2f1, roughness: 0.3, clearcoat: 0.8 });
     const cv = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, 1.5), [yan, yan, mat, yan, yan, yan]);
-    cv.position.set(X0 - pay + W / 2, 0.05, 1.55); c.golge(cv); grup.add(cv);
+    cv.position.set(X0 - pay + W / 2, 0.05, -1.9); c.golge(cv); grup.add(cv);
   }
   /* nesneler: uzunluk birim cinsinden, sol uçları x = 0'da, +x yönüne uzanır */
   function kalem(c, L) {
@@ -65,29 +68,36 @@
     const vida = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.26, 20), celik); vida.position.set(sap + 0.2, 0.12, 0); g.add(vida);
     return g;
   }
-  const NESNE = [["kalem", kalem, 7, 17], ["silgi", silgi, 3, 6], ["pastel boya", pastel, 5, 9], ["makas", makas, 9, 15]];
+  const NESNE = [["kalem", kalem, 7, 17, 2.1], ["silgi", silgi, 3, 6, 1.6], ["pastel boya", pastel, 5, 9, 2.1], ["makas", makas, 9, 15, 1.15]];
 
-  T.oyun3B("cetvel", { ortam: "masa", seviyeler: ["0'dan başlar", "En yakın santimetre", "0'dan başlamıyor"], kamera: { poz: [0, 11.5, 5.2], bak: [0, 0, 0.9], fov: 38 },
+  T.oyun3B("cetvel", { ortam: "masa",
+    surukle(c, grup, Rr, x, y) { const sg = grup.userData.surgu; if (!sg || !sg.visible) return; const { THREE } = c, ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(x, y), c.kamera);
+      const p = new THREE.Vector3(); if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), p)) return; sg.position.x = Math.max(X0, Math.min(X0 + CM * U, p.x)); }, seviyeler: ["0'dan başlar", "En yakın santimetre", "0'dan başlamıyor"], kamera: { poz: [0, 12.6, 0.35], bak: [0, 0, -0.45], fov: 40 },
     seviye: (g) => (g <= 1 ? 0 : g <= 3 ? 1 : 2),
     tur(L) {
-      const [ad, yap, a, b] = P(NESNE); const n = R(a, b);
+      const [ad, yap, a, b, olc] = P(NESNE); const n = R(a, b);
       const kesir = L === 1 ? P([0.2, 0.3, 0.7, 0.8]) : 0, bas = L === 2 ? R(1, Math.max(1, CM - n - 1)) : 0;
       const gercek = n + kesir, cevap = Math.round(gercek), son = bas + gercek;
       const soru = L === 0 ? `Bu ${ad} kaç santimetre?` : L === 1 ? `Bu ${ad} yaklaşık kaç santimetre? En yakın santimetreye yuvarla.` : `Bu ${ad} kaç santimetre? Dikkat: 0'dan başlamıyor.`;
       const aciklama = L === 0 ? `Ucu ${cevap} çizgisinde.` : L === 1 ? `Ucu ${n} ile ${n + 1} arasında, ${kesir < 0.5 ? n : n + 1} çizgisine daha yakın.` : `Başı ${bas}, ucu ${son} çizgisinde: ${son} − ${bas} = ${cevap} santimetre.`;
       return { soru, cevap: cevap + " cm", secenekler: yakin(cevap, 4, L === 2 ? 3 : 2, 1).map((v) => v + " cm"), aciklama,
-        ipucu: L === 2 ? "Başladığı çizgiyi de hesaba kat." : "Ucunun hangi çizgiye en yakın olduğuna bak.",
+        ipucu: (L === 2 ? "Başladığı çizgiyi de hesaba kat. " : "") + "Mavi noktayı sürükle, nesnenin ucuna getir, cetvelden oku.", ikinciSans: true,
         goster(c, grup) {
           const { THREE } = c; cetvelKur(c, grup);
-          const o = yap(c, gercek * U); o.position.x = X0 + bas * U; o.position.z = 0.1; c.golge(o); o.userData.in = 1; grup.add(o); grup.userData.o = o;
+          const o = yap(c, gercek * U); o.position.x = X0 + bas * U; o.position.z = 0.7; o.scale.y = o.scale.z = olc; c.golge(o); o.userData.y0 = o.position.y * olc; o.userData.in = 1; grup.add(o); grup.userData.o = o;
           /* başlangıç ve bitiş kılavuz çizgileri */
-          const kilavuz = (x, renk) => { const pts = []; for (let z = 0.35; z < 0.95; z += 0.12) pts.push(new THREE.Vector3(x, 0.03, z), new THREE.Vector3(x, 0.03, z + 0.06)); const l = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: renk })); grup.add(l); return l; };
-          grup.userData.son = kilavuz(X0 + son * U, 0x1e3a66); if (bas) kilavuz(X0 + bas * U, 0xe0483a);
-          const isaret = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), new THREE.MeshStandardMaterial({ color: 0x8fc3ff, emissive: 0x2a5fa8, emissiveIntensity: 0.4 })); isaret.position.set(X0 + son * U, 0.12, 0.42); grup.add(isaret); grup.userData.isaret = isaret;
+          const kilavuz = (x, renk) => { const pts = []; for (let z = -1.1; z < 2.3; z += 0.14) pts.push(new THREE.Vector3(x, 0.03, z), new THREE.Vector3(x, 0.03, z + 0.07)); const l = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: renk })); grup.add(l); return l; };
+          grup.userData.son = kilavuz(X0 + son * U, 0x2ea35b); grup.userData.son.visible = false;
+          /* sürgü: yanlış cevaptan sonra çıkar, çocuk nesnenin ucuna sürükler */
+          const surgu = new THREE.Group(); surgu.add(kilavuz(0, 0x1e3a66));
+          const isaret = new THREE.Mesh(new THREE.SphereGeometry(0.26, 24, 16), new THREE.MeshStandardMaterial({ color: 0x8fc3ff, emissive: 0x2a5fa8, emissiveIntensity: 0.45 })); isaret.position.set(0, 0.2, 2.35); surgu.add(isaret);
+          const cubuk = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.02, 3.5), new THREE.MeshBasicMaterial({ color: 0x1e3a66, transparent: true, opacity: 0.35 })); cubuk.position.set(0, 0.03, 0.6); surgu.add(cubuk);
+          surgu.position.x = X0; surgu.visible = false; grup.add(surgu); grup.userData.surgu = surgu; grup.userData.isaret = isaret;
         },
-        adim(c, grup, dt) { const o = grup.userData.o; if (o && o.userData.in > 0) { o.userData.in = Math.max(0, o.userData.in - dt * 2.2); o.position.y = o.userData.in * o.userData.in * 3; }
-          const is = grup.userData.isaret; if (is) is.scale.setScalar(1 + Math.sin(c.zaman * 4) * 0.15); },
-        dogru(c, grup) { const s = grup.userData.son; if (s) s.material.color.set(0x2ea35b); },
+        adim(c, grup, dt) { genisSigdir(c, CM * U / 2 + 0.9, [0, 12.6, 0.35], [0, 0, -0.45]); const o = grup.userData.o; if (o && o.userData.in > 0) { o.userData.in = Math.max(0, o.userData.in - dt * 2.2); o.position.y = o.userData.y0 + o.userData.in * o.userData.in * 3; }
+          const is = grup.userData.isaret; if (is && grup.userData.surgu.visible) is.scale.setScalar(1 + Math.sin(c.zaman * 4) * 0.12); },
+        yanlis(c, grup) { const sg = grup.userData.surgu; if (sg && !sg.visible) { sg.visible = true; sg.position.x = X0 + (bas ? bas : 0) * U - U * 1.5; } },
+        dogru(c, grup) { const s = grup.userData.son; if (s) s.visible = true; },
       };
     } });
 
@@ -131,7 +141,7 @@
           b.position.set(X0 + u.konum * adim, 0.27, 0);
         },
         adim(c, grup, dt) {
-          const u = grup.userData, b = u.bocek; if (!b) return;
+          genisSigdir(c, 7.2, [0, 5.6, 8.2], [0, 0.3, 0.6]); const u = grup.userData, b = u.bocek; if (!b) return;
           if (u.konum !== u.hedef) { u.zip += dt * 2.6; const yon = Math.sign(u.hedef - u.konum); if (u.zip >= 1) { u.zip = 0; u.konum += yon; T.Sahne.ses.zipla(); } const x = u.X0 + (u.konum + yon * u.zip) * u.adimW; b.position.set(x, 0.27 + Math.sin(Math.PI * u.zip) * 0.9, 0); }
           else b.position.y = 0.27 + Math.abs(Math.sin(c.zaman * 3)) * 0.04;
         },
@@ -190,7 +200,7 @@
   /* sürahi: alttan yukarı eş düzeyler; bir düzeye dokununca su o düzeye kadar dolar */
   function surahiKur(c, grup, n) {
     const { THREE } = c, H = 4.6, Rr = 1.35, Y = 0.95;
-    c.kamera.position.set(0, 5.6, 13.6); c.kamera.lookAt(0, 3.5, 0);
+    c.kamera.position.set(0, 5.6, 13.6); c.kamera.lookAt(0, 3.5, 0); grup.userData.kam = [3.6, [0, 5.6, 13.6], [0, 3.5, 0]];
     const masa = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.4, 0.3, 48), new THREE.MeshStandardMaterial({ map: c.tahta(), roughness: 0.6 })); masa.position.y = 0.65; c.golge(masa); grup.add(masa);
     const ayak = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 0.6, 20), new THREE.MeshStandardMaterial({ color: 0x6b4a2b })); ayak.position.y = 0.3; grup.add(ayak);
     const cam = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.92, roughness: 0.04, thickness: 0.2, ior: 1.5, transparent: true, opacity: 0.35, side: THREE.DoubleSide, clearcoat: 1 });
@@ -209,7 +219,7 @@
   /* buz kalıbı: gözlere tek tek su konur */
   function kalipKur(c, grup, n) {
     const { THREE } = c, sira = n > 5 ? 2 : 1, sut = Math.ceil(n / sira), G = 1.25, Y = 0.95;
-    c.kamera.position.set(0, 8.6, 6.4); c.kamera.lookAt(0, 0.8, 0.3);
+    c.kamera.position.set(0, 8.6, 6.4); c.kamera.lookAt(0, 0.8, 0.3); grup.userData.kam = [4.5, [0, 8.6, 6.4], [0, 0.8, 0.3]];
     const masa = new THREE.Mesh(new THREE.BoxGeometry(sut * G + 4, 0.3, sira * G + 3), new THREE.MeshStandardMaterial({ map: c.tahta(), roughness: 0.6 })); masa.position.y = 0.65; c.golge(masa); grup.add(masa);
     const pM = new THREE.MeshPhysicalMaterial({ color: P([0x7fd0ee, 0xf7a6c4, 0xa7e3a1]), roughness: 0.3, clearcoat: 0.6, transmission: 0.2 });
     const tab = new THREE.Mesh(new THREE.BoxGeometry(sut * G + 0.3, 0.12, sira * G + 0.3), pM); tab.position.y = Y + 0.06; c.golge(tab); grup.add(tab);
@@ -236,7 +246,7 @@
   const karisimOf = (a, b) => KARISIM[[a, b].sort((x, y) => Object.keys(RENK).indexOf(x) - Object.keys(RENK).indexOf(y)).join("+")];
   function boyaKur(c, grup, n) {
     const { THREE } = c, H = 4.2, Rr = 1.25, Y = 0.95;
-    c.kamera.position.set(0, 5.8, 13.8); c.kamera.lookAt(0, 3.1, 0);
+    c.kamera.position.set(0, 5.8, 13.8); c.kamera.lookAt(0, 3.1, 0); grup.userData.kam = [5.8, [0, 5.8, 13.8], [0, 3.1, 0]];
     const masa = new THREE.Mesh(new THREE.BoxGeometry(11, 0.3, 4.6), new THREE.MeshStandardMaterial({ map: c.tahta(), roughness: 0.6 })); masa.position.y = 0.65; c.golge(masa); grup.add(masa);
     [-4.8, 4.8].forEach((x) => [-1.8, 1.8].forEach((z) => { const a = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.6, 0.3), new THREE.MeshStandardMaterial({ color: 0x6b4a2b })); a.position.set(x, 0.3, z); grup.add(a); }));
     const cam = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.92, roughness: 0.04, thickness: 0.2, ior: 1.5, transparent: true, opacity: 0.3, side: THREE.DoubleSide, clearcoat: 1 });
@@ -290,7 +300,7 @@
       dogru(c, grup, goster) { const u = grup.userData; if (goster) u.katman = Array(a).fill(r1).concat(Array(b).fill(r2)); sonra(u); u.karis = 0; } });
   }
   const KAP = [
-    { ad: "havuz", tam: "Havuzun", kur: (c, grup, n) => { c.kamera.position.set(0, 9.4, 8.6); c.kamera.lookAt(0, 0.4, 0.3); return havuzKur(c, grup, n); }, nler: [2, 3, 4, 5, 6, 8] },
+    { ad: "havuz", tam: "Havuzun", kur: (c, grup, n) => { c.kamera.position.set(0, 9.4, 8.6); c.kamera.lookAt(0, 0.4, 0.3); grup.userData.kam = [7.0, [0, 9.4, 8.6], [0, 0.4, 0.3]]; return havuzKur(c, grup, n); }, nler: [2, 3, 4, 5, 6, 8] },
     { ad: "sürahi", tam: "Sürahinin", kur: surahiKur, nler: [2, 3, 4, 5, 6] },
     { ad: "buz kalıbı", tam: "Buz kalıbının", kur: kalipKur, nler: [2, 3, 4, 5, 6, 8, 10] },
     { ad: "boya", boya: true },
@@ -347,6 +357,7 @@
   /* "beşte üçünü": ek, payın okunuşuna göre gelir */
   function ek(f) { const pay = +f.split("/")[0]; return { 1: "ini", 2: "sini", 3: "ünü", 4: "ünü", 5: "ini", 6: "sını", 7: "sini", 8: "ini", 9: "unu" }[pay] || "ini"; }
   function suAdim(c, grup, dt) {
+    const km = grup.userData.kam; if (km) genisSigdir(c, km[0], km[1], km[2]);
     if (grup.userData.adim) return grup.userData.adim(c, dt);
     const B = grup.userData.bolme; if (!B) return; const Y0 = grup.userData.Y0, max = DER - 0.18;
     B.forEach((b, i) => { const m = b.max != null ? b.max : max, y0 = b.y0 != null ? b.y0 : Y0 - DER + 0.05; const hd = b.dolu ? m : 0; b.h += (hd - b.h) * Math.min(1, dt * 4); b.su.visible = b.h > 0.01; b.su.scale.y = Math.max(0.001, b.h); b.su.position.y = y0 + b.h / 2 + Math.sin(c.zaman * 2 + i) * 0.01; });

@@ -94,9 +94,13 @@
         const sec = (v) => {
           if (durum !== "soru" && durum !== "yanlis") return; Sh.ac();
           if (String(v) === String(R.cevap)) { durum = "dogru"; if (deneme === 0) D.puan[D.takim ? D.sira : 0]++; c.kutla(); R.dogru && R.dogru(c, grup); }
-          else { deneme++; Sh.ses.yanlis(); R._elendi = (R._elendi || []).concat(v); R.yanlis && R.yanlis(c, grup, v); durum = deneme >= (D.takim ? 1 : 2) ? "goster" : "yanlis"; if (durum === "goster") R.dogru && R.dogru(c, grup, true); }
+          else { deneme++; Sh.ses.yanlis(); R._elendi = (R._elendi || []).concat(v); R.yanlis && R.yanlis(c, grup, v); durum = deneme >= (R.ikinciSans ? 2 : D.takim ? 1 : 2) ? "goster" : "yanlis"; if (durum === "goster") R.dogru && R.dogru(c, grup, true); }
           ciz();
         };
+        let basili = false; const nk = (e) => { const b = r.domElement.getBoundingClientRect(); return [((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1]; };
+        r.domElement.addEventListener("pointermove", (e) => { if (basili && def.surukle) def.surukle(c, grup, R, ...nk(e)); });
+        ["pointerup", "pointercancel", "pointerleave"].forEach((t) => r.domElement.addEventListener(t, () => { basili = false; }));
+        r.domElement.addEventListener("pointerdown", (e) => { basili = true; if (def.surukle) def.surukle(c, grup, R, ...nk(e), true); }, true);
         r.domElement.addEventListener("pointerdown", (e) => { Sh.ac(); if (def.dokun && (durum === "soru" || durum === "yanlis")) { const b = r.domElement.getBoundingClientRect(); const v = def.dokun(c, grup, R, ((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); if (v != null) sec(v); } });
         let son = performance.now(), say = 0;
         const dongu = (z) => {

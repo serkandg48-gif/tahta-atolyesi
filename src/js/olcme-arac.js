@@ -7,7 +7,7 @@
   const DUZEY = [["gel", "Geliştirilmeli", "#C2453A"], ["orta", "Orta", "#D98A1F"], ["iyi", "İyi", "#2E8B57"]];
   const GERI = { gel: "Bu ölçütlerde biraz daha çalışmaya ihtiyacın var. Birlikte bir adım daha atalım.", orta: "Güzel bir yoldasın. Eksik kalan ölçütlere odaklanırsan daha da iyi olacak.", iyi: "Harika! Ölçütlerin hepsini başarıyla gösterdin. Bir arkadaşına da yol gösterebilirsin." };
   const SABLON = [
-    ["Sunum", ["Konuyu açık anlattı", "Sesini duyulur kullandı", "Dinleyenlerle göz teması kurdu", "Süreyi iyi kullandı"]],
+    ["Sunum", ["Konuyu açık anlattı", "Sesini herkesin duyacağı biçimde kullandı", "Dinleyenlerle göz teması kurdu", "Süreyi iyi kullandı"]],
     ["Poster ya da ürün", ["Konuyla ilgili bilgi doğru", "Başlık ve görseller uyumlu", "Düzenli ve okunaklı", "Özgün bir fikir var"]],
     ["Grup çalışması", ["Görevini yerine getirdi", "Arkadaşlarını dinledi", "Fikirlerini paylaştı", "Malzemeyi paylaştı ve topladı"]],
     ["Deney ve gözlem", ["Tahminde bulundu", "Gözlemini doğru kaydetti", "Sonucu açıkladı", "Güvenlik kurallarına uydu"]],

@@ -39,7 +39,7 @@
           }
         }
         const a = cells.filter((x) => x === 1).length, b = cells.filter((x) => x === 2).length;
-        out.textContent = showN ? (b ? `${a} + ${b} = ${a + b}` : `${a}`) + `   (boş: ${cells.length - a - b})` : "";
+        out.textContent = showN ? (b ? `${a} + ${b} = ${a + b}` : `${a}`) + `   (${cells.length - a - b} boş göz)` : "";
       }
       host.append(
         h("div.row", h("div.seg", [[5, "5'lik"], [10, "10'luk"], [20, "İki çerçeve"]].map(([t, l]) => h("button", { "aria-pressed": String(t === type), onclick: (e) => { e.target.parentNode.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === e.target))); setType(t); } }, l))),
@@ -61,7 +61,7 @@
         readout: (ps) => {
           const c = { binlik: 0, yuzluk: 0, onluk: 0, birlik: 0 }; ps.forEach((p) => c[p.type] !== undefined && c[p.type]++);
           const sum = c.binlik * 1000 + c.yuzluk * 100 + c.onluk * 10 + c.birlik;
-          return `${T.fmt(sum)}  =  ${c.binlik ? c.binlik + " binlik + " : ""}${c.yuzluk} yüzlük + ${c.onluk} onluk + ${c.birlik} birlik`;
+          return `${T.fmt(sum)}  =  ${c.binlik ? c.binlik + " binlik + " : ""}${c.yuzluk || c.binlik ? c.yuzluk + " yüzlük + " : ""}${c.onluk} onluk + ${c.birlik} birlik`;
         },
       });
       const num = h("input.in", { type: "number", min: 0, max: 9999, placeholder: "Sayı yaz", style: { width: "140px" }, "aria-label": "Oluşturulacak sayı" });

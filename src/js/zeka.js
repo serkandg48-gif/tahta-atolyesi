@@ -68,7 +68,7 @@
         pickRow.replaceChildren(
           ...list.map((b) => h("button.btn.sm" + (b === cur ? ".c-pink" : ".c-chalk"), { onclick: () => { cur = b; show(); } }, b.title)),
           rest.length ? h("select.in", { style: { width: "auto" }, "aria-label": "Diğer sınıflar", onchange: (e) => { if (e.target.value) { cur = rest[+e.target.value]; show(); } } }, h("option", { value: "" }, "Diğer sınıflar"), rest.map((b, i) => h("option", { value: i }, `${b.title} (${b.g[0]}-${b.g[1]})`))) : null,
-          h("button.btn.sm.c-sun", { onclick: gen }, T.icon("spark"), "Yapay zekayla yenisini üret"));
+          h("button.btn.sm.c-sun", { onclick: gen }, T.icon("spark"), "Yapay zekâyla yenisini üret"));
       }
       function show() {
         picks();
@@ -85,7 +85,7 @@
           }))));
       }
       async function gen() {
-        if (!T.ai.mode()) { T.modal({ title: "Yapay zeka bağlı değil", body: T.ai.statusEl(), actions: [{ label: "Tamam" }] }); return; }
+        if (!T.ai.mode()) { T.modal({ title: "Yapay zekâ bağlı değil", body: T.ai.statusEl(), actions: [{ label: "Tamam" }] }); return; }
         const theme = h("input.in", { placeholder: "Konu, örneğin: okul gezisi bütçesi, fidan dikimi, maç skoru" });
         let m;
         m = T.modal({ title: "Yeni bağlam sorusu", body: h("div.stack", h("p", g + ". sınıf için Türkçe, gerçek hayat bağlamlı bir durum ve ona bağlı 2-3 soru üretilecek."), theme), actions: [{ label: "Vazgeç" }, { label: "Üret", tone: "c-sun", onClick: () => { run(theme.value); } }] });

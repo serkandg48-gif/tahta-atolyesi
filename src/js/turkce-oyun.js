@@ -64,11 +64,11 @@
           else { ev.currentTarget.classList.add("kotu"); ev.currentTarget.disabled = true; makine.classList.add("bozuk"); setTimeout(() => makine.classList.remove("bozuk"), 700);
             a.yanlis(bicimTuru ? "Kökteki son ünlüye bak: " + kok + ". Ek ona uysun." : "\"" + kelime(kok, e) + "\" başka bir anlama geliyor. Tanımı yeniden oku."); } } }, "+" + e))));
       } },
-    "anlam-treni": { ad: "Anlam treni", renk: "#1D4ED8", renk2: "#DBEAFE", tur: 8, sahne: "sinif", giris: "Kelimeleri sırayla vagonlara bindir, anlamlı bir cümle kur!",
+    "anlam-treni": { ad: "Anlam treni", renk: "#1D4ED8", renk2: "#DBEAFE", tur: 8, sahne: "sinif", giris: "Kelimeleri sırayla vagonlara bindir, anlamlı bir cümle oluştur!",
       yeni(a, tur) {
         const L = CUMLE.filter((c) => c.split(" ").length <= (tur < 3 ? 4 : tur < 6 ? 5 : 7));
         const cumle = L[rnd(0, L.length - 1)], kel = cumle.split(" ");
-        a.soru("Kelimelere sırayla dokun. Anlamlı bir cümle kuralım.");
+        a.soru("Kelimelere sırayla dokun. Anlamlı bir cümle oluşturalım.");
         const vagonlar = h("div.at-vagonlar"), tren = h("div.at-tren", h("div.at-lokomotif", "🚂"), vagonlar), ray = h("div.at-ray", tren);
         let dizi = [];
         const havuz = h("div.at-havuz");

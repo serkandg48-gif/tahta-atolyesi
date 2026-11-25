@@ -73,13 +73,13 @@
     ["Dünya Fikrî Mülkiyet Günü", (y) => one(new Date(y + 1, 3, 26))],
     ["Kût'ül Amâre Zaferi", (y) => one(new Date(y + 1, 3, 29))],
     ["Bilişim Haftası", (y) => wk(nthMon(y + 1, 4, 1))],
-    ["Trafik ve İlkyardım Haftası", (y) => wk(nthMon(y + 1, 4, 1))],
+    ["Trafik ve İlk Yardım Haftası", (y) => wk(nthMon(y + 1, 4, 1))],
     ["İş Sağlığı ve Güvenliği Haftası", (y) => [new Date(y + 1, 4, 4), new Date(y + 1, 4, 10)]],
     ["Vakıflar Haftası", (y) => wk(nthMon(y + 1, 4, 2))],
     ["Anneler Günü", (y) => one(nthWd(y + 1, 4, 0, 2))],
     ["Engelliler Haftası", (y) => [new Date(y + 1, 4, 10), new Date(y + 1, 4, 16)]],
     ["Müzeler Haftası", (y) => [new Date(y + 1, 4, 18), new Date(y + 1, 4, 24)]],
-    ["Atatürk'ü Anma ve Gençlik ve Spor Bayramı", (y) => one(new Date(y + 1, 4, 19))],
+    ["Atatürk'ü Anma, Gençlik ve Spor Bayramı", (y) => one(new Date(y + 1, 4, 19))],
     ["Etik Günü", (y) => one(new Date(y + 1, 4, 25))],
     ["İstanbul'un Fethi", (y) => one(new Date(y + 1, 4, 29))],
     ["Hayat Boyu Öğrenme Haftası", (y) => wk(nthMon(y + 1, 5, 1))],
@@ -374,7 +374,7 @@
       const son = rows.length ? dk(rows[rows.length - 1].s) : 0;
       const yemek = rows.find((r) => r.tur === "yemek");
       const yemegeKadar = yemek && dk(yemek.b) > m ? dersler.filter((r) => dk(r.b) >= m && dk(r.s) <= dk(yemek.b) && dk(r.s) > m).length : null;
-      const ozet = !rows.length ? "Bu gün için akış yok." :
+      const ozet = !rows.length ? "O gün için akış yok." :
         m >= son ? "Bugünün dersleri bitti. Yarın görüşmek üzere!" :
         m < dk(rows[0].b) ? `Dersler ${rows[0].b}'de başlıyor. Bugün ${dersler.length} dersimiz var.` :
         `Eve gitmemize ${kalan} ders kaldı.`;

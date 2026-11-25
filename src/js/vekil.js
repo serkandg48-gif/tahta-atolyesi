@@ -49,7 +49,7 @@
       v.not.trim() ? bolum("Notlarım", h("p.vk-metin", v.not)) : null,
       bolum("Bugünün dersleri", D.length ? h("ol.vk-dersler", D.map((r) => h("li",
         h("div.vk-saat", r.b + " - " + r.s), h("div", h("b", r.ad), (v.dersNot[r.i] || "").trim() ? h("p.vk-metin", v.dersNot[r.i]) : null,
-          sayfalarOf(String(r.i)).length ? h("ul.vk-sayfalar", sayfalarOf(String(r.i)).map(sayfaSatiri)) : null)))) : h("p.hint", "Bu gün için ders programı girilmemiş. Sabah rutini > Günün akışı bölümünden yazılabilir.")),
+          sayfalarOf(String(r.i)).length ? h("ul.vk-sayfalar", sayfalarOf(String(r.i)).map(sayfaSatiri)) : null)))) : h("p.hint", "O gün için ders programı girilmemiş. Sabah rutini > Günün akışı bölümünden yazılabilir.")),
       sayfalarOf("genel").length ? bolum("Kitaplar ve sayfalar", h("ul.vk-sayfalar", sayfalarOf("genel").map(sayfaSatiri))) : null,
       v.kural.trim() ? bolum("Sınıfımızın alışkanlıkları", h("p.vk-metin", v.kural)) : null,
       gorev.length ? bolum("Görevliler", h("ul.vk-gorev", gorev.map(([g, sid]) => h("li", h("b", g), ": " + ad(sid))))) : null,
@@ -88,7 +88,7 @@
     wrap.append(
       kart("Hangi gün için?", "Okula gelemeyeceğin günü seç. Ders saatleri o güne göre gelir.", h("div.row", { style: { gap: "10px" } }, tarih, h("b", uzunTarih(v.gun)))),
       kart("Notlarım", "Gelen öğretmene ilk okuyacağı şeyi yaz: sınıfın genel durumu, dikkat edilecek bir şey, zil ve teneffüs düzeni.", alan(v.not, "Örnek: Sınıfım çok sevecendir. Teneffüs sonrası sakinleşmek için 1 dakika nefes çalışması yapıyoruz.", (x, t) => (x.not = t), 5)),
-      kart("Dersler", D.length ? "Her ders için ne yapılacağını kısaca yaz." : "Bu gün için ders programı yok. Sabah rutini > Günün akışı'ndan programını yazınca dersler burada görünür.",
+      kart("Dersler", D.length ? "Her ders için ne yapılacağını kısaca yaz." : "O gün için ders programı yok. Sabah rutini > Günün akışı'ndan programını yazınca dersler burada görünür.",
         D.length ? h("div.vk-ders-liste", D.map((r) => h("label.vk-ders", h("span", h("b", r.ad), h("small", r.b + " - " + r.s)), alan(v.dersNot[r.i], "Bu derste ne yapılacak?", (x, t) => (x.dersNot[r.i] = t), 2)))) : null),
       kart("Kitaplar ve sayfalar", "Hangi derste hangi kitabın kaçıncı sayfasının açılacağını yaz. İstersen yüklediğin bir dosyayı da bağla.",
         liste, sayfaKutu, h("button.btn.sm.c-leaf", { onclick: () => { yaz((x) => x.sayfalar.push({ id: T.uid(), ders: D[0] ? String(D[0].i) : "genel", kaynak: "", sayfa: "", ne: "", dosya: "" })); sayfaCiz(); } }, T.icon("plus"), "Sayfa ekle")),

@@ -75,7 +75,7 @@
             h("button.btn.c-sun", { onclick: () => { const el = [...box.querySelectorAll(".kr-izgara .kr-kart")]; if (!el.length) return; let i = 0, tur = 14 + Math.floor(Math.random() * el.length); const adim = () => { el.forEach((e) => e.classList.remove("kr-sans")); el[i % el.length].classList.add("kr-sans"); if (tur-- > 0) { i++; setTimeout(adim, 90 + (14 - Math.min(tur, 14)) * 12); } else { T.sound && T.sound.ding && T.sound.ding(); setTimeout(() => detay(box, liste[i % el.length], ciz), 500); } }; adim(); } }, "🎲 Şansıma ne çıkacak?")),
           h("div.seg", { style: { margin: "6px 0 12px" } }, [["hepsi", "Hepsi"], ["yaz", "✏️ Yazarak"], ["ciz", "🎨 Çizerek"], ["anlat", "🎤 Anlatarak"]].map(([k, l]) => h("button", { "aria-pressed": String(filtre === k), onclick: () => { filtre = k; ciz(); } }, l))),
           h("div.kr-izgara", liste.map((r) => kart(r))),
-          h("details.kr-tahta-sar", h("summary", "Seçim tahtası (3×3): üç seçeneği yan yana getiren tahtayı tamamlar"),
+          h("details.kr-tahta-sar", h("summary", "Seçim tahtası (3×3): Yan yana üç kareyi tamamlayan kutlar"),
             h("p.hint", "Dönem boyunca çocuk okuduğu her kitap için bir kare seçer. Yan yana, alt alta ya da çapraz üç kare tamamlanınca kutlarız. Tahtada birlikte işaretleyebilirsiniz."),
             h("div.kr-tahta", tahta),
             cizgiVar ? h("p.kr-tamam", "🎉 Üç kare tamam! Tebrikler.") : null,

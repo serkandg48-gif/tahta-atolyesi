@@ -1,4 +1,4 @@
-/* Plan: yapay zekayla günlük plan, takvime oturan yıllık plan. Plan, ders ekranını kurar. */
+/* Plan: yapay zekâyla günlük plan, takvime oturan yıllık plan. Plan, ders ekranını kurar. */
 (function () {
   const { h } = T;
   const DERSLER = {
@@ -26,7 +26,7 @@
   };
 
   T.sections.plan = {
-    title: "Plan", icon: "plan", tone: "grape", desc: "Günlük ve yıllık plan, yapay zekayla",
+    title: "Plan", icon: "plan", tone: "grape", desc: "Günlük ve yıllık plan, yapay zekâyla",
     render(view) {
       const wrap = h("div.view-inner"); view.append(wrap);
       wrap.append(h("div.page-head", h("h1", "Planlarım"), h("div.sub", "Plan yaz, tek dokunuşla o dersin ekranını kur.")),
@@ -97,14 +97,14 @@
       h("label.f", h("span", "Sınıfın"), not),
       h("div.row", h("button.btn.big.c-grape", { onclick: () => generate() }, T.icon("spark"), "Planı hazırla"),
         h("button.btn.c-chalk", { onclick: () => { current = JSON.parse(JSON.stringify(SAMPLE)); renderPlan(out, current); } }, T.icon("eye"), "Örnek planı göster"),
-        h("span.hint", "Öğrenci adları yapay zekaya gönderilmez."))), out);
+        h("span.hint", "Öğrenci adları yapay zekâya gönderilmez."))), out);
     if (!current && !shownSample) { shownSample = true; current = JSON.parse(JSON.stringify(SAMPLE)); }
     if (current) renderPlan(out, current);
     async function generate() {
       if (!konu.value.trim() && !secili.length) { T.toast("Bir öğrenme çıktısı seç ya da konuyu yaz"); konu.focus(); return; }
       const temalarS = T.ciktilar.temalar(ders.value, +sinif.value) || [];
       const secCikti = secili.map((k) => { const [ti, kod] = k.split("|"); const t = temalarS[ti]; const x = t && t.c.find((y) => y.kod === kod); return x && Object.assign({ tema: t.tema }, x); }).filter(Boolean);
-      if (!T.ai.mode()) { current = JSON.parse(JSON.stringify(SAMPLE)); renderPlan(out, current); T.toast("Yapay zeka bağlı değil, örnek plan gösteriliyor"); return; }
+      if (!T.ai.mode()) { current = JSON.parse(JSON.stringify(SAMPLE)); renderPlan(out, current); T.toast("Yapay zekâ bağlı değil, örnek plan gösteriliyor"); return; }
       const live = h("pre", { style: { whiteSpace: "pre-wrap", fontSize: "13px", maxHeight: "200px", overflow: "auto", color: "var(--ink-soft)" } });
       out.replaceChildren(h("div.paper", { style: { padding: "20px" } }, h("div.ai-status", h("div.spinner"), "Plan hazırlanıyor. Bu 20-40 saniye sürebilir."), live));
       const tools = Object.entries(T.widgets).filter(([, w]) => w.group !== "Gizli").map(([id, w]) => `${id}: ${w.title}`)
@@ -211,11 +211,11 @@ ${(p.akis || []).map((s) => `<tr><td><b>${esc(s.baslik)}</b><br>${s.dk} dk</td><
     temalar.value = "Sayılar ve Nicelikler (1) | 6\nSayılar ve Nicelikler (2) | 6\nİşlemlerden Cebirsel Düşünmeye | 7\nNesnelerin Geometrisi | 5\nGeometrik Nicelikler | 5\nVeriye Dayalı Araştırma | 4\nSayılar ve Nicelikler (3) | 3";
     const out = h("div");
     area.append(h("div.paper", { style: { padding: "20px", display: "grid", gap: "14px", marginBottom: "22px" } },
-      h("p", { style: { margin: 0 } }, "Yıllık plan, MEB 2026-2027 çalışma takvimine oturur. Ara tatiller, yarıyıl ve resmî tatiller kendiliğinden atlanır. Tema adlarını ve hafta sayılarını öğretim programından al; yapay zeka varsa her haftanın konusunu da önerir."),
+      h("p", { style: { margin: 0 } }, "Yıllık plan, MEB 2026-2027 çalışma takvimine oturur. Ara tatiller, yarıyıl ve resmî tatiller kendiliğinden atlanır. Tema adlarını ve hafta sayılarını öğretim programından al; yapay zekâ varsa her haftanın konusunu da önerir."),
       h("div.form-grid", h("label.f", h("span", "Ders"), ders), h("label.f", h("span", "Sınıf"), h("input.in", { value: c.grade + ". sınıf", readonly: true })), h("label.f", h("span", "Haftalık ders saati"), saat)),
       h("label.f", h("span", "Temalar / üniteler: her satıra Ad | hafta sayısı. Aşağıdakiler örnektir; kendi öğretim programındakilerle değiştir."), temalar),
       h("div.row", h("button.btn.big.c-grape", { onclick: () => build(false) }, T.icon("calendar"), "Takvime yerleştir"),
-        h("button.btn.c-sun", { onclick: () => build(true) }, T.icon("spark"), "Haftalık konuları da yapay zekayla doldur"))), out);
+        h("button.btn.c-sun", { onclick: () => build(true) }, T.icon("spark"), "Haftalık konuları da yapay zekâyla doldur"))), out);
     async function build(useAI) {
       const items = temalar.value.split("\n").map((l) => l.split("|").map((x) => x.trim())).filter((x) => x[0]).map(([n, w]) => ({ n, w: Math.max(1, +w || 1) }));
       const weeks = T.cal.weeks();
@@ -229,7 +229,7 @@ ${(p.akis || []).map((s) => `<tr><td><b>${esc(s.baslik)}</b><br>${s.dk} dk</td><
       const need = items.reduce((a, b) => a + b.w, 0), have = weeks.filter((w) => w.schoolDays).length;
       paint(rows, need, have);
       if (useAI) {
-        if (!T.ai.mode()) { T.toast("Yapay zeka bağlı değil. Takvim hazır, konuları sen yazabilirsin."); return; }
+        if (!T.ai.mode()) { T.toast("Yapay zekâ bağlı değil. Takvim hazır, konuları sen yazabilirsin."); return; }
         const status = h("div.ai-status", h("div.spinner"), "Haftalık konular hazırlanıyor...");
         out.prepend(status);
         try {

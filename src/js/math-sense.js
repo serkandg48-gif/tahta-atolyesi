@@ -122,8 +122,8 @@
             fact("Tek mi çift mi?", n % 2 ? "Tek" : "Çift"), fact("En yakın onluk", Math.round(n / 10) * 10),
             fact("100'e kaç kaldı?", n <= 100 ? 100 - n : "Geçtik"), fact("Yıl sonuna", Math.max(0, T.cal.total() - T.cal.dayNumber()) + " gün")),
           h("div.row", { style: { marginTop: "18px" } },
-            h("button.btn.c-chalk", { onclick: () => { n = Math.max(0, n - 1); paint(); } }, T.icon("minus")),
-            h("button.btn.c-chalk", { onclick: () => { n++; paint(); } }, T.icon("plus")),
+            h("button.btn.c-chalk", { "aria-label": "Bir azalt", onclick: () => { n = Math.max(0, n - 1); paint(); } }, T.icon("minus")),
+            h("button.btn.c-chalk", { "aria-label": "Bir artır", onclick: () => { n++; paint(); } }, T.icon("plus")),
             h("button.btn.c-leaf", { onclick: () => { n = Math.max(1, T.cal.dayNumber()); paint(); } }, T.icon("calendar"), "Bugüne dön"),
             h("label.gs-gir", "Sayıyı yaz:", h("input.in", { type: "number", min: 0, max: 9999, value: n, "aria-label": "Günün sayısı", onchange: (e) => { const v = parseInt(e.target.value, 10); if (v >= 0) { n = Math.min(9999, v); paint(); } } })),
             h("span.hint", "Her sabah sınıfça: sayıyı okuyun, bloklarla gösterin, bir önceki ve sonrakini bulun.")));

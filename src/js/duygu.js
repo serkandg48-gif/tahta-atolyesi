@@ -122,9 +122,9 @@
     heyecanli: ["Yarın sınıfça geziye gideceksiniz.", "İlk kez sahneye çıkmak üzeresin."], gururlu: ["Zorlandığın bir problemi kendi başına çözdün.", "Resmin okul panosuna asıldı."],
     saskin: ["Kapıyı açtın, karşında hiç beklemediğin bir misafir vardı.", "Öğretmenin bugün sınıfa bir kaplumbağa getirdi."], yorgun: ["Bütün gün parkta koşup oynadın.", "Dün gece geç uyudun."],
     endiseli: ["Yarın sınıfın önünde sunum yapacaksın.", "Annen seni okuldan almaya geç kaldı."], uzgun: ["En yakın arkadaşın başka bir şehre taşınıyor.", "Çok sevdiğin kalemin kırıldı."],
-    korkmus: ["Gece büyük bir gök gürültüsü duydun.", "Kalabalık bir yerde ailene bir an göremedin."], kizgin: ["Biri sıranı almadan öne geçti.", "Arkadaşın yaptığın kuleyi izin almadan yıktı."],
+    korkmus: ["Gece büyük bir gök gürültüsü duydun.", "Kalabalık bir yerde aileni bir an göremedin."], kizgin: ["Biri sıranı almadan öne geçti.", "Arkadaşın yaptığın kuleyi izin almadan yıktı."],
   };
-  [["mutlu", "Teneffüste yeni bir arkadaşla oyun kurdunuz.", "Bütün gün beklediğin yağmur dindi, dışarı çıktın."], ["sakin", "Okuldan eve döndün, en sevdiğin köşende dinleniyorsun.", "Ders bitti, sınıf sessizce kitap okuyor."],
+  [["mutlu", "Teneffüste yeni bir arkadaşla oyun kurdunuz.", "Bütün gün dinmesini beklediğin yağmur durdu, dışarı çıktın."], ["sakin", "Okuldan eve döndün, en sevdiğin köşende dinleniyorsun.", "Ders bitti, sınıf sessizce kitap okuyor."],
    ["heyecanli", "Bugün sınıfa yeni bir öğrenci gelecek.", "Okul gösterisinde sıra sana gelmek üzere."], ["gururlu", "Bisiklete kimse tutmadan binebildin.", "Kardeşine okumayı öğrettin."],
    ["saskin", "Sabah uyandın, her yer karla kaplanmıştı.", "Arkadaşın senin doğum gününü hatırlayıp hediye getirdi."], ["yorgun", "Uzun bir yolculuktan yeni döndün.", "Beden eğitimi dersinde çok koştun."],
    ["endiseli", "Evcil hayvanın bugün biraz hasta.", "Yeni bir okula başlayacaksın."], ["uzgun", "Oyunda seni aralarına almadılar.", "Çok sevdiğin çiçeğin kurudu."],

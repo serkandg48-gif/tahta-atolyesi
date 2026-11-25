@@ -34,7 +34,7 @@ Zeynep: Çok teşekkür ederim. Afiyetle yiyeceğim.`],
   const RENK = ["#E4553F", "#3B83C4", "#3FA36B", "#8C5BB8", "#E9A23B", "#2BB3B1", "#D9628E"];
   const coz = (metin) => metin.split(/\n+/).map((l) => l.trim()).filter(Boolean).map((l) => { const m = l.match(/^([^:]{1,24}):\s*(.+)$/); return m ? { rol: m[1].trim(), soz: m[2].trim() } : { rol: "Anlatıcı", soz: l }; });
   T.tools["rol-prompter"] = {
-    back: "turkce", grup: "Okuma", grades: [2, 8], title: "Rol okuma prompteri", icon: "talk", ikon3: "konusma", tone: "grape",
+    back: "turkce", grup: "Okuma", grades: [2, 8], title: "Rollü okuma", icon: "talk", ikon3: "konusma", tone: "grape",
     short: "Diyaloğu rollere böl, sırası gelenin repliği büyüsün",
     render(host) {
       let metin = ORNEK[0][1], satir = coz(metin), atama = {}, i = 0, akis = false, zam = null, hiz = 1;

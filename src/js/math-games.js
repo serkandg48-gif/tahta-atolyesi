@@ -255,7 +255,7 @@
       if (div) { s.append(txt(350, 100, `${a * b} ÷ ${a}`, 110)); return q("Bölümü bul. Süre bitmeden doğru sayıya dokun.", s, b, nearOpts(b, 4, 3, 1)); }
       s.append(txt(350, 100, `${a} × ${b}`, 110)); return q("Çarpımı bul. Süre bitmeden doğru sayıya dokun.", s, a * b, nearOpts(a * b, 4, Math.max(a, b), 1)); } });
 
-  game("alan-avi", { title: "Alan ve çevre avı", icon: "area", tone: "tomato", grades: [3, 6], short: "Kareli kağıtta alan ve çevre",
+  game("alan-avi", { title: "Alan ve çevre avı", icon: "area", tone: "tomato", grades: [3, 6], short: "Kareli kâğıtta alan ve çevre",
     round(L) { const w = R(2, L ? 9 : 6), hh = R(2, L ? 7 : 5); const per = Math.random() < 0.5; const ans = per ? 2 * (w + hh) : w * hh;
       return q(per ? "Dikdörtgenin çevresi kaç birim?" : "Dikdörtgenin alanı kaç birim kare?", grid(w, hh), ans, T.shuffle([...new Set([ans, per ? w * hh : 2 * (w + hh), w + hh, ans + 2])]), per ? `2 × (${w} + ${hh}) = ${ans}` : `${w} × ${hh} = ${ans}`); } });
 

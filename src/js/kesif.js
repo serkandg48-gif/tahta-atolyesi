@@ -42,7 +42,7 @@
     title: "Gör, düşün, merak et", icon: "eye", tone: "sky", short: "Bir görsele ya da nesneye bakıp sorgulamayı başlatır",
     render(host) {
       T.notPanosu(host, { anahtar: "gdm", ust: () => h("div", { style: { display: "grid", gap: "8px", marginBottom: "10px" } }, konuSatiri("gdm", "Ne inceliyoruz? Örneğin: bir yaprak, bir fotoğraf, bir harita"), h("p.sb-line", "Önce sadece gördüğümüzü söyleyelim, sonra yorum yapalım.")),
-        kolonlar: [["Ne görüyorum?", "Sadece gözüne görüneni söyle.", "#2E7BB4"], ["Ne düşünüyorum?", "Bu neden böyle olabilir?", "#6DAF5A"], ["Neyi merak ediyorum?", "Hangi soruların var?", "#E9A23B"]],
+        kolonlar: [["Ne görüyorum?", "Yalnızca gördüğünü söyle.", "#2E7BB4"], ["Ne düşünüyorum?", "Bu neden böyle olabilir?", "#6DAF5A"], ["Neyi merak ediyorum?", "Hangi soruların var?", "#E9A23B"]],
         not: "Düşünme rutini. Görseli Ders modunda Görsel aracıyla tahtaya koyabilirsin." });
     },
   });

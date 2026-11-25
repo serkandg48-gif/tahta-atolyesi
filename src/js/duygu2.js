@@ -196,11 +196,11 @@
   tool("uc-adim", {
     title: "Öğretmene sormadan önce 3 adım", icon: "teacher", tone: "sky", short: "Beyin, etraf, arkadaş, sonra öğretmen",
     render(host) {
-      akis(host, { ust: () => h("p.sb-line", "Amacımız: Seni bağımsızlaştırmak!"), adimlar: [
+      akis(host, { ust: () => h("p.sb-line", "Amacımız: Kendi başına çözebilmek!"), adimlar: [
         { baslik: "Adım 1: Beyin", soru: "Kendine sordun mu? Yönergeyi okudun mu?", renk: "#D16BA5", hayir: { metin: "Yönergeyi bir kez daha oku ve kendine sor: Benden ne isteniyor?" } },
         { baslik: "Adım 2: Etraf", soru: "Panoya, tahtaya, kitaba baktın mı?", renk: "#E0B020", hayir: { metin: "Panoya, tahtaya ve kitabına bak. İpucu çoğu zaman oradadır." } },
         { baslik: "Adım 3: Arkadaş", soru: "Yanındaki arkadaşına fısıldayarak sordun mu?", renk: "#3C8DD8", hayir: { metin: "Yanındaki arkadaşına fısıldayarak sor." } }],
-        son: { baslik: "Son durak: Öğretmen", metin: "Bunların hepsi evet ise bana gel!", renk: "#C2453A" } });
+        son: { baslik: "Son durak: Öğretmen", metin: "Hepsine evet dediysen bana gel!", renk: "#C2453A" } });
     },
   });
   tool("takildim", {
@@ -211,7 +211,7 @@
         { baslik: "Adım 2", soru: "Masandaki ya da çevrendeki iki farklı arkadaşının nasıl başladığına baktın mı?", renk: "#E0B020", ikon: "goz", hayir: { metin: "Sessizce gözlem yap.", ikon: "buyutec" } },
         { baslik: "Adım 3", soru: "Panodaki örnek çalışma modelini inceledin mi?", renk: "#7A5BC7", ikon: "ornek", hayir: { metin: "Modeli incele ve kendi çalışmanla karşılaştır.", ikon: "scale" } }],
         sinif: "ak-mantar",
-        son: { baslik: "Sarı yardım kartı", metin: "Masana sarı yardım kartını koy ve öğretmen gelene kadar yapabildiğin diğer adıma geç.", renk: "#E9A23B", ikon: () => T.icon3d("sarikart", "ak-buyuk") } });
+        son: { baslik: "Sarı yardım kartı", metin: "Masana sarı yardım kartını koy ve öğretmen gelene kadar yapabildiğin başka bir işe geç.", renk: "#E9A23B", ikon: () => T.icon3d("sarikart", "ak-buyuk") } });
     },
   });
   tool("zihin-suzgeci", {
@@ -303,7 +303,7 @@
             h("button.btn", { onclick: () => { yeni(); ciz(); } }, T.icon("next"), "Yeni durum"),
             h("button.btn.c-chalk", { onclick: () => { acik = {}; kendi = true; bakis = null; ciz(); } }, T.icon("help"), "Önce biz tahmin edelim"),
             h("button.btn.c-chalk", { onclick: () => ekleFormu("Sınıfımızdan bir durum ekle", [["Durum", "Ne oldu? (ör. Arkadaşım sırama oturdu.)"], ["1. davranış", "Bunu yaparsam... (zorlayan davranış)"], ["1. sonuç", "10 dakika sonra ne olur?"], ["2. davranış", "Bunu yaparsam... (yardımcı davranış)"], ["2. sonuç", "10 dakika sonra ne olur?"]], (v) => { yaz("teleskop", (o) => (o || []).concat({ v })); cur = v; acik = {}; ciz(); }) }, T.icon("plus"), "Durum ekle")),
-          h("p.hint", TELESKOP.length + " hazır durum ve sınıfın eklediği " + (veri("teleskop") || []).length + " durum sırayla gelir; hepsi bitmeden aynısı tekrar gelmez.")));
+          h("p.hint", TELESKOP.length + " hazır durum" + ((veri("teleskop") || []).length ? " ve sınıfın eklediği " + (veri("teleskop") || []).length + " durum" : "") + " sırayla gelir; hepsi bitmeden aynısı tekrar gelmez.")));
       }
       yeni(); ciz();
     },
@@ -691,7 +691,7 @@
             h("li", "Her basamağa çocuğun anlayacağı dille 'geliştirebilirim' maddeleri yaz: \"Basit cümleler kurabilirim. Büyük harf ve noktaya dikkat ederim.\" gibi."),
             h("li", "Her basamağa örneğin fotoğrafını yükle. Fotoğraflar yalnızca bu cihazda saklanır."),
             h("li", "Derste üç adımı kullan: 1. Kâğıdını incele. 2. Şimdi neredesin? Adını o basamağa yapıştır. 3. Bir sonraki basamağa çıkabilir misin? Hedef koy."),
-            h("li", "Taslak kültürü: ilk iş çocuğun kapasitesi değildir, yalnızca bir taslaktır. Arkadaşınla değiş, birbirinize iki tane özel geri bildirim verin (güzel ya da kötü değil; şurası eğri, burası eksik gibi), sonra 2. taslağı yapın.")),
+            h("li", "Taslak kültürü: İlk çalışma çocuğun ne yapabileceğini göstermez, yalnızca bir taslaktır. Arkadaşınla değiş, birbirinize iki somut geri bildirim verin (güzel ya da kötü değil; şurası eğri, burası eksik gibi), sonra 2. taslağı yapın.")),
           h("button.btn.sm.c-chalk", { onclick: () => { yonerge = false; ciz(); } }, "Kapat"));
       }
       function ciz() {
@@ -720,7 +720,7 @@
               !duzen ? h("button.btn.sm.c-chalk", { onclick: () => { const sel = h("select.in", ps.map((s) => h("option", { value: s.id }, s.name))); T.modal({ title: "Şimdi neredesin?", body: h("div", { style: { display: "grid", gap: "8px" } }, h("p", b.baslik + " basamağına kimin adını yapıştıralım?"), sel), actions: [{ label: "Vazgeç" }, { label: "Yapıştır", tone: "c-leaf", onClick: () => { yaz("bumpYer", (o) => { o = o || {}; o[d.id] = o[d.id] || {}; o[d.id][sel.value] = i; return o; }); ciz(); } }] }); } }, T.icon("class"), "Adımı yapıştır") : null));
         }));
         box.replaceChildren(
-          h("div.bu-adim", ["1. Kâğıdını incele.", "2. Şimdi neredesin? Yapıştır.", "3. Bir sonraki basamağa çıkabilir misin? Hedef koy."].map((x, i) => h("div", { style: { "--c": ["#F29BB8", "#8EC9EE", "#C8E64B"][i] } }, x))),
+          h("div.bu-adim", ["1. Kâğıdını incele.", "2. Şimdi neredesin? Adını o basamağa yapıştır.", "3. Bir sonraki basamağa çıkabilir misin? Hedef koy."].map((x, i) => h("div", { style: { "--c": ["#F29BB8", "#8EC9EE", "#C8E64B"][i] } }, x))),
           h("div.row", { style: { margin: "12px 0" } }, h("button.btn.sm.c-chalk", { onclick: () => { aktif = null; ciz(); } }, T.icon("back"), "Duvarlar"), h("h2", { style: { margin: 0, fontSize: "24px" } }, d.ad), h("div.spacer"),
             h("button.btn.sm" + (duzen ? "" : ".c-chalk"), { onclick: () => { duzen = !duzen; ciz(); } }, T.icon("edit"), duzen ? "Bitti" : "Düzenle"),
             duzen ? h("button.btn.sm.c-chalk", { onclick: () => { kaydetD((ds2) => ds2.find((x) => x.id === d.id).b.push({ id: T.uid(), baslik: d.b.length + 1 + ". basamak", m: "" })); ciz(); } }, T.icon("plus"), "Basamak") : null,

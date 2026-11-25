@@ -155,7 +155,7 @@
           if (turu === "ust") { const i = rnd(0, N - 1), j = rnd(0, N - 1); b[i][j] = 1 - b[i][j]; if (b.flat().some(Boolean)) ekle(JSON.stringify(b)); }
           else { const i = rnd(0, N - 1); b[i] = Math.max(0, Math.min(3, b[i] + (Math.random() < 0.5 ? 1 : -1))); if (b.some(Boolean)) ekle(JSON.stringify(b)); } }
         aday = aday.sort(() => Math.random() - 0.5);
-        a.alt.replaceChildren(h("div.ky-secenek", aday.map((x) => h("button.ky-dug", { onclick: (e) => { if (x === v[yon]) { e.currentTarget.classList.add("iyi"); d.cevir && d.cevir(ACI[yon]); a.dogru(); } else { e.currentTarget.classList.add("kotu"); e.currentTarget.disabled = true; a.yanlis(yon === "ust" ? "Yapıya tam tepeden baktığını düşün: hangi kareler dolu?" : "Önce yapıyı o yöne çevir, sonra en yüksek sütunlara bak."); } } }, gorunumSvg(x, turu)))));
+        a.alt.replaceChildren(h("div.ky-secenek", aday.map((x, xi) => h("button.ky-dug", { "aria-label": "Seçenek " + (xi + 1), onclick: (e) => { if (x === v[yon]) { e.currentTarget.classList.add("iyi"); d.cevir && d.cevir(ACI[yon]); a.dogru(); } else { e.currentTarget.classList.add("kotu"); e.currentTarget.disabled = true; a.yanlis(yon === "ust" ? "Yapıya tam tepeden baktığını düşün: hangi kareler dolu?" : "Önce yapıyı o yöne çevir, sonra en yüksek sütunlara bak."); } } }, gorunumSvg(x, turu)))));
       } },
     "kup-kur": { ad: "Görünüme göre kur", ikon: "kup", renk: "#0E8A8A", renk2: "#D6F3F3", tur: 5, giris: "Görünümlere bak, aynı yapıyı küplerle kur!",
       yeni(a, tur) {

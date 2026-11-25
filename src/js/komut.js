@@ -94,7 +94,7 @@
   T.okumaKolay = () => { try { return localStorage.getItem(anahtar) === "1"; } catch (e) { return false; } };
   T.okumaKolayYap = (on) => { try { on ? localStorage.setItem(anahtar, "1") : localStorage.removeItem(anahtar); } catch (e) {} document.documentElement.classList.toggle("okuma-kolay", !!on); };
   document.documentElement.classList.toggle("okuma-kolay", T.okumaKolay());
-  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Okuma kolaylığı aç veya kapat", ic: "book", ac: () => { const on = !T.okumaKolay(); T.okumaKolayYap(on); T.toast(on ? "Okuma kolaylığı açık" : "Okuma kolaylığı kapalı"); }, ek: "Geniş aralık, kolay ayırt edilen harfler" });
+  T.ekKomutlar = (T.ekKomutlar || []).concat({ ad: "Okuma kolaylığını aç ya da kapat", ic: "book", ac: () => { const on = !T.okumaKolay(); T.okumaKolayYap(on); T.toast(on ? "Okuma kolaylığı açık" : "Okuma kolaylığı kapalı"); }, ek: "Geniş aralık, kolay ayırt edilen harfler" });
 })();
 
 /* Yazdırma yardımcısı: verilen öğeyi tek başına kâğıda basar. Yeni çıktılar bunu kullanır. */

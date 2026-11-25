@@ -273,10 +273,10 @@
           (b.soru || []).forEach(([c2, s2, o, d2]) => { if (oku(c2) && o.every(oku)) { out.push({ c: c2, s: s2, o, d: d2 }); gor.add(c2 + "|" + s2); } });
           const kel = kelimeHavuzu(l), sozluk = new Set(Object.values(BANKA).flatMap((v) => (v.kelime || []).concat(v.tablo || []).map((w) => T.trLower(w))).concat(IO.PICS.map(([w]) => w))), adlar = [...new Set(Object.values(BANKA).flatMap((v) => (v.kelime || []).filter((w) => !kucukMu(w) && !sozluk.has(T.trLower(w)))).concat(IO.NAMES || []))].filter(oku);
           (b.cumle || []).forEach((c2) => {
-            const m = /^(\S+?)(?: ile (\S+?))? (\S+) al\.$/u.exec(c2); if (!m || !oku(c2)) return;
+            const m = /^(\S+?), (?:(\S+?) ile )?(\S+) al\.$/u.exec(c2); if (!m || !oku(c2)) return;
             const [, x, y, nes] = m;
-            const s1 = x + " ne al?"; if (!gor.has(c2 + "|" + s1)) { const dis = T.shuffle(kel.filter((w) => w !== nes && !T.trLower(c2).includes(w))).slice(0, 2); if (dis.length === 2) { out.push({ c: c2, s: s1, o: [nes, ...dis], d: nes }); gor.add(c2 + "|" + s1); } }
-            if (y) { const s3 = x + " ile kim " + nes + " al?"; if (!gor.has(c2 + "|" + s3)) { const dis = T.shuffle(adlar.filter((a) => a !== x && a !== y)).slice(0, 2); if (dis.length === 2) { out.push({ c: c2, s: s3, o: [y, ...dis], d: y }); gor.add(c2 + "|" + s3); } } }
+            const s1 = x + ", " + (y ? y + " ile " : "") + "___ al."; if (!gor.has(c2 + "|" + s1)) { const dis = T.shuffle(kel.filter((w) => w !== nes && !T.trLower(c2).includes(w))).slice(0, 2); if (dis.length === 2) { out.push({ c: c2, s: s1, o: [nes, ...dis], d: nes }); gor.add(c2 + "|" + s1); } }
+            if (y && y[0] !== T.trLower(y[0])) { const s3 = x + ", ___ ile " + nes + " al."; if (!gor.has(c2 + "|" + s3)) { const dis = T.shuffle(adlar.filter((a) => a !== x && a !== y)).slice(0, 2); if (dis.length === 2) { out.push({ c: c2, s: s3, o: [y, ...dis], d: y }); gor.add(c2 + "|" + s3); } } }
           });
           return out;
         }
@@ -319,7 +319,7 @@
           if (asama === "cumle") {
             /* kartlardaki bütün cümleler: kartın kendi sorusu ve cümleden çıkan "ne al?", "kim?" soruları */
             const m = cek(l + "|cumle", () => cumleMaddeleri(l), (x) => x.c); if (!m) return null;
-            return { fis: m.c, soz: "Fişimi oku:", soru: m.s, dinle: m.c + " " + m.s, fisTur: "cumle", secenek: T.shuffle(m.o.slice()).map((x) => ({ id: x, gorunum: x })), dogru: m.d };
+            return { fis: m.c, soz: "Fişimi oku:", soru: m.s, dinle: m.c + " " + m.s.replace("___", "…"), fisTur: "cumle", secenek: T.shuffle(m.o.slice()).map((x) => ({ id: x, gorunum: x })), dogru: m.d };
           }
         }
         const isaretle = (metin, l) => [...metin].map((ch) => (T.trLower(ch) === l ? h("span.ks-ses", ch) : document.createTextNode(ch)));

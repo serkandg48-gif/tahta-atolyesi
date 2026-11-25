@@ -153,7 +153,7 @@
           <g transform="translate(${lx},${ly})" style="cursor:grab"><circle r="30" fill="#E9A23B"/><circle r="44" fill="#E9A23B" opacity=".25"/><rect x="-12" y="30" width="24" height="70" fill="#8E9BB4"/></g>
           <text x="${lx}" y="${ly + 130}" text-anchor="middle" font-size="18" fill="#4A5568">Işık kaynağı (sürükle)</text><text x="${ox}" y="${oBot + 30}" text-anchor="middle" font-size="18" fill="#4A5568">Cisim</text><text x="${ekran + 12}" y="414" text-anchor="middle" font-size="16" fill="#4A5568">Perde</text>`;
         const oran = (sBot - sTop) / (oBot - oTop);
-        bilgi.textContent = `Gölge, cismin yaklaşık ${oran.toFixed(1)} katı büyüklüğünde. ${oran > 2 ? "Işık cisme çok yakın: gölge büyüdü." : oran < 1.4 ? "Işık uzaklaştı: gölge küçüldü ve cisme benzedi." : "Işık kaynağını yaklaştırıp uzaklaştır, farkı gözle."}`;
+        bilgi.textContent = `Gölge, cismin yaklaşık ${oran.toFixed(1).replace('.', ',')} katı büyüklüğünde. ${oran > 2 ? "Işık cisme çok yakın: gölge büyüdü." : oran < 1.4 ? "Işık uzaklaştı: gölge küçüldü ve cisme benzedi." : "Işık kaynağını yaklaştırıp uzaklaştır, farkı gözle."}`;
       }
       const tasi = (e) => { const r = svg.getBoundingClientRect(); lx = T.clamp(((e.clientX - r.left) / r.width) * 1000, 60, 500); ciz(); };
       svg.addEventListener("pointerdown", (e) => { svg.setPointerCapture(e.pointerId); tasi(e); svg.onpointermove = tasi; });
@@ -205,7 +205,7 @@
         const toplam = Object.values(say).reduce((a, b) => a + b, 0);
         const max = Math.max(1, ...Object.values(say));
         box.replaceChildren(
-          h("div.row", h("button.btn.sm.icon.c-chalk", { "aria-label": "Önceki ay", onclick: () => { ay = new Date(ay.getFullYear(), ay.getMonth() - 1, 1); ciz(); } }, T.icon("back")), h("h2", { style: { margin: 0 } }, T.AYLAR[ay.getMonth()] + " " + ay.getFullYear()), h("button.btn.sm.icon.c-chalk", { "aria-label": "Sonraki ay", onclick: () => { ay = new Date(ay.getFullYear(), ay.getMonth() + 1, 1); ciz(); } }, T.icon("next")), h("span.hint", "Sabah rutininde seçtiğiniz hava buraya kendiliğinden gelir. Bir güne dokunup değiştirebilirsin.")),
+          h("div.row", h("button.btn.sm.icon.c-chalk", { "aria-label": "Önceki ay", onclick: () => { ay = new Date(ay.getFullYear(), ay.getMonth() - 1, 1); ciz(); } }, T.icon("back")), h("h2", { style: { margin: 0 } }, T.AYLAR[ay.getMonth()] + " " + ay.getFullYear()), h("button.btn.sm.icon.c-chalk", { "aria-label": "Sonraki ay", onclick: () => { ay = new Date(ay.getFullYear(), ay.getMonth() + 1, 1); ciz(); } }, T.icon("next")), h("span.hint", "Sabah rutininde seçtiğin hava buraya kendiliğinden gelir. Bir güne dokunup değiştirebilirsin.")),
           h("div.ht-grid", h("div.sb-card", grid),
             h("div.sb-card", h("h3", "Bu ay hava nasıldı?"), toplam ? h("div.ht-graf", T.HAVA.map(([k, l]) => h("div", h("div.ht-bar", h("i", { style: { height: ((say[k] || 0) / max) * 100 + "%" } })), h("b", say[k] || 0), T.havaSvg(k), h("small", l)))) : h("p.hint", "Bu ay için henüz hava kaydı yok."),
               toplam ? h("p.sb-line", (() => { const en = Object.entries(say).sort((a, b) => b[1] - a[1])[0]; return `Bu ay en çok ${T.trLower(T.HAVA.find((x) => x[0] === en[0])[1])} gün oldu (${en[1]} gün).`; })()) : null)));

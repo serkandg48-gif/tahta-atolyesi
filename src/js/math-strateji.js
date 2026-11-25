@@ -27,7 +27,7 @@
 
   /* ================= 1. Sayı doğrusu stratejileri ================= */
   oyun("strateji-sayi-dogrusu", 1, {
-    title: "Sayı doğrusu stratejileri", icon: "line", grades: [1, 3], short: "Aynı işleme farklı zıplamalarla var",
+    title: "Sayı doğrusu stratejileri", icon: "line", grades: [1, 3], short: "Aynı sonuca farklı zıplamalarla ulaş",
     render(host) {
       let tur = "top", aralik = 100, a, b, hedef, konum, yol, yollar;
       const kap = h("div.mz-oyun"); host.append(kap);

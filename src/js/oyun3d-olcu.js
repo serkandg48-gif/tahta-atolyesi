@@ -4,6 +4,7 @@
   const R = (a, b) => Math.floor(a + Math.random() * (b - a + 1)), P = (l) => l[Math.floor(Math.random() * l.length)];
   const yakin = (ans, n = 4, sp = 3, min = 1) => { const o = new Set([ans]); let t = 0; while (o.size < n && t++ < 200) { const v = ans + R(-sp, sp); if (v >= min && v !== ans) o.add(v); } return T.shuffle([...o]); };
   const kayit = (id, title, icon, tone, grades, short) => { T.tools["oyun-" + id] = { cat: "oyun", title, icon, tone, grades, short, render() {} }; };
+  kayit("kesir-dogru", "Kesir sayı doğrusu", "lale", "leaf", [2, 4], "Uğur böceği taştan taşa zıplar: basit ve bileşik kesirler");
   kayit("cetvel", "Cetvelle ölç", "cetvel", "sky", [1, 4], "Nesneyi cetvelle ölç, en yakın santimetreyi bul");
   kayit("havuz", "Kesirle doldur", "damla", "sea", [2, 4], "Havuz, sürahi, buz kalıbı: eş parçaları doldur, kesri oku");
 
@@ -88,6 +89,66 @@
           const is = grup.userData.isaret; if (is) is.scale.setScalar(1 + Math.sin(c.zaman * 4) * 0.15); },
         dogru(c, grup) { const s = grup.userData.son; if (s) s.material.color.set(0x2ea35b); },
       };
+    } });
+
+  /* ---------- Kesir sayı doğrusu: bahçe yolunda taşlar, uğur böceği zıplar ---------- */
+  function ugur(c) {
+    const { THREE } = c, g = new THREE.Group();
+    const kab = new THREE.Mesh(new THREE.SphereGeometry(0.42, 36, 20, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshPhysicalMaterial({ color: 0xd8261c, roughness: 0.25, clearcoat: 1 })); kab.scale.set(1.1, 0.8, 1); g.add(kab);
+    const nok = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.4 });
+    [[0.15, 0.2], [-0.15, 0.2], [0.22, -0.12], [-0.22, -0.12], [0, -0.25]].forEach(([x, z]) => { const d = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 8), nok); d.position.set(x, Math.sqrt(Math.max(0, 0.42 * 0.42 - x * x - z * z)) * 0.8 + 0.005, z); d.scale.y = 0.3; g.add(d); });
+    const cizgi = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.84), nok); cizgi.position.y = 0.34; g.add(cizgi);
+    const bas = new THREE.Mesh(new THREE.SphereGeometry(0.2, 20, 14), nok); bas.position.set(0, 0.06, 0.42); g.add(bas);
+    [-0.08, 0.08].forEach((x) => { const e = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 8), new THREE.MeshStandardMaterial({ color: 0xffffff })); e.position.set(x, 0.14, 0.56); g.add(e); const an = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.3, 6), nok); an.position.set(x * 1.5, 0.3, 0.5); an.rotation.x = 0.5; an.rotation.z = -x * 4; g.add(an); });
+    g.rotation.y = Math.PI / 2; c.golge(g); return g;
+  }
+  T.oyun3B("kesir-dogru", { ortam: "cayir", seviyeler: ["Böcek nerede?", "Taşı bul (0-1)", "Bileşik kesir (0-2)"], kamera: { poz: [0, 5.6, 8.2], bak: [0, 0.3, 0.6], fov: 40 },
+    seviye: (g) => (g <= 2 ? 0 : g <= 3 ? 1 : 2),
+    tur(L) {
+      const n = L === 2 ? P([2, 3, 4]) : P([2, 3, 4, 5, 6, 8]), ust = L === 2 ? 2 : 1, top = n * ust;
+      let k = L === 2 ? P([...Array(top - 1)].map((_, i) => i + 1).filter((i) => i !== n && i > n - 1)) : R(1, n - 1);
+      const f = k + "/" + n;
+      const yanlis = new Set([f]); [k > 1 ? (k - 1) + "/" + n : null, k + 1 < top ? (k + 1) + "/" + n : null, k + "/" + (n + 1), (n - k > 0 && n - k !== k ? (n - k) + "/" + n : null), k + 2 < top ? (k + 2) + "/" + n : null, k + "/" + (n + 2)].forEach((v) => { if (v && yanlis.size < 4) yanlis.add(v); });
+      while (yanlis.size < 4) { const q = R(2, 9), pp = R(1, q - 1); yanlis.add(pp + "/" + q); }
+      const tam = Math.floor(k / n), kalan = k % n;
+      const aciklama = L === 2 ? `Her bütün ${n} eş parça. ${f}, ${tam} bütün ve ${kalan}/${n} eder.` : `0 ile 1 arası ${n} eş parçaya bölündü. ${k} zıplamada ${f}.`;
+      const X0 = -6, W = 12, adim = W / top;
+      const R0 = { soru: L === 0 ? `0 ile 1 arası ${n} eş parçaya bölündü. Uğur böceği hangi kesirde?` : `${f} nerede? Doğru taşa dokun.`,
+        cevap: f, secenekler: L === 0 ? T.shuffle([...yanlis]) : [], aciklama, ipucu: L === 0 ? "0'dan başlayıp böceğe kadar kaç zıplama var, say." : "Her taş bir parça. 0'dan başlayıp say.",
+        goster(c, grup) {
+          const { THREE } = c, u = grup.userData; u.tas = []; T._d3k = { c, grup };
+          const yol = new THREE.Mesh(new THREE.BoxGeometry(W + 1.6, 0.08, 1.6), new THREE.MeshStandardMaterial({ color: 0xcdb48a, roughness: 1 })); yol.position.set(0, 0.04, 0); yol.receiveShadow = true; grup.add(yol);
+          const tasM = new THREE.MeshStandardMaterial({ color: 0xa9a49a, roughness: 0.85 }), tamM = new THREE.MeshStandardMaterial({ color: 0x6e8fb8, roughness: 0.6 });
+          for (let i = 0; i <= top; i++) {
+            const x = X0 + i * adim, butun = i % n === 0;
+            const t = new THREE.Mesh(new THREE.CylinderGeometry(butun ? 0.48 : 0.4, butun ? 0.52 : 0.44, 0.22, 28), butun ? tamM : tasM); t.position.set(x, 0.15, 0); t.scale.z = 0.8; c.golge(t); grup.add(t);
+            const v = new THREE.Mesh(new THREE.CylinderGeometry(Math.min(0.6, adim * 0.48), Math.min(0.6, adim * 0.48), 0.8, 12), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })); v.position.set(x, 0.3, 0); v.userData.i = i; grup.add(v); u.tas.push({ t, v, x });
+            if (butun) { const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9), new THREE.MeshBasicMaterial({ map: c.sayiDoku(String(i / n), "#FFFFFF", "#EEF3F8", "#1B2A4A", true), transparent: true })); lab.rotation.x = -Math.PI / 2.6; lab.position.set(x, 0.32, 1.25); grup.add(lab); }
+            else { const tick = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.02, 0.4), new THREE.MeshBasicMaterial({ color: 0x1b2a4a })); tick.position.set(x, 0.1, 0.95); grup.add(tick); }
+          }
+          const cizgi = new THREE.Mesh(new THREE.BoxGeometry(W, 0.03, 0.06), new THREE.MeshBasicMaterial({ color: 0x1b2a4a })); cizgi.position.set(0, 0.1, 0.95); grup.add(cizgi);
+          const b = ugur(c); grup.add(b); u.bocek = b; u.konum = L === 0 ? k : 0; u.hedef = u.konum; u.X0 = X0; u.adimW = adim; u.zip = 0;
+          b.position.set(X0 + u.konum * adim, 0.27, 0);
+        },
+        adim(c, grup, dt) {
+          const u = grup.userData, b = u.bocek; if (!b) return;
+          if (u.konum !== u.hedef) { u.zip += dt * 2.6; const yon = Math.sign(u.hedef - u.konum); if (u.zip >= 1) { u.zip = 0; u.konum += yon; T.Sahne.ses.zipla(); } const x = u.X0 + (u.konum + yon * u.zip) * u.adimW; b.position.set(x, 0.27 + Math.sin(Math.PI * u.zip) * 0.9, 0); }
+          else b.position.y = 0.27 + Math.abs(Math.sin(c.zaman * 3)) * 0.04;
+        },
+        dogru(c, grup) { const u = grup.userData; if (L) { u.konum = 0; u.hedef = k; } else { u.konum = 0; u.hedef = k; }
+          /* zıplama yayları */
+          const { THREE } = c; for (let i = 0; i < k; i++) { const x0 = u.X0 + i * u.adimW, x1 = x0 + u.adimW; const yol = new THREE.QuadraticBezierCurve3(new THREE.Vector3(x0, 0.3, -0.5), new THREE.Vector3((x0 + x1) / 2, 1.3, -0.5), new THREE.Vector3(x1, 0.3, -0.5)); const m = new THREE.Mesh(new THREE.TubeGeometry(yol, 20, 0.03, 6), new THREE.MeshBasicMaterial({ color: 0xe0483a })); grup.add(m); }
+          u.tas[k].t.material = new THREE.MeshStandardMaterial({ color: 0x3aa65a, roughness: 0.6 });
+          const lab = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1), new THREE.MeshBasicMaterial({ map: c.sayiDoku(f, "#E9F8EC", "#BFE8C8", "#1B5E2F", true), transparent: true })); lab.position.set(u.tas[k].x, 1.6, -0.2); lab.lookAt(c.kamera.position); grup.add(lab); },
+      };
+      return R0;
+    },
+    dokun(c, grup, Rr, x, y) {
+      const u = grup.userData; if (!u.tas || Rr.secenekler.length) return null;
+      const { THREE } = c, ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(x, y), c.kamera);
+      const hit = ray.intersectObjects(u.tas.map((t) => t.v))[0]; if (!hit) return null;
+      const i = hit.object.userData.i, n = +Rr.cevap.split("/")[1];
+      return i + "/" + n;
     } });
 
   /* ---------- Kesir havuzu ---------- */

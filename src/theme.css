@@ -3505,3 +3505,9 @@ html.arac-sayfa .dn-kok { height: calc(100vh - 190px); }
 .km-ok:active { transform: scale(.94); }
 .km-model { display: flex; gap: 6px; flex-wrap: wrap; } .km-m { border: 0; border-radius: 999px; padding: 10px 16px; background: #EEF2F7; font: 800 16px var(--display); color: #1B2A4A; cursor: pointer; min-height: 44px; }
 .km-m[aria-pressed="true"] { background: #1B2A4A; color: #fff; }
+
+/* Oyun konuları */
+.oyun-konu { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+.oyun-konu button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+.oyun-konu small { font-size: .75em; font-weight: 800; background: rgba(27,42,74,.1); border-radius: 999px; padding: 1px 7px; }
+.oyun-konu button[aria-pressed="true"] small { background: rgba(255,255,255,.25); }

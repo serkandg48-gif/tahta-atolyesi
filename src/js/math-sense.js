@@ -63,6 +63,17 @@
     ["oyun", "Oyunlar", "star"], ["his", "Sayı hissi", "dots"], ["manip", "Manipülatifler", "blocks"],
   ];
   let cat = "oyun";
+  /* oyunları konulara ayır: menü aynı kalır, Oyunlar sekmesinin üstünde konu düğmeleri çıkar */
+  const OYUN_KONU = [["sayi", "Sayılar ve basamak"], ["islem", "İşlemler"], ["kesir", "Kesirler"], ["olcme", "Ölçme ve para"], ["geo", "Geometri ve örüntü"], ["veri", "Veri"]];
+  const KONU_HARITA = {
+    sayi: ["oyun-tirtil", "oyun-sayi-bagi", "strateji-sayi-baglari", "oyun-bloklari-say", "onluk-blok", "oyun-yumurta-kolisi", "oyun-timsah", "oyun-lav", "oyun-ritmik", "oyun-yuvarlama", "oyun-basamak-basket"],
+    islem: ["oyun-denge", "kd-mat-3-2-8", "oyun-dogru-atisi", "tavsan-zipla", "strateji-sayi-dogrusu", "strateji-carpma-bolme", "kd-mat-3-2-4", "kd-mat-3-2-5", "kd-mat-3-2-1"],
+    kesir: ["oyun-kesir-dogru", "oyun-havuz", "oyun-kesir-model"],
+    olcme: ["oyun-solucan", "oyun-cetvel", "oyun-alan-avi", "oyun-hacim", "oyun-para-say", "kd-mat-3-2-2"],
+    geo: ["oyun-oruntu-treni", "kd-mat-3-3-1", "kd-mat-3-3-4", "kd-mat-3-3-7", "kup-gorunum", "kup-kur", "kup-say"],
+    veri: ["grafik-atolyesi", "kd-mat-3-4-1"],
+  };
+  const oyunKonu = (id) => { for (const [k, l] of Object.entries(KONU_HARITA)) if (l.includes(id)) return k; return "sayi"; };
   T.sections.matematik = {
     title: "Matematik", icon: "math", tone: "sun",
     desc: "Sayı hissi, manipülatifler, simülasyonlar",
@@ -75,8 +86,16 @@
       wrap.append(h("div.page-head", h("h1", "Matematik"), h("div.sub", "Oyunlar, sayı hissi, manipülatifler ve simülasyonlar.")),
         h("div.tabs", { role: "tablist" }, CATS.map(([k, l, ic]) => h("button", { role: "tab", "aria-selected": String(cat === k), onclick: () => { cat = k; T.route(); } }, T.icon(ic), l)),
           T.tools["dort-islem"] ? h("a.dort-kisayol", { href: "#matematik-dort-islem", title: "Toplama, çıkarma, çarpma ve bölmeyi modelle yap" }, T.icon("math"), "Dört işlem atölyesi") : null));
-      const list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
+      let list = Object.entries(T.tools).filter(([, t]) => t.cat === cat && (t.back || "matematik") === "matematik")
         .sort((a, b) => (a[1].ilk || 99) - (b[1].ilk || 99));
+      if (cat === "oyun") {
+        let konu = "hepsi"; try { konu = localStorage.getItem("ta-oyun-konu") || "hepsi"; } catch (e) {}
+        const say = (k) => list.filter(([id]) => oyunKonu(id) === k).length;
+        if (konu !== "hepsi" && !say(konu)) konu = "hepsi";
+        wrap.append(h("div.seg.oyun-konu", { role: "group", "aria-label": "Oyun konusu" }, [["hepsi", "Tümü", list.length]].concat(OYUN_KONU.map(([k, l]) => [k, l, say(k)])).filter((x) => x[2]).map(([k, l, n]) =>
+          h("button", { "aria-pressed": String(konu === k), onclick: () => { try { localStorage.setItem("ta-oyun-konu", k); } catch (e) {} T.route(); } }, l, h("small", String(n))))));
+        if (konu !== "hepsi") list = list.filter(([id]) => oyunKonu(id) === konu);
+      }
       wrap.append(h("div.tool-grid", list.map(([k, t]) => T.aracKart("matematik-" + k, Object.assign({}, t, { short: t.short || (t.grades ? t.grades[0] + "-" + t.grades[1] + ". sınıf" : "") }), "sun"))));
     },
   };
